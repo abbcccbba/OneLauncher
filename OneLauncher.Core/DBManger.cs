@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,8 +15,13 @@ namespace OneLauncher.Core
         // 当前启动器已安装的所有版本列表，默认初始化为空列表
         public List<aVersion> VersionList { get; set; } = new List<aVersion>();
         // 当前启动器有的所有用户登入模型，默认初始化为空列表
-        public UserModel DefaultUserModel { get; set; }
-        public List<UserModel> UserModelList { get; set; } = new List<UserModel>();
+        public UserModel DefaultUserModel { get; set; } = new UserModel() 
+        {
+            Name = "ZhiWei" ,
+            uuid = "0",
+            accessToken = "0"
+        };
+        public ObservableCollection<UserModel> UserModelList { get; set; } = new ObservableCollection<UserModel>();
     }
 
     public class DBManger

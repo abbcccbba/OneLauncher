@@ -4,7 +4,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using OneLauncher.Core;
 using System.Collections.Generic;
-using OneLauncher.Codes;
 using OneLauncher.Views;
 
 namespace OneLauncher;
@@ -18,13 +17,17 @@ public partial class CVI : Window
     }
     private async void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (VersionName.Text == null)
+        if (SomeInfomations.Text == null)
             return;
         isOK = true;
         this.Close();
     }
     public string GetReturnInfo()
     {
-        return VersionName.Text;
+        return SomeInfomations.Text;
+    }
+    public void SetNGI(string NGI)
+    {
+        SomeInfomations.Watermark = NGI;
     }
 }

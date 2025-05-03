@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:UI.Views"
 		xmlns:easing="using:Avalonia.Animation.Easings"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="800"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
         x:Class="OneLauncher.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="One Launcher"
         TransparencyLevelHint="AcrylicBlur"
-        Background="#B2FFFFFF"
+        Background="#99FFFFFF"
         ExtendClientAreaToDecorationsHint="True"
         Width="800"
         Height="550">
@@ -158,9 +158,9 @@
 					</StackPanel>
 				</Border>
 				<Panel Grid.Column="1" Margin="0,0,0,0">
-					<TransitioningContentControl x:Name="PageContent">
+					<TransitioningContentControl x:Name="PageContent" Background="White">
 						<TransitioningContentControl.PageTransition>
-							<PageSlide Orientation="Vertical" Duration="0:00:00.15">
+							<PageSlide Orientation="Vertical" Duration="0:00:00.2">
 								<!--设置页面淡入淡出的动画-->
 								<PageSlide.SlideInEasing>
 									<CubicEaseIn/>

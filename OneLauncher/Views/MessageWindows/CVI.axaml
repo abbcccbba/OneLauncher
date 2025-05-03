@@ -13,8 +13,8 @@
 		>
 	<Panel>
 	    <StackPanel>
-            <TextBlock Text="填写版本信息" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,12,0,0" FontFamily="avares://OneLauncher/Assets/blod.otf#"/>
-			<TextBox x:Name="VersionName" Watermark="输入版本名称" Margin="12"/>
+            <TextBlock Text="收集信息..." HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12,12,0,0" FontFamily="avares://OneLauncher/Assets/blod.otf#思源黑体"/>
+			<TextBox x:Name="SomeInfomations" Watermark="输入..." Margin="12"/>
 			<Button Content="下一步" Margin="12" Click="Button_Click"/>
 	    </StackPanel>
 	</Panel>
