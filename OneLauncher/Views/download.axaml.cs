@@ -13,32 +13,18 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using static OneLauncher.Core.StartArguments;
-using OneLauncher.Codes;
 using OneLauncher.Views;
 using Avalonia.Threading;
+using System.Linq;
 namespace OneLauncher;
 public partial class download : UserControl
 {
     VersionsList a;
-    bool IsDownload = false;
-    public download()
+    //bool IsDownload = false;
+    public download(VersionsList a)
     {
         InitializeComponent();
-    }
-    protected override async void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-        if(a != null )
-        {
-            VersionListViews.ItemsSource = a.GetAllVersionList();
-            return;
-        }
-        if (!IsDownload)
-        {
-            await Core.Download.DownloadToMinecraft("https://piston-meta.mojang.com/mc/game/version_manifest.json", GAR.BasePath + "version_manifest.json");
-            IsDownload = true;
-        }
-        a = new VersionsList(File.ReadAllText($"{GAR.BasePath}/version_manifest.json"));
+        this.a = a;
         VersionListViews.ItemsSource = a.GetAllVersionList();
     }
     private async void DownloadButton_Click(object? sender, RoutedEventArgs e)
@@ -47,31 +33,36 @@ public partial class download : UserControl
         if (button.DataContext is VersionBasicInfo version)
         {
             var Dialog = new CVI();
-            await Dialog.ShowDialog((Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as MainWindow);
+                Dialog.SetNGI("输入新版本名称");
+                await Dialog.ShowDialog(MainWindow.mainwindow);
             if (Dialog.isOK)
             {
-                GAR.configManger.AddVersion(new aVersion() { name = Dialog.GetReturnInfo(), versionBasicInfo = version });
+                MainWindow.configManger.AddVersion(new aVersion() { name = Dialog.GetReturnInfo(), versionBasicInfo = version });
                 Task.Run(async () => ToDownload(version.url, version.name));
             }
         }
     }
     private async Task ToDownload(string VersionFileDownloadUrl,string name)
     {
-        string VersionFilePath = $"{GAR.BasePath}.minecraft/versions/{name}/{name}.json";
-        string GamePath = GAR.BasePath;
+        string VersionFilePath = $"{MainWindow.BasePath}.minecraft/versions/{name}/{name}.json";
+        string GamePath = MainWindow.BasePath;
+        var ms = new MessageShow();
+        ms.Show();
         await Core.Download.DownloadToMinecraft(VersionFileDownloadUrl, VersionFilePath);
         VersionInfomations a = new VersionInfomations(File.ReadAllText(VersionFilePath));
-        await Core.Download.DownloadToMinecraft(a.GetLibrarys(GamePath), new Progress<double>(progressValue =>
+        await Download.DownloadToMinecraft(a.GetLibrarys(GamePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress =>
         {
-            //Debug.WriteLine($"下载进度{progressValue}%");
-        }), 24, 24);
+            Debug.WriteLine($"已下载: {progress.downloadedFiles}/{progress.totalFiles}, 已校验: {progress.verifiedFiles}/{progress.totalFiles}");
+            ms.st(progress.downloadedFiles.ToString());
+        }),24, 24);
+
         await Core.Download.DownloadToMinecraft(a.GetMainFile(GamePath, name));
         var a1 = a.GetAssets(GamePath);
         await Core.Download.DownloadToMinecraft(a1);
-        await Core.Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(File.ReadAllText(a1.path), GamePath), new Progress<double>(progressValue =>
+        await Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(File.ReadAllText(a1.path), GamePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress =>
         {
-            //Debug.WriteLine($"下载进度{progressValue}%");
-        }), 64, 32);
+            Debug.WriteLine($"已下载: {progress.downloadedFiles}/{progress.totalFiles}, 已校验: {progress.verifiedFiles}/{progress.totalFiles}");
+        }),64, 32);
     }
     private void RadioButton_Checked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
@@ -85,7 +76,6 @@ public partial class download : UserControl
             
             else if (radioButton == StableVersionRadio)
             VersionListViews.ItemsSource = a.GetReleaseVersionList();
-            
         }
     }
 }

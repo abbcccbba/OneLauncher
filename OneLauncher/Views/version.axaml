@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OneLauncher.version">
 	<StackPanel>
-		<TextBlock Grid.Row="0" Text="选择一个版本" FontSize="48"/>
+		<TextBlock Grid.Row="0" Text="选择一个版本" FontSize="48" Margin="12,4,0,0"/>
 		<ListBox Grid.Row="1" x:Name="VersionListViews">
 			<ListBox.Styles>
 				<Style Selector="ListBoxItem">
@@ -51,7 +51,7 @@
 								<TextBlock Margin="24,0,0,0"
 										  Grid.Column="0"
 										  Text="{Binding name}"
-										   FontFamily="avares://OneLauncher/Assets/blod.otf#"/>
+										   FontFamily="avares://OneLauncher/Assets/blod.otf#思源黑体"/>
 								<TextBlock Margin="24,0,0,0"
 										  Grid.Column="0"
 										  Text="{Binding versionBasicInfo.name}"/>

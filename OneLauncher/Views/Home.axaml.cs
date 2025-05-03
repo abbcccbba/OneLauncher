@@ -2,10 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using OneLauncher.Core;
+using OneLauncher.Views;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using OneLauncher.Codes;
 namespace OneLauncher;
 
 public partial class Home : UserControl
@@ -18,9 +18,11 @@ public partial class Home : UserControl
     {
         using (Process process = new Process())
         {
+            Debug.WriteLine(StartArguments.GetArguments(
+                new StartArguments(GameVersion, "release", GamePath, MainWindow.configManger.config.DefaultUserModel)));
             process.StartInfo.FileName = "java";
             process.StartInfo.Arguments = StartArguments.GetArguments(
-                new StartArguments(GameVersion, "release", GamePath,GAR.configManger.config.DefaultUserModel));
+                new StartArguments(GameVersion, "release", GamePath,MainWindow.configManger.config.DefaultUserModel));
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.UseShellExecute = false;

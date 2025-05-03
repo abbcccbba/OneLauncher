@@ -78,7 +78,7 @@ namespace OneLauncher.Core
                 throw;
             }
         }
-        public static async Task DownloadToMinecraft(List<SFNTD> FDI, IProgress<double> progress,int maxConcurrentDownloads = 16, int maxConcurrentSha1 = 16)
+        public static async Task DownloadToMinecraft(List<SFNTD> FDI, IProgress<(int downloadedFiles, int totalFiles, int verifiedFiles)> progress = null,int maxConcurrentDownloads = 16, int maxConcurrentSha1 = 16)
         {
             try
             {
@@ -88,11 +88,17 @@ namespace OneLauncher.Core
                 {
                     if (File.Exists(item.path)) continue;
                     string directoryPath = Path.GetDirectoryName(item.path);
-                    if (!string.IsNullOrEmpty(directoryPath)) Directory.CreateDirectory(directoryPath);   
+                    if (!string.IsNullOrEmpty(directoryPath)) Directory.CreateDirectory(directoryPath);
                     filesToDownload.Add(item);
                 }
-                int totalFiles = filesToDownload.Count; // 总共需要下载的文件数
-                int downloadedFiles = 0;                // 已下载的文件数
+
+                int downloadedFiles = 0;
+                int verifiedFiles = 0;
+                int totalFiles = filesToDownload.Count;
+
+                // 报告初始进度
+                progress?.Report((downloadedFiles, totalFiles, verifiedFiles));
+
                 // 下载阶段
                 {
                     using (var client = new HttpClient(new HttpClientHandler
@@ -122,16 +128,15 @@ namespace OneLauncher.Core
                                                 using (var httpStream = await response.Content.ReadAsStreamAsync())
                                                 using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                                                 {
-                                                    Console.WriteLine($"正在从{item.url}下载文件到{item.path}");
                                                     await httpStream.CopyToAsync(fileStream, 8192);
-                                                    Interlocked.Increment(ref downloadedFiles); 
-                                                    progress?.Report((double)downloadedFiles / totalFiles); 
+                                                    Interlocked.Increment(ref downloadedFiles);
+                                                    progress?.Report((downloadedFiles, totalFiles, verifiedFiles));
                                                 }
                                             }
                                             break; // 成功后退出重试
                                         }
                                         catch (HttpRequestException ex) when (attempt < 2)
-                                        { 
+                                        {
                                             await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
                                         }
                                     }
@@ -169,6 +174,8 @@ namespace OneLauncher.Core
                                 {
                                     byte[] hash = await Task.Run(() => sha1Hash.ComputeHash(stream));
                                     string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                                    Interlocked.Increment(ref verifiedFiles);
+                                    progress?.Report((downloadedFiles, totalFiles, verifiedFiles));
                                     if (!string.Equals(calculatedSha1, item.sha1, StringComparison.OrdinalIgnoreCase))
                                     {
                                         throw new InvalidDataException($"SHA1 校验失败。文件: {item.path}, 预期: {item.sha1}, 实际: {calculatedSha1}");
@@ -217,9 +224,8 @@ namespace OneLauncher.Core
             try
             {
                 if (File.Exists(path))
-                {
                     return;
-                }
+                
                 // 创建文件夹
                 string directoryPath = Path.GetDirectoryName(path);
                 if (!string.IsNullOrEmpty(directoryPath))

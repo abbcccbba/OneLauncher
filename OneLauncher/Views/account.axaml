@@ -3,7 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
-             x:Class="OneLauncher.account">
+             x:Class="OneLauncher.account"
+			 >
 	<Panel>
 		<Grid>
 			<Grid.RowDefinitions>
@@ -16,11 +17,11 @@
 					<ColumnDefinition Width="*" />
 				</Grid.ColumnDefinitions>
 				<TextBlock Grid.Column="0" Text="管理用户登入验证模型" FontSize="48" Margin="12,4,0,0"/>
-				<StackPanel Grid.Column="1">
-					<Button >添加</Button>
-				</StackPanel>
+				<Button Grid.Column="1" Click="new_Button_Click" HorizontalAlignment="Center" VerticalAlignment="Center">
+					<TextBlock Text="新建"/>
+				</Button>
 			</Grid>
-			<ListBox Grid.Row="1" x:Name="AccountListViews">
+			<ListBox Grid.Row="1" x:Name="AccountListViews" ItemsSource="{Binding UserModelList}">
 				<ListBox.Styles>
 					<Style Selector="ListBoxItem">
 						<Setter Property="Background" Value="Transparent"/>
@@ -68,7 +69,7 @@
 								<StackPanel Spacing="8" Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
 									<Image Source="/Assets/Imgs/steve.png" Height="80" Width="80"/>
 									<StackPanel>
-										<TextBlock FontFamily="avares://OneLauncher/Assets/blod.otf#" FontSize="32" Text="{Binding Name}"/>
+										<TextBlock FontFamily="avares://OneLauncher/Assets/blod.otf#思源黑体" FontSize="32" Text="{Binding Name}"/>
 										<TextBlock Text="{Binding uuid}"/>
 									</StackPanel>
 								</StackPanel>
