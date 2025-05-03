@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
+             x:Class="OneLauncher.account">
+	<Panel>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="72" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<Grid Grid.Row="0">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="5*" />
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
+				<TextBlock Grid.Column="0" Text="管理用户登入验证模型" FontSize="48" Margin="12,4,0,0"/>
+				<StackPanel Grid.Column="1">
+					<Button >添加</Button>
+				</StackPanel>
+			</Grid>
+			<ListBox Grid.Row="1" x:Name="AccountListViews">
+				<ListBox.Styles>
+					<Style Selector="ListBoxItem">
+						<Setter Property="Background" Value="Transparent"/>
+						<Setter Property="BorderBrush" Value="Transparent"/>
+						<Setter Property="BorderThickness" Value="0"/>
+						<Setter Property="Template">
+							<ControlTemplate>
+								<ContentPresenter x:Name="PART_ContentPresenter"
+												 Content="{TemplateBinding Content}"
+												 ContentTemplate="{TemplateBinding ContentTemplate}"
+												 Background="{TemplateBinding Background}"
+												 BorderBrush="{TemplateBinding BorderBrush}"
+												 BorderThickness="{TemplateBinding BorderThickness}"
+												 CornerRadius="{TemplateBinding CornerRadius}"
+												 Padding="{TemplateBinding Padding}"/>
+							</ControlTemplate>
+						</Setter>
+					</Style>
+					<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+						<Setter Property="Background" Value="Transparent"/>
+					</Style>
+					<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+						<Setter Property="Background" Value="Transparent"/>
+					</Style>
+					<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+						<Setter Property="Background" Value="Transparent"/>
+					</Style>
+				</ListBox.Styles>
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border BorderBrush="Black"
+							BorderThickness="5"
+							CornerRadius="15"
+							Background="Transparent"
+							Padding="5">
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="*" />
+									<RowDefinition Height="*" />
+								</Grid.RowDefinitions>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="*" />
+								</Grid.ColumnDefinitions>
+								<StackPanel Spacing="8" Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+									<Image Source="/Assets/Imgs/steve.png" Height="80" Width="80"/>
+									<StackPanel>
+										<TextBlock FontFamily="avares://OneLauncher/Assets/blod.otf#" FontSize="32" Text="{Binding Name}"/>
+										<TextBlock Text="{Binding uuid}"/>
+									</StackPanel>
+								</StackPanel>
+								<Button Content="设为默认" Click="SetDefault" HorizontalAlignment="Right"/>
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</Grid>
+	</Panel>
+</UserControl>
