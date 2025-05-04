@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
 using OneLauncher.Core;
 using OneLauncher.Views;
 using System;
@@ -43,10 +42,5 @@ public partial class Home : UserControl
             process.BeginErrorReadLine();
             await Task.Run(() => process.WaitForExit());
         }
-    }
-
-    private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        //Windows.System.Launcher.LaunchUriAsync(new Uri("minecraft:"));
     }
 }
