@@ -22,4 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\OneLauncher.Core\OneLauncher.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
 </Project>
