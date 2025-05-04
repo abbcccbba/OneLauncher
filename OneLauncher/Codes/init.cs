@@ -9,7 +9,6 @@ namespace OneLauncher.Codes
     {
         public static string BasePath { get; private set; }
         public static DBManger ConfigManger { get; private set; }
-        public static VersionsList Versions { get; private set; }
 
         public static async Task Initialize()
         {
@@ -19,20 +18,6 @@ namespace OneLauncher.Codes
 
             // 初始化 ConfigManger
             ConfigManger = new DBManger(new AppConfig(), BasePath);
-
-            // 初始化 VersionsList
-            try
-            {
-                Versions = new VersionsList(File.ReadAllText($"{BasePath}/version_manifest.json"));
-            }
-            catch (FileNotFoundException)
-            {
-                await Core.Download.DownloadToMinecraft(
-                    "https://piston-meta.mojang.com/mc/game/version_manifest.json",
-                    BasePath + "version_manifest.json"
-                );
-                Versions = new VersionsList(File.ReadAllText($"{BasePath}/version_manifest.json"));
-            }
         }
     }
 }

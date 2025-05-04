@@ -5,6 +5,6 @@
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
              x:Class="OneLauncher.Home">
 	<Panel>
-		<Button Content="基岩版" Click="Button_Click"/>
+		
 	</Panel>
 </UserControl>

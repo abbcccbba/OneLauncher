@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
-             x:Class="OneLauncher.download"
+             x:Class="OneLauncher.Views.download"
 			 >
 	<Panel>
 		<Grid>
@@ -24,7 +24,7 @@
 					<RadioButton x:Name="LatestVersionRadio" GroupName="filter" Checked="RadioButton_Checked">
 						<TextBlock>只看最新版</TextBlock>
 					</RadioButton>
-					<RadioButton x:Name="StableVersionRadio" GroupName="filter" Checked="RadioButton_Checked">
+					<RadioButton x:Name="ReleaseVersionRadio" GroupName="filter" Checked="RadioButton_Checked">
 						<TextBlock>只看正式版</TextBlock>
 					</RadioButton>
 				</StackPanel>
@@ -58,37 +58,55 @@
 						<Setter Property="Background" Value="Transparent"/>
 					</Style>
 				</ListBox.Styles>
-					<ListBox.ItemTemplate>	
-						<DataTemplate>
-							<Border BorderBrush="Black"
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<Border BorderBrush="Black"
 								BorderThickness="1.2"
 								CornerRadius="15"
 								Background="Transparent"
 								Padding="5">
 							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="*" />
+									<RowDefinition Height="Auto" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="*" />
 								</Grid.ColumnDefinitions>
-								<StackPanel>
-									<TextBlock Margin="24,0,0,0"
-											  Grid.Column="0"
-											  Text="{Binding name}"
-											  FontWeight="Bold"/>
-									<TextBlock Margin="24,0,0,0"
-											  Grid.Column="0"
-											  Text="{Binding DisInfo}"/>
+								<StackPanel Grid.Row="0" Grid.Column="0" Margin="24,0,0,0">
+									<TextBlock Text="{Binding vbi.name}" FontWeight="Bold"/>
+									<TextBlock Text="{Binding vbi.DisInfo}"/>
 								</StackPanel>
-								<Button Content="下载"
-										Grid.Column="1"
+								<Button x:Name="buttonCon"
+										Grid.Row="0" Grid.Column="1"
+										Content="{Binding ButtonText}"
+										IsEnabled="{Binding IsButtonEnabled}"
 										Margin="0,0,36,0"
 										HorizontalAlignment="Right"
 										VerticalAlignment="Center"
 										Click="DownloadButton_Click"/>
+								<Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsExpanded}">
+									<StackPanel Margin="24,8,0,0">
+										<TextBlock Text="输入版本名称" FontWeight="Bold"/>
+										<TextBox x:Name="VersionName" Text="{Binding VersionName, UpdateSourceTrigger=PropertyChanged}"/>
+									</StackPanel>
+								</Grid>
+								<Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsDownloading}">
+									<StackPanel Margin="24,8,0,0">
+										<TextBlock Text="{Binding CurrentStage}" FontWeight="Bold"/>
+									</StackPanel>
+								</Grid>
+								<ProgressBar Grid.Row="2" Grid.ColumnSpan="2"
+											 IsVisible="{Binding IsDownloading}"
+											 Value="{Binding DownloadProgress}"
+											 Maximum="100"
+											 Margin="24,8,24,8"/>
 							</Grid>
-							</Border>
-						</DataTemplate>
-					</ListBox.ItemTemplate>			
+						</Border>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
 			</ListBox>
 		</Grid>
 	</Panel>
