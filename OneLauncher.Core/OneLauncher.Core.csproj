@@ -6,18 +6,13 @@
 		<Nullable>enable</Nullable>
 		
 	</PropertyGroup>
-	<!-- 定义 WINDOWS 符号 -->
-	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64' OR '$(RuntimeIdentifier)' == 'win-x86' OR '$(RuntimeIdentifier)' == 'win-arm64'">
+	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
 		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
 	</PropertyGroup>
-
-	<!-- 定义 MACOS 符号 -->
-	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-x64' OR '$(RuntimeIdentifier)' == 'osx-arm64'">
+	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
 		<DefineConstants>$(DefineConstants);MACOS</DefineConstants>
 	</PropertyGroup>
-
-	<!-- 定义 LINUX 符号 -->
-	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64' OR '$(RuntimeIdentifier)' == 'linux-arm64'">
+	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
 		<DefineConstants>$(DefineConstants);LINUX</DefineConstants>
 	</PropertyGroup>
 </Project>

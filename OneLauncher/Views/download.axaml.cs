@@ -22,10 +22,10 @@ public partial class download : UserControl
 {
     VersionsList a;
     //bool IsDownload = false;
-    public download(VersionsList a)
+    public download()
     {
         InitializeComponent();
-        this.a = a;
+        this.a = Codes.Init.Versions;
         VersionListViews.ItemsSource = a.GetAllVersionList();
     }
     private async void DownloadButton_Click(object? sender, RoutedEventArgs e)
@@ -34,9 +34,7 @@ public partial class download : UserControl
         if (button.DataContext is VersionBasicInfo version)
         {
             var Dialog = new MessageShow("输入新版本名称");
-            await Dialog.ShowDialog(
-                (Window)(Avalonia.Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
-                );
+            await Dialog.ShowDialog(MainWindow.mainwindow);
             Init.ConfigManger.AddVersion(new aVersion() { name = Dialog.needsp, versionBasicInfo = version });
             Task.Run(async () => ToDownload(version.url, version.name));
             
