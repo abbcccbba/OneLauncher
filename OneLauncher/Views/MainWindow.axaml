@@ -1,11 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:UI.ViewModels"
+        xmlns:vm="using:OneLauncher.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:views="clr-namespace:UI.Views"
-		xmlns:easing="using:Avalonia.Animation.Easings"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
+        xmlns:views="clr GUID: 550e8400-e29b-41d4-a716-446655440000" mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="550"
         x:Class="OneLauncher.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="One Launcher"
@@ -14,6 +12,10 @@
         ExtendClientAreaToDecorationsHint="True"
         Width="800"
         Height="550">
+	<!-- 设置 DataContext -->
+	<Window.DataContext>
+		<vm:MainWindowViewModel />
+	</Window.DataContext>
 	<Panel>
 		<Grid>
 			<Grid.RowDefinitions>
@@ -31,16 +33,14 @@
 				<Border Grid.Column="0">
 					<StackPanel Spacing="20" Margin="12" HorizontalAlignment="Center" VerticalAlignment="Top">
 						<!-- 开始菜单按钮 -->
-						<Button x:Name="HomeButton"
+						<Button Command="{Binding NavigateToHomeCommand}"
                                 Background="Transparent"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
-                                Padding="12"
-								Click="Home_Click">
+                                Padding="12">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/home.png"
-                                       Width="32" Height="32"/>
-								<TextBlock Text="开始菜单"  VerticalAlignment="Center" FontSize="16"/>
+								<Image Source="/Assets/icos/home.png" Width="32" Height="32"/>
+								<TextBlock Text="开始菜单" VerticalAlignment="Center" FontSize="16"/>
 							</StackPanel>
 							<Button.Styles>
 								<Style Selector="Button">
@@ -56,16 +56,14 @@
 							</Button.Styles>
 						</Button>
 						<!-- 版本管理按钮 -->
-						<Button x:Name="VersionMangerButton"
+						<Button Command="{Binding NavigateToVersionCommand}"
                                 Background="Transparent"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
-                                Padding="12"
-								Click="version_Click">
+                                Padding="12">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/version.png"
-                                       Width="32" Height="32"/>
-								<TextBlock Text="版本管理"  VerticalAlignment="Center" FontSize="16"/>
+								<Image Source="/Assets/icos/version.png" Width="32" Height="32"/>
+								<TextBlock Text="版本管理" VerticalAlignment="Center" FontSize="16"/>
 							</StackPanel>
 							<Button.Styles>
 								<Style Selector="Button">
@@ -81,15 +79,13 @@
 							</Button.Styles>
 						</Button>
 						<!-- 账户管理按钮 -->
-						<Button x:Name="AccountMangerButton"
+						<Button Command="{Binding NavigateToAccountCommand}"
                                 Background="Transparent"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
-                                Padding="12"
-								Click="Account_Click">
+                                Padding="12">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/account.png"
-                                       Width="32" Height="32"/>
+								<Image Source="/Assets/icos/account.png" Width="32" Height="32"/>
 								<TextBlock Text="账户管理" VerticalAlignment="Center" FontSize="16"/>
 							</StackPanel>
 							<Button.Styles>
@@ -106,15 +102,13 @@
 							</Button.Styles>
 						</Button>
 						<!-- 下载管理按钮 -->
-						<Button x:Name="DownloadButton"
+						<Button Command="{Binding NavigateToDownloadCommand}"
                                 Background="Transparent"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
-                                Padding="12"
-								Click="download_Click">
+                                Padding="12">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/download.png"
-                                       Width="32" Height="32"/>
+								<Image Source="/Assets/icos/download.png" Width="32" Height="32"/>
 								<TextBlock Text="下载管理" VerticalAlignment="Center" FontSize="16"/>
 							</StackPanel>
 							<Button.Styles>
@@ -131,15 +125,13 @@
 							</Button.Styles>
 						</Button>
 						<!-- 设置选项按钮 -->
-						<Button x:Name="SettingsButton"
+						<Button Command="{Binding NavigateToSettingsCommand}"
                                 Background="Transparent"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
-                                Padding="12"
-								Click="settings_Click">
+                                Padding="12">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/settings.png"
-                                       Width="32" Height="32"/>
+								<Image Source="/Assets/icos/settings.png" Width="32" Height="32"/>
 								<TextBlock Text="设置选项" VerticalAlignment="Center" FontSize="16"/>
 							</StackPanel>
 							<Button.Styles>
@@ -158,10 +150,9 @@
 					</StackPanel>
 				</Border>
 				<Panel Grid.Column="1" Margin="0,0,0,0">
-					<TransitioningContentControl x:Name="PageContent" Background="White">
+					<TransitioningContentControl Content="{Binding CurrentPage}" Background="White">
 						<TransitioningContentControl.PageTransition>
 							<PageSlide Orientation="Vertical" Duration="0:00:00.2">
-								<!--设置页面淡入淡出的动画-->
 								<PageSlide.SlideInEasing>
 									<CubicEaseIn/>
 								</PageSlide.SlideInEasing>

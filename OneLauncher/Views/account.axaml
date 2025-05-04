@@ -69,7 +69,7 @@
 								<StackPanel Spacing="8" Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
 									<Image Source="/Assets/Imgs/steve.png" Height="80" Width="80"/>
 									<StackPanel>
-										<TextBlock FontFamily="avares://OneLauncher/Assets/blod.otf#思源黑体" FontSize="32" Text="{Binding Name}"/>
+										<TextBlock FontWeight="Bold" FontSize="32" Text="{Binding Name}"/>
 										<TextBlock Text="{Binding uuid}"/>
 									</StackPanel>
 								</StackPanel>

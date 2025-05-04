@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using OneLauncher.Views;
 using OneLauncher.Core;
-
+using OneLauncher.Codes;
 namespace OneLauncher;
 
 public partial class version : UserControl
@@ -19,7 +19,7 @@ public partial class version : UserControl
     protected override async void OnLoaded(RoutedEventArgs e)
     {
         if (VersionListViews.ItemsSource == null)
-            VersionListViews.ItemsSource = MainWindow.configManger.config.VersionList;
+            VersionListViews.ItemsSource = Init.ConfigManger.config.VersionList;
         else return;
     }
     private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -27,7 +27,7 @@ public partial class version : UserControl
         if (sender is Button button)
         if (button.DataContext is aVersion version)
         {
-            Task.Run(async () => OneLauncher.Home.LaunchGame(MainWindow.BasePath,version.versionBasicInfo.name));
+            Task.Run(async () => OneLauncher.Home.LaunchGame(Codes.Init.BasePath,version.versionBasicInfo.name));
         }
     }
 }

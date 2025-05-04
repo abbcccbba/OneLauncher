@@ -74,7 +74,7 @@
 									<TextBlock Margin="24,0,0,0"
 											  Grid.Column="0"
 											  Text="{Binding name}"
-											  FontFamily="avares://OneLauncher/Assets/blod.otf#思源黑体"/>
+											  FontWeight="Bold"/>
 									<TextBlock Margin="24,0,0,0"
 											  Grid.Column="0"
 											  Text="{Binding DisInfo}"/>

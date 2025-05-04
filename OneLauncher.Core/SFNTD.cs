@@ -86,11 +86,11 @@ namespace OneLauncher.Core
             foreach (var i in a.GetLibrarys(startInfo.path))
             {
                 // Windows 系统改为分号，其它系统改为冒号
-#if WINDOWS
+//#if WINDOWS
                 cp += i.path + ";";
-#elif MACOS || LINUX
-                cp += i.path + ":";
-#endif
+//#elif MACOS || LINUX
+//                cp += i.path + ":";
+//#endif
             }
             return "" +
                 // JVM 参数
@@ -105,11 +105,11 @@ namespace OneLauncher.Core
                 $" {startInfo.SystemInfo} " +
                 $" -Dminecraft.launcher.brand=one-launcher -Dminecraft.launcher.version=1.0 " +
                 // MacOS或者其它系统记得把这里改成冒号
-#if WINDOWS
+//#if WINDOWS
                 $" -cp \"{a.GetMainFile(startInfo.path, startInfo.D_Version).path};{cp}\" " +
-#elif MACOS || LINUX 
-                $" -cp \"{a.GetMainFile(startInfo.path, startInfo.D_Version).path}:{cp}\" " +
-#endif
+//#elif MACOS || LINUX 
+//                $" -cp \"{a.GetMainFile(startInfo.path, startInfo.D_Version).path}:{cp}\" " +
+//#endif
                 " net.minecraft.client.main.Main " +
                 // 游戏参数
                 $" --version {startInfo.D_Version} " +

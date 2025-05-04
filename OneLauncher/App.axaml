@@ -6,8 +6,5 @@
 
     <Application.Styles>
         <FluentTheme />
-		<Style Selector="TextBlock">
-			<Setter Property="FontFamily" Value="avares://OneLauncher/Assets/std.otf#思源黑体 Normal"/>
-		</Style>
     </Application.Styles>
 </Application>
