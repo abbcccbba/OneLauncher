@@ -16,6 +16,7 @@ using static OneLauncher.Core.StartArguments;
 using OneLauncher.Views;
 using Avalonia.Threading;
 using System.Linq;
+using OneLauncher.Codes;
 namespace OneLauncher;
 public partial class download : UserControl
 {
@@ -32,28 +33,27 @@ public partial class download : UserControl
         if (sender is Button button)
         if (button.DataContext is VersionBasicInfo version)
         {
-            var Dialog = new CVI();
-                Dialog.SetNGI("输入新版本名称");
-                await Dialog.ShowDialog(MainWindow.mainwindow);
-            if (Dialog.isOK)
-            {
-                MainWindow.configManger.AddVersion(new aVersion() { name = Dialog.GetReturnInfo(), versionBasicInfo = version });
-                Task.Run(async () => ToDownload(version.url, version.name));
-            }
+            var Dialog = new MessageShow("输入新版本名称");
+            await Dialog.ShowDialog(
+                (Window)(Avalonia.Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
+                );
+            Init.ConfigManger.AddVersion(new aVersion() { name = Dialog.needsp, versionBasicInfo = version });
+            Task.Run(async () => ToDownload(version.url, version.name));
+            
         }
     }
     private async Task ToDownload(string VersionFileDownloadUrl,string name)
     {
-        string VersionFilePath = $"{MainWindow.BasePath}.minecraft/versions/{name}/{name}.json";
-        string GamePath = MainWindow.BasePath;
-        var ms = new MessageShow();
-        ms.Show();
+        string VersionFilePath = $"{Init.BasePath}.minecraft/versions/{name}/{name}.json";
+        string GamePath = Init.BasePath;
+        //var ms = new MessageShow();
+        //ms.Show();
         await Core.Download.DownloadToMinecraft(VersionFileDownloadUrl, VersionFilePath);
         VersionInfomations a = new VersionInfomations(File.ReadAllText(VersionFilePath));
         await Download.DownloadToMinecraft(a.GetLibrarys(GamePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress =>
         {
             Debug.WriteLine($"已下载: {progress.downloadedFiles}/{progress.totalFiles}, 已校验: {progress.verifiedFiles}/{progress.totalFiles}");
-            ms.st(progress.downloadedFiles.ToString());
+            //ms.st(progress.downloadedFiles.ToString());
         }),24, 24);
 
         await Core.Download.DownloadToMinecraft(a.GetMainFile(GamePath, name));
