@@ -13,6 +13,13 @@ public static class Init
     public static bool IsNetwork { get; private set; }
     public static async Task Initialize()
     {
+        // 初始化 BasePath
+        BasePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/OneLauncher/";
+        Directory.CreateDirectory(BasePath); // 确保目录存在
+
+        // 初始化 ConfigManger
+        ConfigManger = new DBManger(new AppConfig(), BasePath);
+        Debug.WriteLine(IsNetwork);
         // 检查网络连接状态
         try
         {
@@ -26,12 +33,5 @@ public static class Init
         {
             IsNetwork = false; // 网络不可用
         }
-        // 初始化 BasePath
-        BasePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/OneLauncher/";
-        Directory.CreateDirectory(BasePath); // 确保目录存在
-
-        // 初始化 ConfigManger
-        ConfigManger = new DBManger(new AppConfig(), BasePath);
-        Debug.WriteLine(IsNetwork);
     }
 }

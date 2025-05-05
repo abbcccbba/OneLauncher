@@ -15,53 +15,59 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace OneLauncher.Views;
+
 public partial class download : UserControl
 {
-    ObservableCollection<DownloadItem> downloadItem;
-    VersionsList versionsList;
+    private ObservableCollection<DownloadItem> downloadItem;
+    
+
+    private List<DownloadItem> _allVersionsCache;
+    private List<DownloadItem> _latestVersionsCache;
+    private List<DownloadItem> _releaseVersionsCache;
+
     public download()
     {
-        /*
-         * 这里脱裤子放屁加一个init是为了等待异步方法
-         * 不然会报错，使用Task.Run也是一样
-         */
-        init();
-    }
-    private async Task init()
-    {
         InitializeComponent();
-        //Task.Run(async () =>
-        //{
-            string t;
+        // 初始化数据
+        Task.Run(async () =>
+        {
+            VersionsList versionsList;
             try
             {
                 versionsList = new VersionsList(File.ReadAllText($"{Init.BasePath}/version_manifest.json"));
-                downloadItem = new ObservableCollection<DownloadItem>
-                    (
-                        versionsList.GetAllVersionList()
-                        .Select(v => new DownloadItem { vbi = v })
-                    );
-                VersionListViews.ItemsSource = downloadItem;
             }
             catch (FileNotFoundException)
             {
+                // 在后台线程下载
                 await Core.Download.DownloadToMinecraft(
                     "https://piston-meta.mojang.com/mc/game/version_manifest.json",
                     Init.BasePath + "version_manifest.json"
                 );
                 versionsList = new VersionsList(File.ReadAllText($"{Init.BasePath}/version_manifest.json"));
-                downloadItem = new ObservableCollection<DownloadItem>
-                    (
-                        versionsList.GetAllVersionList()
-                        .Select(v => new DownloadItem { vbi = v })
-                    );
-                //await Dispatcher.UIThread.InvokeAsync(() =>
-                //{
-                VersionListViews.ItemsSource = downloadItem;
-                //});  
             }
-        //});
+
+            var allVersions = versionsList.GetAllVersionList()
+                .Select(v => new DownloadItem { vbi = v })
+                .ToList();
+            var latestVersions = versionsList.GetLatestVersionList()
+                .Select(v => new DownloadItem { vbi = v })
+                .ToList();
+            var releaseVersions = versionsList.GetReleaseVersionList()
+                .Select(v => new DownloadItem { vbi = v })
+                .ToList();
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                _allVersionsCache = allVersions;
+                _latestVersionsCache = latestVersions;
+                _releaseVersionsCache = releaseVersions;
+                downloadItem = new ObservableCollection<DownloadItem>(_allVersionsCache);
+                VersionListViews.ItemsSource = downloadItem;
+            });
+        });
     }
+
+
     private async void DownloadButton_Click(object? sender, RoutedEventArgs e)
     {
         if (sender is Button button && button.DataContext is DownloadItem item)
@@ -72,7 +78,7 @@ public partial class download : UserControl
                 item.ButtonText = "继续";
                 return;
             }
-            
+
             // 点击“继续”，检查版本名称并开始下载
             if (string.IsNullOrWhiteSpace(item.VersionName))
             {
@@ -86,13 +92,11 @@ public partial class download : UserControl
             item.ButtonText = "下载中...";
             item.IsButtonEnabled = false;
 
-
             // 写入配置文件
             Init.ConfigManger.AddVersion(new aVersion { name = item.VersionName, versionBasicInfo = item.vbi });
 
             // 调用下载方法
-            Task.Run(async () =>ToDownload(item.vbi.url, item.vbi.name, item));
-                     
+            Task.Run(() => ToDownload(item.vbi.url, item.vbi.name, item));
         }
     }
 
@@ -160,20 +164,21 @@ public partial class download : UserControl
     {
         if (sender is RadioButton radioButton && radioButton.IsChecked == true)
         {
-            List<VersionBasicInfo> versions;
-            if (radioButton == AllVersionsRadio)
-                versions = versionsList.GetAllVersionList();
-            else if (radioButton == LatestVersionRadio)
-                versions = versionsList.GetLatestVersionList();
-            else if (radioButton == ReleaseVersionRadio)
-                versions = versionsList.GetReleaseVersionList();
-            else
-                return;
-
-            downloadItem.Clear(); // 清空现有项
-            foreach (var v in versions)
+            List<DownloadItem> versionsToShow = radioButton switch
             {
-                downloadItem.Add(new DownloadItem { vbi = v }); // 添加新项
+                _ when radioButton == AllVersionsRadio => _allVersionsCache,
+                _ when radioButton == LatestVersionRadio => _latestVersionsCache,
+                _ when radioButton == ReleaseVersionRadio => _releaseVersionsCache,
+                _ => null
+            };
+
+            if (versionsToShow != null)
+            {
+                downloadItem.Clear();
+                foreach (var item in versionsToShow)
+                {
+                    downloadItem.Add(item);
+                }
             }
         }
     }
@@ -185,11 +190,11 @@ public class DownloadItem : INotifyPropertyChanged
 
     private bool _isExpanded;
     private bool _isDownloading;
-    private bool _isButtonEnabled = true; // 新增
+    private bool _isButtonEnabled = true;
     private double _downloadProgress;
     private string _versionName = string.Empty;
     private string _buttonText = "下载";
-    private string _currentStage = string.Empty; // 新增
+    private string _currentStage = string.Empty;
 
     public VersionBasicInfo vbi { get; set; }
 
@@ -205,7 +210,7 @@ public class DownloadItem : INotifyPropertyChanged
         set { _isDownloading = value; OnPropertyChanged(nameof(IsDownloading)); }
     }
 
-    public bool IsButtonEnabled 
+    public bool IsButtonEnabled
     {
         get => _isButtonEnabled;
         set { _isButtonEnabled = value; OnPropertyChanged(nameof(IsButtonEnabled)); }
@@ -229,7 +234,7 @@ public class DownloadItem : INotifyPropertyChanged
         set { _buttonText = value; OnPropertyChanged(nameof(ButtonText)); }
     }
 
-    public string CurrentStage 
+    public string CurrentStage
     {
         get => _currentStage;
         set { _currentStage = value; OnPropertyChanged(nameof(CurrentStage)); }
