@@ -97,6 +97,7 @@ namespace OneLauncher.Core
                 " -XX:+UseG1GC " +
                 " -XX:-UseAdaptiveSizePolicy " +
                 " -XX:-OmitStackTraceInFastThrow " +
+                " --enable-native-access=ALL-UNNAMED " +
                 // MacOS请加上下面参数
 #if MACOS
                 " -XstartOnFirstThread "+

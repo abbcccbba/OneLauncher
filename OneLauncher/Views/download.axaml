@@ -5,109 +5,24 @@
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
              x:Class="OneLauncher.Views.download"
 			 >
-	<Panel>
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="72" />
-				<RowDefinition Height="*" />
-			</Grid.RowDefinitions>
-			<Grid Grid.Row="0">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*" />
-					<ColumnDefinition Width="*" />
-				</Grid.ColumnDefinitions>
-				<TextBlock Grid.Column="0" Text="选择下载版本" FontSize="48" Margin="12,4,0,0"/>
-				<StackPanel Grid.Column="1" Spacing="8" Orientation="Horizontal">
-					<RadioButton x:Name="AllVersionsRadio" GroupName="filter" IsChecked="True" Checked="RadioButton_Checked">
-						<TextBlock>所有版本</TextBlock>
-					</RadioButton>
-					<RadioButton x:Name="LatestVersionRadio" GroupName="filter" Checked="RadioButton_Checked">
-						<TextBlock>只看最新版</TextBlock>
-					</RadioButton>
-					<RadioButton x:Name="ReleaseVersionRadio" GroupName="filter" Checked="RadioButton_Checked">
-						<TextBlock>只看正式版</TextBlock>
-					</RadioButton>
-				</StackPanel>
-			</Grid>
-			<ListBox Grid.Row="1" x:Name="VersionListViews">
-				<ListBox.Styles>
-					<Style Selector="ListBoxItem">
-						<Setter Property="Background" Value="Transparent"/>
-						<Setter Property="BorderBrush" Value="Transparent"/>
-						<Setter Property="BorderThickness" Value="0"/>
-						<Setter Property="Template">
-							<ControlTemplate>
-								<ContentPresenter x:Name="PART_ContentPresenter"
-												 Content="{TemplateBinding Content}"
-												 ContentTemplate="{TemplateBinding ContentTemplate}"
-												 Background="{TemplateBinding Background}"
-												 BorderBrush="{TemplateBinding BorderBrush}"
-												 BorderThickness="{TemplateBinding BorderThickness}"
-												 CornerRadius="{TemplateBinding CornerRadius}"
-												 Padding="{TemplateBinding Padding}"/>
-							</ControlTemplate>
-						</Setter>
-					</Style>
-					<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-						<Setter Property="Background" Value="Transparent"/>
-					</Style>
-					<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
-						<Setter Property="Background" Value="Transparent"/>
-					</Style>
-					<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-						<Setter Property="Background" Value="Transparent"/>
-					</Style>
-				</ListBox.Styles>
+	<SplitView IsPaneOpen="True"
+               DisplayMode="Inline"
+               OpenPaneLength="300">
+		<SplitView.Pane>
+			<ListBox x:Name="VersionListViews">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
-						<Border BorderBrush="Black"
-								BorderThickness="1.2"
-								CornerRadius="15"
-								Background="Transparent"
-								Padding="5">
-							<Grid>
-								<Grid.RowDefinitions>
-									<RowDefinition Height="*" />
-									<RowDefinition Height="Auto" />
-									<RowDefinition Height="Auto" />
-								</Grid.RowDefinitions>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-								</Grid.ColumnDefinitions>
-								<StackPanel Grid.Row="0" Grid.Column="0" Margin="24,0,0,0">
-									<TextBlock Text="{Binding vbi.name}" FontWeight="Bold"/>
-									<TextBlock Text="{Binding vbi.DisInfo}"/>
-								</StackPanel>
-								<Button x:Name="buttonCon"
-										Grid.Row="0" Grid.Column="1"
-										Content="{Binding ButtonText}"
-										IsEnabled="{Binding IsButtonEnabled}"
-										Margin="0,0,36,0"
-										HorizontalAlignment="Right"
-										VerticalAlignment="Center"
-										Click="DownloadButton_Click"/>
-								<Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsExpanded}">
-									<StackPanel Margin="24,8,0,0">
-										<TextBlock Text="输入版本名称" FontWeight="Bold"/>
-										<TextBox x:Name="VersionName" Text="{Binding VersionName, UpdateSourceTrigger=PropertyChanged}"/>
-									</StackPanel>
-								</Grid>
-								<Grid Grid.Row="1" Grid.Column="0" IsVisible="{Binding IsDownloading}">
-									<StackPanel Margin="24,8,0,0">
-										<TextBlock Text="{Binding CurrentStage}" FontWeight="Bold"/>
-									</StackPanel>
-								</Grid>
-								<ProgressBar Grid.Row="2" Grid.ColumnSpan="2"
-											 IsVisible="{Binding IsDownloading}"
-											 Value="{Binding DownloadProgress}"
-											 Maximum="100"
-											 Margin="24,8,24,8"/>
-							</Grid>
-						</Border>
+						<StackPanel Spacing="4">
+							<TextBlock Text="{Binding vbi.name}"
+									   FontWeight="Bold"
+									   FontSize="16"/>
+							<TextBlock Text="{Binding vbi.DisInfo}"
+									   FontSize="12"
+									   Foreground="#666666"/>
+						</StackPanel>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
-		</Grid>
-	</Panel>
+		</SplitView.Pane>
+	</SplitView>
 </UserControl>
