@@ -29,6 +29,7 @@ public partial class download : UserControl
     {
         InitializeComponent();
         // 初始化数据
+        
         Task.Run(async () =>
         {
             VersionsList versionsList;
@@ -114,15 +115,13 @@ public partial class download : UserControl
         // 阶段2：下载库文件
         VersionInfomations a = new VersionInfomations(File.ReadAllText(VersionFilePath));
         item.CurrentStage = "正在下载库文件...";
-        await Core.Download.DownloadToMinecraft(a.GetLibrarys(GamePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress =>
+        await Core.Download.DownloadToMinecraft(a.GetLibrarys(GamePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
+        => Dispatcher.UIThread.Post(() =>
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                item.CurrentStage = progress.verifiedFiles > 0 ? "正在校验库文件..." : "正在下载库文件...";
-                double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
-                item.DownloadProgress = percentage;
-            });
-        }), 24, 24);
+            item.CurrentStage = progress.verifiedFiles > 0 ? "正在校验库文件..." : "正在下载库文件...";
+            double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
+            item.DownloadProgress = percentage;
+        })), 24, 24,true);
 
         // 阶段3：下载主文件
         item.CurrentStage = "正在下载主文件...";
@@ -139,15 +138,13 @@ public partial class download : UserControl
 
         // 阶段5：下载资源文件
         item.CurrentStage = "正在下载资源文件...";
-        await Core.Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(File.ReadAllText(a1.path), GamePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress =>
+        await Core.Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(File.ReadAllText(a1.path), GamePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
+        => Dispatcher.UIThread.Post(() =>
         {
-            Dispatcher.UIThread.Post(() =>
-            {
-                item.CurrentStage = progress.verifiedFiles > 0 ? "正在校验资源文件..." : "正在下载资源文件...";
-                double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
-                item.DownloadProgress = percentage;
-            });
-        }), 64, 32);
+            item.CurrentStage = progress.verifiedFiles > 0 ? "正在校验资源文件..." : "正在下载资源文件...";
+            double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
+            item.DownloadProgress = percentage;
+        })), 64, 32,true);
 
         // 下载完成
         Dispatcher.UIThread.Post(() =>
@@ -162,6 +159,7 @@ public partial class download : UserControl
 
     private void RadioButton_Checked(object? sender, RoutedEventArgs e)
     {
+        /*
         if (sender is RadioButton radioButton && radioButton.IsChecked == true)
         {
             List<DownloadItem> versionsToShow = radioButton switch
@@ -174,13 +172,18 @@ public partial class download : UserControl
 
             if (versionsToShow != null)
             {
-                downloadItem.Clear();
-                foreach (var item in versionsToShow)
-                {
-                    downloadItem.Add(item);
-                }
+                downloadItem = new ObservableCollection<DownloadItem>(versionsToShow);
+                VersionListViews.ItemsSource = downloadItem;
+
+                // 原来的代码 (不再需要):
+                // downloadItem.Clear();
+                // foreach (var item in versionsToShow)
+                // {
+                //     downloadItem.Add(item);
+                // }
             }
         }
+        */
     }
 }
 
