@@ -17,14 +17,11 @@ public partial class MainWindow : Window
     private download downloadPage;
     private settings settingsPage;
     private account accountPage;
-    public static MainWindow mainwindow;
 
     public MainWindow()
     {
         InitializeComponent();
         Codes.Init.Initialize();
-        //new Welcome().Show();
-        mainwindow = this;
     }
 
     protected override async void OnOpened(EventArgs e)

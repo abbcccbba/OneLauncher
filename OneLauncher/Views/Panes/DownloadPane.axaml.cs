@@ -1,0 +1,20 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using OneLauncher.Views.ViewModels;
+
+namespace OneLauncher.Views.Panes;
+internal partial class DownloadPane : UserControl
+{
+    // 供设计器预览
+    public DownloadPane()
+    {
+        InitializeComponent();
+        this.DataContext = new PaneViewModels.DownloadPaneViewModel();
+    }
+    public DownloadPane(string Version, DownloadPageViewModel downloadPage)
+    {
+        InitializeComponent();
+        this.DataContext = new PaneViewModels.DownloadPaneViewModel(Version,downloadPage);
+    }
+}

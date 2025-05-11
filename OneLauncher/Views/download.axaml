@@ -2,27 +2,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
-             x:Class="OneLauncher.Views.download"
-			 >
-	<SplitView IsPaneOpen="True"
+             mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
+             x:Class="OneLauncher.Views.download">
+	<SplitView IsPaneOpen="{Binding IsPaneShow}"
                DisplayMode="Inline"
-               OpenPaneLength="300">
+               OpenPaneLength="650"
+               PanePlacement="Right">
 		<SplitView.Pane>
-			<ListBox x:Name="VersionListViews">
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<StackPanel Spacing="4">
-							<TextBlock Text="{Binding vbi.name}"
-									   FontWeight="Bold"
-									   FontSize="16"/>
-							<TextBlock Text="{Binding vbi.DisInfo}"
-									   FontSize="12"
-									   Foreground="#666666"/>
-						</StackPanel>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
+			<TransitioningContentControl
+					Content="{Binding DownloadPaneContent}" Background="#FAFAFA">
+				<TransitioningContentControl.PageTransition>
+					<PageSlide Orientation="Vertical" Duration="0:00:00.23">
+						<PageSlide.SlideInEasing>
+							<QuinticEaseIn/>
+						</PageSlide.SlideInEasing>
+						<PageSlide.SlideOutEasing>
+							<QuinticEaseInOut/>
+						</PageSlide.SlideOutEasing>
+					</PageSlide>
+				</TransitioningContentControl.PageTransition>
+			</TransitioningContentControl>
 		</SplitView.Pane>
+		<StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+					Spacing="4">
+			<TextBlock FontSize="42" Text="选择下载版本"/>
+			<AutoCompleteBox Width="300" CornerRadius="6">
+			</AutoCompleteBox>
+		
+			<Expander Margin="0,36,0,0" CornerRadius="6" Header="正式版" Width="300">
+				<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="200" />
+			</Expander>
+			<Expander Margin="0,12,0,0" CornerRadius="6" Header="快照版" Width="300">
+				<ListBox ItemsSource="{Binding SnapshotItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="200" />
+			</Expander>
+			<Expander Margin="0,12,0,0" CornerRadius="6" Header="所有版本" Width="300">
+				<ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="200" />
+			</Expander>
+		</StackPanel>
 	</SplitView>
 </UserControl>

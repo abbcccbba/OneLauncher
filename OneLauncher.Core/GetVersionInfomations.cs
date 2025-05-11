@@ -131,15 +131,6 @@ namespace OneLauncher.Core
             }
             return a;
         }
-        public List<VersionBasicInfo> GetAllVersionList()
-        {
-            List<VersionBasicInfo> a = new List<VersionBasicInfo>();
-            foreach (var i in this.a.AllVersions)
-            {
-                a.Add(new VersionBasicInfo(i.Id, i.Type, i.Url, i.Time));
-            }
-            return a;
-        }
         public List<VersionBasicInfo> GetReleaseVersionList()
         {
             List<VersionBasicInfo> a = new List<VersionBasicInfo>();
@@ -150,6 +141,26 @@ namespace OneLauncher.Core
             }
             return a;
         }
+        public List<VersionBasicInfo> GetSnapshotVersionList()
+        {
+            List<VersionBasicInfo> a = new List<VersionBasicInfo>();
+            foreach (var i in this.a.AllVersions)
+            {
+                if ( i.Type == "snapshot" )
+                    a.Add(new VersionBasicInfo(i.Id, i.Type, i.Url, i.Time));
+            }
+            return a;
+        }
+        public List<VersionBasicInfo> GetAllVersionList()
+        {
+            List<VersionBasicInfo> a = new List<VersionBasicInfo>();
+            foreach (var i in this.a.AllVersions)
+            {
+                a.Add(new VersionBasicInfo(i.Id, i.Type, i.Url, i.Time));
+            }
+            return a;
+        }
+        
         protected class VersionJsonInfo
         {
             [JsonPropertyName("latest")]

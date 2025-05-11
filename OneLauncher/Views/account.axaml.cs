@@ -34,12 +34,12 @@ public partial class account : UserControl
 
     private async void new_Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        var Dialog = new MessageShow("输入你的用户名（自定义）");
-        await Dialog.ShowDialog(MainWindow.mainwindow);
+        //var Dialog = new MessageShow("输入你的用户名（自定义）");
+        //await Dialog.ShowDialog(MainWindow.mainwindow);
         
         Init.ConfigManger.AddUserModel(new UserModel() 
         { 
-            Name = Dialog.needsp,
+            //Name = Dialog.needsp,
             uuid = Guid.NewGuid().ToString(),
             accessToken = "0"
         });

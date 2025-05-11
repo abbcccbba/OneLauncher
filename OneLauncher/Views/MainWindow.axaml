@@ -1,9 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:vm="using:UI.ViewModels"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:views="clr-namespace:UI.Views"
 		xmlns:easing="using:Avalonia.Animation.Easings"
 		mc:Ignorable="d" d:DesignWidth="1150" d:DesignHeight="650"
 		x:Class="OneLauncher.Views.MainWindow"
@@ -204,6 +202,7 @@
 				<RowDefinition Height="*"/>
 			</Grid.RowDefinitions>
 			<Border Grid.Row="0">
+				<!-- 标题 -->
 				<TextBlock Text="One Launcher"
 							HorizontalAlignment="Left"
 							VerticalAlignment="Center"
@@ -212,14 +211,15 @@
 			</Border>
 			<Panel Grid.Row="1" Margin="0,0,0,0">
 				<TransitioningContentControl
-					x:Name="PageContent" Background="White">
+					x:Name="PageContent" Background="#FFFFFF">
 					<TransitioningContentControl.PageTransition>
-						<PageSlide Orientation="Vertical" Duration="0:00:00.15">
+						<!-- 页面切换动画 -->
+						<PageSlide Orientation="Vertical" Duration="0:00:00.23">
 							<PageSlide.SlideInEasing>
-								<CubicEaseIn/>
+								<QuinticEaseIn/>
 							</PageSlide.SlideInEasing>
 							<PageSlide.SlideOutEasing>
-								<CubicEaseOut/>
+								<QuinticEaseInOut/>
 							</PageSlide.SlideOutEasing>
 						</PageSlide>
 					</TransitioningContentControl.PageTransition>
