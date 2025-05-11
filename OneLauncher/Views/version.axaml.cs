@@ -27,7 +27,7 @@ public partial class version : UserControl
         if (sender is Button button)
         if (button.DataContext is aVersion version)
         {
-            Task.Run(async () => OneLauncher.Home.LaunchGame(Codes.Init.BasePath,version.versionBasicInfo.name));
+            //Task.Run(async () => OneLauncher.Home.LaunchGame(Codes.Init.BasePath,version.versionBasicInfo.name));
         }
     }
 }

@@ -51,7 +51,7 @@ namespace OneLauncher.Views.ViewModels
                 selectedItem = value;
 
                 // 点击操作
-                //Debug.WriteLine($"{value}");
+                // 展开并显示Pane
                 IsPaneShow = true;
                 DownloadPaneContent = new DownloadPane(value,this);
             }

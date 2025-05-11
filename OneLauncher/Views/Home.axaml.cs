@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Views;
 using System;
@@ -13,14 +14,38 @@ public partial class Home : UserControl
     public Home()
     {
         InitializeComponent();
+        //Debug.Write(new LaunchCommandBuilder("C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\", "1.21.5", new UserModel("ZhiWei", "0", "0", "msa")).BuildCommand(""));
+        Task.Run(async () => await LaunchGame("1.21.5",new UserModel("ZhiWei","0","0","msa")));
     }
-    public async static Task LaunchGame(string GamePath,string GameVersion)
+    
+    public async static Task LaunchGame(string GameVersion,UserModel loginUserModel)
     {
         using (Process process = new Process())
         {
             process.StartInfo.FileName = "java";
-            process.StartInfo.Arguments = StartArguments.GetArguments(
-                new StartArguments(GameVersion, "release", GamePath,Codes.Init.ConfigManger.config.DefaultUserModel));
+            process.StartInfo.Arguments =
+                new LaunchCommandBuilder
+                (
+                    Init.BasePath,
+                    GameVersion,
+                    loginUserModel
+                ).BuildCommand
+                (
+                    string.Join
+                    (
+                        " ",
+                        "-XX:+UseG1GC",
+                        "-XX:+UnlockExperimentalVMOptions",
+                        "-XX:-OmitStackTraceInFastThrow",
+                        "-Xmn322m -Xmx2150m",
+                        "-Djdk.lang.Process.allowAmbiguousCommands=true",
+                        "-Dlog4j2.formatMsgNoLookups=true",
+                        "-Dfml.ignoreInvalidMinecraftCertificates=True",
+                        "-Dfml.ignorePatchDiscrepancies=True",
+                        "--enable-native-access=ALL-UNNAMED"
+                    //"-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -Dfile.encoding=COMPAT"
+                    )
+                );
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.UseShellExecute = false;
@@ -29,18 +54,16 @@ public partial class Home : UserControl
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     Debug.WriteLine(e.Data); // 输出到控制台
-                    Console.WriteLine(e.Data);
             };
             process.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                     Debug.WriteLine(e.Data); // 输出到控制台
-                    Console.WriteLine(e.Data);
             };
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-            await Task.Run(() => process.WaitForExit());
+            process.WaitForExit();
         }
-    }
+    } 
 }

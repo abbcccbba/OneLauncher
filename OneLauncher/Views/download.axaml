@@ -23,6 +23,7 @@
 				</TransitioningContentControl.PageTransition>
 			</TransitioningContentControl>
 		</SplitView.Pane>
+		<ScrollViewer>
 		<StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center"
 					Spacing="4">
@@ -31,14 +32,15 @@
 			</AutoCompleteBox>
 		
 			<Expander Margin="0,36,0,0" CornerRadius="6" Header="正式版" Width="300">
-				<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="200" />
+				<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
 			</Expander>
 			<Expander Margin="0,12,0,0" CornerRadius="6" Header="快照版" Width="300">
-				<ListBox ItemsSource="{Binding SnapshotItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="200" />
+				<ListBox ItemsSource="{Binding SnapshotItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
 			</Expander>
 			<Expander Margin="0,12,0,0" CornerRadius="6" Header="所有版本" Width="300">
-				<ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="200" />
+				<ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
 			</Expander>
 		</StackPanel>
+		</ScrollViewer>
 	</SplitView>
 </UserControl>
