@@ -32,6 +32,7 @@ public partial class MainWindow : Window
         accountPage = new account();
         downloadPage = new download();
         settingsPage = new settings();
+        PageContent.Content = HomePage;
     }
 
     // 统一的事件处理函数
