@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="620"
+             x:Class="OneLauncher.Views.Panes.DownloadPane">
+	<Panel>
+		<Grid ColumnDefinitions="*,*,*" Margin="12" VerticalAlignment="Top">
+			<Button Grid.Column="0" Command="{Binding ClosePaneCommand}" >
+				<StackPanel Orientation="Horizontal">
+					<Image Source="/Assets/icos/back.png" Width="16" Height="16"/>
+					<TextBlock FontSize="16" Text="返回"/>
+				</StackPanel>
+			</Button>
+			<TextBlock Grid.Column="1" FontSize="52" Text="{Binding VersionName}"/>
+		</Grid>
+		
+		<Button Content="下载" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding ToDownloadCommand}"/>
+	</Panel>
+</UserControl>

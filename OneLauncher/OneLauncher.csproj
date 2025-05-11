@@ -24,6 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ViewModels\" />
+    <Compile Update="Views\download.axaml.cs">
+      <DependentUpon>download.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

@@ -7,35 +7,28 @@ using OneLauncher.Views;
 using System.Threading.Tasks;
 using System;
 using System.IO;
-using OneLauncher;
 using System.Linq;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+
 namespace OneLauncher.Views;
 
 public partial class download : UserControl
 {
-    private ObservableCollection<DownloadItem> downloadItem;
-    
-
-    private List<DownloadItem> _allVersionsCache;
-    private List<DownloadItem> _latestVersionsCache;
-    private List<DownloadItem> _releaseVersionsCache;
-
     public download()
     {
         InitializeComponent();
         // 初始化数据
-        
         Task.Run(async () =>
         {
-            VersionsList versionsList;
+            VersionsList vl;
+            string versionFileJson = string.Empty;
             try
             {
-                versionsList = new VersionsList(File.ReadAllText($"{Init.BasePath}/version_manifest.json"));
+                versionFileJson = File.ReadAllText($"{Init.BasePath}/version_manifest.json");
             }
             catch (FileNotFoundException)
             {
@@ -44,31 +37,25 @@ public partial class download : UserControl
                     "https://piston-meta.mojang.com/mc/game/version_manifest.json",
                     Init.BasePath + "version_manifest.json"
                 );
-                versionsList = new VersionsList(File.ReadAllText($"{Init.BasePath}/version_manifest.json"));
+                versionFileJson = File.ReadAllText($"{Init.BasePath}/version_manifest.json");
             }
-
-            var allVersions = versionsList.GetAllVersionList()
-                .Select(v => new DownloadItem { vbi = v })
-                .ToList();
-            var latestVersions = versionsList.GetLatestVersionList()
-                .Select(v => new DownloadItem { vbi = v })
-                .ToList();
-            var releaseVersions = versionsList.GetReleaseVersionList()
-                .Select(v => new DownloadItem { vbi = v })
-                .ToList();
-
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            finally
             {
-                _allVersionsCache = allVersions;
-                _latestVersionsCache = latestVersions;
-                _releaseVersionsCache = releaseVersions;
-                downloadItem = new ObservableCollection<DownloadItem>(_allVersionsCache);
-                VersionListViews.ItemsSource = downloadItem;
-            });
-        });
+                vl = new VersionsList(versionFileJson);
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    this.DataContext = new Views.ViewModels.DownloadPageViewModel
+                    (
+                        //提取name属性
+                        vl.GetAllVersionList().Select(x => x.name).ToList(),
+                        vl.GetReleaseVersionList().Select(x => x.name).ToList(),
+                        vl.GetSnapshotVersionList().Select(x => x.name).ToList()
+                    );
+                });
+            }
+        });  
     }
-
-
+    /*
     private async void DownloadButton_Click(object? sender, RoutedEventArgs e)
     {
         if (sender is Button button && button.DataContext is DownloadItem item)
@@ -100,7 +87,7 @@ public partial class download : UserControl
             Task.Run(() => ToDownload(item.vbi.url, item.vbi.name, item));
         }
     }
-
+    
     private async Task ToDownload(string VersionFileDownloadUrl, string name, DownloadItem item)
     {
         string VersionFilePath = $"{Init.BasePath}.minecraft/versions/{name}/{name}.json";
@@ -155,96 +142,5 @@ public partial class download : UserControl
             item.ButtonText = "重新下载"; // 修改：完成时显示“重新下载”
             item.IsButtonEnabled = true; // 新增：启用按钮
         });
-    }
-
-    private void RadioButton_Checked(object? sender, RoutedEventArgs e)
-    {
-        /*
-        if (sender is RadioButton radioButton && radioButton.IsChecked == true)
-        {
-            List<DownloadItem> versionsToShow = radioButton switch
-            {
-                _ when radioButton == AllVersionsRadio => _allVersionsCache,
-                _ when radioButton == LatestVersionRadio => _latestVersionsCache,
-                _ when radioButton == ReleaseVersionRadio => _releaseVersionsCache,
-                _ => null
-            };
-
-            if (versionsToShow != null)
-            {
-                downloadItem = new ObservableCollection<DownloadItem>(versionsToShow);
-                VersionListViews.ItemsSource = downloadItem;
-
-                // 原来的代码 (不再需要):
-                // downloadItem.Clear();
-                // foreach (var item in versionsToShow)
-                // {
-                //     downloadItem.Add(item);
-                // }
-            }
-        }
-        */
-    }
-}
-
-public class DownloadItem : INotifyPropertyChanged
-{
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    private bool _isExpanded;
-    private bool _isDownloading;
-    private bool _isButtonEnabled = true;
-    private double _downloadProgress;
-    private string _versionName = string.Empty;
-    private string _buttonText = "下载";
-    private string _currentStage = string.Empty;
-
-    public VersionBasicInfo vbi { get; set; }
-
-    public bool IsExpanded
-    {
-        get => _isExpanded;
-        set { _isExpanded = value; OnPropertyChanged(nameof(IsExpanded)); }
-    }
-
-    public bool IsDownloading
-    {
-        get => _isDownloading;
-        set { _isDownloading = value; OnPropertyChanged(nameof(IsDownloading)); }
-    }
-
-    public bool IsButtonEnabled
-    {
-        get => _isButtonEnabled;
-        set { _isButtonEnabled = value; OnPropertyChanged(nameof(IsButtonEnabled)); }
-    }
-
-    public double DownloadProgress
-    {
-        get => _downloadProgress;
-        set { _downloadProgress = value; OnPropertyChanged(nameof(DownloadProgress)); }
-    }
-
-    public string VersionName
-    {
-        get => _versionName;
-        set { _versionName = value; OnPropertyChanged(nameof(VersionName)); }
-    }
-
-    public string ButtonText
-    {
-        get => _buttonText;
-        set { _buttonText = value; OnPropertyChanged(nameof(ButtonText)); }
-    }
-
-    public string CurrentStage
-    {
-        get => _currentStage;
-        set { _currentStage = value; OnPropertyChanged(nameof(CurrentStage)); }
-    }
-
-    private void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    } */
 }
