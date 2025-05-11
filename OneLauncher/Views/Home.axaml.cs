@@ -14,8 +14,7 @@ public partial class Home : UserControl
     public Home()
     {
         InitializeComponent();
-        //Debug.Write(new LaunchCommandBuilder("C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\", "1.21.5", new UserModel("ZhiWei", "0", "0", "msa")).BuildCommand(""));
-        Task.Run(async () => await LaunchGame("1.21.5",new UserModel("ZhiWei","0","0","msa")));
+        //Task.Run(async () => await LaunchGame("1.21.5",new UserModel("ZhiWei","0","0","msa")));
     }
     
     public async static Task LaunchGame(string GameVersion,UserModel loginUserModel)

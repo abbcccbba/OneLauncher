@@ -8,94 +8,93 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using OneLauncher.Core;
 
-namespace OneLauncher.Core
-{
-    public class AppConfig
-    {
-        // 当前启动器已安装的所有版本列表，默认初始化为空列表
-        public List<aVersion> VersionList { get; set; } = new List<aVersion>();
-        // 当前启动器有的所有用户登入模型，默认初始化为空列表
-        public UserModel DefaultUserModel { get; set; } = new UserModel() 
-        {
-            Name = "ZhiWei" ,
-            uuid = "0",
-            accessToken = "0"
-        };
-        public ObservableCollection<UserModel> UserModelList { get; set; } = new ObservableCollection<UserModel>();
-    }
+namespace OneLauncher.Core;
 
-    public class DBManger
+public class AppConfig
+{
+    // 当前启动器已安装的所有版本列表，默认初始化为空列表
+    public List<aVersion> VersionList { get; set; } = new List<aVersion>();
+    // 当前启动器有的所有用户登入模型，默认初始化为空列表
+    public UserModel DefaultUserModel { get; set; } = new UserModel() 
     {
-        public AppConfig config;
-        private readonly string ConfigFilePath;
-        private readonly string BasePath;
-        public DBManger(AppConfig FirstConfig,string BasePath)
+        Name = "ZhiWei" ,
+        uuid = "0",
+        accessToken = "0"
+    };
+    public ObservableCollection<UserModel> UserModelList { get; set; } = new ObservableCollection<UserModel>();
+}
+
+public class DBManger
+{
+    public AppConfig config;
+    private readonly string ConfigFilePath;
+    private readonly string BasePath;
+    public DBManger(AppConfig FirstConfig,string BasePath)
+    {
+        this.BasePath = BasePath;
+        ConfigFilePath = BasePath + "config.json";
+        if (File.Exists(ConfigFilePath))
+            Read();
+        else
+            Write(FirstConfig);
+    }
+    public void Write(AppConfig config)
+    {
+        try
         {
-            this.BasePath = BasePath;
-            ConfigFilePath = BasePath + "config.json";
-            if (File.Exists(ConfigFilePath))
-                Read();
-            else
-                Write(FirstConfig);
+            this.config = config;
+            Directory.CreateDirectory(BasePath);
+            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(config, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
         }
-        public void Write(AppConfig config)
+        catch (Exception ex)
         {
-            try
-            {
-                this.config = config;
-                Directory.CreateDirectory(BasePath);
-                File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(config, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }));
-            }
-            catch (Exception ex)
-            {
-                throw new IOException($"配置文件写入错误： {ex.Message}", ex);
-            }
+            throw new IOException($"配置文件写入错误： {ex.Message}", ex);
         }
-        public void AddVersion(aVersion config)
+    }
+    public void AddVersion(aVersion config)
+    {
+        try
         {
-            try
+            this.config.VersionList.Add(config);
+            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
             {
-                this.config.VersionList.Add(config);
-                File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }));
-            }
-            catch (Exception ex)
-            {
-                throw new IOException($"配置文件写入错误： {ex.Message}", ex);
-            }
+                WriteIndented = true
+            }));
         }
-        public void AddUserModel(UserModel config)
+        catch (Exception ex)
         {
-            try
-            {
-                this.config.UserModelList.Add(config);
-                File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                }));
-            }
-            catch (Exception ex)
-            {
-                throw new IOException($"配置文件写入错误： {ex.Message}", ex);
-            }
+            throw new IOException($"配置文件写入错误： {ex.Message}", ex);
         }
-        public AppConfig Read()
+    }
+    public void AddUserModel(UserModel config)
+    {
+        try
         {
-            try
+            this.config.UserModelList.Add(config);
+            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
             {
-                var config = JsonSerializer.Deserialize<AppConfig>(File.ReadAllText(ConfigFilePath));
-                this.config = config;
-                return config;
-            }
-            catch (Exception ex)
-            {
-                throw new IOException($"配置文件读取错误： {ex.Message}", ex);
-            }
+                WriteIndented = true
+            }));
+        }
+        catch (Exception ex)
+        {
+            throw new IOException($"配置文件写入错误： {ex.Message}", ex);
+        }
+    }
+    public AppConfig Read()
+    {
+        try
+        {
+            var config = JsonSerializer.Deserialize<AppConfig>(File.ReadAllText(ConfigFilePath));
+            this.config = config;
+            return config;
+        }
+        catch (Exception ex)
+        {
+            throw new IOException($"配置文件读取错误： {ex.Message}", ex);
         }
     }
 }
