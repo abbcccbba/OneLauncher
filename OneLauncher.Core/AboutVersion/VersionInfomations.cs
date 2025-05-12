@@ -42,12 +42,9 @@ namespace OneLauncher.Core
             }
         }
 
-        /// <summary>
-        /// 获取版本依赖库下载地址列表。
-        /// </summary>
-        public List<SFNTD> GetLibrarys()
+        public List<NdDowItem> GetLibrarys()
         {
-            var libraries = new List<SFNTD>(info.Libraries.Count);
+            var libraries = new List<NdDowItem>(info.Libraries.Count);
             // 获取操作系统名称
             string osName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "windows" :
                             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux" :
@@ -85,7 +82,7 @@ namespace OneLauncher.Core
                 // 普通库文件
                 if (lib.Downloads?.Artifact != null)
                 {
-                    libraries.Add(new SFNTD(
+                    libraries.Add(new NdDowItem(
                         lib.Downloads.Artifact.Url,
                         lib.Downloads.Artifact.Sha1,
                         $"{basePath}.minecraft/libraries/{lib.Downloads.Artifact.Path}"
@@ -99,7 +96,7 @@ namespace OneLauncher.Core
                                         osName == "osx" && lib.Natives.Osx != null ? lib.Natives.Osx : null;
                     if (nativeKey != null && lib.Downloads.Classifiers.TryGetValue(nativeKey, out var classifier))
                     {
-                        libraries.Add(new SFNTD(
+                        libraries.Add(new NdDowItem(
                             classifier.Url,
                             classifier.Sha1,
                             $"{basePath}.minecraft/libraries/{classifier.Path}"
@@ -115,9 +112,9 @@ namespace OneLauncher.Core
         /// 获取版本主文件下载地址。
         /// </summary>
         /// <param name="version">Minecraft版本号。</param>
-        public SFNTD GetMainFile(string version)
+        public NdDowItem GetMainFile(string version)
         {
-            return new SFNTD(
+            return new NdDowItem(
                 info.Downloads.Client.Url,
                 info.Downloads.Client.Sha1,
                 $"{basePath}.minecraft/versions/{version}/{version}.jar"
@@ -127,9 +124,9 @@ namespace OneLauncher.Core
         /// <summary>
         /// 获取版本资源索引文件下载地址。
         /// </summary>
-        public SFNTD GetAssets()
+        public NdDowItem GetAssets()
         {
-            return new SFNTD(
+            return new NdDowItem(
                 info.AssetIndex.Url,
                 info.AssetIndex.Sha1,
                 $"{basePath}.minecraft/assets/indexes/{info.AssetIndex.Id}.json"
@@ -156,11 +153,11 @@ namespace OneLauncher.Core
         /// <summary>
         /// 获取日志配置文件信息。
         /// </summary>
-        public SFNTD? GetLoggingConfig()
+        public NdDowItem? GetLoggingConfig()
         {
             if (info.Logging?.Client?.File == null)
                 return null;
-            return new SFNTD(
+            return new NdDowItem(
                 info.Logging.Client.File.Url,
                 info.Logging.Client.File.Sha1,
                 $"{basePath}logConfig/{info.Logging.Client.File.Id}"

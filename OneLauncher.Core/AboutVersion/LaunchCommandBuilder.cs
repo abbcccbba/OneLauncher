@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -16,7 +17,9 @@ public class LaunchCommandBuilder
     private readonly string version;
     private readonly UserModel userModel;
     private readonly string basePath;
-
+    /// <param name="basePath">游戏基本路径（不含.minecraft，末尾加'/'）</param>
+    /// <param name="version">游戏版本</param>
+    /// <param name="userModel">以哪个用户模型来拼接启动参数？</param>
     public LaunchCommandBuilder(string basePath, string version, UserModel userModel)
     {
         this.basePath = basePath;
@@ -28,12 +31,11 @@ public class LaunchCommandBuilder
         );
     }
 
-    public string BuildCommand(string OtherJvmArgs)
+    public string BuildCommand(string OtherArgs = "")
     {
-        return $"{BuildJvmArgs(OtherJvmArgs)} {versionInfo.GetMainClass()} {BuildGameArgs()}";
+        return $"{BuildJvmArgs()} {OtherArgs} {versionInfo.GetMainClass()} {BuildGameArgs()}";
     }
-
-    private string BuildJvmArgs(string OtherJvmArgs)
+    private string BuildJvmArgs()
     {
         if (versionInfo.info.Arguments == null || versionInfo.info.Arguments.Jvm == null)
         {
@@ -45,14 +47,15 @@ public class LaunchCommandBuilder
                         RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "osx" : "";
         string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
 
-        string nativesDir = $"{basePath}.minecraft/versions/{version}/{version}-natives";
-        string classpath = BuildClassPath();
         var placeholders = new Dictionary<string, string>
         {
-            { "natives_directory", nativesDir },
-            { "launcher_name", "OneLauncher" },
-            { "launcher_version", "1.0.0" },
-            { "classpath", classpath }
+            // 创建占位符映射表 
+            // 参考1.21.5.json
+            // 手动加上引号
+            { "natives_directory", $"\"{basePath}.minecraft/versions/{version}/{version}-natives\"" },
+            { "launcher_name", "\"OneLauncher\"" },
+            { "launcher_version", "\"1.0.0\"" },
+            { "classpath", $"\"{BuildClassPath()}\"" }
         };
 
         var jvmArgs = new List<string>();
@@ -84,19 +87,33 @@ public class LaunchCommandBuilder
             }
         }
 
-        return OtherJvmArgs + string.Join(" ", jvmArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+        return string.Join(" ", jvmArgs.Select(arg => arg.Contains(" <TEST> ") ? $"\"{arg}\"" : arg));
     }
-
     private string BuildClassPath()
     {
         string separator = OperatingSystem.IsWindows() ? ";" : ":";
-        var jarLibraries = versionInfo.GetLibrarys()
-            .Where(lib => lib.path.EndsWith(".jar", StringComparison.OrdinalIgnoreCase))
-            .Select(lib => lib.path);
-        string mainJar = versionInfo.GetMainFile(version).path;
-        return string.Join(separator, new[] { mainJar }.Concat(jarLibraries));
+        string Libs = string.Join(separator, versionInfo
+            .GetLibrarys()
+            .Select(x => x.path) // 提取path属性
+            .Select(s => $"\"{s}\"") // 给每个项加上引号
+            .ToList());
+        // 三引号内前后加系统分隔符，我也不知道为什么反正不加会报错
+        string cpLibs = $"\"\"{separator}\"{versionInfo.GetMainFile(version).path}\"{separator}{Libs}{separator}\"\"";
+        return cpLibs;
     }
-
+    private string BuildGameArgs()
+    {
+        return //string.Join(" ",
+            $"--username \"{userModel.Name}\" " +
+            $"--version \"{version}\" " +
+            $"--gameDir \"{Path.Combine(basePath, ".minecraft")}\" " +
+            $"--assetsDir \"{Path.Combine(basePath, ".minecraft", "assets")}\" " +
+            $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
+            $"--uuid \"{userModel.uuid}\" " +
+            $"--accessToken \"{userModel.accessToken}\" " +
+            $"--userType \"{userModel.userType}\" " +
+            $"--versionType OneLauncher";//);
+    }
     private bool EvaluateRules(List<Models.Rule> rules, string osName, string arch)
     {
         if (rules == null || rules.Count == 0) return true;
@@ -116,7 +133,6 @@ public class LaunchCommandBuilder
         }
         return allowed;
     }
-
     private string ReplacePlaceholders(string input, Dictionary<string, string> placeholders)
     {
         foreach (var kvp in placeholders)
@@ -124,19 +140,5 @@ public class LaunchCommandBuilder
             input = input.Replace("${" + kvp.Key + "}", kvp.Value);
         }
         return input;
-    }
-
-    private string BuildGameArgs()
-    {
-        return //string.Join(" ",
-            $"--username \"{userModel.Name}\" " +
-            $"--version \"{version}\" " +
-            $"--gameDir \"{Path.Combine(basePath, ".minecraft")}\" " +
-            $"--assetsDir \"{Path.Combine(basePath, ".minecraft", "assets")}\" " +
-            $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
-            $"--uuid \"{userModel.uuid}\" " +
-            $"--accessToken \"{userModel.accessToken}\" " +
-            $"--userType \"{userModel.UserType}\" " +
-            $"--versionType OneLauncher";//);
     }
 }

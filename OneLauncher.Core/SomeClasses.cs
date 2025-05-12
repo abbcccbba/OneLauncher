@@ -7,22 +7,37 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core;
 
-public struct SFNTD
+/// <summary>
+/// 描述单个下载项
+/// </summary>
+/// 
+public struct NdDowItem
 {
-    public SFNTD(string Url, string Sha1, string Path)
+    /// <param name="Url">下载地址</param>
+    /// <param name="Path">保存地址（含文件名）</param>
+    public NdDowItem(string Url, string Path)
+    {
+        this.url = Url;
+        this.path = Path;
+    }
+    /// <param name="Url">下载地址</param>
+    /// <param name="Sha1">SHA1校验码</param>
+    /// <param name="Path">保存地址（含文件名）</param>
+    public NdDowItem(string Url, string Sha1, string Path)
     {
         this.url = Url;
         this.sha1 = Sha1;
         this.path = Path;
     }
     public string url;
-    public string sha1;
+    public string? sha1;
     public string path;
 }
 public struct aVersion
 {
-    public VersionBasicInfo versionBasicInfo { get; set; }
-    public string name { get; set; }
+    public string VersionID { get; set; }
+    public bool IsMod { get; set; }//预留
+    public DateTime AddTime { get; set; } 
 }
 public struct VersionBasicInfo
 {
@@ -40,15 +55,18 @@ public struct VersionBasicInfo
 }
 public struct UserModel
 {
-    public UserModel(string Name, string uuid, string accessToken,string UserType)
+    public UserModel(string Name, string uuid, string accessToken = "0")
     {
         this.Name = Name;
         this.uuid = uuid;
         this.accessToken = accessToken;
-        this.UserType = UserType;
+        if (accessToken != "0")
+            userType = "legacy";
+        else
+            userType = "msa";
     }
     public string Name { get; set; }
     public string uuid { get; set; }
     public string accessToken { get; set; }
-    public string UserType { get; set; }
+    public string userType { get; set; }
 }
