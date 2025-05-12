@@ -82,20 +82,22 @@ public static class Download
         IProgress<(int downloadedFiles, int totalFiles, int verifiedFiles)> progress = null,
         int maxConcurrentDownloads = 16, 
         int maxConcurrentSha1 = 16,
-        bool IsSha1 = true
+        bool IsSha1 = true,
+        bool IsCheckFileExists = true
         )
     {
         try
         {
             // 检查文件是否已存在并创建文件夹
             var filesToDownload = new List<NdDowItem>();
+            if (IsCheckFileExists)
             foreach (var item in FDI)
             {
                 if (File.Exists(item.path)) continue;
                 string directoryPath = Path.GetDirectoryName(item.path);
                 if (!string.IsNullOrEmpty(directoryPath)) Directory.CreateDirectory(directoryPath);
                 filesToDownload.Add(item);
-            }
+            } else filesToDownload = FDI;
 
             int downloadedFiles = 0;
             int verifiedFiles = 0;

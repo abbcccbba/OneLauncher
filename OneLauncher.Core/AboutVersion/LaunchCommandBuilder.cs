@@ -87,7 +87,7 @@ public class LaunchCommandBuilder
             }
         }
 
-        return string.Join(" ", jvmArgs.Select(arg => arg.Contains(" <TEST> ") ? $"\"{arg}\"" : arg));
+        return string.Join(" ", jvmArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
     }
     private string BuildClassPath()
     {
@@ -95,10 +95,10 @@ public class LaunchCommandBuilder
         string Libs = string.Join(separator, versionInfo
             .GetLibrarys()
             .Select(x => x.path) // 提取path属性
-            .Select(s => $"\"{s}\"") // 给每个项加上引号
+            .Select(s => $"\"{s}\"")
             .ToList());
         // 三引号内前后加系统分隔符，我也不知道为什么反正不加会报错
-        string cpLibs = $"\"\"{separator}\"{versionInfo.GetMainFile(version).path}\"{separator}{Libs}{separator}\"\"";
+        string cpLibs = $"\"\"{separator}{Libs}\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"";
         return cpLibs;
     }
     private string BuildGameArgs()

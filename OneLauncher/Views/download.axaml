@@ -35,13 +35,31 @@
 					</AutoCompleteBox>
 		
 					<Expander Margin="0,36,0,0" CornerRadius="6" Header="正式版" Width="300">
-						<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
+						<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" >
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding name}"/>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
 					</Expander>
 					<Expander Margin="0,12,0,0" CornerRadius="6" Header="快照版" Width="300">
-						<ListBox ItemsSource="{Binding SnapshotItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
+						<ListBox ItemsSource="{Binding SnapshotItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" >
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding name}"/>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
 					</Expander>
 					<Expander Margin="0,12,0,0" CornerRadius="6" Header="所有版本" Width="300">
-						<ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
+						<ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" >
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding name}"/>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
 					</Expander>
 				</StackPanel>
 			</ScrollViewer>

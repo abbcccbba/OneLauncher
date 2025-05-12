@@ -12,6 +12,7 @@ using System.Diagnostics;
 using OneLauncher.Views;
 using Avalonia.Controls;
 using OneLauncher.Views.Panes;
+using OneLauncher.Core;
 namespace OneLauncher.Views.ViewModels
 {
     internal partial class DownloadPageViewModel : BaseViewModel
@@ -19,41 +20,42 @@ namespace OneLauncher.Views.ViewModels
         public DownloadPageViewModel
             (
                 // 先传string作为ListBox数据，未来可拓展自定义类
-                List<string> AllVersionList,
-                List<string> ReleaseVersionList,
-                List<string> SnapshotVersionList
+                List<VersionBasicInfo> AllVersionList,
+                List<VersionBasicInfo> ReleaseVersionList,
+                List<VersionBasicInfo> SnapshotVersionList
             )
         {
-            _AllItems = AllVersionList;
-            _ReleaseItems = ReleaseVersionList;
-            _SnapshotItems = SnapshotVersionList;
+            this.AllItems = AllVersionList;
+            this.ReleaseItems = ReleaseVersionList;
+            this.SnapshotItems = SnapshotVersionList;
         }
+        
         [ObservableProperty]
-        public List<string> _AllItems;
+        public List<VersionBasicInfo> _AllItems;
         [ObservableProperty]
-        public List<string> _ReleaseItems;
+        public List<VersionBasicInfo> _ReleaseItems;
         [ObservableProperty]
-        public List<string> _SnapshotItems;
+        public List<VersionBasicInfo> _SnapshotItems;
 
         [ObservableProperty]
         public UserControl _DownloadPaneContent;
         [ObservableProperty]
         public bool _IsPaneShow = false;
 
-        private string selectedItem;
-        public string SelectedItem
+        private VersionBasicInfo selectedItem;
+        public VersionBasicInfo SelectedItem
         {
             get { return selectedItem; }
             set
             {
-                if (selectedItem == value)
+                if (EqualityComparer<VersionBasicInfo>.Default.Equals(selectedItem, value))
                     return;
                 selectedItem = value;
 
                 // 点击操作
                 // 展开并显示Pane
                 IsPaneShow = true;
-                DownloadPaneContent = new DownloadPane(value,this);
+                DownloadPaneContent = new DownloadPane(value, this);
             }
         }
     }

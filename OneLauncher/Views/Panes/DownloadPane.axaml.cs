@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using OneLauncher.Core;
 using OneLauncher.Views.ViewModels;
 
 namespace OneLauncher.Views.Panes;
@@ -14,7 +15,7 @@ internal partial class DownloadPane : UserControl
         this.DataContext = new PaneViewModels.DownloadPaneViewModel();
     }
 #endif
-    public DownloadPane(string Version, DownloadPageViewModel downloadPage)
+    public DownloadPane(VersionBasicInfo Version, DownloadPageViewModel downloadPage)
     {
         InitializeComponent();
         this.DataContext = new PaneViewModels.DownloadPaneViewModel(Version,downloadPage);
