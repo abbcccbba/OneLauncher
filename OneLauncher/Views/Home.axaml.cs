@@ -14,7 +14,8 @@ public partial class Home : UserControl
     public Home()
     {
         InitializeComponent();
-        //Task.Run(async () => await LaunchGame("1.21.5",new UserModel("ZhiWei","0","0","msa")));
+        Task.Run(async () => await LaunchGame("1.21.5",new UserModel("ZhiWei","0")));
+        Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.21.5",new UserModel("ZhiWei","0")).BuildCommand());
     }
     
     public async static Task LaunchGame(string GameVersion,UserModel loginUserModel)
@@ -42,7 +43,6 @@ public partial class Home : UserControl
                         "-Dfml.ignoreInvalidMinecraftCertificates=True",
                         "-Dfml.ignorePatchDiscrepancies=True",
                         "--enable-native-access=ALL-UNNAMED"
-                    //"-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8 -Dfile.encoding=COMPAT"
                     )
                 );
             process.StartInfo.RedirectStandardOutput = true;

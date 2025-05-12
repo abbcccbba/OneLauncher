@@ -23,24 +23,28 @@
 				</TransitioningContentControl.PageTransition>
 			</TransitioningContentControl>
 		</SplitView.Pane>
-		<ScrollViewer>
-		<StackPanel HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-					Spacing="4">
-			<TextBlock FontSize="42" Text="选择下载版本"/>
-			<AutoCompleteBox Width="300" CornerRadius="6">
-			</AutoCompleteBox>
+		<!-- 版本列表 -->
+		<Panel Margin="12">
+			<Button Content="查看下载任务" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+			<ScrollViewer>
+				<StackPanel HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Spacing="4">
+					<TextBlock FontSize="42" Text="选择下载版本"/>
+					<AutoCompleteBox Width="300" CornerRadius="6">
+					</AutoCompleteBox>
 		
-			<Expander Margin="0,36,0,0" CornerRadius="6" Header="正式版" Width="300">
-				<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
-			</Expander>
-			<Expander Margin="0,12,0,0" CornerRadius="6" Header="快照版" Width="300">
-				<ListBox ItemsSource="{Binding SnapshotItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
-			</Expander>
-			<Expander Margin="0,12,0,0" CornerRadius="6" Header="所有版本" Width="300">
-				<ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
-			</Expander>
-		</StackPanel>
-		</ScrollViewer>
+					<Expander Margin="0,36,0,0" CornerRadius="6" Header="正式版" Width="300">
+						<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
+					</Expander>
+					<Expander Margin="0,12,0,0" CornerRadius="6" Header="快照版" Width="300">
+						<ListBox ItemsSource="{Binding SnapshotItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
+					</Expander>
+					<Expander Margin="0,12,0,0" CornerRadius="6" Header="所有版本" Width="300">
+						<ListBox ItemsSource="{Binding AllItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" />
+					</Expander>
+				</StackPanel>
+			</ScrollViewer>
+		</Panel>
 	</SplitView>
 </UserControl>

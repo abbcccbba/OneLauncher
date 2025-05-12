@@ -26,7 +26,8 @@
 			Grid.Row="0"
 			HorizontalAlignment="Right"
             Padding="12"
-			Command="{Binding ToDownloadCommand}">
+			Command="{Binding ToDownloadCommand}"
+			IsEnabled="{Binding IsAllowDownloading}">
 			<StackPanel Orientation="Horizontal" Spacing="8">
 				<Image Source="/Assets/icos/downloadnow.png" Width="28" Height="28"/>
 				<TextBlock x:Name="VersionText"
@@ -43,10 +44,17 @@
 		<!-- 下载按钮和进度条 -->
 		<Separator Grid.Row="1" Margin="0,24,0,52" Background="#252423"/>
 		<Grid Grid.Row="2" Margin="0,0,0,0" >
-			<StackPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
-				<TextBox Watermark="输入版本名称" Width="300"/>
-				<Button Content="下一步"/>
+			<!-- 给模组添加预留控件 -->
+			<StackPanel>
+				<StackPanel Spacing="12" Orientation="Horizontal" HorizontalAlignment="Right">
+				
+				</StackPanel>
 			</StackPanel>
+			<ProgressBar  
+				Margin="0 10" Height="20"
+                Minimum="0" Maximum="100" Value="{Binding CurrentProgress}"
+                ShowProgressText="True" IsEnabled="{Binding IsStartDownloading}"
+				/>
 		</Grid>
 	</Grid>
 </UserControl>

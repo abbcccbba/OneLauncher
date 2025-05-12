@@ -9,9 +9,9 @@ namespace OneLauncher.Core
 {
     public class VersionAssetIndex
     {
-        public static List<SFNTD> ParseAssetsIndex(string jsonString, string path)
+        public static List<NdDowItem> ParseAssetsIndex(string jsonString, string path)
         {
-            var assets = new List<SFNTD>();
+            var assets = new List<NdDowItem>();
             var jsonDocument = JsonDocument.Parse(jsonString);
             var objects = jsonDocument.RootElement.GetProperty("objects");
             foreach (var property in objects.EnumerateObject())
@@ -21,7 +21,7 @@ namespace OneLauncher.Core
 
                 string hashPrefix = hash.Substring(0, 2);
 
-                assets.Add(new SFNTD($"https://resources.download.minecraft.net/{hashPrefix}/{hash}", hash, path + $".minecraft/assets/objects/{hashPrefix}/{hash}"));
+                assets.Add(new NdDowItem($"https://resources.download.minecraft.net/{hashPrefix}/{hash}", hash, path + $".minecraft/assets/objects/{hashPrefix}/{hash}"));
             }
 
             return assets;

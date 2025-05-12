@@ -18,8 +18,9 @@ public static class Init
         Directory.CreateDirectory(BasePath); // 确保目录存在
 
         // 初始化 ConfigManger
-        ConfigManger = new DBManger(new AppConfig(), BasePath);
-        Debug.WriteLine(IsNetwork);
+        ConfigManger = new DBManger(new AppConfig() { DefaultUserModel =
+            // 默认用户模型
+            new UserModel ("ZhiWei",Guid.NewGuid().ToString())}, BasePath);
         // 检查网络连接状态
         try
         {
@@ -33,5 +34,6 @@ public static class Init
         {
             IsNetwork = false; // 网络不可用
         }
+        Debug.WriteLine($"IsNetwork:{IsNetwork}");
     }
 }

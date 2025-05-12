@@ -10,7 +10,7 @@ namespace OneLauncher.Core;
 
 public static class Download
 {
-    public static async Task DownloadToMinecraft(SFNTD FDI)
+    public static async Task DownloadToMinecraft(NdDowItem FDI)
     {
         try
         {
@@ -78,7 +78,7 @@ public static class Download
         }
     }
     public static async Task DownloadToMinecraft(
-        List<SFNTD> FDI, 
+        List<NdDowItem> FDI, 
         IProgress<(int downloadedFiles, int totalFiles, int verifiedFiles)> progress = null,
         int maxConcurrentDownloads = 16, 
         int maxConcurrentSha1 = 16,
@@ -88,7 +88,7 @@ public static class Download
         try
         {
             // 检查文件是否已存在并创建文件夹
-            var filesToDownload = new List<SFNTD>();
+            var filesToDownload = new List<NdDowItem>();
             foreach (var item in FDI)
             {
                 if (File.Exists(item.path)) continue;
