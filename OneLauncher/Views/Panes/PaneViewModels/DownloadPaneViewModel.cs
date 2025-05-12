@@ -1,6 +1,7 @@
 ﻿
 
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
@@ -8,7 +9,9 @@ using OneLauncher.Core;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 namespace OneLauncher.Views.Panes.PaneViewModels;
 internal partial class DownloadPaneViewModel : BaseViewModel
 {
@@ -19,14 +22,16 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         VersionName = "1.21.5";
     }
 #endif
-    public DownloadPaneViewModel(string Version,DownloadPageViewModel downloadPane)
+    public DownloadPaneViewModel(VersionBasicInfo Version,DownloadPageViewModel downloadPane)
     {
-        VersionName = Version;
+        VersionName = Version.name;
+        thisVersionBasicInfo = Version;
         this.downloadPage = downloadPane;
         // 无网络时拒绝下载
         if(!Init.IsNetwork)
             IsAllowDownloading = false;
     }
+    private VersionBasicInfo thisVersionBasicInfo;
     DownloadPageViewModel downloadPage;
     [ObservableProperty]
     public string _VersionName;
@@ -34,14 +39,71 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public bool _IsAllowDownloading = true; // 默认允许下载
 
     [RelayCommand]
-    public void ToDownload()
+    public async void ToDownload()
     {
+        // 在配置文件中添加版本信息
         Init.ConfigManger.AddVersion(new aVersion 
         {
             VersionID = VersionName,
             IsMod = false,
             AddTime = DateTime.Now
         });
+        // 新建线程避免阻塞UI
+        await ToDownload(thisVersionBasicInfo);
+    }
+    [ObservableProperty]
+    public string _D_DM = "下载未开始";
+    [ObservableProperty]
+    public double _CurrentProgress = 0;
+    private async Task ToDownload(VersionBasicInfo versionBasicInfo)
+    {
+
+        // 阶段1：下载版本文件（JSON）
+        D_DM = "正在下载版本文件...";
+        CurrentProgress = 0;
+        await Core.Download.DownloadToMinecraft(versionBasicInfo.url, $"{Init.BasePath}.minecraft/versions/{versionBasicInfo.name}/{versionBasicInfo.name}.json");
+        CurrentProgress = 100;
+        
+        // 阶段2：下载库文件
+        VersionInfomations a = new VersionInfomations(File.ReadAllText($"{Init.BasePath}.minecraft/versions/{versionBasicInfo.name}/{versionBasicInfo.name}.json"),Init.BasePath);
+        D_DM = "正在下载库文件...";
+        
+        await Core.Download.DownloadToMinecraft(a.GetLibrarys(), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
+        => Dispatcher.UIThread.Post(() =>
+        {
+            D_DM = progress.verifiedFiles > 0 ? "正在校验库文件..." : "正在下载库文件...";
+            double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
+            CurrentProgress = percentage;
+        })), 24, 24, true);
+
+        // 阶段3：下载主文件
+        D_DM = "正在下载主文件...";
+        CurrentProgress = 0;
+        await Core.Download.DownloadToMinecraft(a.GetMainFile(versionBasicInfo.name));
+        CurrentProgress = 100;
+
+        // 阶段4：下载资源索引文件（JSON）
+        D_DM = "正在下载资源索引文件...";
+        CurrentProgress = 0;
+        var a1 = a.GetAssets();
+        await Core.Download.DownloadToMinecraft(a1);
+        CurrentProgress = 100;
+
+        // 阶段5：下载资源文件
+        D_DM = "正在下载资源文件...";
+        await Core.Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(File.ReadAllText(a1.path), Init.BasePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
+        => Dispatcher.UIThread.Post(() =>
+        {
+            D_DM = progress.verifiedFiles > 0 ? "正在校验资源文件..." : "正在下载资源文件...";
+            double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
+            CurrentProgress = percentage;
+        })), 64, 32, true);
+
+        // 下载完成
+        Dispatcher.UIThread.Post(() =>
+        {
+            D_DM = "下载完成";
+        }); 
     }
     [RelayCommand]
     public void ClosePane()

@@ -46,10 +46,10 @@ public partial class download : UserControl
                 {
                     this.DataContext = new Views.ViewModels.DownloadPageViewModel
                     (
-                        //提取name属性
-                        vl.GetAllVersionList().Select(x => x.name).ToList(),
-                        vl.GetReleaseVersionList().Select(x => x.name).ToList(),
-                        vl.GetSnapshotVersionList().Select(x => x.name).ToList()
+                        //传入原始版本列表
+                        vl.GetAllVersionList(),
+                        vl.GetReleaseVersionList(),
+                        vl.GetSnapshotVersionList()
                     );
                 });
             }

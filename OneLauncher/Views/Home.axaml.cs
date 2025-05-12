@@ -14,19 +14,20 @@ public partial class Home : UserControl
     public Home()
     {
         InitializeComponent();
-        Task.Run(async () => await LaunchGame("1.21.5",new UserModel("ZhiWei","0")));
-        Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.21.5",new UserModel("ZhiWei","0")).BuildCommand());
+        //string jvm;
+        Task.Run(async () => await LaunchGame("1.15.1",new UserModel("ZhiWei","0"),"D:\\mc\\"));
+        Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.15.1",new UserModel("ZhiWei","0")).BuildCommand());
     }
     
-    public async static Task LaunchGame(string GameVersion,UserModel loginUserModel)
+    public async static Task LaunchGame(string GameVersion,UserModel loginUserModel,string GamePath)
     {
         using (Process process = new Process())
         {
-            process.StartInfo.FileName = "java";
+            process.StartInfo.FileName = "C:\\Users\\wwwin\\.jdks\\ms-21.0.6\\bin\\java.exe";
             process.StartInfo.Arguments =
                 new LaunchCommandBuilder
                 (
-                    Init.BasePath,
+                    GamePath,
                     GameVersion,
                     loginUserModel
                 ).BuildCommand
