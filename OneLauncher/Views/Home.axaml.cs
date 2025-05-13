@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Views;
+using OneLauncher.Views.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -14,16 +15,16 @@ public partial class Home : UserControl
     public Home()
     {
         InitializeComponent();
-        //string jvm;
-        Task.Run(async () => await LaunchGame("1.15.1",new UserModel("ZhiWei","0"),"D:\\mc\\"));
-        Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.15.1",new UserModel("ZhiWei","0"),Init.systemType).BuildCommand());
+        //this.DataContext = new MinecraftDashboardViewModel();
+        //Task.Run(() => LaunchGame("1.16.5", new UserModel("ZhiWei", "0"), Init.BasePath));
+        //Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.21.1",new UserModel("ZhiWei","0"),Init.systemType).BuildCommand());
     }
     
     public async static Task LaunchGame(string GameVersion,UserModel loginUserModel,string GamePath)
     {
         using (Process process = new Process())
         {
-            process.StartInfo.FileName = "C:\\Users\\wwwin\\.jdks\\ms-21.0.6\\bin\\java.exe";
+            process.StartInfo.FileName = "java";
             process.StartInfo.Arguments =
                 new LaunchCommandBuilder
                 (

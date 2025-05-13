@@ -2,9 +2,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
+			 xmlns:material="using:Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Home">
-	<Panel>
-		
-	</Panel>
+	<Grid ColumnDefinitions="2*,1,*">
+		<Image Grid.Column="0" Stretch="UniformToFill" Source="/Assets/Imgs/map.png"/>
+		<Grid Grid.Column="0">
+			
+		</Grid>
+		<GridSplitter
+			Width="1"
+			Grid.Column="1"
+			Background="Transparent" 
+			ResizeDirection="Columns"/>
+		<Grid Grid.Column="2" Background="Transparent">
+			
+		</Grid>
+	</Grid>
 </UserControl>

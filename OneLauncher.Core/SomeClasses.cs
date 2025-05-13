@@ -11,7 +11,7 @@ namespace OneLauncher.Core;
 /// 描述单个下载项
 /// </summary>
 /// 
-public struct NdDowItem
+public class NdDowItem
 {
     /// <param name="Url">下载地址</param>
     /// <param name="Path">保存地址（含文件名）</param>
@@ -39,7 +39,7 @@ public struct aVersion
     public bool IsMod { get; set; }//预留
     public DateTime AddTime { get; set; } 
 }
-public struct VersionBasicInfo
+public class VersionBasicInfo
 {
     public VersionBasicInfo(string name, string type, string url, string time)
     {
@@ -47,6 +47,11 @@ public struct VersionBasicInfo
         this.type = type;
         this.time = time;
         this.url = url;
+    }
+    // 如果不重写该方法 AutoCompleteBox 会报错
+    public override string ToString()
+    {
+        return name;
     }
     public string name { get; set; }
     public string type { get; set; }
@@ -60,7 +65,7 @@ public struct UserModel
         this.Name = Name;
         this.uuid = uuid;
         this.accessToken = accessToken;
-        if (accessToken != "0")
+        if (accessToken == "0")
             userType = "legacy";
         else
             userType = "msa";
