@@ -17,6 +17,7 @@ public class LaunchCommandBuilder
     private readonly string version;
     private readonly UserModel userModel;
     private readonly string basePath;
+    private readonly SystemType systemType;
     /// <param name="basePath">游戏基本路径（不含.minecraft，末尾加'/'）</param>
     /// <param name="version">游戏版本</param>
     /// <param name="userModel">以哪个用户模型来拼接启动参数？</param>
@@ -26,6 +27,7 @@ public class LaunchCommandBuilder
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
+        this.systemType = system;
         versionInfo = new VersionInfomations(
             File.ReadAllText($"{basePath}.minecraft/versions/{version}/{version}.json"),
             basePath,system
@@ -43,9 +45,9 @@ public class LaunchCommandBuilder
             throw new InvalidOperationException("JVM arguments not found in version.json");
         }
 
-        string osName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "windows" :
-                        RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "linux" :
-                        RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "osx" : "";
+        string osName = systemType == SystemType.windows ? "windows" :
+                        systemType == SystemType.linux ? "linux" :
+                        systemType == SystemType.osx ? "osx" : "";
         string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
 
         var placeholders = new Dictionary<string, string>
@@ -92,7 +94,7 @@ public class LaunchCommandBuilder
     }
     private string BuildClassPath()
     {
-        string separator = OperatingSystem.IsWindows() ? ";" : ":";
+        string separator = systemType == SystemType.windows ? ";" : ":";
         string Libs = string.Join(separator, versionInfo
             .GetLibrarys()
             .Select(x => x.path) // 提取path属性

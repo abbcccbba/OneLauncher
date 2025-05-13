@@ -23,7 +23,7 @@ public static class Init
             // 默认用户模型
             new UserModel ("ZhiWei",Guid.NewGuid().ToString())}, BasePath);
         // 初始化系统信息
-        systemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
+        systemType =       RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
                            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
                            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.windows;
         // 检查网络连接状态

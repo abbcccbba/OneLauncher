@@ -18,23 +18,18 @@
 				   DisplayMode="CompactInline"
 				   OpenPaneLength="180"
 				   CompactPaneLength="80"
-				   PaneBackground="Transparent">
+				PaneBackground="Transparent">
 		<!-- 侧边栏 -->
 		<SplitView.Pane>
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="*"/>
-				</Grid.RowDefinitions>
-
+			<Grid RowDefinitions="Auto,*">
 				<!-- 切换侧边栏按钮 -->
 				<Button x:Name="ToggleSidebarButton"
                         Grid.Row="0"
-                        Background="Transparent"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
                         Margin="28,8,28,0"
-                        Click="ToggleSidebar_Click">
+                        Click="ToggleSidebar_Click"
+						Background="Transparent">
 					<Image Source="/Assets/icos/menu.png" Width="24" Height="24"/>
 				</Button>
 
@@ -196,11 +191,7 @@
 
 		<!-- 主内容区域 -->
 
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="30"/>
-				<RowDefinition Height="*"/>
-			</Grid.RowDefinitions>
+		<Grid RowDefinitions="30,*">
 			<Border Grid.Row="0">
 				<!-- 标题 -->
 				<TextBlock Text="One Launcher"
@@ -211,7 +202,7 @@
 			</Border>
 			<Panel Grid.Row="1" Margin="0,0,0,0">
 				<TransitioningContentControl
-					x:Name="PageContent" Background="#FFFFFF">
+					x:Name="PageContent">
 					<TransitioningContentControl.PageTransition>
 						<!-- 页面切换动画 -->
 						<PageSlide Orientation="Vertical" Duration="0:00:00.23">

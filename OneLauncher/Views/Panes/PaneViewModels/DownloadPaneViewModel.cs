@@ -22,14 +22,17 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         VersionName = "1.21.5";
     }
 #endif
-    public DownloadPaneViewModel(VersionBasicInfo Version,DownloadPageViewModel downloadPane)
+    public DownloadPaneViewModel(VersionBasicInfo Version, DownloadPageViewModel downloadPane)
     {
         VersionName = Version.name;
         thisVersionBasicInfo = Version;
         this.downloadPage = downloadPane;
         // 无网络时拒绝下载
-        if(!Init.IsNetwork)
+        if (!Init.IsNetwork) 
+        {
             IsAllowDownloading = false;
+            VersionName = "网络不可用";
+        }
     }
     private VersionBasicInfo thisVersionBasicInfo;
     DownloadPageViewModel downloadPage;
@@ -41,15 +44,17 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public async void ToDownload()
     {
+        // 新建线程避免阻塞UI
+        await ToDownload(thisVersionBasicInfo);
+        // 下载完毕后禁用下载按钮
+        IsAllowDownloading = false;
         // 在配置文件中添加版本信息
-        Init.ConfigManger.AddVersion(new aVersion 
+        Init.ConfigManger.AddVersion(new aVersion
         {
             VersionID = VersionName,
             IsMod = false,
             AddTime = DateTime.Now
         });
-        // 新建线程避免阻塞UI
-        await ToDownload(thisVersionBasicInfo);
     }
     [ObservableProperty]
     public string _D_DM = "下载未开始";

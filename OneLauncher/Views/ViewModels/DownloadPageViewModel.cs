@@ -28,6 +28,7 @@ namespace OneLauncher.Views.ViewModels
             this.AllItems = AllVersionList;
             this.ReleaseItems = ReleaseVersionList;
             this.SnapshotItems = SnapshotVersionList;
+            AutoVersionList = AllVersionList;
         }
         
         [ObservableProperty]
@@ -41,6 +42,8 @@ namespace OneLauncher.Views.ViewModels
         public UserControl _DownloadPaneContent;
         [ObservableProperty]
         public bool _IsPaneShow = false;
+        [ObservableProperty]
+        public List<VersionBasicInfo> _AutoVersionList;
 
         private VersionBasicInfo selectedItem;
         public VersionBasicInfo SelectedItem
@@ -48,7 +51,8 @@ namespace OneLauncher.Views.ViewModels
             get { return selectedItem; }
             set
             {
-                if (EqualityComparer<VersionBasicInfo>.Default.Equals(selectedItem, value))
+                // 避免未选中时转换类型导致异常
+                if (value == null)
                     return;
                 selectedItem = value;
 
