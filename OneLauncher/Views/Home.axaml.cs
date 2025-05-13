@@ -16,7 +16,7 @@ public partial class Home : UserControl
         InitializeComponent();
         //string jvm;
         Task.Run(async () => await LaunchGame("1.15.1",new UserModel("ZhiWei","0"),"D:\\mc\\"));
-        Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.15.1",new UserModel("ZhiWei","0")).BuildCommand());
+        Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.15.1",new UserModel("ZhiWei","0"),Init.systemType).BuildCommand());
     }
     
     public async static Task LaunchGame(string GameVersion,UserModel loginUserModel,string GamePath)
@@ -29,7 +29,8 @@ public partial class Home : UserControl
                 (
                     GamePath,
                     GameVersion,
-                    loginUserModel
+                    loginUserModel,
+                    Init.systemType
                 ).BuildCommand
                 (
                     string.Join

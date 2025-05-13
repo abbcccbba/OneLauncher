@@ -20,14 +20,15 @@ public class LaunchCommandBuilder
     /// <param name="basePath">游戏基本路径（不含.minecraft，末尾加'/'）</param>
     /// <param name="version">游戏版本</param>
     /// <param name="userModel">以哪个用户模型来拼接启动参数？</param>
-    public LaunchCommandBuilder(string basePath, string version, UserModel userModel)
+    /// <param name="system">运行时系统类型</param>
+    public LaunchCommandBuilder(string basePath, string version, UserModel userModel,SystemType system)
     {
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
         versionInfo = new VersionInfomations(
             File.ReadAllText($"{basePath}.minecraft/versions/{version}/{version}.json"),
-            basePath
+            basePath,system
         );
     }
 
@@ -98,7 +99,7 @@ public class LaunchCommandBuilder
             .Select(s => $"\"{s}\"")
             .ToList());
         // 三引号内前后加系统分隔符，我也不知道为什么反正不加会报错
-        string cpLibs = $"\"\"{separator}{Libs}\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"";
+        string cpLibs = $"\"\"{separator}{Libs}{separator}\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"";
         return cpLibs;
     }
     private string BuildGameArgs()
@@ -124,7 +125,6 @@ public class LaunchCommandBuilder
             if (rule.Os != null)
             {
                 if (rule.Os.Name != null && rule.Os.Name != osName) matches = false;
-                if (rule.Os.Arch != null && rule.Os.Arch != arch) matches = false;
             }
             if (matches)
             {

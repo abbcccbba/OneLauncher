@@ -70,3 +70,9 @@ public struct UserModel
     public string accessToken { get; set; }
     public string userType { get; set; }
 }
+public enum SystemType
+{
+    windows,
+    osx,
+    linux
+}
