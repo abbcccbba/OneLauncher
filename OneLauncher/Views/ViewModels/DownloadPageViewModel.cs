@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using ReactiveUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
@@ -13,6 +12,7 @@ using OneLauncher.Views;
 using Avalonia.Controls;
 using OneLauncher.Views.Panes;
 using OneLauncher.Core;
+using System.Runtime.CompilerServices;
 namespace OneLauncher.Views.ViewModels
 {
     internal partial class DownloadPageViewModel : BaseViewModel

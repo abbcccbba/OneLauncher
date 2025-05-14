@@ -17,13 +17,38 @@ public partial class MainWindow : Window
     private download downloadPage;
     private settings settingsPage;
     private account accountPage;
-
+    public static MainWindow mainwindow;
     public MainWindow()
     {
         InitializeComponent();
         Codes.Init.Initialize();
+        mainwindow = this;
     }
-
+    public enum MainPage
+    {
+        HomePage,VersionPage,AccountPage,DownloadPage, SettingsPage
+    }
+    public void MainPageControl(MainPage page)
+    {
+        switch(page)
+        {
+            case MainPage.HomePage:
+                PageContent.Content = HomePage;
+                break;
+            case MainPage.VersionPage:
+                PageContent.Content = versionPage;
+                break;
+            case MainPage.AccountPage:
+                PageContent.Content = accountPage;
+                break;
+            case MainPage.DownloadPage:
+                PageContent.Content = downloadPage;
+                break;
+            case MainPage.SettingsPage:
+                PageContent.Content = settingsPage;
+                break;
+        }
+    }
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
@@ -34,7 +59,6 @@ public partial class MainWindow : Window
         settingsPage = new settings();
         PageContent.Content = HomePage;
     }
-
     // 统一的事件处理函数
     private void Navigate_Click(object sender, RoutedEventArgs e)
     {

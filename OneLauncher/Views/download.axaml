@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Views.download"
-			 Background="White">
+			 Background="White"
+			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow}"
                DisplayMode="Inline"
                OpenPaneLength="650"
@@ -12,21 +13,11 @@
 		<SplitView.Pane>
 			<TransitioningContentControl
 					Content="{Binding DownloadPaneContent}" Background="#FAFAFA">
-				<TransitioningContentControl.PageTransition>
-					<PageSlide Orientation="Vertical" Duration="0:00:00.23">
-						<PageSlide.SlideInEasing>
-							<QuinticEaseIn/>
-						</PageSlide.SlideInEasing>
-						<PageSlide.SlideOutEasing>
-							<QuinticEaseInOut/>
-						</PageSlide.SlideOutEasing>
-					</PageSlide>
-				</TransitioningContentControl.PageTransition>
+				
 			</TransitioningContentControl>
 		</SplitView.Pane>
 		<!-- 版本列表 -->
 		<Panel Margin="12">
-			<Button Content="查看下载任务" HorizontalAlignment="Right" VerticalAlignment="Top"/>
 			<ScrollViewer>
 				<StackPanel HorizontalAlignment="Center"
 							VerticalAlignment="Center"
