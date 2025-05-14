@@ -33,7 +33,7 @@ public class NdDowItem
     public string? sha1;
     public string path;
 }
-public struct aVersion
+public class aVersion
 {
     public string VersionID { get; set; }
     public bool IsMod { get; set; }//预留
@@ -41,7 +41,7 @@ public struct aVersion
 }
 public class VersionBasicInfo
 {
-    public VersionBasicInfo(string name, string type, string url, string time)
+    public VersionBasicInfo(string name, string type, string url, DateTime time)
     {
         this.name = name;
         this.type = type;
@@ -55,20 +55,25 @@ public class VersionBasicInfo
     }
     public string name { get; set; }
     public string type { get; set; }
-    public string time { get; set; }
+    public DateTime time { get; set; }
     public string url { get; set; }
 }
 public struct UserModel
 {
-    public UserModel(string Name, string uuid, string accessToken = "0")
+    public UserModel(string Name, string uuid, string accessToken = null)
     {
+        if (accessToken == null)
+        {
+            userType = "legacy";
+            accessToken = Guid.NewGuid().ToString();
+        }
+        else
+        {
+            userType = "msa"; 
+            this.accessToken = accessToken;
+        }
         this.Name = Name;
         this.uuid = uuid;
-        this.accessToken = accessToken;
-        if (accessToken == "0")
-            userType = "legacy";
-        else
-            userType = "msa";
     }
     public string Name { get; set; }
     public string uuid { get; set; }

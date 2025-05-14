@@ -19,8 +19,11 @@ public partial class Home : UserControl
         //Task.Run(() => LaunchGame("1.16.5", new UserModel("ZhiWei", "0"), Init.BasePath));
         //Debug.WriteLine(new LaunchCommandBuilder(Init.BasePath,"1.21.1",new UserModel("ZhiWei","0"),Init.systemType).BuildCommand());
     }
-    
-    public async static Task LaunchGame(string GameVersion,UserModel loginUserModel,string GamePath)
+    /// <param name="GameVersion">游戏版本</param>
+    /// <param name="loginUserModel">以哪个用户模型启动游戏</param>
+    /// <param name="GamePath">游戏基本路径</param>
+    /// <returns></returns>
+    public async static Task LaunchGame(string GameVersion,UserModel loginUserModel,string GamePath = null)
     {
         using (Process process = new Process())
         {
@@ -28,7 +31,7 @@ public partial class Home : UserControl
             process.StartInfo.Arguments =
                 new LaunchCommandBuilder
                 (
-                    GamePath,
+                    GamePath ?? Init.BasePath,
                     GameVersion,
                     loginUserModel,
                     Init.systemType

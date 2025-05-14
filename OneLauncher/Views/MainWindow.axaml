@@ -202,20 +202,23 @@
 			</Border>
 			<Panel Grid.Row="1" Margin="0,0,0,0">
 				<TransitioningContentControl
-					x:Name="PageContent">
+					x:Name="PageContent" Background="White">
+					<!--
 					<TransitioningContentControl.PageTransition>
-						<!-- 页面切换动画 -->
-						<PageSlide Orientation="Vertical" Duration="0:00:00.23">
+						 页面切换动画
+						<PageSlide Duration="0:00:00.23">
+							
 							<PageSlide.SlideInEasing>
 								<QuinticEaseIn/>
 							</PageSlide.SlideInEasing>
 							<PageSlide.SlideOutEasing>
 								<QuinticEaseInOut/>
 							</PageSlide.SlideOutEasing>
+							
 						</PageSlide>
-					</TransitioningContentControl.PageTransition>
-				</TransitioningContentControl>
-			</Panel>
+					</TransitioningContentControl.PageTransition> -->
+				</TransitioningContentControl> 
+		</Panel>
 		</Grid>
 	</SplitView>
 </Window>

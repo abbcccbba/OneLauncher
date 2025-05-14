@@ -88,7 +88,7 @@ namespace OneLauncher.Core
             [JsonPropertyName("url")]
             public string Url { get; set; }
             [JsonPropertyName("releaseTime")]
-            public string Time { get; set; }
+            public DateTime Time { get; set; }
 
         }
     }

@@ -6,7 +6,6 @@
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Home">
 	<Grid ColumnDefinitions="2*,1,*">
-		<Image Grid.Column="0" Stretch="UniformToFill" Source="/Assets/Imgs/map.png"/>
 		<Grid Grid.Column="0">
 			
 		</Grid>
