@@ -110,12 +110,7 @@ public class LaunchCommandBuilder
         foreach (var path in versionInfo.GetLibrarys().Select(x => x.path))
         sb.Append($"\"{path}\"{separator}");
         sb.Append($"\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"");
-        Task.Run(() => 
-        {
-            // 启动一个新线程把内容写进缓存
-            Directory.CreateDirectory(Path.GetDirectoryName(cacheFilePath));
-            File.WriteAllText(cacheFilePath, sb.ToString());
-        });
+        File.WriteAllTextAsync(cacheFilePath, sb.ToString());
         return sb.ToString();
     }
     private string BuildGameArgs()

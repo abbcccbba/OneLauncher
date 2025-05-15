@@ -28,11 +28,11 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         thisVersionBasicInfo = Version;
         this.downloadPage = downloadPane;
         // 无网络时拒绝下载
-        if (!Init.IsNetwork) 
-        {
-            IsAllowDownloading = false;
-            VersionName = "网络不可用";
-        }
+        //if (!Init.IsNetwork) 
+        //{
+        //    IsAllowDownloading = false;
+        //    VersionName = "网络不可用";
+        //}
     }
     private VersionBasicInfo thisVersionBasicInfo;
     DownloadPageViewModel downloadPage;

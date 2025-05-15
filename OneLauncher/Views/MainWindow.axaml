@@ -201,7 +201,16 @@
 							</PageSlide.SlideOutEasing>
 						</PageSlide>
 					</TransitioningContentControl.PageTransition> 
-				</TransitioningContentControl> 
+				</TransitioningContentControl>
+				<Border x:Name="FytB"
+						IsVisible="False"
+						Margin="16" 
+						Background="LightBlue"
+						HorizontalAlignment="Right" 
+						VerticalAlignment="Bottom" 
+						CornerRadius="5" >
+					<TextBlock Margin="6" x:Name="FytFkA"/>
+				</Border>	
 			</Panel>
 		</Grid>
 	</SplitView>

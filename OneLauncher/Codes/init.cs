@@ -11,7 +11,6 @@ public static class Init
 {
     public static string BasePath { get; private set; }
     public static DBManger ConfigManger { get; private set; }
-    public static bool IsNetwork { get; private set; }
     public static SystemType systemType { get; private set; }
     public static async Task Initialize()
     {
@@ -26,19 +25,5 @@ public static class Init
         systemType =       RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
                            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
                            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
-        // 检查网络连接状态
-        try
-        {
-            using (var ping = new Ping())
-            {
-                var reply = await ping.SendPingAsync("microsoft.com", 1000); 
-                IsNetwork = reply.Status == IPStatus.Success;
-            }
-        }
-        catch
-        {
-            IsNetwork = false; // 网络不可用
-        }
-        Debug.WriteLine($"IsNetwork:{IsNetwork}");
     }
 }
