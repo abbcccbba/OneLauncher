@@ -53,6 +53,13 @@ public partial class MainWindow : Window
     {
         PageContent.Content = page;
     }
+    public async void Showfyt(string text)
+    {
+        FytFkA.Text = text;
+        FytB.IsVisible = true;
+        await Task.Delay(1000);
+        FytB.IsVisible = false;
+    }
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);

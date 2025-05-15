@@ -40,17 +40,15 @@ public static class Download
                     }
                     stream.Position = 0; //重置流位置到开头
                                             // SHA1校验
-                    ///*
                     using (SHA1 sha1Hash = SHA1.Create())
                     {
-                        byte[] hash = await Task.Run(() => sha1Hash.ComputeHash(stream)); // 异步计算 SHA1
+                        byte[] hash = await sha1Hash.ComputeHashAsync(stream); 
                         string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                         if (!string.Equals(calculatedSha1, FDI.sha1, StringComparison.OrdinalIgnoreCase))
                         {
                             throw new InvalidDataException($"SHA1校验失败。文件: {FDI.path}, 预期: {FDI.sha1}, 实际: {calculatedSha1}");
                         }
                     }
-                    //*/
                 }
             }
 
@@ -179,7 +177,7 @@ public static class Download
                             using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
                             using (var sha1Hash = SHA1.Create())
                             {
-                                byte[] hash = await Task.Run(() => sha1Hash.ComputeHash(stream));
+                                byte[] hash = await sha1Hash.ComputeHashAsync(stream);
                                 string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                                 Interlocked.Increment(ref verifiedFiles);
                                 progress?.Report((downloadedFiles, totalFiles, verifiedFiles));

@@ -1,16 +1,17 @@
-﻿using OneLauncher.Core;
+﻿using Avalonia.Controls;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using OneLauncher.Codes;
+using OneLauncher.Core;
+using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using OneLauncher.Codes;
-using Avalonia.Controls;
-using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
-using System.IO;
-using OneLauncher.Views.Panes;
 
 namespace OneLauncher.Views.ViewModels;
 internal partial class VersionItem
@@ -23,48 +24,44 @@ internal partial class VersionItem
     [RelayCommand]
     public void LaunchGame(aVersion version)
     {
+        MainWindow.mainwindow.Showfyt("正在启动游戏...");
         var game = new Game();
-        game.GameStartedEvent += () =>
-        {
-            Debug.WriteLine("游戏启动事件触发！");
-        };
-        Task.Run(() =>game.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,Init.BasePath));
+        game.GameStartedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() =>MainWindow.mainwindow.Showfyt("游戏已启动！"));
+        game.GameClosedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.Showfyt("游戏已关闭！"));
+        Task.Run(() => game.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,Init.BasePath));
     }
     [RelayCommand]
     public void PinToDesktop(aVersion version)
     {
-        // 避免阻塞UI线程
-        Task.Run(() =>
-        {
-            File.WriteAllText(
-                Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                    $"启动{version.VersionID}."+(Init.systemType == SystemType.windows ? "bat" : "sh")),
-                "java " + new LaunchCommandBuilder
-                    (
-                        Init.BasePath,
-                        version.VersionID,
-                        Init.ConfigManger.config.DefaultUserModel,
-                        Init.systemType
-                    ).BuildCommand
-                    (
-                        string.Join
-                        (
-                            " ",
-                            "-XX:+UseG1GC",
-                            "-XX:+UnlockExperimentalVMOptions",
-                            "-XX:-OmitStackTraceInFastThrow",
-                            "-XX:ParallelGCThreads=4",
-                            "-Djdk.lang.Process.allowAmbiguousCommands=true",
-                            "-Dlog4j2.formatMsgNoLookups=true",
-                            "-Dfml.ignoreInvalidMinecraftCertificates=True",
-                            "-Dfml.ignorePatchDiscrepancies=True",
-                            // 指定目录，避免在桌面出现logs文件夹
-                            $"-Duser.dir=\"{Path.Combine(Init.BasePath, ".minecraft")}\"",
-                            "--enable-native-access=ALL-UNNAMED"
-                        )
-                    ));
-        });
+        File.WriteAllTextAsync(
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                $"启动{version.VersionID}." + (Init.systemType == SystemType.windows ? "bat" : "sh")),
+            "java " + new LaunchCommandBuilder
+            (
+                Init.BasePath,
+                version.VersionID,
+                Init.ConfigManger.config.DefaultUserModel,
+                Init.systemType
+            ).BuildCommand
+            (
+                string.Join
+                (
+                    " ",
+                    "-XX:+UseG1GC",
+                    "-XX:+UnlockExperimentalVMOptions",
+                    "-XX:-OmitStackTraceInFastThrow",
+                    "-XX:ParallelGCThreads=4",
+                    "-Djdk.lang.Process.allowAmbiguousCommands=true",
+                    "-Dlog4j2.formatMsgNoLookups=true",
+                    "-Dfml.ignoreInvalidMinecraftCertificates=True",
+                    "-Dfml.ignorePatchDiscrepancies=True",
+                    // 指定目录，避免在桌面出现logs文件夹
+                    $"-Duser.dir=\"{Path.Combine(Init.BasePath, ".minecraft")}\"",
+                    "--enable-native-access=ALL-UNNAMED"
+                )
+        ));
+        
     }
     [RelayCommand]
     public void ManGame(aVersion version)
