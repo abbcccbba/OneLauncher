@@ -19,6 +19,7 @@
 ### 通过下载发布的方式来使用
 
 1.前往[项目发布页](https://github.com/abbcccbba/OneLauncher/releases)查找最新的版本，并根据你的系统下载
+
 2.打开，如果出现问题请参照下文
 
 ### 通过下载源代码并构建的方式使用
@@ -35,8 +36,8 @@
 
 OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们非常欢迎开发者共同参与完善：
 
-如果你有任何问题或请求可以在[这里](https://github.com/abbcccbba/OneLauncher/issues) 发起提问
+如果你有任何问题或请求可以在[这里](https://github.com/abbcccbba/OneLauncher/issues)发起提问
 
 ### 许可证
 
-此项目基于 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) 开源许可证发布。
+此项目基于 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)开源许可证发布。
