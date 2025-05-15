@@ -18,19 +18,15 @@
 
 ### 通过下载发布的方式来使用
 
-1.前往[项目发布页](https://github.com/abbcccbba/OneLauncher/releases)查找最新的版本，并根据你的系统下载
-
-2.打开，如果出现问题请参照下文
+1. 前往[项目发布页](https://github.com/abbcccbba/OneLauncher/releases)查找最新的版本，并根据你的系统下载
+2. 打开，如果出现问题请参照下文
 
 ### 通过下载源代码并构建的方式使用
 
-1.下载源代码
-
-2.使用[Visual Studio](https://visualstudio.microsoft.com/)或[Rider](https://www.jetbrains.com/rider/)打开[OneLauncher.sln](https://github.com/abbcccbba/OneLauncher/blob/master/OneLauncher.sln)
-
-3.将[OneLauncher.Desktop](https://github.com/abbcccbba/OneLauncher/blob/master/OneLauncher.Desktop/OneLauncher.Desktop.csproj)设为启动项目
-
-4.运行，便可以看到窗口。构建为可执行文件请参考[这里](https://www.google.com/)
+1. 下载源代码
+2. 使用[Visual Studio](https://visualstudio.microsoft.com/)或[Rider](https://www.jetbrains.com/rider/)打开[OneLauncher.sln](https://github.com/abbcccbba/OneLauncher/blob/master/OneLauncher.sln)
+3. 将[OneLauncher.Desktop](https://github.com/abbcccbba/OneLauncher/blob/master/OneLauncher.Desktop/OneLauncher.Desktop.csproj)设为启动项目
+4. 运行，便可以看到窗口。构建为可执行文件请参考[这里](https://www.google.com/)
 
 ## 开源与贡献
 
@@ -38,6 +34,9 @@ OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们�
 
 如果你有任何问题或请求可以在[这里](https://github.com/abbcccbba/OneLauncher/issues)发起提问
 
-### 许可证
+##更多
 
-此项目基于 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)开源许可证发布。
+[服务条款](https://github.com/abbcccbba/OneLauncher/blob/master/Terms_of_Service.md)
+[隐私声明](https://github.com/abbcccbba/OneLauncher/blob/master/Privacy_Policy.md)
+
+
