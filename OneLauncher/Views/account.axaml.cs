@@ -39,7 +39,7 @@ public partial class account : UserControl
         
         Init.ConfigManger.AddUserModel(new UserModel() 
         { 
-            //Name = Dialog.needsp,
+            Name = "IDoNotKnowYourName",
             uuid = Guid.NewGuid().ToString(),
             accessToken = "0"
         });

@@ -24,19 +24,22 @@ public class LaunchCommandBuilder
     /// <param name="system">运行时系统类型</param>
     public LaunchCommandBuilder(string basePath, string version, UserModel userModel,SystemType system)
     {
+        //Debug.WriteLine($"调用于 {DateTime.Now}");
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
         this.systemType = system;
         versionInfo = new VersionInfomations(
-            File.ReadAllText($"{basePath}.minecraft/versions/{version}/{version}.json"),
+            File.ReadAllText(Path.Combine(basePath,".minecraft","versions",version,$"{version}.json")),
             basePath,system
         );
     }
 
     public string BuildCommand(string OtherArgs = "")
     {
-        return $"{BuildJvmArgs()} {OtherArgs} {versionInfo.GetMainClass()} {BuildGameArgs()}";
+        string Args = $"{BuildJvmArgs()} {OtherArgs} {versionInfo.GetMainClass()} {BuildGameArgs()}";
+
+        return Args;
     }
     private string BuildJvmArgs()
     {
@@ -55,7 +58,7 @@ public class LaunchCommandBuilder
             // 创建占位符映射表 
             // 参考1.21.5.json
             // 手动加上引号
-            { "natives_directory", $"\"{basePath}.minecraft/versions/{version}/natives\"" },
+            { "natives_directory", "\""+Path.Combine(basePath,".minecraft","versions",version,"natives")+"\"" },
             { "launcher_name", "\"OneLauncher\"" },
             { "launcher_version", "\"1.0.0\"" },
             { "classpath", $"\"{BuildClassPath()}\"" }
@@ -94,15 +97,26 @@ public class LaunchCommandBuilder
     }
     private string BuildClassPath()
     {
+        // 缓存机制
+        string cacheFilePath = Path.Combine(basePath, ".minecraft", "versions", version, "classpath.cache");
+        if (File.Exists(cacheFilePath))
+        {
+            // 如果有缓存直接返回
+            return File.ReadAllText(cacheFilePath).Trim();     
+        }
         string separator = systemType == SystemType.windows ? ";" : ":";
-        string Libs = string.Join(separator, versionInfo
-            .GetLibrarys()
-            .Select(x => x.path) // 提取path属性
-            .Select(s => $"\"{s}\"")
-            .ToList());
-        // 三引号内前后加系统分隔符，我也不知道为什么反正不加会报错
-        string cpLibs = $"\"\"{separator}{Libs}{separator}\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"";
-        return cpLibs;
+        //string AllClassArgs = $"\"\"{separator}{Libs}{separator}\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"";
+        var sb = new StringBuilder(); sb.Append($"\"\"{separator}");
+        foreach (var path in versionInfo.GetLibrarys().Select(x => x.path))
+        sb.Append($"\"{path}\"{separator}");
+        sb.Append($"\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"");
+        Task.Run(() => 
+        {
+            // 启动一个新线程把内容写进缓存
+            Directory.CreateDirectory(Path.GetDirectoryName(cacheFilePath));
+            File.WriteAllText(cacheFilePath, sb.ToString());
+        });
+        return sb.ToString();
     }
     private string BuildGameArgs()
     {

@@ -17,4 +17,8 @@ public partial class version : UserControl
         InitializeComponent();
         this.DataContext = new VersionPageViewModel();
     }
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+    }
 }

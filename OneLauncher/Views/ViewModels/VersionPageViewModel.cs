@@ -9,6 +9,7 @@ using OneLauncher.Codes;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
+using System.IO;
 
 namespace OneLauncher.Views.ViewModels;
 internal partial class VersionItem
@@ -21,11 +22,62 @@ internal partial class VersionItem
     [RelayCommand]
     public void LaunchGame(aVersion version)
     {
-        Task.Run (() =>Home.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,Init.BasePath));
+        var game = new Game();
+        game.GameStartedEvent += () =>
+        {
+            Debug.WriteLine("游戏启动事件触发！");
+        };
+        Task.Run(() =>game.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,Init.BasePath));
+    }
+    [RelayCommand]
+    public void FixToDesktop(aVersion version)
+    {
+        // 避免阻塞UI线程
+        Task.Run(() =>
+        {
+            File.WriteAllText(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                    $"启动{version.VersionID}."+(Init.systemType == SystemType.windows ? "bat" : "sh")),
+                "java " + new LaunchCommandBuilder
+                    (
+                        Init.BasePath,
+                        version.VersionID,
+                        Init.ConfigManger.config.DefaultUserModel,
+                        Init.systemType
+                    ).BuildCommand
+                    (
+                        string.Join
+                        (
+                            " ",
+                            "-XX:+UseG1GC",
+                            "-XX:+UnlockExperimentalVMOptions",
+                            "-XX:-OmitStackTraceInFastThrow",
+                            "-XX:ParallelGCThreads=4",
+                            "-Djdk.lang.Process.allowAmbiguousCommands=true",
+                            "-Dlog4j2.formatMsgNoLookups=true",
+                            "-Dfml.ignoreInvalidMinecraftCertificates=True",
+                            "-Dfml.ignorePatchDiscrepancies=True",
+                            // 指定目录，避免在桌面出现logs文件夹
+                            $"-Duser.dir=\"{Path.Combine(Init.BasePath, ".minecraft")}\"",
+                            "--enable-native-access=ALL-UNNAMED"
+                        )
+                    ));
+        });
     }
 }
 internal partial class VersionPageViewModel : BaseViewModel
 {
+    protected override void OnNavigatedTo()
+    {
+        base.OnNavigatedTo();
+        Debug.WriteLine("VersionPageViewModel OnNavigatedTo");
+    }
+    protected override void OnNavigatedFrom()
+    {
+        base.OnNavigatedFrom();
+        Debug.WriteLine("2");
+    }
     public VersionPageViewModel()
     {
 #if DEBUG
