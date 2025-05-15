@@ -37,7 +37,6 @@ OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们�
 ## 更多
 
 [服务条款](https://github.com/abbcccbba/OneLauncher/blob/master/Terms_of_Service.md)
-
 [隐私声明](https://github.com/abbcccbba/OneLauncher/blob/master/Privacy_Policy.md)
 
 
