@@ -1,6 +1,6 @@
 # OneLauncher
 
-OneLauncher 是一个以快速为功能核心的轻量化 Minecraft 启动器
+**OneLauncher** 是一个以快速为功能核心的轻量化 Minecraft 启动器
 
 提供了直接在桌面上固定游戏而无需启动器启动的启动游戏方法
 
