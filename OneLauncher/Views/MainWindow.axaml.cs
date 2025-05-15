@@ -49,6 +49,10 @@ public partial class MainWindow : Window
                 break;
         }
     }
+    public void MainPageNavigate(UserControl page)
+    {
+        PageContent.Content = page;
+    }
     protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
@@ -86,7 +90,7 @@ public partial class MainWindow : Window
     }
 
     // 切换侧边栏展开/折叠
-    private void ToggleSidebar_Click(object sender, RoutedEventArgs e)
+    private void TSK()
     {
         var splitView = this.FindControl<SplitView>("SidebarSplitView");
         if (splitView != null)
@@ -112,4 +116,8 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private void Grid_PointerEntered(object? sender, Avalonia.Input.PointerEventArgs e) => TSK();
+
+    private void Grid_PointerExited_1(object? sender, Avalonia.Input.PointerEventArgs e) => TSK();
 }

@@ -10,6 +10,7 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
 using System.IO;
+using OneLauncher.Views.Panes;
 
 namespace OneLauncher.Views.ViewModels;
 internal partial class VersionItem
@@ -30,7 +31,7 @@ internal partial class VersionItem
         Task.Run(() =>game.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,Init.BasePath));
     }
     [RelayCommand]
-    public void FixToDesktop(aVersion version)
+    public void PinToDesktop(aVersion version)
     {
         // 避免阻塞UI线程
         Task.Run(() =>
@@ -65,19 +66,14 @@ internal partial class VersionItem
                     ));
         });
     }
+    [RelayCommand]
+    public void ManGame(aVersion version)
+    {
+        //MainWindow.mainwindow.MainPageNavigate(new VersionMangerPage(version));
+    }
 }
 internal partial class VersionPageViewModel : BaseViewModel
 {
-    protected override void OnNavigatedTo()
-    {
-        base.OnNavigatedTo();
-        Debug.WriteLine("VersionPageViewModel OnNavigatedTo");
-    }
-    protected override void OnNavigatedFrom()
-    {
-        base.OnNavigatedFrom();
-        Debug.WriteLine("2");
-    }
     public VersionPageViewModel()
     {
 #if DEBUG
@@ -96,14 +92,9 @@ internal partial class VersionPageViewModel : BaseViewModel
     [ObservableProperty]
     public List<VersionItem> _VersionList;
     [RelayCommand]
-    public void RefreshList()
-    {
-        VersionList = Init.ConfigManger.config.VersionList.Select(x => new VersionItem(x)).ToList();
-    }
-    [RelayCommand]
     public void ToDownloadGame()
     {
-        Debug.Write(2);
+        MainWindow.mainwindow.MainPageControl(MainWindow.MainPage.DownloadPage);
     }
 }
 

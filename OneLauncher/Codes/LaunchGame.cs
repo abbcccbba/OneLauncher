@@ -22,7 +22,7 @@ internal class Game
     {
         using (Process process = new Process())
         {
-            process.StartInfo.FileName = "javaw";
+            process.StartInfo.FileName = "java";
             process.StartInfo.Arguments =
                 new LaunchCommandBuilder
                 (
