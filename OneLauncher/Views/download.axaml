@@ -21,7 +21,8 @@
 			<ScrollViewer>
 				<StackPanel HorizontalAlignment="Center"
 							VerticalAlignment="Center"
-							Spacing="4">
+							Spacing="4"
+							IsEnabled="{Binding IsAllowDownloading}">
 					<TextBlock FontSize="42" Text="选择下载版本"/>
 					<AutoCompleteBox 
 						Watermark="搜索版本..." 

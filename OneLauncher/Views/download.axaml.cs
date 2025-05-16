@@ -25,23 +25,42 @@ public partial class download : UserControl
         Task.Run(async () =>
         {
             VersionsList vl;
-            if(!File.Exists($"{Init.BasePath}/version_manifest.json"))
+            /*
+             此方法中代码可能经过三个路径
+            1、不存在清单文件，下载成功，读取
+            2、不存在清单文件，下载失败，写入失败信息
+            3、存在清单文件，读取
+             */
+            if (!File.Exists($"{Init.BasePath}/version_manifest.json"))
+            {
                 // 如果不存在版本清单则调用下载方法
-                await Core.Download.DownloadToMinecraft(
-                    "https://piston-meta.mojang.com/mc/game/version_manifest.json",
-                    Init.BasePath + "version_manifest.json"
-                );  
-            
+                try
+                {
+                    // 路径（1）
+                    await Core.Download.DownloadToMinecraft(
+                        "https://piston-meta.mojang.com/mc/game/version_manifest.json",
+                        Path.Combine(Init.BasePath, "version_manifest.json")
+                    );
+                    vl = new VersionsList(File.ReadAllText($"{Init.BasePath}/version_manifest.json"));
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    // 路径（2）
+                    await Dispatcher.UIThread.InvokeAsync(() => this.DataContext = new Views.ViewModels.DownloadPageViewModel());
+                    return;
+                }
+            }
+            // 路径（3）
             vl = new VersionsList(File.ReadAllText($"{Init.BasePath}/version_manifest.json"));
             // 提前缓存避免UI线程循环卡顿
             List<VersionBasicInfo> allVersions = vl.GetAllVersionList();
             List<VersionBasicInfo> releaseVersions = vl.GetReleaseVersionList();
-            List<VersionBasicInfo> snapshotVersions = vl.GetSnapshotVersionList();
+            List<VersionBasicInfo> snapshotVersions = vl.GetSnapshotVersionList();          
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 this.DataContext = new Views.ViewModels.DownloadPageViewModel
                 (
-                    allVersions,releaseVersions, snapshotVersions
+                    allVersions,releaseVersions,snapshotVersions
                 );
             });
         });  

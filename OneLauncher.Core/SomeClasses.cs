@@ -41,6 +41,10 @@ public class aVersion
 }
 public class VersionBasicInfo
 {
+    /// <param name="name">版本标识符</param>
+    /// <param name="type">版本类型</param>
+    /// <param name="url">版本文件下载地址</param>
+    /// <param name="time">版本发布时间</param>
     public VersionBasicInfo(string name, string type, string url, DateTime time)
     {
         this.name = name;
