@@ -97,8 +97,15 @@ public partial class MainWindow : Window
     }
 
     // 切换侧边栏展开/折叠
-    private void TSK()
+    private void MangePaneOpenAndClose(bool IsOpen)
     {
+        HomeText.IsVisible = IsOpen;
+        VersionText.IsVisible = IsOpen;
+        AccountText.IsVisible = IsOpen;
+        DownloadText.IsVisible = IsOpen;
+        SettingsText.IsVisible = IsOpen;
+        SidebarSplitView.IsPaneOpen = IsOpen;
+        /*
         var splitView = this.FindControl<SplitView>("SidebarSplitView");
         if (splitView != null)
         {
@@ -122,9 +129,10 @@ public partial class MainWindow : Window
                 }
             }
         }
+        */
     }
-
-    private void Grid_PointerEntered(object? sender, Avalonia.Input.PointerEventArgs e) => TSK();
-
-    private void Grid_PointerExited_1(object? sender, Avalonia.Input.PointerEventArgs e) => TSK();
+    // 鼠标进入事件
+    private void Grid_PointerEntered(object? sender, Avalonia.Input.PointerEventArgs e) => MangePaneOpenAndClose(true);
+    // 鼠标离开事件
+    private void Grid_PointerExited_1(object? sender, Avalonia.Input.PointerEventArgs e) => MangePaneOpenAndClose(false);
 }
