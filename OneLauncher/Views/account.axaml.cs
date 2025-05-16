@@ -37,12 +37,11 @@ public partial class account : UserControl
         //var Dialog = new MessageShow("输入你的用户名（自定义）");
         //await Dialog.ShowDialog(MainWindow.mainwindow);
         
-        Init.ConfigManger.AddUserModel(new UserModel() 
-        { 
-            Name = "IDoNotKnowYourName",
-            uuid = Guid.NewGuid().ToString(),
-            accessToken = "0"
-        });
+        Init.ConfigManger.AddUserModel(new UserModel(
+         
+            "IDoNotKnowYourName",
+            Guid.NewGuid()
+        ));
         AccountListViews.ItemsSource = Init.ConfigManger.config.UserModelList;
         
     }

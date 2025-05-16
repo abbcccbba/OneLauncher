@@ -37,7 +37,7 @@ public class LaunchCommandBuilder
 
     public string BuildCommand(string OtherArgs = "")
     {
-        string Args = $"{BuildJvmArgs()} {OtherArgs} {versionInfo.GetMainClass()} {BuildGameArgs()}";
+        string Args = $"{OtherArgs} {BuildJvmArgs()} {versionInfo.GetMainClass()} {BuildGameArgs()}";
 
         return Args;
     }
@@ -122,9 +122,9 @@ public class LaunchCommandBuilder
             $"--assetsDir \"{Path.Combine(basePath, ".minecraft", "assets")}\" " +
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
             $"--uuid \"{userModel.uuid}\" " +
-            $"--accessToken \"{userModel.accessToken}\" " +
+            $"--accessToken \"{userModel.accessToken.ToString()}\" " +
             $"--userType \"{userModel.userType}\" " +
-            $"--versionType OneLauncher";//);
+            $"--versionType \"OneLauncher\"";//);
     }
     private bool EvaluateRules(List<Models.Rule> rules, string osName, string arch)
     {

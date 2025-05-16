@@ -79,7 +79,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             D_DM = progress.verifiedFiles > 0 ? "正在校验库文件..." : "正在下载库文件...";
             double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
             CurrentProgress = percentage;
-        })), 24, 24, true);
+        })), 24, Init.CPUPros*2, true);
 
         // 阶段3：下载主文件
         D_DM = "正在下载主文件...";
@@ -102,7 +102,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             D_DM = progress.verifiedFiles > 0 ? "正在校验资源文件..." : "正在下载资源文件...";
             double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
             CurrentProgress = percentage;
-        })), 64, 32, true);
+        })), 64, Init.CPUPros*3, true);
 
         // 下载完成
         Dispatcher.UIThread.Post(() =>
