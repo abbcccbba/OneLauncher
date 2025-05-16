@@ -62,15 +62,15 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public double _CurrentProgress = 0;
     private async Task ToDownload(VersionBasicInfo versionBasicInfo)
     {
-
+        string VersionJsonFilePath = Path.Combine(Init.BasePath,".minecraft","versions",versionBasicInfo.name,$"{versionBasicInfo.name}.json");
         // 阶段1：下载版本文件（JSON）
         D_DM = "正在下载版本文件...";
         CurrentProgress = 0;
-        await Core.Download.DownloadToMinecraft(versionBasicInfo.url, $"{Init.BasePath}.minecraft/versions/{versionBasicInfo.name}/{versionBasicInfo.name}.json");
+        await Core.Download.DownloadToMinecraft(versionBasicInfo.url, VersionJsonFilePath);
         CurrentProgress = 100;
         
         // 阶段2：下载库文件
-        VersionInfomations a = new VersionInfomations(File.ReadAllText($"{Init.BasePath}.minecraft/versions/{versionBasicInfo.name}/{versionBasicInfo.name}.json"),Init.BasePath,Init.systemType);
+        VersionInfomations a = new VersionInfomations(File.ReadAllText(VersionJsonFilePath),Init.BasePath,Init.systemType);
         D_DM = "正在下载库文件...";
         
         await Core.Download.DownloadToMinecraft(a.GetLibrarys(), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress

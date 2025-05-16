@@ -45,8 +45,8 @@ internal class Game
                         "-Dlog4j2.formatMsgNoLookups=true",
                         "-Dfml.ignoreInvalidMinecraftCertificates=True",
                         "-Dfml.ignorePatchDiscrepancies=True",
-                        "--enable-native-access=ALL-UNNAMED",
-                        "-Dlog4j.configurationFile=\"C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\.minecraft\\versions\\1.21.1\\client-1.12.xml\""
+                        "--enable-native-access=ALL-UNNAMED"
+                        //"-Dlog4j.configurationFile=\"C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\.minecraft\\versions\\1.21.1\\client-1.12.xml\""
                     )
                 );
             // 指定工作目录，不要用-Duser.dir，不然可能会出现一些奇奇怪怪的问题

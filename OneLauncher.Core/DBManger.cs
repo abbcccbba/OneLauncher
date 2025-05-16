@@ -27,7 +27,7 @@ public class DBManger
     public DBManger(AppConfig FirstConfig,string BasePath)
     {
         this.BasePath = BasePath;
-        ConfigFilePath = BasePath + "config.json";
+        ConfigFilePath = Path.Combine(BasePath,"config.json");
         if (File.Exists(ConfigFilePath))
             Read();
         else

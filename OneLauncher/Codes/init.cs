@@ -16,7 +16,7 @@ public static class Init
     public static async Task Initialize()
     {
         // 初始化 BasePath
-        BasePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/OneLauncher/";
+        BasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"OneLauncher");
         Directory.CreateDirectory(BasePath); // 确保目录存在
         // 初始化 ConfigManger
         ConfigManger = new DBManger(new AppConfig()
