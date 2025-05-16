@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,6 +11,50 @@ namespace OneLauncher.Core;
 
 public static class Download
 {
+    /// <summary>
+    /// 解压 ZIP 结构文件到指定目录
+    /// </summary>
+    /// <param name="filePath">待解压的文件路径（例如 .docx 或其他 ZIP 结构文件）</param>
+    /// <param name="extractPath">解压到的目标目录</param>
+    /// <exception cref="IOException">文件访问或解压失败</exception>
+    /// <exception cref="InvalidDataException">文件不是有效的 ZIP 格式</exception>
+    public static void ExtractFile(string filePath, string extractPath)
+    {
+        try
+        {
+            // 确保输出目录存在
+            Directory.CreateDirectory(extractPath);
+
+            // 打开 ZIP 文件
+            using (ZipArchive archive = ZipFile.OpenRead(filePath))
+            {
+                // 遍历 ZIP 条目
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    // 确定解压路径
+                    string destinationPath = Path.Combine(extractPath, entry.FullName);
+
+                    // 确保目录存在
+                    string destinationDir = Path.GetDirectoryName(destinationPath);
+                    if (!string.IsNullOrEmpty(destinationDir))
+                    {
+                        Directory.CreateDirectory(destinationDir);
+                    }
+
+                    // 仅处理文件（跳过目录）
+                    if (!string.IsNullOrEmpty(entry.Name))
+                    {
+                        // 提取文件
+                        entry.ExtractToFile(destinationPath, overwrite: true);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
     public static async Task DownloadToMinecraft(NdDowItem FDI)
     {
         try

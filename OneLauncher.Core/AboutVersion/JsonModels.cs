@@ -35,6 +35,8 @@ public class VersionInformation
 
     [JsonPropertyName("javaVersion")]
     public JavaVersion? JavaVersion { get; set; }
+    [JsonPropertyName("id")]
+    public string? ID { get; set; }
 }
 
 // 表示Java版本信息
@@ -119,10 +121,6 @@ public class Arguments
     [JsonPropertyName("jvm")]
     [JsonConverter(typeof(JvmArgumentConverter))] // 使用自定义转换器处理混合类型
     public List<object>? Jvm { get; set; } // object 可以是 string 或 Argument
-
-    [JsonPropertyName("game")]
-    [JsonConverter(typeof(GameArgumentConverter))] // 为游戏参数列表添加的自定义转换器
-    public List<object>? Game { get; set; } // object 可以是 string 或 Argument
 }
 
 // JVM 参数列表的自定义 JSON 转换器，处理 string 和 Argument 对象
@@ -166,51 +164,6 @@ public class JvmArgumentConverter : JsonConverter<List<object>>
             else
                 // 处理其他类型或抛出异常
                 throw new JsonException($"JVM 参数中遇到未知对象类型: {item?.GetType().Name}");
-        }
-        writer.WriteEndArray();
-    }
-}
-// 游戏参数列表的自定义 JSON 转换器，处理 string 和 Argument 对象
-public class GameArgumentConverter : JsonConverter<List<object>>
-{
-    public override List<object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        var list = new List<object>();
-        if (reader.TokenType != JsonTokenType.StartArray)
-            throw new JsonException("游戏参数应为数组");
-
-        while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
-        {
-            if (reader.TokenType == JsonTokenType.String)
-            {
-                list.Add(reader.GetString() ?? ""); // 处理可能的 null 字符串
-            }
-            else if (reader.TokenType == JsonTokenType.StartObject)
-            {
-                // 反序列化为 Argument 对象
-                var arg = JsonSerializer.Deserialize<Argument>(ref reader, options);
-                if (arg != null) list.Add(arg);
-            }
-            else
-            {
-                throw new JsonException($"游戏参数中遇到未知 Token 类型: {reader.TokenType}");
-            }
-        }
-        return list;
-    }
-
-    public override void Write(Utf8JsonWriter writer, List<object> value, JsonSerializerOptions options)
-    {
-        writer.WriteStartArray();
-        foreach (var item in value)
-        {
-            if (item is string str)
-                writer.WriteStringValue(str);
-            else if (item is Argument arg)
-                JsonSerializer.Serialize(writer, arg, options); // 序列化为 Argument
-            else
-                // 处理其他类型或抛出异常
-                throw new JsonException($"游戏参数中遇到未知对象类型: {item?.GetType().Name}");
         }
         writer.WriteEndArray();
     }
@@ -283,8 +236,6 @@ public class LoggingFile
 
     [JsonPropertyName("url")]
     public string? Url { get; set; } // 文件下载 URL，可以为空
-    [JsonPropertyName("path")]
-    public string? Path { get; set; } // 文件在游戏目录内的相对路径，可以为空
 }
 // 自定义 JSON 转换器，用于处理 argument.value（string 或 List<string>）
 public class ArgumentValueConverter : JsonConverter<object>
