@@ -74,12 +74,12 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         D_DM = "正在下载库文件...";
         
         await Core.Download.DownloadToMinecraft(a.GetLibrarys(), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
-        => Dispatcher.UIThread.Post(() =>
+        => //Dispatcher.UIThread.Post(() =>
         {
             D_DM = progress.verifiedFiles > 0 ? "正在校验库文件..." : "正在下载库文件...";
             double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
             CurrentProgress = percentage;
-        })), 24, Init.CPUPros*2, true);
+        }), 24, Init.CPUPros*2, true);
 
         // 阶段3：下载主文件
         D_DM = "正在下载主文件...";
@@ -97,18 +97,23 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         // 阶段5：下载资源文件
         D_DM = "正在下载资源文件...";
         await Core.Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(File.ReadAllText(a1.path), Init.BasePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
-        => Dispatcher.UIThread.Post(() =>
+        => //Dispatcher.UIThread.Post(() =>
         {
             D_DM = progress.verifiedFiles > 0 ? "正在校验资源文件..." : "正在下载资源文件...";
             double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
             CurrentProgress = percentage;
-        })), 64, Init.CPUPros*3, true);
+        }), 64, Init.CPUPros*3, true);
+
+        // 阶段6：下载配置文件
+        D_DM = "正在下载配置文件...";
+        CurrentProgress = 0;
+        NdDowItem tmd = a.GetLoggingConfig(versionBasicInfo.name);
+        if (tmd != null)
+            await Core.Download.DownloadToMinecraft(tmd);
+        CurrentProgress = 100;
 
         // 下载完成
-        Dispatcher.UIThread.Post(() =>
-        {
-            D_DM = "下载完成";
-        }); 
+        D_DM = "下载完成";
     }
     [RelayCommand]
     public void ClosePane()
