@@ -60,24 +60,24 @@ public class VersionBasicInfo
 }
 public struct UserModel
 {
-    public UserModel(string Name, string uuid, string accessToken = null)
+    public UserModel(string Name, Guid uuid, Guid? accessToken = null)
     {
         if (accessToken == null)
         {
+            accessToken = Guid.Empty;
             userType = "legacy";
-            accessToken = Guid.NewGuid().ToString();
         }
         else
         {
             userType = "msa"; 
-            this.accessToken = accessToken;
+            this.accessToken = (Guid)accessToken;
         }
         this.Name = Name;
         this.uuid = uuid;
     }
     public string Name { get; set; }
-    public string uuid { get; set; }
-    public string accessToken { get; set; }
+    public Guid uuid { get; set; }
+    public Guid accessToken { get; set; }
     public string userType { get; set; }
 }
 public enum SystemType

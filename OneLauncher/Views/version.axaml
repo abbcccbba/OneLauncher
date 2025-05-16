@@ -28,18 +28,22 @@
 										<TextBlock Text="快速启动"/>
 									</StackPanel>
 								</Button>
-								<Button Command="{Binding PinToDesktopCommand}" CommandParameter="{Binding V}">
+								<SplitButton >
 									<StackPanel Orientation="Horizontal" Spacing="2">
 										<Image Source="/Assets/icos/pin.png" Width="20" Height="20"/>
-										<TextBlock Text="固定到桌面"/>
+										<TextBlock Text="固定到仪表盘"/>
 									</StackPanel>
-								</Button>
-								<Button Command="{Binding ManGameCommand}" CommandParameter="{Binding V}">
-									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
-										<TextBlock Text="管理你的游戏版本"/>
-									</StackPanel>
-								</Button>
+									<SplitButton.Flyout>
+										<MenuFlyout>
+											<MenuItem Command="{Binding PinToDesktopCommand}" CommandParameter="{Binding V}" Header="固定到桌面" />
+										</MenuFlyout>
+									</SplitButton.Flyout>
+								</SplitButton>
+								<SplitButton Content="移除该版本" Background="#FF2C2C" >
+									<SplitButton.Flyout>
+										
+									</SplitButton.Flyout>
+								</SplitButton>
 							</StackPanel>
 						</Grid>
 					</Border>

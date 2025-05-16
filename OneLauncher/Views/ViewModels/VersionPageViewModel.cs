@@ -51,7 +51,7 @@ internal partial class VersionItem
                     "-XX:+UseG1GC",
                     "-XX:+UnlockExperimentalVMOptions",
                     "-XX:-OmitStackTraceInFastThrow",
-                    "-XX:ParallelGCThreads=4",
+                    $"-XX:ParallelGCThreads={Init.CPUPros}",
                     "-Djdk.lang.Process.allowAmbiguousCommands=true",
                     "-Dlog4j2.formatMsgNoLookups=true",
                     "-Dfml.ignoreInvalidMinecraftCertificates=True",
@@ -61,7 +61,7 @@ internal partial class VersionItem
                     "--enable-native-access=ALL-UNNAMED"
                 )
         ));
-        
+        MainWindow.mainwindow.Showfyt("已创建启动脚本到桌面！");
     }
     [RelayCommand]
     public void ManGame(aVersion version)
