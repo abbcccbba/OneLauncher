@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -38,14 +39,18 @@ internal class Game
                         "-XX:+UseG1GC",
                         "-XX:+UnlockExperimentalVMOptions",
                         "-XX:-OmitStackTraceInFastThrow",
-                        $"-Xmn512m -Xmx4096m -XX:ParallelGCThreads={Init.CPUPros}",
+                        "-XX:+AlwaysPreTouch -XX:+UseStringDeduplication", // 预加载内存页面，优化字符串
+                        $"-Xmn512m -Xmx4096m",
                         "-Djdk.lang.Process.allowAmbiguousCommands=true",
                         "-Dlog4j2.formatMsgNoLookups=true",
                         "-Dfml.ignoreInvalidMinecraftCertificates=True",
                         "-Dfml.ignorePatchDiscrepancies=True",
-                        "--enable-native-access=ALL-UNNAMED"
+                        "--enable-native-access=ALL-UNNAMED",
+                        "-Dlog4j.configurationFile=\"C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\.minecraft\\versions\\1.21.1\\client-1.12.xml\""
                     )
                 );
+            // 指定工作目录，不要用-Duser.dir，不然可能会出现一些奇奇怪怪的问题
+            process.StartInfo.WorkingDirectory = Path.Combine(Init.BasePath, ".minecraft");
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.UseShellExecute = false;
@@ -53,13 +58,9 @@ internal class Game
             process.OutputDataReceived += (sender, e) =>
             {
                 if (string.IsNullOrEmpty(e.Data)) return;
-                Debug.WriteLine($"[OUT] {e.Data}"); // 输出到控制台
-                if (Regex.IsMatch(
-                    e.Data, @"\[Render thread/INFO\]") &&
-                    e.Data.Contains("[LWJGL] [ThreadLocalUtil] Unsupported JNI version detected"))
-                {
-                    GameStartedEvent?.Invoke();
-                }
+                Debug.WriteLine($"[STDOUT] {e.Data}"); // 输出到控制台
+                if (e.Data.Contains("![CDATA[Backend library: LWJGL version")) 
+                    GameStartedEvent?.Invoke();    
             };
             process.ErrorDataReceived += (sender, e) =>
             {

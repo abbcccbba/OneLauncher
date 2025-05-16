@@ -37,28 +37,28 @@ internal partial class VersionItem
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 $"启动{version.VersionID}." + (Init.systemType == SystemType.windows ? "bat" : "sh")),
-            "java " + new LaunchCommandBuilder
+            "cd "+(Init.systemType == SystemType.windows ? "/D" : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
+            +$"{Path.Combine(Init.BasePath, ".minecraft")}\njava " + new LaunchCommandBuilder
             (
                 Init.BasePath,
                 version.VersionID,
                 Init.ConfigManger.config.DefaultUserModel,
                 Init.systemType
             ).BuildCommand
-            (
-                string.Join
+            (   
+                OtherArgs: string.Join
                 (
                     " ",
                     "-XX:+UseG1GC",
                     "-XX:+UnlockExperimentalVMOptions",
                     "-XX:-OmitStackTraceInFastThrow",
-                    $"-XX:ParallelGCThreads={Init.CPUPros}",
+                    "-XX:+AlwaysPreTouch -XX:+UseStringDeduplication", // 预加载内存页面，优化字符串
                     "-Djdk.lang.Process.allowAmbiguousCommands=true",
                     "-Dlog4j2.formatMsgNoLookups=true",
                     "-Dfml.ignoreInvalidMinecraftCertificates=True",
                     "-Dfml.ignorePatchDiscrepancies=True",
-                    // 指定目录，避免在桌面出现logs文件夹
-                    $"-Duser.dir=\"{Path.Combine(Init.BasePath, ".minecraft")}\"",
                     "--enable-native-access=ALL-UNNAMED"
+                    //"-Dlog4j.configurationFile=\"C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\.minecraft\\versions\\1.21.1\\client-1.12.xml\""
                 )
         ));
         MainWindow.mainwindow.Showfyt("已创建启动脚本到桌面！");

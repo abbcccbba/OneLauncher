@@ -43,11 +43,6 @@ public class LaunchCommandBuilder
     }
     private string BuildJvmArgs()
     {
-        if (versionInfo.info.Arguments == null || versionInfo.info.Arguments.Jvm == null)
-        {
-            throw new InvalidOperationException("JVM arguments not found in version.json");
-        }
-
         string osName = systemType == SystemType.windows ? "windows" :
                         systemType == SystemType.linux ? "linux" :
                         systemType == SystemType.osx ? "osx" : "";
@@ -93,7 +88,10 @@ public class LaunchCommandBuilder
             }
         }
 
-        return string.Join(" ", jvmArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+        return 
+            // Log4j2 额外配置
+            $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath(version)}\" " 
+            + string.Join(" ", jvmArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
     }
     private string BuildClassPath()
     {

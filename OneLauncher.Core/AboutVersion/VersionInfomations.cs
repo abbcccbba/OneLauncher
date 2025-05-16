@@ -158,15 +158,19 @@ public class VersionInfomations
     /// <summary>
     /// 获取日志配置文件信息。
     /// </summary>
-    public NdDowItem? GetLoggingConfig()
+    public NdDowItem? GetLoggingConfig(string version)
     {
         if (info.Logging?.Client?.File == null)
             return null;
         return new NdDowItem(
             info.Logging.Client.File.Url,
             info.Logging.Client.File.Sha1,
-            $"{basePath}logConfig/{info.Logging.Client.File.Id}"
+            Path.Combine(basePath,".minecraft","versions",version,info.Logging.Client.File.Id)
         );
+    }
+    public string? GetLoggingConfigPath(string version)
+    {
+        return Path.Combine(basePath, ".minecraft", "versions", version, info.Logging.Client.File.Id);
     }
 
     /// <summary>
