@@ -21,7 +21,7 @@ namespace OneLauncher.Core
 
                 string hashPrefix = hash.Substring(0, 2);
 
-                assets.Add(new NdDowItem($"https://resources.download.minecraft.net/{hashPrefix}/{hash}", hash, path + $".minecraft/assets/objects/{hashPrefix}/{hash}"));
+                assets.Add(new NdDowItem($"https://resources.download.minecraft.net/{hashPrefix}/{hash}", hash, Path.Combine(path,".minecraft","assets","objects",hashPrefix,hash)));
             }
 
             return assets;

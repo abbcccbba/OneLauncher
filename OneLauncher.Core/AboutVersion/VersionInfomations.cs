@@ -89,7 +89,7 @@ public class VersionInfomations
             libraries.Add(new NdDowItem(
                 lib.Downloads.Artifact.Url,
                 lib.Downloads.Artifact.Sha1,
-                $"{basePath}.minecraft/libraries/{lib.Downloads.Artifact.Path}"
+                Path.Combine(basePath,".minecraft","libraries",lib.Downloads.Artifact.Path)
             ));
             
             // natives库文件
@@ -103,7 +103,7 @@ public class VersionInfomations
                     libraries.Add(new NdDowItem(
                         classifier.Url,
                         classifier.Sha1,
-                        $"{basePath}.minecraft/libraries/{classifier.Path}"
+                        Path.Combine(basePath,".minecraft","libraries",classifier.Path)
                     ));
                 }
             }
@@ -122,7 +122,7 @@ public class VersionInfomations
         return new NdDowItem(
             info.Downloads.Client.Url,
             info.Downloads.Client.Sha1,
-            $"{basePath}.minecraft/versions/{version}/{version}.jar"
+            Path.Combine(basePath, ".minecraft","versions",version,$"{version}.jar")
         );
     }
 
