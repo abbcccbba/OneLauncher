@@ -23,7 +23,7 @@ namespace OneLauncher.Views.ViewModels
         public DownloadPageViewModel()
         {
             IsAllowDownloading = false;
-            MainWindow.mainwindow.Showfyt("出现错误：无法下载版本清单");
+            MainWindow.mainwindow.ShowFlyout("出现错误：无法下载版本清单");
         }
         public DownloadPageViewModel
             (

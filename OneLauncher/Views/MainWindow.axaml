@@ -21,7 +21,9 @@
 				PaneBackground="Transparent">
 		<!-- 侧边栏 -->
 		<SplitView.Pane>
-			<Grid Background="Transparent" PointerEntered="Grid_PointerEntered" PointerExited="Grid_PointerExited_1">
+			<Grid Background="Transparent" 
+				  PointerEntered="Sb_in" 
+				  PointerExited="Sb_out">
 				<!-- 侧边栏选项 -->
 				<StackPanel x:Name="SidebarStackPanel"
                             Spacing="20"

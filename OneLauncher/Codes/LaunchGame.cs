@@ -23,7 +23,7 @@ internal class Game
     {
         using (Process process = new Process())
         {
-            process.StartInfo.FileName = "java";
+            process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.452.9-hotspot\\bin\\java.exe";
             process.StartInfo.Arguments =
                 new LaunchCommandBuilder
                 (
@@ -33,21 +33,22 @@ internal class Game
                     Init.systemType
                 ).BuildCommand
                 (
-                    string.Join
+                    OtherArgs: string.Join
                     (
+                        
                         " ",
                         "-XX:+UseG1GC",
                         "-XX:+UnlockExperimentalVMOptions",
                         "-XX:-OmitStackTraceInFastThrow",
-                        "-XX:+AlwaysPreTouch -XX:+UseStringDeduplication", // 预加载内存页面，优化字符串
-                        $"-Xmn512m -Xmx4096m",
+                        //"-XX:+AlwaysPreTouch -XX:+UseStringDeduplication", // 预加载内存页面，优化字符串
+                        "-Xmn512m -Xmx4096m",
                         "-Djdk.lang.Process.allowAmbiguousCommands=true",
-                        "-Dlog4j2.formatMsgNoLookups=true",
+                        "-Dlog4j2.formatMsgNoLookups=true", // 针对 Log4Shell 漏洞
                         "-Dfml.ignoreInvalidMinecraftCertificates=True",
-                        "-Dfml.ignorePatchDiscrepancies=True",
-                        "--enable-native-access=ALL-UNNAMED"
-                        //"-Dlog4j.configurationFile=\"C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\.minecraft\\versions\\1.21.1\\client-1.12.xml\""
+                        "-Dfml.ignorePatchDiscrepancies=True"
+                        //"--enable-native-access=ALL-UNNAMED"
                     )
+                    
                 );
             // 指定工作目录，不要用-Duser.dir，不然可能会出现一些奇奇怪怪的问题
             process.StartInfo.WorkingDirectory = Path.Combine(Init.BasePath, ".minecraft");

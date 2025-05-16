@@ -28,6 +28,10 @@ public partial class MainWindow : Window
     {
         HomePage,VersionPage,AccountPage,DownloadPage, SettingsPage
     }
+    /// <summary>
+    /// 手动管理页面切换
+    /// </summary>
+    /// <param name="page">主页面</param>
     public void MainPageControl(MainPage page)
     {
         switch(page)
@@ -49,11 +53,19 @@ public partial class MainWindow : Window
                 break;
         }
     }
+    /// <summary>
+    /// 手动管理页面内容
+    /// </summary>
+    /// <param name="page">页面实例</param>
     public void MainPageNavigate(UserControl page)
     {
         PageContent.Content = page;
     }
-    public async void Showfyt(string text)
+    /// <summary>
+    /// 在右下角显示提示信息
+    /// </summary>
+    /// <param name="text">提示信息内容</param>
+    public async void ShowFlyout(string text)
     {
         FytFkA.Text = text;
         FytB.IsVisible = true;
@@ -132,7 +144,7 @@ public partial class MainWindow : Window
         */
     }
     // 鼠标进入事件
-    private void Grid_PointerEntered(object? sender, Avalonia.Input.PointerEventArgs e) => MangePaneOpenAndClose(true);
+    private void Sb_in(object? sender, Avalonia.Input.PointerEventArgs e) => MangePaneOpenAndClose(true);
     // 鼠标离开事件
-    private void Grid_PointerExited_1(object? sender, Avalonia.Input.PointerEventArgs e) => MangePaneOpenAndClose(false);
+    private void Sb_out(object? sender, Avalonia.Input.PointerEventArgs e) => MangePaneOpenAndClose(false);
 }

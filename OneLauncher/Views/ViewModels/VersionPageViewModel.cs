@@ -24,10 +24,10 @@ internal partial class VersionItem
     [RelayCommand]
     public void LaunchGame(aVersion version)
     {
-        MainWindow.mainwindow.Showfyt("正在启动游戏...");
+        MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
         var game = new Game();
-        game.GameStartedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() =>MainWindow.mainwindow.Showfyt("游戏已启动！"));
-        game.GameClosedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.Showfyt("游戏已关闭！"));
+        game.GameStartedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() =>MainWindow.mainwindow.ShowFlyout("游戏已启动！"));
+        game.GameClosedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("游戏已关闭！"));
         Task.Run(() => game.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,Init.BasePath));
     }
     [RelayCommand]
@@ -37,7 +37,7 @@ internal partial class VersionItem
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 $"启动{version.VersionID}." + (Init.systemType == SystemType.windows ? "bat" : "sh")),
-            "cd "+(Init.systemType == SystemType.windows ? "/D" : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
+            "cd "+(Init.systemType == SystemType.windows ? "/D " : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
             +$"{Path.Combine(Init.BasePath, ".minecraft")}\njava " + new LaunchCommandBuilder
             (
                 Init.BasePath,
@@ -56,12 +56,11 @@ internal partial class VersionItem
                     "-Djdk.lang.Process.allowAmbiguousCommands=true",
                     "-Dlog4j2.formatMsgNoLookups=true",
                     "-Dfml.ignoreInvalidMinecraftCertificates=True",
-                    "-Dfml.ignorePatchDiscrepancies=True",
-                    "--enable-native-access=ALL-UNNAMED"
-                    //"-Dlog4j.configurationFile=\"C:\\Users\\wwwin\\AppData\\Roaming\\OneLauncher\\.minecraft\\versions\\1.21.1\\client-1.12.xml\""
+                    "-Dfml.ignorePatchDiscrepancies=True"
+                    //"--enable-native-access=ALL-UNNAMED" // 1.13以下的版本可能会因此报错
                 )
         ));
-        MainWindow.mainwindow.Showfyt("已创建启动脚本到桌面！");
+        MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
     }
     [RelayCommand]
     public void ManGame(aVersion version)

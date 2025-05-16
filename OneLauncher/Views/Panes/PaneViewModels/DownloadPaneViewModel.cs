@@ -62,15 +62,15 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public double _CurrentProgress = 0;
     private async Task ToDownload(VersionBasicInfo versionBasicInfo)
     {
-        string VersionJsonFilePath = Path.Combine(Init.BasePath,".minecraft","versions",versionBasicInfo.name,$"{versionBasicInfo.name}.json");
+        string VersionJsonFol = Path.Combine(Init.BasePath,".minecraft","versions",versionBasicInfo.name);
         // 阶段1：下载版本文件（JSON）
         D_DM = "正在下载版本文件...";
         CurrentProgress = 0;
-        await Core.Download.DownloadToMinecraft(versionBasicInfo.url, VersionJsonFilePath);
+        await Core.Download.DownloadToMinecraft(versionBasicInfo.url, Path.Combine( VersionJsonFol, $"{versionBasicInfo.name}.json"));
         CurrentProgress = 100;
         
         // 阶段2：下载库文件
-        VersionInfomations a = new VersionInfomations(File.ReadAllText(VersionJsonFilePath),Init.BasePath,Init.systemType);
+        VersionInfomations a = new VersionInfomations(File.ReadAllText(Path.Combine(VersionJsonFol, $"{versionBasicInfo.name}.json")),Init.BasePath,Init.systemType);
         D_DM = "正在下载库文件...";
         
         await Core.Download.DownloadToMinecraft(a.GetLibrarys(), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
@@ -80,11 +80,16 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             double percentage = (double)progress.downloadedFiles / progress.totalFiles * 100;
             CurrentProgress = percentage;
         }), 24, Init.CPUPros*2, true);
+        // 释放 Natives 库
+        foreach (var i in a.NativesLibs)
+        {
+            Download.ExtractFile(Path.Combine(Init.BasePath,".minecraft", "libraries", i),Path.Combine(VersionJsonFol,"natives"));
+        }
 
         // 阶段3：下载主文件
         D_DM = "正在下载主文件...";
         CurrentProgress = 0;
-        await Core.Download.DownloadToMinecraft(a.GetMainFile(versionBasicInfo.name));
+        await Core.Download.DownloadToMinecraft(a.GetMainFile());
         CurrentProgress = 100;
 
         // 阶段4：下载资源索引文件（JSON）
@@ -107,7 +112,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         // 阶段6：下载配置文件
         D_DM = "正在下载配置文件...";
         CurrentProgress = 0;
-        NdDowItem tmd = a.GetLoggingConfig(versionBasicInfo.name);
+        NdDowItem tmd = a.GetLoggingConfig();
         if (tmd != null)
             await Core.Download.DownloadToMinecraft(tmd);
         CurrentProgress = 100;
