@@ -51,8 +51,6 @@ public static class Download
                     }
                 }
             }
-
-
         }
         catch (HttpRequestException ex)
         {
@@ -253,22 +251,10 @@ public static class Download
                 }
             }
         }
-        catch (HttpRequestException ex)
-        {
-            throw new InvalidOperationException($"网络请求失败: {ex.Message} (URL: {url})", ex);
-        }
-        catch (IOException ex)
-        {
-            throw new InvalidOperationException($"文件操作失败: {ex.Message} (路径: {path})", ex);
-        }
-        catch (OperationCanceledException)
-        {
-            throw new InvalidOperationException($"下载超时或被取消 (URL: {url})");
-        }
         catch (Exception ex)
         {
-            throw new InvalidOperationException(
-                $"下载文件时发生错误: {ex.Message} (URL: {url}, 路径: {path})", ex);
+            // 抛出原始错误
+            throw;
         }
     }
 }

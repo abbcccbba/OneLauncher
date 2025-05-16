@@ -17,6 +17,14 @@ namespace OneLauncher.Views.ViewModels
 {
     internal partial class DownloadPageViewModel : BaseViewModel
     {
+        /// <summary>
+        /// 无网络重载方法，会在版本列表里显示“无网络链接”并拒绝下载
+        /// </summary>
+        public DownloadPageViewModel()
+        {
+            IsAllowDownloading = false;
+            MainWindow.mainwindow.Showfyt("出现错误：无法下载版本清单");
+        }
         public DownloadPageViewModel
             (
                 // 先传string作为ListBox数据，未来可拓展自定义类
@@ -25,6 +33,7 @@ namespace OneLauncher.Views.ViewModels
                 List<VersionBasicInfo> SnapshotVersionList
             )
         {
+            IsAllowDownloading = true;
             this.AllItems = AllVersionList;
             this.ReleaseItems = ReleaseVersionList;
             this.SnapshotItems = SnapshotVersionList;
@@ -42,6 +51,8 @@ namespace OneLauncher.Views.ViewModels
         public UserControl _DownloadPaneContent;
         [ObservableProperty]
         public bool _IsPaneShow = false;
+        [ObservableProperty]
+        public bool _IsAllowDownloading;
         [ObservableProperty]
         public List<VersionBasicInfo> _AutoVersionList;
 

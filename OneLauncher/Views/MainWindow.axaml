@@ -12,10 +12,10 @@
 		ExtendClientAreaToDecorationsHint="True"
 		Width="1150"
 		Height="650">
-
+						<!-- 在这里改为为 CompactOverlay -->
 	<SplitView x:Name="SidebarSplitView"
 				   IsPaneOpen="False"
-				   DisplayMode="CompactInline"
+				   DisplayMode="CompactInline" 
 				   OpenPaneLength="180"
 				   CompactPaneLength="80"
 				PaneBackground="Transparent">
