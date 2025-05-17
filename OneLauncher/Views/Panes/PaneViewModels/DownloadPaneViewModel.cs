@@ -1,6 +1,4 @@
-﻿
-
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -44,7 +42,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public async void ToDownload()
     {
-        // 新建线程避免阻塞UI
         await ToDownload(thisVersionBasicInfo);
         // 下载完毕后禁用下载按钮
         IsAllowDownloading = false;
@@ -70,7 +67,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         CurrentProgress = 100;
         
         // 阶段2：下载库文件
-        VersionInfomations a = new VersionInfomations(File.ReadAllText(Path.Combine(VersionJsonFol, $"{versionBasicInfo.name}.json")),Init.BasePath,Init.systemType);
+        VersionInfomations a = new VersionInfomations(await File.ReadAllTextAsync(Path.Combine(VersionJsonFol, $"{versionBasicInfo.name}.json")),Init.BasePath,Init.systemType);
         D_DM = "正在下载库文件...";
         
         await Core.Download.DownloadToMinecraft(a.GetLibrarys(), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
@@ -81,6 +78,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             CurrentProgress = percentage;
         }), 24, Init.CPUPros*2, true);
         // 释放 Natives 库
+        D_DM = "释放Natives库...";
         foreach (var i in a.NativesLibs)
         {
             Download.ExtractFile(Path.Combine(Init.BasePath,".minecraft", "libraries", i),Path.Combine(VersionJsonFol,"natives"));
@@ -101,7 +99,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
 
         // 阶段5：下载资源文件
         D_DM = "正在下载资源文件...";
-        await Core.Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(File.ReadAllText(a1.path), Init.BasePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
+        await Core.Download.DownloadToMinecraft(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(a1.path), Init.BasePath), new Progress<(int downloadedFiles, int totalFiles, int verifiedFiles)>(progress
         => //Dispatcher.UIThread.Post(() =>
         {
             D_DM = progress.verifiedFiles > 0 ? "正在校验资源文件..." : "正在下载资源文件...";

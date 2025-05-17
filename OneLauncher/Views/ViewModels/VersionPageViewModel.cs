@@ -24,6 +24,7 @@ internal partial class VersionItem
     [RelayCommand]
     public void LaunchGame(aVersion version)
     {
+        // 用多线程而不是异步，否则某些特定版本会阻塞
         MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
         var game = new Game();
         game.GameStartedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() =>MainWindow.mainwindow.ShowFlyout("游戏已启动！"));
@@ -60,11 +61,6 @@ internal partial class VersionItem
                 )
         ));
         MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
-    }
-    [RelayCommand]
-    public void ManGame(aVersion version)
-    {
-        //MainWindow.mainwindow.MainPageNavigate(new VersionMangerPage(version));
     }
 }
 internal partial class VersionPageViewModel : BaseViewModel

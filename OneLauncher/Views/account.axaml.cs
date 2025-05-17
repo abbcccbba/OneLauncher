@@ -8,19 +8,21 @@ using Avalonia.Interactivity;
 using System.Threading.Tasks;
 using System;
 using OneLauncher.Codes;
-namespace OneLauncher;
+using OneLauncher.Views.ViewModels;
 
+namespace OneLauncher.Views;
 public partial class account : UserControl
 {
     public account()
     {
-        InitializeComponent(); 
+        InitializeComponent();
+        this.DataContext = new AccountPageViewModel();
     }
     protected override async void OnLoaded(RoutedEventArgs e)
     {
-        if (AccountListViews.ItemsSource == null) 
-            AccountListViews.ItemsSource = Init.ConfigManger.config.UserModelList;
-        else return;
+        //if (AccountListViews.ItemsSource == null) 
+        //    AccountListViews.ItemsSource = Init.ConfigManger.config.UserModelList;
+        //else return;
     }
     private void SetDefault(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
@@ -42,7 +44,7 @@ public partial class account : UserControl
             "IDoNotKnowYourName",
             Guid.NewGuid()
         ));
-        AccountListViews.ItemsSource = Init.ConfigManger.config.UserModelList;
+        //AccountListViews.ItemsSource = Init.ConfigManger.config.UserModelList;
         
     }
 }

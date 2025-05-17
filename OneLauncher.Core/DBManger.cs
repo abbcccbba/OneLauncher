@@ -39,7 +39,7 @@ public class DBManger
         {
             this.config = config;
             Directory.CreateDirectory(BasePath);
-            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(config, new JsonSerializerOptions
+            File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config, new JsonSerializerOptions
             {
                 WriteIndented = true
             }));

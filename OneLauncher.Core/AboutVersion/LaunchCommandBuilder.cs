@@ -24,7 +24,6 @@ public class LaunchCommandBuilder
     /// <param name="system">运行时系统类型</param>
     public LaunchCommandBuilder(string basePath, string version, UserModel userModel,SystemType system)
     {
-        //Debug.WriteLine($"调用于 {DateTime.Now}");
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
@@ -116,18 +115,12 @@ public class LaunchCommandBuilder
     {
         // 缓存机制
         string cacheFilePath = Path.Combine(basePath, ".minecraft", "versions", version, "classpath.cache");
-        if (File.Exists(cacheFilePath))
-        {
-            // 如果有缓存直接返回
-            return File.ReadAllText(cacheFilePath).Trim();     
-        }
         string separator = systemType == SystemType.windows ? ";" : ":";
         //string AllClassArgs = $"\"\"{separator}{Libs}{separator}\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"";
         var sb = new StringBuilder(); sb.Append($"\"\"{separator}");
         foreach (var path in versionInfo.GetLibrarys().Select(x => x.path))
         sb.Append($"\"{path}\"{separator}");
         sb.Append($"\"{versionInfo.GetMainFile().path}\"{separator}\"\"");
-        File.WriteAllTextAsync(cacheFilePath, sb.ToString());
         return sb.ToString();
     }
     private string BuildGameArgs()
