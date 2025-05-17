@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core;
-
 /// <summary>
 /// 描述单个下载项
 /// </summary>

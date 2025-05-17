@@ -53,16 +53,9 @@ public partial class download : UserControl
             // 路径（3）
             vl = new VersionsList(File.ReadAllText($"{Init.BasePath}/version_manifest.json"));
             // 提前缓存避免UI线程循环卡顿
-            List<VersionBasicInfo> allVersions = vl.GetAllVersionList();
-            List<VersionBasicInfo> releaseVersions = vl.GetReleaseVersionList();
-            List<VersionBasicInfo> snapshotVersions = vl.GetSnapshotVersionList();          
+            List<VersionBasicInfo> releaseVersions = vl.GetReleaseVersionList();        
             await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                this.DataContext = new Views.ViewModels.DownloadPageViewModel
-                (
-                    allVersions,releaseVersions,snapshotVersions
-                );
-            });
+            this.DataContext = new Views.ViewModels.DownloadPageViewModel(releaseVersions));
         });  
     }
 

@@ -52,7 +52,6 @@ internal partial class VersionItem
                     "-XX:+UseG1GC",
                     "-XX:+UnlockExperimentalVMOptions",
                     "-XX:-OmitStackTraceInFastThrow",
-                    "-XX:+AlwaysPreTouch -XX:+UseStringDeduplication", // 预加载内存页面，优化字符串
                     "-Djdk.lang.Process.allowAmbiguousCommands=true",
                     "-Dlog4j2.formatMsgNoLookups=true",
                     "-Dfml.ignoreInvalidMinecraftCertificates=True",

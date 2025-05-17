@@ -97,8 +97,18 @@ public class VersionInfomations
             // natives库文件
             if (lib.Downloads?.Classifiers != null)
             {
-                LibraryArtifact ta = lib.Downloads.Classifiers
-                    [OsType == SystemType.windows ? "natives-windows" : OsType == SystemType.osx ? "natives-osx" : "natives-linux"];
+                LibraryArtifact ta;
+                try
+                {
+                    ta = lib.Downloads.Classifiers
+                        [OsType == SystemType.windows ? "natives-windows" : OsType == SystemType.osx ? "natives-osx" : "natives-linux"];
+                }
+                // 某些古早版本可能会针对架构
+                catch (System.Collections.Generic.KeyNotFoundException)
+                {
+                    ta = lib.Downloads.Classifiers
+                    [OsType == SystemType.windows ? "natives-windows-64" : OsType == SystemType.osx ? "natives-osx-64" : "natives-linux-64"];
+                }
                 NativesLibs.Add(ta.Path);
                 libraries.Add(new NdDowItem(
                     ta.Url,
@@ -168,6 +178,8 @@ public class VersionInfomations
     }
     public string? GetLoggingConfigPath()
     {
+        if (info.Logging?.Client?.File == null)
+            return null;
         return Path.Combine(basePath, ".minecraft", "versions", info.ID, info.Logging.Client.File.Id);
     }
 
