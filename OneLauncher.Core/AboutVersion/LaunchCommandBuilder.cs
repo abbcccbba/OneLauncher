@@ -62,7 +62,9 @@ public class LaunchCommandBuilder
         if (versionInfo.info.Arguments == null)
         {
             return
-                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " +
+                // 针对 1.6.x 版本不存在log4j2的情况
+                (versionInfo.GetLoggingConfigPath() != null ? 
+                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " : " ")+
                 // 处理特定平台要求的参数
                 (systemType == SystemType.windows ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump "
                 : systemType == SystemType.osx ? "-XstartOnFirstThread " : "")+
@@ -130,16 +132,21 @@ public class LaunchCommandBuilder
     }
     private string BuildGameArgs()
     {
-        return //string.Join(" ",
+        return 
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
             $"--gameDir \"{Path.Combine(basePath, ".minecraft")}\" " +
             $"--assetsDir \"{Path.Combine(basePath, ".minecraft", "assets")}\" " +
+            // 1.7版本及以上启用新用户验证机制
+            (new Version(version) > new Version("1.7") ?
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
             $"--uuid \"{userModel.uuid}\" " +
             $"--accessToken \"{userModel.accessToken.ToString()}\" " +
             $"--userType \"{userModel.userType}\" " +
-            $"--versionType \"OneLauncher\"";//);
+            $"--versionType \"OneLauncher\" " +
+            "--userProperties {} " 
+            // 针对旧版用户验证机制
+            : $"--session \"{userModel.accessToken}\"");
     }
     private bool EvaluateRules(List<Models.Rule> rules, string osName, string arch)
     {

@@ -27,7 +27,7 @@ internal class Game
         {
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "java1";
+                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.452.9-hotspot\\bin\\java.exe";
                 process.StartInfo.Arguments =
                     new LaunchCommandBuilder
                     (
@@ -39,7 +39,6 @@ internal class Game
                     (
                         OtherArgs: string.Join
                         (
-
                             " ",
                             "-XX:+UseG1GC",
                             "-XX:+UnlockExperimentalVMOptions",
@@ -62,14 +61,16 @@ internal class Game
                 process.OutputDataReceived += (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
-                    Console.WriteLine($"[STDOUT] {e.Data}"); // 输出到控制台
-                    if (e.Data.Contains("![CDATA[Backend library: LWJGL version"))
+                    Debug.WriteLine($"[STDOUT] {e.Data}"); // 输出到控制台
+                    if (e.Data.Contains("Backend library: LWJGL version"))
                         GameStartedEvent?.Invoke();
                 };
                 process.ErrorDataReceived += (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
-                    Console.WriteLine($"[ERROR] {e.Data}"); // 输出到控制台
+                    Debug.WriteLine($"[ERROR] {e.Data}"); // 输出到控制台
+                    if(e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
+                        MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失",true);
                 };
                 process.Start();
                 process.BeginOutputReadLine();
@@ -84,7 +85,7 @@ internal class Game
             MainWindow.mainwindow.ShowFlyout($"启动失败，错误信息：{ex.Message}。请尝试安装Java "+
             new VersionInfomations(
                 File.ReadAllText(Path.Combine(Init.BasePath, ".minecraft", "versions", GameVersion, $"{GameVersion}.json")),Init.BasePath,Init.systemType)
-            .GetJavaVersion()));
+            .GetJavaVersion(),true));
         }
     }
 }

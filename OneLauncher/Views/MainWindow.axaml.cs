@@ -64,9 +64,13 @@ public partial class MainWindow : Window
     /// 在右下角显示提示信息
     /// </summary>
     /// <param name="text">提示信息内容</param>
-    public async void ShowFlyout(string text)
+    public async void ShowFlyout(string text,bool IsWarning = false)
     {
         FytFkA.Text = text;
+        if (IsWarning)
+            FytB.Background = new SolidColorBrush(Colors.Red);
+        else
+            FytB.Background = new SolidColorBrush(Colors.LightBlue);
         FytB.IsVisible = true;
         await Task.Delay(3000);
         FytB.IsVisible = false;

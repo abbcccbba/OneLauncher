@@ -25,27 +25,15 @@ namespace OneLauncher.Views.ViewModels
             IsAllowDownloading = false;
             MainWindow.mainwindow.ShowFlyout("出现错误：无法下载版本清单");
         }
-        public DownloadPageViewModel
-            (
-                // 先传string作为ListBox数据，未来可拓展自定义类
-                List<VersionBasicInfo> AllVersionList,
-                List<VersionBasicInfo> ReleaseVersionList,
-                List<VersionBasicInfo> SnapshotVersionList
-            )
+        public DownloadPageViewModel (List<VersionBasicInfo> ReleaseVersionList)
         {
             IsAllowDownloading = true;
-            this.AllItems = AllVersionList;
             this.ReleaseItems = ReleaseVersionList;
-            this.SnapshotItems = SnapshotVersionList;
-            AutoVersionList = AllVersionList;
+            AutoVersionList = ReleaseVersionList;
         }
         
         [ObservableProperty]
-        public List<VersionBasicInfo> _AllItems;
-        [ObservableProperty]
         public List<VersionBasicInfo> _ReleaseItems;
-        [ObservableProperty]
-        public List<VersionBasicInfo> _SnapshotItems;
 
         [ObservableProperty]
         public UserControl _DownloadPaneContent;

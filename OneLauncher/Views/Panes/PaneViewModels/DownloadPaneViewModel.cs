@@ -109,8 +109,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             CurrentProgress = percentage;
         }), 64, Init.CPUPros*3, true);
 
-        // 阶段6：下载配置文件
-        D_DM = "正在下载配置文件...";
+        // 阶段6：下载日志配置文件
+        D_DM = "正在下载日志配置文件...";
         CurrentProgress = 0;
         NdDowItem tmd = a.GetLoggingConfig();
         if (tmd != null)
