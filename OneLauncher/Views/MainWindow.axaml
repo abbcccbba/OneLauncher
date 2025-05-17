@@ -5,7 +5,7 @@
 		xmlns:easing="using:Avalonia.Animation.Easings"
 		mc:Ignorable="d" d:DesignWidth="1150" d:DesignHeight="650"
 		x:Class="OneLauncher.Views.MainWindow"
-		Icon="/Assets/window-logo.png"
+		Icon="/Assets/window-logo.ico"
 		Title="One Launcher"
 		TransparencyLevelHint="AcrylicBlur"
 		Background="#99FFFFFF"
