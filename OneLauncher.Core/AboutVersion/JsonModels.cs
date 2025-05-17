@@ -42,9 +42,6 @@ public class VersionInformation
 // 表示Java版本信息
 public class JavaVersion
 {
-    [JsonPropertyName("component")]
-    public string? Component { get; set; } // 可以为空
-
     [JsonPropertyName("majorVersion")]
     public int MajorVersion { get; set; }
 }
@@ -87,9 +84,6 @@ public class Library
 
     [JsonPropertyName("rules")]
     public List<Rule>? Rules { get; set; } // 可以为空
-
-    [JsonPropertyName("natives")]
-    public Natives? Natives { get; set; } // 可以为空
 }
 
 // 表示库的下载信息

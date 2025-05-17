@@ -95,7 +95,7 @@ public class VersionInfomations
                 ));
             
             // natives库文件
-            if (lib.Natives != null && lib.Downloads?.Classifiers != null)
+            if (lib.Downloads?.Classifiers != null)
             {
                 LibraryArtifact ta = lib.Downloads.Classifiers
                     [OsType == SystemType.windows ? "natives-windows" : OsType == SystemType.osx ? "natives-osx" : "natives-linux"];
@@ -175,9 +175,9 @@ public class VersionInfomations
     /// 获取Java版本信息。
     /// </summary>
     /// <returns>Java版本信息，包含组件名和主要版本号；如果无javaVersion字段，返回null。</returns>
-    public OneLauncher.Core.Models.JavaVersion? GetJavaVersion()
+    public int? GetJavaVersion()
     {
-        return info.JavaVersion;
+        return info.JavaVersion.MajorVersion;
     }
 }
 
