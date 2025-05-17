@@ -12,6 +12,9 @@
   
 - **运行环境**：
   - 在依赖框架的构建中需要.NET9（或更高版本 可以在[这里](https://dotnet.microsoft.com/zh-cn/download/dotnet/9.0)下载）
+    
+    对于Windows可以通过`winget install Microsoft.DotNet.DesktopRuntime.9`安装
+    
   - Java 环境（目前版本的OneLauncher不会对设备的Java环境进行检测，请自己前往[这里](https://www.oracle.com/java/technologies/downloads/)安装合适版本的Java）
 
 ## 跨平台安装与构建指南
