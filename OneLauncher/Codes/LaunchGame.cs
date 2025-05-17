@@ -59,14 +59,14 @@ internal class Game
             process.OutputDataReceived += (sender, e) =>
             {
                 if (string.IsNullOrEmpty(e.Data)) return;
-                Debug.WriteLine($"[STDOUT] {e.Data}"); // 输出到控制台
+                Console.WriteLine($"[STDOUT] {e.Data}"); // 输出到控制台
                 if (e.Data.Contains("![CDATA[Backend library: LWJGL version")) 
                     GameStartedEvent?.Invoke();    
             };
             process.ErrorDataReceived += (sender, e) =>
             {
                 if (string.IsNullOrEmpty(e.Data)) return;
-                Debug.WriteLine($"[ERROR] {e.Data}"); // 输出到控制台
+                Console.WriteLine($"[ERROR] {e.Data}"); // 输出到控制台
             };
             process.Start();
             process.BeginOutputReadLine();
