@@ -5,26 +5,25 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core
+namespace OneLauncher.Core;
+
+public class VersionAssetIndex
 {
-    public class VersionAssetIndex
+    public static List<NdDowItem> ParseAssetsIndex(string jsonString, string path)
     {
-        public static List<NdDowItem> ParseAssetsIndex(string jsonString, string path)
+        var assets = new List<NdDowItem>();
+        var jsonDocument = JsonDocument.Parse(jsonString);
+        var objects = jsonDocument.RootElement.GetProperty("objects");
+        foreach (var property in objects.EnumerateObject())
         {
-            var assets = new List<NdDowItem>();
-            var jsonDocument = JsonDocument.Parse(jsonString);
-            var objects = jsonDocument.RootElement.GetProperty("objects");
-            foreach (var property in objects.EnumerateObject())
-            {
-                string fileName = property.Name;
-                string hash = property.Value.GetProperty("hash").GetString();
+            string fileName = property.Name;
+            string hash = property.Value.GetProperty("hash").GetString();
 
-                string hashPrefix = hash.Substring(0, 2);
+            string hashPrefix = hash.Substring(0, 2);
 
-                assets.Add(new NdDowItem($"https://resources.download.minecraft.net/{hashPrefix}/{hash}", hash, Path.Combine(path,".minecraft","assets","objects",hashPrefix,hash)));
-            }
-
-            return assets;
+            assets.Add(new NdDowItem($"https://resources.download.minecraft.net/{hashPrefix}/{hash}", hash, Path.Combine(path,".minecraft","assets","objects",hashPrefix,hash)));
         }
+
+        return assets;
     }
 }

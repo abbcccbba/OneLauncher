@@ -2,83 +2,118 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="520"
-             x:Class="OneLauncher.account"
+             mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
+             x:Class="OneLauncher.Views.account"
 			 >
-	<Panel>
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="72" />
-				<RowDefinition Height="*" />
-			</Grid.RowDefinitions>
-			<Grid Grid.Row="0">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="5*" />
-					<ColumnDefinition Width="*" />
-				</Grid.ColumnDefinitions>
-				<TextBlock Grid.Column="0" Text="管理用户登入验证模型" FontSize="48" Margin="12,4,0,0"/>
-				<Button Grid.Column="1" Click="new_Button_Click" HorizontalAlignment="Center" VerticalAlignment="Center">
-					<TextBlock Text="新建"/>
-				</Button>
+	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
+               DisplayMode="Overlay"
+               OpenPaneLength="650"
+               PanePlacement="Right">
+		<SplitView.Pane>
+			<Grid RowDefinitions="Auto,*">
+				<Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+					<Button Command="{Binding BackCommand}" Margin="14" Grid.Column="0" HorizontalAlignment="Left">
+						<StackPanel Orientation="Horizontal">
+							<Image Source="/Assets/icos/back.png" Width="20" Height="20"/>
+							<TextBlock Text="返回"/>
+						</StackPanel>
+					</Button>
+					<TextBlock Margin="0,0,0,0" Grid.Column="1"  Text="收集信息..." FontSize="48"/>
+				</Grid>
+				<StackPanel Grid.Row="1">
+					<StackPanel Orientation="Horizontal">
+						<TextBox Text="{Binding UserName}" Watermark="输入用户名"/>
+						<Button Command="{Binding DoneCommand}" Content="完成"/>
+					</StackPanel>
+				</StackPanel>
 			</Grid>
-			<ListBox Grid.Row="1" x:Name="AccountListViews" ItemsSource="{Binding UserModelList}">
-				<ListBox.Styles>
-					<Style Selector="ListBoxItem">
-						<Setter Property="Background" Value="Transparent"/>
-						<Setter Property="BorderBrush" Value="Transparent"/>
-						<Setter Property="BorderThickness" Value="0"/>
-						<Setter Property="Template">
-							<ControlTemplate>
-								<ContentPresenter x:Name="PART_ContentPresenter"
-												 Content="{TemplateBinding Content}"
-												 ContentTemplate="{TemplateBinding ContentTemplate}"
-												 Background="{TemplateBinding Background}"
-												 BorderBrush="{TemplateBinding BorderBrush}"
-												 BorderThickness="{TemplateBinding BorderThickness}"
-												 CornerRadius="{TemplateBinding CornerRadius}"
-												 Padding="{TemplateBinding Padding}"/>
-							</ControlTemplate>
-						</Setter>
-					</Style>
-					<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-						<Setter Property="Background" Value="Transparent"/>
-					</Style>
-					<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
-						<Setter Property="Background" Value="Transparent"/>
-					</Style>
-					<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-						<Setter Property="Background" Value="Transparent"/>
-					</Style>
-				</ListBox.Styles>
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<Border BorderBrush="Black"
-							BorderThickness="5"
-							CornerRadius="15"
-							Background="Transparent"
-							Padding="5">
-							<Grid>
-								<Grid.RowDefinitions>
-									<RowDefinition Height="*" />
-									<RowDefinition Height="*" />
-								</Grid.RowDefinitions>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="*" />
-									<ColumnDefinition Width="*" />
-								</Grid.ColumnDefinitions>
-								<StackPanel Spacing="8" Grid.Row="0" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-									<Image Source="/Assets/Imgs/steve.png" Height="80" Width="80"/>
-									<StackPanel>
-										<TextBlock FontWeight="Bold" FontSize="32" Text="{Binding Name}"/>
-										<TextBlock Text="{Binding uuid}"/>
+		</SplitView.Pane>
+		<Grid RowDefinitions="52,*" Margin="24">
+		<StackPanel Margin="16,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
+			<TextBlock Grid.Row="0" Text="管理用户登入验证模型" FontSize="36"/>
+			<Button Command="{Binding NewUserModelCommand}">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="/Assets/icos/add.png" Width="20" Height="20"/>
+					<TextBlock Text="新建"/>
+				</StackPanel>
+			</Button>
+		</StackPanel>
+		<ListBox x:Name="navVL" Grid.Row="1" ItemsSource="{Binding UserModelList}" Background="Transparent" SelectionMode="Multiple">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Border CornerRadius="5" Background="#F4F4F5">
+						<Grid RowDefinitions="*,*" ColumnDefinitions="100,Auto,*" >
+							<Border Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Center" >
+								<Image Width="72" Height="72" Source="/Assets/Imgs/steve.png"/>
+							</Border>
+							<TextBlock Grid.Row="0" Margin="6" Grid.Column="1" FontSize="24" Text="{Binding Name}" FontWeight="Bold"/>
+							<TextBlock Margin="4,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding uuid}"/>
+							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" >
+								<Button Command="{Binding SetDefaultCommand}" CommandParameter="{Binding}">
+									<StackPanel Orientation="Horizontal" Spacing="2">
+										<Image Source="/Assets/icos/pin.png" Width="20" Height="20"/>
+										<TextBlock Text="设为默认"/>
 									</StackPanel>
-								</StackPanel>
-								<Button Content="设为默认" Click="SetDefault" HorizontalAlignment="Right"/>
-							</Grid>
-						</Border>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
-		</Grid>
-	</Panel>
+								</Button>
+								<SplitButton >
+									<StackPanel Orientation="Horizontal" Spacing="2">
+										<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
+										<TextBlock Text="编辑"/>
+									</StackPanel>
+									<SplitButton.Flyout>
+										<MenuFlyout>
+											<MenuItem Header="删除" />
+										</MenuFlyout>
+									</SplitButton.Flyout>
+								</SplitButton>
+							</StackPanel>
+						</Grid>
+					</Border>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+			<ListBox.Styles>
+				<Style Selector="ListBoxItem">
+					<Setter Property="Background" Value="Transparent"/>
+					<Setter Property="Padding" Value="5"/>
+					<Setter Property="Transitions">
+						<Transitions>
+							<BrushTransition Property="Background" Duration="0:0:0.23"/>
+							<BrushTransition Property="Background" Duration="0:0:0.3" Easing="QuadraticEaseInOut"/>
+						</Transitions>
+					</Setter>
+				</Style>
+				<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+					<Setter Property="Background" Value="Transparent"/>
+					<Setter Property="Opacity" Value="0.95"/>
+					<Setter Property="RenderTransform">
+						<ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
+					</Setter>
+				</Style>
+				<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+					<Setter Property="Background" Value="Transparent"/>
+				</Style>
+				<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+					<Setter Property="Background" Value="Transparent"/>
+				</Style>
+				<!-- 阴影样式 -->
+				<Style Selector="ListBoxItem > Border">
+					<Setter Property="ClipToBounds" Value="False"/>
+					<Setter Property="Margin" Value="4"/>
+					<Setter Property="BoxShadow" Value="0 0 4 1 #22000000"/>
+				</Style>
+				<Style Selector="ListBoxItem:pointerover > Border">
+					<Setter Property="BoxShadow" Value="2 2 8 2 #33000000"/>
+				</Style>
+				<Style Selector="ListBoxItem:pressed > Border">
+					<Setter Property="BoxShadow" Value="1 1 4 1 #22000000"/>
+				</Style>
+				<!-- 确保内容不被裁剪 -->
+				<Style Selector="ListBoxItem > Border">
+					<Setter Property="ClipToBounds" Value="False"/>
+					<Setter Property="Margin" Value="10"/>
+				</Style>
+			</ListBox.Styles>
+		</ListBox>
+	</Grid>
+	</SplitView>
 </UserControl>

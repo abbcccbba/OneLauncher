@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Codes
+namespace OneLauncher.Codes;
+
+internal class ToDownloadMinecraftVersion
 {
-    internal class ToDownloadMinecraftVersion
-    {
-    }
 }

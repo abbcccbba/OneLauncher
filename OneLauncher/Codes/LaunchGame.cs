@@ -27,7 +27,7 @@ internal class Game
         {
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.452.9-hotspot\\bin\\java.exe";
+                process.StartInfo.FileName = "java";
                 process.StartInfo.Arguments =
                     new LaunchCommandBuilder
                     (
