@@ -5,17 +5,8 @@
 			 xmlns:material="using:Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Home">
-	<Grid ColumnDefinitions="2*,1,*">
-		<Grid Grid.Column="0">
-			
-		</Grid>
-		<GridSplitter
-			Width="1"
-			Grid.Column="1"
-			Background="Transparent" 
-			ResizeDirection="Columns"/>
-		<Grid Grid.Column="2" Background="Transparent">
-			
-		</Grid>
+	<Grid>
+    <TextBlock FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Welcome to OneLauncher" />
+		
 	</Grid>
 </UserControl>

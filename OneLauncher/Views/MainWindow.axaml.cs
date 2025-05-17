@@ -21,7 +21,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        Codes.Init.Initialize();
         mainwindow = this;
     }
     public enum MainPage
@@ -69,7 +68,7 @@ public partial class MainWindow : Window
     {
         FytFkA.Text = text;
         FytB.IsVisible = true;
-        await Task.Delay(1000);
+        await Task.Delay(3000);
         FytB.IsVisible = false;
     }
     protected override async void OnOpened(EventArgs e)
