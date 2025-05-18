@@ -18,33 +18,4 @@ public partial class account : UserControl
         InitializeComponent();
         this.DataContext = new AccountPageViewModel();
     }
-    protected override async void OnLoaded(RoutedEventArgs e)
-    {
-        //if (AccountListViews.ItemsSource == null) 
-        //    AccountListViews.ItemsSource = Init.ConfigManger.config.UserModelList;
-        //else return;
-    }
-    private void SetDefault(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (sender is Button button)
-            if (button.DataContext is UserModel aUserModel)
-            {
-                Init.ConfigManger.config.DefaultUserModel = aUserModel;
-                Init.ConfigManger.Write(Init.ConfigManger.config);
-            }
-    }
-
-    private async void new_Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        //var Dialog = new MessageShow("输入你的用户名（自定义）");
-        //await Dialog.ShowDialog(MainWindow.mainwindow);
-        
-        Init.ConfigManger.AddUserModel(new UserModel(
-         
-            "IDoNotKnowYourName",
-            Guid.NewGuid()
-        ));
-        //AccountListViews.ItemsSource = Init.ConfigManger.config.UserModelList;
-        
-    }
 }

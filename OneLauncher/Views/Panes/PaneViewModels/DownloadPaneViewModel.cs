@@ -46,7 +46,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         // 下载完毕后禁用下载按钮
         IsAllowDownloading = false;
         // 在配置文件中添加版本信息
-        Init.ConfigManger.AddVersion(new aVersion
+        Init.ConfigManger.WriteVersion(new aVersion
         {
             VersionID = VersionName,
             IsMod = false,

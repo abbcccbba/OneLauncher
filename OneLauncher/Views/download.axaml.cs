@@ -21,7 +21,12 @@ public partial class download : UserControl
     public download()
     {
         InitializeComponent();
-        // 初始化数据
+        /*
+         * 初始化Download页的版本列表
+         * 
+         * 使用fire-and-forget是因为用户不一定在启动瞬时打开页面，留有了富足的时间来等待完成
+         * 因此这么做可以提前加载提高性能
+         */
         Task.Run(async () =>
         {
             VersionsList vl;

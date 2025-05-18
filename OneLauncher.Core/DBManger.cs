@@ -16,7 +16,7 @@ public class AppConfig
     public List<aVersion> VersionList { get; set; } = new List<aVersion>();
     // 当前启动器有的所有用户登入模型，默认初始化为空列表
     public UserModel DefaultUserModel { get; set; } = new UserModel();
-    public ObservableCollection<UserModel> UserModelList { get; set; } = new ObservableCollection<UserModel>();
+    public List<UserModel> UserModelList { get; set; } = new List<UserModel>();
 }
 
 public class DBManger
@@ -49,12 +49,12 @@ public class DBManger
             throw new IOException($"配置文件写入错误： {ex.Message}", ex);
         }
     }
-    public void AddVersion(aVersion config)
+    public void WriteVersion(aVersion config)
     {
         try
         {
             this.config.VersionList.Add(config);
-            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
+            File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
             {
                 WriteIndented = true
             }));
@@ -64,12 +64,12 @@ public class DBManger
             throw new IOException($"配置文件写入错误： {ex.Message}", ex);
         }
     }
-    public void AddUserModel(UserModel config)
+    public void WriteUserModel(UserModel config)
     {
         try
         {
             this.config.UserModelList.Add(config);
-            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
+            File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
             {
                 WriteIndented = true
             }));
