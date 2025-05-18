@@ -15,7 +15,7 @@
     
     对于Windows可以通过`winget install Microsoft.DotNet.DesktopRuntime.9`安装
     
-  - Java 环境（目前版本的OneLauncher不会对设备的Java环境进行检测，请自己前往[这里](https://www.oracle.com/java/technologies/downloads/)安装合适版本的Java）
+  - Java 环境（目前版本的OneLauncher不会对设备的Java环境进行检测，请自己前往[这里](https://adoptium.net/zh-CN/temurin/releases/)安装合适版本的Java）
 
 ## 跨平台安装与构建指南
 
