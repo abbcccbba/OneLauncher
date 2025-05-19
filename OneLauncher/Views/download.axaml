@@ -32,14 +32,14 @@
 						SelectedItem="{Binding SelectedItem}">
 						<AutoCompleteBox.ItemTemplate>
 							<DataTemplate>
-								<TextBlock Text="{Binding name}"/>
+								<TextBlock Text="{Binding ID}"/>
 							</DataTemplate>
 						</AutoCompleteBox.ItemTemplate>
 					</AutoCompleteBox>
 					<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" >
 						<ListBox.ItemTemplate>
 							<DataTemplate>
-								<TextBlock Text="{Binding name}"/>
+								<TextBlock Text="{Binding ID}"/>
 							</DataTemplate>
 						</ListBox.ItemTemplate>
 					</ListBox>

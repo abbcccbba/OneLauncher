@@ -20,16 +20,17 @@ public class VersionInfomations
 {
     public readonly OneLauncher.Core.Models.VersionInformation info;
     public readonly string basePath;
+    public readonly string? CustomPath;
     public readonly SystemType OsType;
     public List<string> NativesLibs = new List<string>();
     /// <summary>
     /// 初始化VersionInfomations实例，解析version.json字符串。
     /// </summary>
-    /// <param name="json">version.json文件的字符串内容。</param>
-    /// <param name="basePath">游戏存放目录路径（例如"C:/minecraft/"）。</param>
-    /// <param name="OsType">运行时操作系统类型</param>
+    /// <param ID="json">version.json文件的字符串内容。</param>
+    /// <param ID="basePath">游戏存放目录路径（不含 .minecraft）</param>
+    /// <param ID="OsType">运行时操作系统类型</param>
     /// <exception cref="InvalidOperationException">如果JSON解析失败或内容无效，抛出此异常。</exception>
-    public VersionInfomations(string json, string basePath,SystemType OsType)
+    public VersionInfomations(string json, string basePath,SystemType OsType, string? customPath = null)
     {
         this.basePath = basePath;
         this.OsType = OsType;
@@ -44,6 +45,8 @@ public class VersionInfomations
         {
             throw new InvalidOperationException("解析版本JSON时出错", ex);
         }
+
+        CustomPath = customPath;
     }
 
     public List<NdDowItem> GetLibrarys()
@@ -90,8 +93,10 @@ public class VersionInfomations
             if (lib.Downloads.Artifact != null)
                 libraries.Add(new NdDowItem(
                     lib.Downloads.Artifact.Url,
-                    lib.Downloads.Artifact.Sha1,
-                    Path.Combine(basePath,".minecraft","libraries",lib.Downloads.Artifact.Path)
+                    Path.Combine(basePath, "libraries", lib.Downloads.Artifact.Path),
+                    (int)lib.Downloads.Artifact.Size,
+                    lib.Downloads.Artifact.Sha1
+                    
                 ));
             
             // natives库文件
@@ -113,7 +118,8 @@ public class VersionInfomations
                 libraries.Add(new NdDowItem(
                     ta.Url,
                     ta.Sha1,
-                    Path.Combine(basePath,".minecraft","libraries",ta.Path)
+                    (int)ta.Size,
+                    Path.Combine(basePath,"libraries",ta.Path)
                 ));
             }    
         }
@@ -124,25 +130,28 @@ public class VersionInfomations
     /// <summary>
     /// 获取版本主文件下载地址。
     /// </summary>
-    /// <param name="version">Minecraft版本号。</param>
+    /// <param ID="version">Minecraft版本号。</param>
     public NdDowItem GetMainFile()
     {
         return new NdDowItem(
-            info.Downloads.Client.Url,
-            info.Downloads.Client.Sha1,
-            Path.Combine(basePath, ".minecraft","versions",info.ID,$"{info.ID}.jar")
+            Url: info.Downloads.Client.Url,
+            Sha1:info.Downloads.Client.Sha1,
+            Size:(int)info.Downloads.Client.Size,
+            Path: Path.Combine(basePath,"versions",info.ID,$"{info.ID}.jar")
         );
     }
 
     /// <summary>
     /// 获取版本资源索引文件下载地址。
     /// </summary>
-    public NdDowItem GetAssets()
+    public NdDowItem GetAssets(string ip = null)
     {
         return new NdDowItem(
             info.AssetIndex.Url,
-            info.AssetIndex.Sha1,
-            Path.Combine(basePath,".minecraft","assets","indexes",$"{info.AssetIndex.Id}.json")  
+            ip != null ? Path.Combine(basePath, ip, $"{info.AssetIndex.Id}.json") :
+            Path.Combine(basePath, "assets", "indexes", $"{info.AssetIndex.Id}.json"),
+            (int)info.AssetIndex.Size, 
+            info.AssetIndex.Sha1
         );
     }
 
@@ -173,14 +182,15 @@ public class VersionInfomations
         return new NdDowItem(
             info.Logging.Client.File.Url,
             info.Logging.Client.File.Sha1,
-            Path.Combine(basePath,".minecraft","versions",info.ID,info.Logging.Client.File.Id)
+            (int)info.Logging.Client.File.Size,
+            Path.Combine(basePath,"versions",info.ID,info.Logging.Client.File.Id)
         );
     }
     public string? GetLoggingConfigPath()
     {
         if (info.Logging?.Client?.File == null)
             return null;
-        return Path.Combine(basePath, ".minecraft", "versions", info.ID, info.Logging.Client.File.Id);
+        return Path.Combine(basePath, "versions", info.ID, info.Logging.Client.File.Id);
     }
 
     /// <summary>

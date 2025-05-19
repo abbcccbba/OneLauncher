@@ -3,19 +3,28 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core;
-
-public static class Download
+public enum DownProgress
+{
+    DownMeta,
+    DownLibs,
+    DownAssets,
+    DownMain,
+    DownLog4j2,
+    Verify
+}
+public class Download : IDisposable
 {
     /// <summary>
     /// 解压 ZIP 结构文件到指定目录
     /// </summary>
-    /// <param name="filePath">待解压的文件路径（例如 .docx 或其他 ZIP 结构文件）</param>
-    /// <param name="extractPath">解压到的目标目录</param>
+    /// <param ID="filePath">待解压的文件路径（例如 .docx 或其他 ZIP 结构文件）</param>
+    /// <param ID="extractPath">解压到的目标目录</param>
     /// <exception cref="IOException">文件访问或解压失败</exception>
     /// <exception cref="InvalidDataException">文件不是有效的 ZIP 格式</exception>
     public static void ExtractFile(string filePath, string extractPath)
@@ -55,252 +64,177 @@ public static class Download
             throw;
         }
     }
-    public static async Task DownloadToMinecraft(NdDowItem FDI)
+    public Download()
     {
-        try
+        UnityClient = new HttpClient(new HttpClientHandler
         {
-            // 检查文件是否已存在，避免重复下载
-            if (File.Exists(FDI.path))
-            {
-                return;
-            }
-            // 创建文件夹
-            string directoryPath = Path.GetDirectoryName(FDI.path);
-            if (!string.IsNullOrEmpty(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-
-            // 下载并写入文件
-            using (HttpClient client = new HttpClient())
-            using (HttpResponseMessage response = await client.GetAsync(FDI.url, HttpCompletionOption.ResponseHeadersRead))
-            {
-                response.EnsureSuccessStatusCode();
-                using (FileStream stream = new FileStream(FDI.path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize: 25565, useAsync: true))
-                {
-                    using (var httpStream = await response.Content.ReadAsStreamAsync())
-                    {
-                        await httpStream.CopyToAsync(stream, 25565); // 指定缓冲区大小
-                    }
-                    stream.Position = 0; //重置流位置到开头
-                                            // SHA1校验
-                    using (SHA1 sha1Hash = SHA1.Create())
-                    {
-                        byte[] hash = await sha1Hash.ComputeHashAsync(stream); 
-                        string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                        if (!string.Equals(calculatedSha1, FDI.sha1, StringComparison.OrdinalIgnoreCase))
-                        {
-                            throw new InvalidDataException($"SHA1校验失败。文件: {FDI.path}, 预期: {FDI.sha1}, 实际: {calculatedSha1}");
-                        }
-                    }
-                }
-            }
-        }
-        catch (HttpRequestException ex)
+            MaxConnectionsPerServer = 32 
+        })
         {
-            Debug.WriteLine($"网络请求失败: {ex.Message}, StatusCode: {ex.StatusCode}, URL: {FDI.url}");
-            throw;
-        }
-        catch (IOException ex)
-        {
-            Debug.WriteLine($"文件操作失败: {ex.Message}, 路径: {FDI.path}");
-            throw;
-        }
-        catch (OperationCanceledException ex)
-        {
-            Debug.WriteLine($"下载超时或被取消: {ex.Message}, URL: {FDI.url}");
-            throw;
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"下载文件时发生未知错误: {ex}, URL: {FDI.url}, 路径: {FDI.path}");
-            throw;
-        }
+            Timeout = TimeSpan.FromSeconds(60) 
+        };
     }
-    public static async Task DownloadToMinecraft(
-        List<NdDowItem> FDI, 
-        IProgress<(int downloadedFiles, int totalFiles, int verifiedFiles)> progress = null,
-        int maxConcurrentDownloads = 16, 
+    private readonly HttpClient UnityClient;
+    private VersionInfomations versionInfomations;
+    /// <summary>
+    /// 开始异步下载
+    /// </summary>
+    /// <param name="DownloadVersion">下载哪个版本？</param>
+    /// <param name="GameRootPath">游戏根目录（比如 F:\.minecraft ）</param>
+    /// <param name="OsType">系统类型</param>
+    /// <param name="progress">进度回调</param>
+    /// <param name="IsVersionIsolation">是否启用版本隔离</param>
+    /// <param name="maxConcurrentDownloads">最大下载线程</param>
+    /// <param name="maxConcurrentSha1">最大sha1校验线程</param>
+    /// <param name="IsSha1">是否校验sha1</param>
+    /// <param name="IsCheckFileExists">是否检查文件是否已经存在</param>
+    public async Task StartAsync(
+        VersionBasicInfo DownloadVersion,
+        string GameRootPath,
+        SystemType OsType,
+        IProgress<(DownProgress Title,int AllFiles,int DownedFiles,string DowingFileName)> progress,
+        bool IsVersionIsolation = false,
+        int maxConcurrentDownloads = 16,
         int maxConcurrentSha1 = 16,
         bool IsSha1 = true,
-        bool IsCheckFileExists = true
-        )
+        bool IsCheckFileExists = true)
+    {
+        // 下载 version.json
+        await DownloadFile(DownloadVersion.DownInfo);
+        // 实例化版本信息解析器
+        versionInfomations = new VersionInfomations
+            (await File.ReadAllTextAsync(DownloadVersion.DownInfo.path), GameRootPath, OsType);
+        // 下载资源文件索引
+        await DownloadFile(versionInfomations.GetAssets());
+        // 启动下载库文件线程
+        var NdLibs = versionInfomations.GetLibrarys();
+        await DownloadListAsync(
+            // 向上回调
+            new Progress<(int a, string b)>(p => progress.Report((DownProgress.DownLibs, 0, p.a, p.b))), 
+            IsCheckFileExists ? CheckFilesExists(NdLibs) : NdLibs,
+            GameRootPath,
+            maxConcurrentDownloads);
+        // 启动下载资源文件的线程
+        var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync( versionInfomations.GetAssets().path), GameRootPath);
+        await DownloadListAsync(
+            // 向上回调
+            new Progress<(int a, string b)>(p => progress.Report((DownProgress.DownAssets, 0, p.a, p.b))),
+            IsCheckFileExists ? CheckFilesExists(NdAssets) : NdAssets,
+            GameRootPath,
+            maxConcurrentDownloads
+        );
+        // 下载主文件
+        await DownloadFile(versionInfomations.GetMainFile());
+        progress.Report((DownProgress.DownMain, 0, 0, versionInfomations.GetMainFile().path));
+        // 下载日志配置文件
+        if (DownloadVersion.ID > new Version("1.7"))
+        {
+            var log4j2 = versionInfomations.GetLoggingConfig();
+            if (log4j2 != null && CheckFilesExists(new List<NdDowItem>(){log4j2}) != null)
+                await DownloadFile(log4j2);
+        }
+        // 校验所有文件
+        if(IsSha1)
+        {
+
+        }
+
+    }
+    private async Task DownloadListAsync(IProgress<(int completedFiles,string FilesName)> progress, List<NdDowItem> downloadNds,string GameRootPath,int maxConcurrentDownloads)
+    {
+        // 初始化已完成文件数
+        int completedFiles = 0;
+
+        // 使用信号量控制并发数
+        var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
+        var downloadTasks = new List<Task>();
+
+        // 遍历下载列表，创建并发任务
+        foreach (var item in downloadNds)
+        {
+            await semaphore.WaitAsync();
+            downloadTasks.Add(Task.Run(async () =>
+            {
+                try
+                {
+                    // 执行下载操作
+                    await DownloadFile(item);
+                    // 原子递增已完成文件数
+                    Interlocked.Increment(ref completedFiles);
+                    // 报告进度
+                    progress?.Report((completedFiles, item.path));
+                }
+                catch (Exception ex)
+                {
+                    // 出现错误进入同步模式重试
+                    for (int attempt = 0; attempt < 3; attempt++)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+                        try
+                        {
+                            DownloadFile(item).GetAwaiter().GetResult();
+                            break;
+                        }
+                        catch (Exception ex2)
+                        {
+                            Debug.WriteLine($"重试下载失败: {ex2.Message}, URL: {item.url}");
+                            continue;
+                        }
+                    }
+                    throw;
+                }
+                finally
+                {
+                    // 释放信号量
+                    semaphore.Release();
+                }
+            }));
+        }
+
+        // 等待所有任务完成
+        await Task.WhenAll(downloadTasks);
+    }
+    private List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI)
+    {
+        List<NdDowItem> filesToDownload = new List<NdDowItem>();
+        foreach (var item in FDI)
+        {
+            if (File.Exists(item.path))
+                continue;
+            
+            string directoryPath = Path.GetDirectoryName(item.path);
+            Directory.CreateDirectory(directoryPath);
+            filesToDownload.Add(item);
+        }
+        return filesToDownload;
+    }
+    private async Task DownloadFile(NdDowItem item)
     {
         try
         {
-            // 检查文件是否已存在并创建文件夹
-            var filesToDownload = new List<NdDowItem>();
-            if (IsCheckFileExists)
-            foreach (var item in FDI)
+            using (var response = await UnityClient.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead))
             {
-                if (File.Exists(item.path)) continue;
-                string directoryPath = Path.GetDirectoryName(item.path);
-                if (!string.IsNullOrEmpty(directoryPath)) Directory.CreateDirectory(directoryPath);
-                filesToDownload.Add(item);
-            } else filesToDownload = FDI;
-
-            int downloadedFiles = 0;
-            int verifiedFiles = 0;
-            int totalFiles = filesToDownload.Count;
-
-            // 报告初始进度
-            progress?.Report((downloadedFiles, totalFiles, verifiedFiles));
-
-            // 下载阶段
-            using (var client = new HttpClient(new HttpClientHandler
-            { MaxConnectionsPerServer = maxConcurrentDownloads })
-            { Timeout = TimeSpan.FromSeconds(30) })
-            {
-                //client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-
-                // 并发下载文件
-                var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
-                var downloadTasks = new List<Task>();
-                foreach (var item in filesToDownload)
+                response.EnsureSuccessStatusCode();
+                using (var httpStream = await response.Content.ReadAsStreamAsync())
+                using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                 {
-                    await semaphore.WaitAsync();
-                    downloadTasks.Add(Task.Run(async () =>
-                    {
-                        try
-                        {
-                            // 下载并写入文件（带重试）
-                            for (int attempt = 0; attempt < 3; attempt++)
-                            {
-                                try
-                                {
-                                    using (var response = await client.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead))
-                                    {
-                                        response.EnsureSuccessStatusCode();
-                                        using (var httpStream = await response.Content.ReadAsStreamAsync())
-                                        using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
-                                        {
-                                            await httpStream.CopyToAsync(fileStream, 8192);
-                                            Interlocked.Increment(ref downloadedFiles);
-                                            progress?.Report((downloadedFiles, totalFiles, verifiedFiles));
-                                        }
-                                    }
-                                    break; // 成功后退出重试
-                                }
-                                catch (HttpRequestException ex) when (attempt < 2)
-                                {
-                                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"下载 {item.url} 时发生错误: {ex.Message}");
-                            throw;
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    }));
+                    await httpStream.CopyToAsync(fileStream, 8192);
                 }
-
-                // 等待所有下载任务完成
-                await Task.WhenAll(downloadTasks);
-            } 
-            
-
-            // 校验阶段：并发校验 SHA1
-            if(IsSha1)
-            {
-                var semaphore = new SemaphoreSlim(maxConcurrentSha1); 
-                var sha1Tasks = new List<Task>();
-                foreach (var item in filesToDownload)
-                {
-                    await semaphore.WaitAsync();
-                    sha1Tasks.Add(Task.Run(async () =>
-                    {
-                        try
-                        {
-                            using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
-                            using (var sha1Hash = SHA1.Create())
-                            {
-                                byte[] hash = await sha1Hash.ComputeHashAsync(stream);
-                                string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-                                Interlocked.Increment(ref verifiedFiles);
-                                progress?.Report((downloadedFiles, totalFiles, verifiedFiles));
-                                if (!string.Equals(calculatedSha1, item.sha1, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    throw new InvalidDataException($"SHA1 校验失败。文件: {item.path}, 预期: {item.sha1}, 实际: {calculatedSha1}");
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw;
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    }));
-                }
-
-                // 等待所有 SHA1 校验任务完成
-                await Task.WhenAll(sha1Tasks);
             }
-        }
-        catch (HttpRequestException ex)
-        {
-            Debug.WriteLine($"网络请求失败: {ex.Message}, StatusCode: {ex.StatusCode}");
-            throw;
-        }
-        catch (IOException ex)
-        {
-            Debug.WriteLine($"文件操作失败: {ex.Message}");
-            throw;
-        }
-        catch (OperationCanceledException ex)
-        {
-            Debug.WriteLine($"下载超时或被取消: {ex.Message}");
-            throw;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"下载或校验时发生未知错误: {ex.Message}");
+            Debug.WriteLine($"下载失败: {ex.Message}, URL: {item.url}");
             throw;
         }
     }
-    // 无sha1校验的重载
-    public static async Task DownloadToMinecraft(string url, string path)
+    private async Task CheckAllSha1(NdDowItem FDI)
     {
-        try
-        {
-            if (File.Exists(path))
-                return;
-                
-            // 创建文件夹
-            string directoryPath = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-            // 下载并写入文件
-            using (HttpClient client = new HttpClient())
-            {
-                using (HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
-                {
-                    response.EnsureSuccessStatusCode();
-                    using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write))
-                    {
-                        using (var httpStream = await response.Content.ReadAsStreamAsync())
-                        {
-                            await httpStream.CopyToAsync(fileStream);
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            // 抛出原始错误
-            throw;
-        }
+
+    }
+    public void Dispose()
+    {
+        UnityClient.Dispose();
     }
 }
 

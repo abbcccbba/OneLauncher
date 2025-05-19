@@ -28,7 +28,7 @@ public class VersionsList
         foreach (var i in this.a.AllVersions)
         {
             if (i.Type == "release")
-                a.Add(new VersionBasicInfo(i.Id, i.Type, i.Url, i.Time));
+                a.Add(new VersionBasicInfo(new Version(i.Id), i.Type, i.Time, new NdDowItem(i.Url, "C:\\Users\\wwwin\\OneLauncher\\.minecraft\\1.21.5.json",0)));
         }
         return a;
     }

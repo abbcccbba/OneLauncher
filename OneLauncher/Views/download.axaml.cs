@@ -42,10 +42,10 @@ public partial class download : UserControl
                 try
                 {
                     // 路径（1）
-                    await Core.Download.DownloadToMinecraft(
-                        "https://piston-meta.mojang.com/mc/game/version_manifest.json",
-                        Path.Combine(Init.BasePath, "version_manifest.json")
-                    );
+                    //await Core.Download.DownloadToMinecraft(
+                    //    "https://piston-meta.mojang.com/mc/game/version_manifest.json",
+                    //    Path.Combine(Init.BasePath, "version_manifest.json")
+                    //);
                     vl = new VersionsList(await File.ReadAllTextAsync($"{Init.BasePath}/version_manifest.json"));
                 }
                 catch (System.Net.Http.HttpRequestException)

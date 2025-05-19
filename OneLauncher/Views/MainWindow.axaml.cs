@@ -30,7 +30,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// 手动管理页面切换
     /// </summary>
-    /// <param name="page">主页面</param>
+    /// <param ID="page">主页面</param>
     public void MainPageControl(MainPage page)
     {
         switch(page)
@@ -55,7 +55,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// 手动管理页面内容
     /// </summary>
-    /// <param name="page">页面实例</param>
+    /// <param ID="page">页面实例</param>
     public void MainPageNavigate(UserControl page)
     {
         PageContent.Content = page;
@@ -63,7 +63,7 @@ public partial class MainWindow : Window
     /// <summary>
     /// 在右下角显示提示信息
     /// </summary>
-    /// <param name="text">提示信息内容</param>
+    /// <param ID="text">提示信息内容</param>
     public async void ShowFlyout(string text,bool IsWarning = false)
     {
         FytFkA.Text = text;

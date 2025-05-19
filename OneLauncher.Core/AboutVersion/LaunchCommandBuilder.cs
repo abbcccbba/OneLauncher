@@ -18,10 +18,10 @@ public class LaunchCommandBuilder
     private readonly UserModel userModel;
     private readonly string basePath;
     private readonly SystemType systemType;
-    /// <param name="basePath">游戏基本路径（不含.minecraft，末尾加'/'）</param>
-    /// <param name="version">游戏版本</param>
-    /// <param name="userModel">以哪个用户模型来拼接启动参数？</param>
-    /// <param name="system">运行时系统类型</param>
+    /// <param ID="basePath">游戏基本路径（不含.minecraft，末尾加'/'）</param>
+    /// <param ID="version">游戏版本</param>
+    /// <param ID="userModel">以哪个用户模型来拼接启动参数？</param>
+    /// <param ID="system">运行时系统类型</param>
     public LaunchCommandBuilder(string basePath, string version, UserModel userModel,SystemType system)
     {
         this.basePath = basePath;
