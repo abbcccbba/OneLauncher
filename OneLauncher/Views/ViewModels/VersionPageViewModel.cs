@@ -39,7 +39,7 @@ internal partial class VersionItem
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 $"启动{version.VersionID}." + (Init.systemType == SystemType.windows ? "bat" : "sh")),
             "cd "+(Init.systemType == SystemType.windows ? "/D " : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
-            +$"{Path.Combine(Init.BasePath, ".minecraft")}\njava " + new LaunchCommandBuilder
+            +$"{Path.Combine(Init.BasePath, ".minecraft")}{Environment.NewLine}java " + new LaunchCommandBuilder
             (
                 Init.BasePath,
                 version.VersionID,

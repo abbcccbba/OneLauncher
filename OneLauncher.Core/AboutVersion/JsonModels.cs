@@ -57,6 +57,9 @@ public class AssetIndex
 
     [JsonPropertyName("url")]
     public string? Url { get; set; } // 可以为空
+
+    [JsonPropertyName("size")]
+    public int? Size { get; set; }
 }
 
 // 表示主文件下载信息
@@ -70,10 +73,12 @@ public class Downloads
 public class DownloadUrl
 {
     [JsonPropertyName("sha1")]
-    public string? Sha1 { get; set; } // 可以为空
+    public string? Sha1 { get; set; } 
 
     [JsonPropertyName("url")]
-    public string? Url { get; set; } // 可以为空
+    public string? Url { get; set; }
+    [JsonPropertyName("size")]
+    public int? Size { get; set; }
 }
 
 // 表示单个库信息（顶层）
@@ -101,13 +106,15 @@ public class LibraryDownloads
 public class LibraryArtifact
 {
     [JsonPropertyName("path")]
-    public string? Path { get; set; } // 可以为空
+    public string? Path { get; set; } 
 
     [JsonPropertyName("sha1")]
-    public string? Sha1 { get; set; } // 可以为空
+    public string? Sha1 { get; set; } 
 
     [JsonPropertyName("url")]
-    public string? Url { get; set; } // 可以为空
+    public string? Url { get; set; }
+    [JsonPropertyName("size")]
+    public int? Size { get; set; } 
 }
 // 表示启动参数（jvm和game）
 public class Arguments
@@ -230,6 +237,8 @@ public class LoggingFile
 
     [JsonPropertyName("url")]
     public string? Url { get; set; } // 文件下载 URL，可以为空
+    [JsonPropertyName("size")]
+    public int? Size { get; set; } // 文件大小，可以为空
 }
 // 自定义 JSON 转换器，用于处理 argument.value（string 或 List<string>）
 public class ArgumentValueConverter : JsonConverter<object>

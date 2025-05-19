@@ -17,9 +17,9 @@ internal class Game
 {
     public event GameStarted GameStartedEvent;
     public event GameClosed GameClosedEvent;
-    /// <param name="GameVersion">游戏版本</param>
-    /// <param name="loginUserModel">以哪个用户模型启动游戏</param>
-    /// <param name="GamePath">游戏基本路径</param>
+    /// <param ID="GameVersion">游戏版本</param>
+    /// <param ID="loginUserModel">以哪个用户模型启动游戏</param>
+    /// <param ID="GamePath">游戏基本路径</param>
     /// <returns></returns>
     public async Task LaunchGame(string GameVersion, UserModel loginUserModel, string GamePath = null)
     {

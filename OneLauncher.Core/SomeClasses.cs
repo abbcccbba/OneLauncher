@@ -12,25 +12,21 @@ namespace OneLauncher.Core;
 /// 
 public class NdDowItem
 {
-    /// <param name="Url">下载地址</param>
-    /// <param name="Path">保存地址（含文件名）</param>
-    public NdDowItem(string Url, string Path)
+    /// <param ID="Url">下载地址</param>
+    /// <param ID="Sha1">SHA1校验码</param>
+    /// <param ID="Path">保存地址（含文件名）</param>
+    /// <param name="Size">文件大小（单位字节）</param>
+    public NdDowItem(string Url, string Path,int Size,string? Sha1 = null)
     {
         this.url = Url;
         this.path = Path;
-    }
-    /// <param name="Url">下载地址</param>
-    /// <param name="Sha1">SHA1校验码</param>
-    /// <param name="Path">保存地址（含文件名）</param>
-    public NdDowItem(string Url, string Sha1, string Path)
-    {
-        this.url = Url;
-        this.sha1 = Sha1;
-        this.path = Path;
+        if(Sha1 != null)
+            this.sha1 = Sha1;
     }
     public string url;
-    public string? sha1;
     public string path;
+    public int size;
+    public string? sha1;
 }
 public class aVersion
 {
@@ -40,26 +36,26 @@ public class aVersion
 }
 public class VersionBasicInfo
 {
-    /// <param name="name">版本标识符</param>
-    /// <param name="type">版本类型</param>
-    /// <param name="url">版本文件下载地址</param>
-    /// <param name="time">版本发布时间</param>
-    public VersionBasicInfo(string name, string type, string url, DateTime time)
+    /// <param ID="name">版本标识符</param>
+    /// <param ID="type">版本类型</param>
+    /// <param ID="url">版本文件下载地址</param>
+    /// <param ID="time">版本发布时间</param>
+    public VersionBasicInfo(Version ID, string type, DateTime time,NdDowItem downinfo)
     {
-        this.name = name;
+        this.ID = ID;
         this.type = type;
         this.time = time;
-        this.url = url;
+        this.DownInfo = downinfo;
     }
     // 如果不重写该方法 AutoCompleteBox 会报错
     public override string ToString()
     {
-        return name;
+        return ID.ToString();
     }
-    public string name { get; set; }
+    public Version ID { get; set; }
     public string type { get; set; }
     public DateTime time { get; set; }
-    public string url { get; set; }
+    public NdDowItem DownInfo { get; set; }
 }
 public struct UserModel
 {
