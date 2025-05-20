@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls.Documents;
+using Avalonia.Data;
 using Avalonia.Threading;
 using OneLauncher.Core;
 using OneLauncher.Views;
@@ -26,6 +27,15 @@ internal class Game
     {
         try
         {
+            // 初次启动时帮用户设置语言
+            var optionsPath = Path.Combine(
+                (IsVersionInsulation
+                ? Path.Combine(Init.GameRootPath, $"v{GameVersion}")
+                : Init.GameRootPath), "options.txt");
+            if (!File.Exists(optionsPath))
+            {
+                File.WriteAllText(optionsPath, $"lang:zh_cn");
+            }
             using (Process process = new Process())
             {
                 process.StartInfo.FileName = "java";
@@ -75,11 +85,12 @@ internal class Game
                     if(e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
                         await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true));
                 };
-                process.Exited += (sender, e) => GameClosedEvent?.Invoke(); // 游戏关闭事件
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
+                process.WaitForExit(); // 等待进程结束
             }
+            GameClosedEvent?.Invoke();
         }
         catch (Exception ex)
         {

@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
-             x:Class="OneLauncher.version">
+             x:Class="OneLauncher.Views.version">
 	<Grid RowDefinitions="52,*" Margin="24">
 		<StackPanel Margin="9,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
 			<TextBlock Grid.Row="0" Text="管理你的游戏版本" FontSize="36"/>

@@ -6,7 +6,9 @@
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Home">
 	<Grid>
-    <TextBlock FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Welcome to OneLauncher" />
-		
+		<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+			<TextBlock FontSize="52"  Text="欢迎回来！ 🖐️" />
+			<TextBlock Margin="20,0,0,0" Text="What you want to play? Boss"/>
+		</StackPanel>
 	</Grid>
 </UserControl>

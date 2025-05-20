@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core;
 public enum DownProgress
 {
-    DownMeta,
     DownLibs,
     DownAssets,
     DownMain,
@@ -105,14 +104,14 @@ public class Download : IDisposable
             ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", $"{DownloadVersion.ID.ToString()}.json")
             : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), $"{DownloadVersion.ToString()}.json");
         if(!File.Exists(versionjsonpath)) 
-            await DownloadFile(new NdDowItem(DownloadVersion.Url,versionjsonpath,0));
+            await DownloadFile(DownloadVersion.Url,versionjsonpath);
         // 实例化版本信息解析器
         versionInfomations = new VersionInfomations
             (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType,IsVersionIsolation);
         // 下载资源文件索引
         var assetsIndex = versionInfomations.GetAssets();   
         if (!File.Exists(assetsIndex.path))
-            await DownloadFile(assetsIndex);
+            await DownloadFile(assetsIndex.url, assetsIndex.path);
 
         var AllNd = new List<NdDowItem>();
         var NdLibs = versionInfomations.GetLibrarys();
@@ -126,7 +125,7 @@ public class Download : IDisposable
         int FileCount = AllNd.Count;
         int Filed = 0;
         // 下载资源文件和库文件
-        progress.Report((DownProgress.DownLibs,FileCount,Filed,""));
+        //progress.Report((DownProgress.DownLibs,FileCount,Filed,""));
         await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
@@ -142,7 +141,7 @@ public class Download : IDisposable
             (IsVersionIsolation)
             ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", "natives")
             : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), "natives"));
-        progress.Report((DownProgress.DownAssets, FileCount, Filed, ""));
+        //progress.Report((DownProgress.DownAssets, FileCount, Filed, ""));
         await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
@@ -155,10 +154,11 @@ public class Download : IDisposable
         );
 
         // 下载主文件
-        if(!File.Exists(mainFile.path))
-            await DownloadFile(mainFile);
-        Interlocked.Increment(ref Filed);
         progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
+        if (!File.Exists(mainFile.path))
+            await DownloadFile(mainFile.url, mainFile.path);
+        Interlocked.Increment(ref Filed);
+        
         // 下载日志配置文件
         if (DownloadVersion.ID > new Version("1.7"))
         {
@@ -166,17 +166,17 @@ public class Download : IDisposable
             if (log4j2 != null)
             {
                 AllNd.Add(log4j2);
-                if(!File.Exists(log4j2.path))
-                    await DownloadFile(log4j2);
+                progress.Report((DownProgress.DownLog4j2, FileCount, Filed, log4j2.path));
+                if (!File.Exists(log4j2.path))
+                    await DownloadFile(log4j2.url,log4j2.path);
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownLog4j2,FileCount,Filed,log4j2.path));
             }
         }
         // 校验所有文件
         if (IsSha1)
         {
-            await CheckAllSha1(AllNd, maxConcurrentSha1);
             progress.Report((DownProgress.Verify, FileCount, Filed, "All Files"));
+            await CheckAllSha1(AllNd, maxConcurrentSha1);
         }
         progress.Report((DownProgress.Done,FileCount,Filed,"OK"));
     }
@@ -197,12 +197,12 @@ public class Download : IDisposable
             {
                 try
                 {
-                    // 执行下载操作
-                    await DownloadFile(item);
                     // 原子递增已完成文件数
                     Interlocked.Increment(ref completedFiles);
                     // 报告进度
                     progress?.Report((completedFiles, item.path));
+                    // 执行下载操作
+                    await DownloadFile(item.url,item.path); 
                 }
                 catch (Exception ex)
                 {
@@ -211,7 +211,7 @@ public class Download : IDisposable
                         await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
                         try
                         {
-                            await DownloadFile(item);
+                            await DownloadFile(item.url, item.path);
                             break;
                         }
                         catch (Exception ex2)
@@ -244,19 +244,19 @@ public class Download : IDisposable
         }
         return filesToDownload;
     }
-    private async Task DownloadFile(NdDowItem item)
+    public async Task DownloadFile(string url,string savepath)
     {
         try
         {
-            using (var response = await UnityClient.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead))
+            using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
             {
                 response.EnsureSuccessStatusCode();
                 using (var httpStream = await response.Content.ReadAsStreamAsync())
                 {
-                    var directory = Path.GetDirectoryName(item.path);
+                    var directory = Path.GetDirectoryName(savepath);
                     if (!string.IsNullOrEmpty(directory))
                         Directory.CreateDirectory(directory);
-                    using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
+                    using (var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                     {
                         await httpStream.CopyToAsync(fileStream, 8192);
                     }
@@ -265,7 +265,7 @@ public class Download : IDisposable
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"下载失败: {ex.Message}, URL: {item.url}");
+            Debug.WriteLine($"下载失败: {ex.Message}, URL: {url}");
             throw;
         }
     }
@@ -292,8 +292,8 @@ public class Download : IDisposable
                 
                 semaphore.Release();
             }));
-            await Task.WhenAll(sha1Tasks);
         }
+        await Task.WhenAll(sha1Tasks);
     }
     public void Dispose()
     {
