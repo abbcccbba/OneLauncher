@@ -104,20 +104,25 @@ public class Download : IDisposable
         var versionjsonpath = (IsVersionIsolation)
             ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", $"{DownloadVersion.ID.ToString()}.json")
             : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), $"{DownloadVersion.ToString()}.json");
-        await DownloadFile(new NdDowItem(DownloadVersion.Url,versionjsonpath,0));
+        if(!File.Exists(versionjsonpath)) 
+            await DownloadFile(new NdDowItem(DownloadVersion.Url,versionjsonpath,0));
         // 实例化版本信息解析器
         versionInfomations = new VersionInfomations
             (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType,IsVersionIsolation);
         // 下载资源文件索引
-        await DownloadFile(versionInfomations.GetAssets());
+        var assetsIndex = versionInfomations.GetAssets();   
+        if (!File.Exists(assetsIndex.path))
+            await DownloadFile(assetsIndex);
 
         var AllNd = new List<NdDowItem>();
         var NdLibs = versionInfomations.GetLibrarys();
         var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath);
         var mainFile = versionInfomations.GetMainFile();
+        NdDowItem log4j2;
         AllNd.AddRange(NdLibs);
         AllNd.AddRange(NdAssets);
         AllNd.Add(mainFile);
+
         int FileCount = AllNd.Count;
         int Filed = 0;
         // 下载资源文件和库文件
@@ -131,7 +136,13 @@ public class Download : IDisposable
             IsCheckFileExists ? CheckFilesExists(NdLibs) : NdLibs,
             GameRootPath,
             maxConcurrentDownloads);
-        progress.Report((DownProgress.DownAssets, FileCount, 0, ""));
+        // 释放本地库文件
+        foreach (var i in versionInfomations.NativesLibs)
+            ExtractFile(Path.Combine(GameRootPath, "libraries", i), 
+            (IsVersionIsolation)
+            ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", "natives")
+            : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), "natives"));
+        progress.Report((DownProgress.DownAssets, FileCount, Filed, ""));
         await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
@@ -144,22 +155,30 @@ public class Download : IDisposable
         );
 
         // 下载主文件
-        await DownloadFile(mainFile);
+        if(!File.Exists(mainFile.path))
+            await DownloadFile(mainFile);
         Interlocked.Increment(ref Filed);
-        progress.Report((DownProgress.DownMain, FileCount, Filed, versionInfomations.GetMainFile().path));
+        progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
         // 下载日志配置文件
         if (DownloadVersion.ID > new Version("1.7"))
         {
-            var log4j2 = versionInfomations.GetLoggingConfig();
-            if (log4j2 != null && CheckFilesExists(new List<NdDowItem>(){log4j2}) != null)
-                await DownloadFile(log4j2);
+            log4j2 = versionInfomations.GetLoggingConfig();
+            if (log4j2 != null)
+            {
+                AllNd.Add(log4j2);
+                if(!File.Exists(log4j2.path))
+                    await DownloadFile(log4j2);
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownLog4j2,FileCount,Filed,log4j2.path));
+            }
         }
         // 校验所有文件
-        if(IsSha1)
+        if (IsSha1)
         {
-
+            await CheckAllSha1(AllNd, maxConcurrentSha1);
+            progress.Report((DownProgress.Verify, FileCount, Filed, "All Files"));
         }
-
+        progress.Report((DownProgress.Done,FileCount,Filed,"OK"));
     }
     private async Task DownloadListAsync(IProgress<(int completedFiles,string FilesName)> progress, List<NdDowItem> downloadNds,string GameRootPath,int maxConcurrentDownloads)
     {
@@ -168,7 +187,7 @@ public class Download : IDisposable
 
         // 使用信号量控制并发数
         var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
-        var downloadTasks = new List<Task>();
+        var downloadTasks = new List<Task>(downloadNds.Count);
 
         // 遍历下载列表，创建并发任务
         foreach (var item in downloadNds)
@@ -187,13 +206,12 @@ public class Download : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    // 出现错误进入同步模式重试
                     for (int attempt = 0; attempt < 3; attempt++)
                     {
                         await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
                         try
                         {
-                            DownloadFile(item).GetAwaiter().GetResult();
+                            await DownloadFile(item);
                             break;
                         }
                         catch (Exception ex2)
@@ -235,8 +253,9 @@ public class Download : IDisposable
                 response.EnsureSuccessStatusCode();
                 using (var httpStream = await response.Content.ReadAsStreamAsync())
                 {
-                    // 创建目录
-                    Directory.CreateDirectory(Path.GetDirectoryName(item.path));
+                    var directory = Path.GetDirectoryName(item.path);
+                    if (!string.IsNullOrEmpty(directory))
+                        Directory.CreateDirectory(directory);
                     using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                     {
                         await httpStream.CopyToAsync(fileStream, 8192);
@@ -250,9 +269,31 @@ public class Download : IDisposable
             throw;
         }
     }
-    private async Task CheckAllSha1(NdDowItem FDI)
+    private async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1)
     {
-
+        var semaphore = new SemaphoreSlim(maxConcurrentSha1);
+        var sha1Tasks = new List<Task>(FDI.Count);
+        foreach (var item in FDI)
+        {
+            await semaphore.WaitAsync();
+            sha1Tasks.Add(Task.Run(async () =>
+            {
+                using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
+                using (var sha1Hash = SHA1.Create())
+                {
+                    //Debug.WriteLine($"正在校验文件: {item.path}");
+                    byte[] hash = await sha1Hash.ComputeHashAsync(stream);
+                    string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                    if (!string.Equals(calculatedSha1, item.sha1, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidDataException($"SHA1 校验失败。文件: {item.path}, 预期: {item.sha1}, 实际: {calculatedSha1}");
+                    }
+                }
+                
+                semaphore.Release();
+            }));
+            await Task.WhenAll(sha1Tasks);
+        }
     }
     public void Dispose()
     {

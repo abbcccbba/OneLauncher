@@ -18,19 +18,24 @@ public class LaunchCommandBuilder
     private readonly UserModel userModel;
     private readonly string basePath;
     private readonly SystemType systemType;
+    private readonly bool IsVersionInsulation;
     /// <param ID="basePath">游戏基本路径（不含.minecraft，末尾加'/'）</param>
     /// <param ID="version">游戏版本</param>
     /// <param ID="userModel">以哪个用户模型来拼接启动参数？</param>
     /// <param ID="system">运行时系统类型</param>
-    public LaunchCommandBuilder(string basePath, string version, UserModel userModel,SystemType system)
+    public LaunchCommandBuilder(string basePath, string version, UserModel userModel,SystemType system,bool VersionInsulation = false)
     {
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
         this.systemType = system;
+        this.IsVersionInsulation = VersionInsulation;
         versionInfo = new VersionInfomations(
-            File.ReadAllText(Path.Combine(basePath,".minecraft","versions",version,$"{version}.json")),
-            basePath,system
+            File.ReadAllText(
+                (VersionInsulation)
+                ? Path.Combine(basePath,$"v{version}",$"{version}.json")
+                : Path.Combine(basePath,"versions",version,$"{version}.json")),
+            basePath,system,IsVersionInsulation
         );
     }
 
@@ -52,10 +57,14 @@ public class LaunchCommandBuilder
             // 创建占位符映射表 
             // 参考1.21.5.json
             // 手动加上引号
-            { "natives_directory", "\""+Path.Combine(basePath,".minecraft","versions",version,"natives")+"\"" },
+            { "natives_directory", "\""+
+            ((IsVersionInsulation)
+            ? Path.Combine(basePath,$"v{version}","natives")
+            : Path.Combine(basePath,".minecraft","versions",version,"natives"))+"\"" 
+            },
             { "launcher_name", "\"OneLauncher\"" },
             { "launcher_version", "\"1.0.0\"" },
-            { "classpath",$"\"{BuildClassPath()}\"" }// """ "E:\mc\.minecraft\libraries\com\mojang\patchy\1.3.9\patchy-1.3.9.jar;E:\mc\.minecraft\libraries\oshi-project\oshi-core\1.1\oshi-core-1.1.jar;E:\mc\.minecraft\libraries\net\java\dev\jna\jna\4.4.0\jna-4.4.0.jar;E:\mc\.minecraft\libraries\net\java\dev\jna\platform\3.4.0\platform-3.4.0.jar;E:\mc\.minecraft\libraries\com\ibm\icu\icu4j-core-mojang\51.2\icu4j-core-mojang-51.2.jar;E:\mc\.minecraft\libraries\net\sf\jopt-simple\jopt-simple\5.0.3\jopt-simple-5.0.3.jar;E:\mc\.minecraft\libraries\com\paulscode\codecjorbis\20101023\codecjorbis-20101023.jar;E:\mc\.minecraft\libraries\com\paulscode\codecwav\20101023\codecwav-20101023.jar;E:\mc\.minecraft\libraries\com\paulscode\libraryjavasound\20101123\libraryjavasound-20101123.jar;E:\mc\.minecraft\libraries\com\paulscode\librarylwjglopenal\20100824\librarylwjglopenal-20100824.jar;E:\mc\.minecraft\libraries\com\paulscode\soundsystem\20120107\soundsystem-20120107.jar;E:\mc\.minecraft\libraries\io\netty\netty-all\4.1.9.Final\netty-all-4.1.9.Final.jar;E:\mc\.minecraft\libraries\com\google\guava\guava\21.0\guava-21.0.jar;E:\mc\.minecraft\libraries\org\apache\commons\commons-lang3\3.5\commons-lang3-3.5.jar;E:\mc\.minecraft\libraries\commons-io\commons-io\2.5\commons-io-2.5.jar;E:\mc\.minecraft\libraries\commons-codec\commons-codec\1.10\commons-codec-1.10.jar;E:\mc\.minecraft\libraries\net\java\jinput\jinput\2.0.5\jinput-2.0.5.jar;E:\mc\.minecraft\libraries\net\java\jutils\jutils\1.0.0\jutils-1.0.0.jar;E:\mc\.minecraft\libraries\com\google\code\gson\gson\2.8.0\gson-2.8.0.jar;E:\mc\.minecraft\libraries\com\mojang\authlib\1.5.25\authlib-1.5.25.jar;E:\mc\.minecraft\libraries\com\mojang\realms\1.10.22\realms-1.10.22.jar;E:\mc\.minecraft\libraries\org\apache\commons\commons-compress\1.8.1\commons-compress-1.8.1.jar;E:\mc\.minecraft\libraries\org\apache\httpcomponents\httpclient\4.3.3\httpclient-4.3.3.jar;E:\mc\.minecraft\libraries\commons-logging\commons-logging\1.1.3\commons-logging-1.1.3.jar;E:\mc\.minecraft\libraries\org\apache\httpcomponents\httpcore\4.3.2\httpcore-4.3.2.jar;E:\mc\.minecraft\libraries\it\unimi\dsi\fastutil\7.1.0\fastutil-7.1.0.jar;E:\mc\.minecraft\libraries\org\apache\logging\log4j\log4j-api\2.8.1\log4j-api-2.8.1.jar;E:\mc\.minecraft\libraries\org\apache\logging\log4j\log4j-core\2.8.1\log4j-core-2.8.1.jar;E:\mc\.minecraft\libraries\org\lwjgl\lwjgl\lwjgl\2.9.4-nightly-20150209\lwjgl-2.9.4-nightly-20150209.jar;E:\mc\.minecraft\libraries\org\lwjgl\lwjgl\lwjgl_util\2.9.4-nightly-20150209\lwjgl_util-2.9.4-nightly-20150209.jar;E:\mc\.minecraft\libraries\com\mojang\text2speech\1.10.3\text2speech-1.10.3.jar;E:\mc\.minecraft\versions\1.12.2\1.12.2.jar" """}//$"\"{BuildClassPath()}\"" }
+            { "classpath",$"\"{BuildClassPath()}\"" }
         };
         // 处理1.13以前版本没有Arguments的情况
         if (versionInfo.info.Arguments == null)
@@ -128,8 +137,8 @@ public class LaunchCommandBuilder
         return 
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
-            $"--gameDir \"{Path.Combine(basePath, ".minecraft")}\" " +
-            $"--assetsDir \"{Path.Combine(basePath, ".minecraft", "assets")}\" " +
+            $"--gameDir \"{((IsVersionInsulation) ? Path.Combine(basePath,$"v{version}") : basePath)}\" " +
+            $"--assetsDir \"{Path.Combine(basePath, "assets")}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +

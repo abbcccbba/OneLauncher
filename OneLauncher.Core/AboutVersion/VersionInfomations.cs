@@ -91,10 +91,10 @@ public class VersionInfomations
             // 普通库文件 
             if (lib.Downloads.Artifact != null)
                 libraries.Add(new NdDowItem(
-                    lib.Downloads.Artifact.Url,
-                    Path.Combine(basePath, "libraries", lib.Downloads.Artifact.Path),
-                    (int)lib.Downloads.Artifact.Size,
-                    lib.Downloads.Artifact.Sha1
+                    Url: lib.Downloads.Artifact.Url,
+                    Path:Path.Combine(basePath, "libraries", lib.Downloads.Artifact.Path),
+                    Size:(int)lib.Downloads.Artifact.Size,
+                    Sha1:lib.Downloads.Artifact.Sha1
                     
                 ));
             
@@ -115,10 +115,10 @@ public class VersionInfomations
                 }
                 NativesLibs.Add(ta.Path);
                 libraries.Add(new NdDowItem(
-                    ta.Url,
-                    ta.Sha1,
-                    (int)ta.Size,
-                    Path.Combine(basePath,"libraries",ta.Path)
+                    Url: ta.Url,
+                    Sha1: ta.Sha1,
+                    Size:(int)ta.Size,
+                    Path:Path.Combine(basePath,"libraries",ta.Path)
                 ));
             }    
         }

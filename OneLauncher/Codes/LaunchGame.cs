@@ -1,4 +1,5 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Controls.Documents;
+using Avalonia.Threading;
 using OneLauncher.Core;
 using OneLauncher.Views;
 using System;
@@ -21,7 +22,7 @@ internal class Game
     /// <param ID="loginUserModel">以哪个用户模型启动游戏</param>
     /// <param ID="GamePath">游戏基本路径</param>
     /// <returns></returns>
-    public async Task LaunchGame(string GameVersion, UserModel loginUserModel, string GamePath = null)
+    public async Task LaunchGame(string GameVersion, UserModel loginUserModel, bool IsVersionInsulation = false)
     {
         try
         {
@@ -31,10 +32,11 @@ internal class Game
                 process.StartInfo.Arguments =
                     new LaunchCommandBuilder
                     (
-                        GamePath ?? Init.BasePath,
+                        Init.GameRootPath,
                         GameVersion,
                         loginUserModel,
-                        Init.systemType
+                        Init.systemType,
+                        IsVersionInsulation
                     ).BuildCommand
                     (
                         OtherArgs: string.Join
@@ -45,15 +47,16 @@ internal class Game
                             "-XX:-OmitStackTraceInFastThrow",
                             "-Xmn512m -Xmx4096m",
                             "-Djdk.lang.Process.allowAmbiguousCommands=true",
-                            "-Dlog4j2.formatMsgNoLookups=true", // 针对 Log4Shell 漏洞
+                            "-Dlog4j2.formatMsgNoLookups=true", 
                             "-Dfml.ignoreInvalidMinecraftCertificates=True",
                             "-Dfml.ignorePatchDiscrepancies=True"
-                        //"--enable-native-access=ALL-UNNAMED"
                         )
 
                     );
-                // 指定工作目录，不要用-Duser.dir，不然可能会出现一些奇奇怪怪的问题
-                process.StartInfo.WorkingDirectory = Path.Combine(Init.BasePath, ".minecraft");
+                process.StartInfo.WorkingDirectory = 
+                    (IsVersionInsulation)
+                    ? Path.Combine(Init.GameRootPath,$"v{GameVersion}")
+                    : Init.GameRootPath;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.UseShellExecute = false;
@@ -72,19 +75,23 @@ internal class Game
                     if(e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
                         await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true));
                 };
+                process.Exited += (sender, e) => GameClosedEvent?.Invoke(); // 游戏关闭事件
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit();
             }
-            GameClosedEvent?.Invoke(); // 游戏关闭事件
         }
         catch (Exception ex)
         {
             await Dispatcher.UIThread.InvokeAsync(()=> 
             MainWindow.mainwindow.ShowFlyout($"启动失败，错误信息：{ex.Message}。请尝试安装Java "+
             new VersionInfomations(
-                File.ReadAllText(Path.Combine(Init.BasePath, ".minecraft", "versions", GameVersion, $"{GameVersion}.json")),Init.BasePath,Init.systemType)
+                File.ReadAllText(
+                    (IsVersionInsulation)
+                    ? Path.Combine(Init.GameRootPath,$"v{GameVersion}",$"{GameVersion}.json")
+                    : Path.Combine(Init.GameRootPath, "versions", GameVersion, $"{GameVersion}.json"))
+                ,Init.GameRootPath
+                ,Init.systemType)
             .GetJavaVersion(),true));
         }
     }

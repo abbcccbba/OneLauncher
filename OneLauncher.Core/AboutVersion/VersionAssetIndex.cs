@@ -28,7 +28,14 @@ public class VersionAssetIndex
 
             string hashPrefix = hash.Substring(0, 2);
 
-            assets.Add(new NdDowItem($"https://resources.download.minecraft.net/{hashPrefix}/{hash}", Path.Combine(path, "assets", "objects", hashPrefix, hash),size, hash));
+            assets.Add(
+                new NdDowItem
+                (
+                    $"https://resources.download.minecraft.net/{hashPrefix}/{hash}",
+                    Path.Combine(path, "assets", "objects", hashPrefix, hash)
+                    , size
+                    , hash
+                ));
         }
 
         return assets;
