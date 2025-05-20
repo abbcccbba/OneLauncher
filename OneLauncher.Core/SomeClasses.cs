@@ -32,6 +32,7 @@ public class aVersion
 {
     public string VersionID { get; set; }
     public bool IsMod { get; set; }//预留
+    public bool IsVersionIsolation { get; set; }
     public DateTime AddTime { get; set; } 
 }
 public class VersionBasicInfo

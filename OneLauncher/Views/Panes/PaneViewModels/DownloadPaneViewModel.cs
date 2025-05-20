@@ -31,38 +31,34 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [ObservableProperty]
     public string _VersionName;
     [ObservableProperty]
+    public bool _IsVI;
+    [ObservableProperty]
     public bool _IsAllowDownloading = true; // 默认允许下载
 
     [RelayCommand]
     public async void ToDownload()
     {
-        await ToDownload(thisVersionBasicInfo);
-        // 下载完毕后禁用下载按钮
-        //IsAllowDownloading = false;
+        using (Download download = new Download())
+        {
+            await download.StartAsync(thisVersionBasicInfo, Init.GameRootPath, Init.systemType, new Progress<(DownProgress dProgress, int a, int b, string c)>
+                (p => {
+                    Debug.WriteLine($"已完成{p.a}/{p.b} 文件名{p.c} 阶段{p.dProgress.ToString()}");
+                }), IsVersionIsolation: IsVI);
+        }
+        IsAllowDownloading = false;
         // 在配置文件中添加版本信息
         Init.ConfigManger.WriteVersion(new aVersion
         {
             VersionID = VersionName,
             IsMod = false,
-            AddTime = DateTime.Now
+            AddTime = DateTime.Now,
+            IsVersionIsolation = IsVI
         });
     }
     [ObservableProperty]
     public string _D_DM = "下载未开始";
     [ObservableProperty]
     public double _CurrentProgress = 0;
-    private async Task ToDownload(VersionBasicInfo versionBasicInfo)
-    {
-        string GameRootPath = Path.Combine(Init.BasePath,".minecraft");
-        using (Download download = new Download())
-        {
-            await download.StartAsync(versionBasicInfo, GameRootPath, Init.systemType, new Progress<(DownProgress dProgress, int a, int b, string c)>
-                (p => {
-                    Debug.WriteLine($"已完成{p.a}/{p.b} 文件名{p.c} 阶段{p.dProgress.ToString()}");
-                }),IsVersionIsolation:true);
-        }
-        
-    }
     [RelayCommand]
     public void ClosePane()
     {

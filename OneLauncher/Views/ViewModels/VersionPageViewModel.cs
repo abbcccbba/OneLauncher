@@ -29,7 +29,8 @@ internal partial class VersionItem
         var game = new Game();
         game.GameStartedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() =>MainWindow.mainwindow.ShowFlyout("游戏已启动！"));
         game.GameClosedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("游戏已关闭！"));
-        Task.Run(() => game.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,Init.BasePath));
+
+        Task.Run(() => game.LaunchGame(version.VersionID,Init.ConfigManger.config.DefaultUserModel,version.IsVersionIsolation));
     }
     [RelayCommand]
     public void PinToDesktop(aVersion version)
@@ -39,12 +40,13 @@ internal partial class VersionItem
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 $"启动{version.VersionID}." + (Init.systemType == SystemType.windows ? "bat" : "sh")),
             "cd "+(Init.systemType == SystemType.windows ? "/D " : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
-            +$"{Path.Combine(Init.BasePath, ".minecraft")}{Environment.NewLine}java " + new LaunchCommandBuilder
+            +$"{Init.GameRootPath}{Environment.NewLine}java " + new LaunchCommandBuilder
             (
-                Init.BasePath,
+                Init.GameRootPath,
                 version.VersionID,
                 Init.ConfigManger.config.DefaultUserModel,
-                Init.systemType
+                Init.systemType,
+                true
             ).BuildCommand
             (   
                 OtherArgs: string.Join
