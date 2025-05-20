@@ -40,12 +40,12 @@ public class VersionBasicInfo
     /// <param ID="type">版本类型</param>
     /// <param ID="url">版本文件下载地址</param>
     /// <param ID="time">版本发布时间</param>
-    public VersionBasicInfo(Version ID, string type, DateTime time,NdDowItem downinfo)
+    public VersionBasicInfo(Version ID, string type, DateTime time,string url)
     {
         this.ID = ID;
         this.type = type;
         this.time = time;
-        this.DownInfo = downinfo;
+        this.Url = url;
     }
     // 如果不重写该方法 AutoCompleteBox 会报错
     public override string ToString()
@@ -55,7 +55,7 @@ public class VersionBasicInfo
     public Version ID { get; set; }
     public string type { get; set; }
     public DateTime time { get; set; }
-    public NdDowItem DownInfo { get; set; }
+    public string Url { get; set; }
 }
 public struct UserModel
 {

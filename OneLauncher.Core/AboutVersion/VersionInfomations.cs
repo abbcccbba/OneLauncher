@@ -20,7 +20,7 @@ public class VersionInfomations
 {
     public readonly OneLauncher.Core.Models.VersionInformation info;
     public readonly string basePath;
-    public readonly string? CustomPath;
+    public readonly bool? IsVersionInsulation;
     public readonly SystemType OsType;
     public List<string> NativesLibs = new List<string>();
     /// <summary>
@@ -30,7 +30,7 @@ public class VersionInfomations
     /// <param ID="basePath">游戏存放目录路径（不含 .minecraft）</param>
     /// <param ID="OsType">运行时操作系统类型</param>
     /// <exception cref="InvalidOperationException">如果JSON解析失败或内容无效，抛出此异常。</exception>
-    public VersionInfomations(string json, string basePath,SystemType OsType, string? customPath = null)
+    public VersionInfomations(string json, string basePath,SystemType OsType, bool? IsVersionInsulation = false)
     {
         this.basePath = basePath;
         this.OsType = OsType;
@@ -46,9 +46,8 @@ public class VersionInfomations
             throw new InvalidOperationException("解析版本JSON时出错", ex);
         }
 
-        CustomPath = customPath;
+        this.IsVersionInsulation = IsVersionInsulation;
     }
-
     public List<NdDowItem> GetLibrarys()
     {
         var libraries = new List<NdDowItem>(info.Libraries.Count); // 提前初始化相应长度内存，避免频繁扩容影响性能
@@ -137,21 +136,23 @@ public class VersionInfomations
             Url: info.Downloads.Client.Url,
             Sha1:info.Downloads.Client.Sha1,
             Size:(int)info.Downloads.Client.Size,
-            Path: Path.Combine(basePath,"versions",info.ID,$"{info.ID}.jar")
+            Path: 
+            (((bool)this.IsVersionInsulation)
+            ? Path.Combine(basePath,$"v{info.ID}",$"{info.ID}.jar")
+            : Path.Combine(basePath, "versions", info.ID, $"{info.ID}.jar"))
         );
     }
 
     /// <summary>
     /// 获取版本资源索引文件下载地址。
     /// </summary>
-    public NdDowItem GetAssets(string ip = null)
+    public NdDowItem GetAssets()
     {
         return new NdDowItem(
-            info.AssetIndex.Url,
-            ip != null ? Path.Combine(basePath, ip, $"{info.AssetIndex.Id}.json") :
-            Path.Combine(basePath, "assets", "indexes", $"{info.AssetIndex.Id}.json"),
-            (int)info.AssetIndex.Size, 
-            info.AssetIndex.Sha1
+            Url:info.AssetIndex.Url,
+            Path: Path.Combine(basePath, "Assets","Indexes", $"{info.AssetIndex.Id}.json"),
+            Size:(int)info.AssetIndex.Size, 
+            Sha1:info.AssetIndex.Sha1
         );
     }
 
@@ -180,17 +181,21 @@ public class VersionInfomations
         if (info.Logging?.Client?.File == null)
             return null;
         return new NdDowItem(
-            info.Logging.Client.File.Url,
-            info.Logging.Client.File.Sha1,
-            (int)info.Logging.Client.File.Size,
-            Path.Combine(basePath,"versions",info.ID,info.Logging.Client.File.Id)
+            Url: info.Logging.Client.File.Url,
+            Sha1: info.Logging.Client.File.Sha1,
+            Size:(int)info.Logging.Client.File.Size,
+            Path: ((bool)this.IsVersionInsulation)
+            ? Path.Combine(basePath,$"v{info.ID}",info.Logging.Client.File.Id)
+            : Path.Combine(basePath,"versions",info.ID,info.Logging.Client.File.Id)
         );
     }
     public string? GetLoggingConfigPath()
     {
         if (info.Logging?.Client?.File == null)
             return null;
-        return Path.Combine(basePath, "versions", info.ID, info.Logging.Client.File.Id);
+        return ((bool)this.IsVersionInsulation)
+            ? Path.Combine(basePath, $"v{info.ID}", info.Logging.Client.File.Id)
+            : Path.Combine(basePath, "versions", info.ID, info.Logging.Client.File.Id);
     }
 
     /// <summary>

@@ -25,12 +25,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         VersionName = Version.ID.ToString();
         thisVersionBasicInfo = Version;
         this.downloadPage = downloadPane;
-        // 无网络时拒绝下载
-        //if (!Init.IsNetwork) 
-        //{
-        //    IsAllowDownloading = false;
-        //    VersionName = "网络不可用";
-        //}
     }
     private VersionBasicInfo thisVersionBasicInfo;
     DownloadPageViewModel downloadPage;
@@ -64,8 +58,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         {
             await download.StartAsync(versionBasicInfo, GameRootPath, Init.systemType, new Progress<(DownProgress dProgress, int a, int b, string c)>
                 (p => {
-                    Debug.WriteLine(p.c);
-                }));
+                    Debug.WriteLine($"已完成{p.a}/{p.b} 文件名{p.c} 阶段{p.dProgress.ToString()}");
+                }),IsVersionIsolation:true);
         }
         
     }
