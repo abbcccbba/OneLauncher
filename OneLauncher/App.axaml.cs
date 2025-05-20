@@ -8,17 +8,15 @@ namespace OneLauncher;
 
 public partial class App : Application
 {
-    public override void Initialize()
-    {
-        Codes.Init.Initialize();
+    public override void Initialize() =>
         AvaloniaXamlLoader.Load(this);
-    }
 
-    public override void OnFrameworkInitializationCompleted()
+    public async override void OnFrameworkInitializationCompleted()
     {
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            await Codes.Init.Initialize();
             desktop.MainWindow = new MainWindow();
         }
         base.OnFrameworkInitializationCompleted();

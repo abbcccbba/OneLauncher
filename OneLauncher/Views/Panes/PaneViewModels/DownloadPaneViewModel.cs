@@ -40,9 +40,23 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     {
         using (Download download = new Download())
         {
-            await download.StartAsync(thisVersionBasicInfo, Init.GameRootPath, Init.systemType, new Progress<(DownProgress dProgress, int a, int b, string c)>
-                (p => {
-                    Debug.WriteLine($"已完成{p.a}/{p.b} 文件名{p.c} 阶段{p.dProgress.ToString()}");
+            int i = 0;
+            await download.StartAsync(thisVersionBasicInfo, Init.GameRootPath, Init.systemType, new Progress<(DownProgress d, int a, int b, string c)>
+                (p =>
+                {
+                    // 每三次更新UI，减轻UI线程压力
+                    if (i % 3 == 0)
+                    {
+                        Dp = (p.d == DownProgress.DownLibs) ? "正在下载库文件..." 
+                        : (p.d == DownProgress.DownAssets) ? "正在下载资源文件..." 
+                        : (p.d == DownProgress.DownMain) ? "正在下载主文件"
+                        : (p.d == DownProgress.DownLog4j2) ? "正在下载日志配置文件"
+                        : (p.d == DownProgress.Verify) ? "正在校验，请稍后..."
+                        : (p.d == DownProgress.Done) ? "已下载完毕" : string.Empty;
+                        Fs = $"{p.a}/{p.b}";
+                        CurrentProgress = (double)p.a / p.b * 100;
+                    }
+                    i++;
                 }), IsVersionIsolation: IsVI);
         }
         IsAllowDownloading = false;
@@ -56,7 +70,9 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         });
     }
     [ObservableProperty]
-    public string _D_DM = "下载未开始";
+    public string _Dp = "下载未开始";
+    [ObservableProperty]
+    public string _Fs = "?/0";
     [ObservableProperty]
     public double _CurrentProgress = 0;
     [RelayCommand]

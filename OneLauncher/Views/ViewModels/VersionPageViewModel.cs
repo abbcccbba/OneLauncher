@@ -46,7 +46,7 @@ internal partial class VersionItem
                 version.VersionID,
                 Init.ConfigManger.config.DefaultUserModel,
                 Init.systemType,
-                true
+                version.IsVersionIsolation
             ).BuildCommand
             (   
                 OtherArgs: string.Join
