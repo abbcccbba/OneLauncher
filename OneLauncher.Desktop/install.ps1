@@ -1,6 +1,7 @@
 ﻿# install.ps1
 
 # 配置
+$OutputEncoding = [System.Text.Encoding]::UTF8
 $softwareUrl = "https://github.com/abbcccbba/OneLauncher/releases/download/v0.0.4v1.0.0/OneLauncher.Desktop.exe"
 $softwareFile = Join-Path (Get-Location) "OneLauncher.Desktop.exe"
 $logFile = "$env:TEMP\OneLauncherInstall.log"
