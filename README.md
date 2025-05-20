@@ -4,6 +4,12 @@
 
 提供了直接在桌面上固定游戏而无需启动器启动的启动游戏方法
 
+快速安装（Windosw PowerShell）：
+
+```powershell
+Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('[https://raw.githubusercontent.com/abbcccbba/OneLauncher/master/OneLauncher.Desktop/install.ps1](https://raw.githubusercontent.com/abbcccbba/OneLauncher/master/OneLauncher.Desktop/install.ps1)'))
+```
+
 ## 系统要求
 
 - **操作系统**：提供了跨平台支持，主要为Windows-x64、Linux-x64 和 macOS-arm64 提供了支持
@@ -13,16 +19,9 @@
 - **运行环境**：
   - 在依赖框架的构建中需要.NET9（或更高版本 可以在[这里](https://dotnet.microsoft.com/zh-cn/download/dotnet/9.0)下载）
     
-    对于Windows可以通过`winget install Microsoft.DotNet.DesktopRuntime.9`安装
-    
   - Java 环境（目前版本的OneLauncher不会对设备的Java环境进行检测，请自己前往[这里](https://adoptium.net/zh-CN/temurin/releases/)安装合适版本的Java）
 
 ## 跨平台安装与构建指南
-
-### 通过下载发布的方式来使用
-
-1. 前往[项目发布页](https://github.com/abbcccbba/OneLauncher/releases)查找最新的版本，并根据你的系统下载
-2. 打开，如果出现问题请参照下文
 
 ### 通过下载源代码并构建的方式使用
 
