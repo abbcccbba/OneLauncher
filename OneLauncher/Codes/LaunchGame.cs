@@ -19,11 +19,11 @@ internal class Game
 {
     public event GameStarted GameStartedEvent;
     public event GameClosed GameClosedEvent;
-    /// <param ID="GameVersion">游戏版本</param>
-    /// <param ID="loginUserModel">以哪个用户模型启动游戏</param>
-    /// <param ID="GamePath">游戏基本路径</param>
-    /// <returns></returns>
-    public async Task LaunchGame(string GameVersion, UserModel loginUserModel, bool IsVersionInsulation = false)
+    /// <param name="GameVersion">游戏版本</param>
+    /// <param name="loginUserModel">登入用户模型</param>
+    /// <param name="IsVersionInsulation">版本是否启用了版本隔离</param>
+    /// <param name="IsMod">版本是否是mod版本</param>
+    public async Task LaunchGame(string GameVersion, UserModel loginUserModel, bool IsVersionInsulation = false,bool IsMod = false)
     {
         try
         {
@@ -38,7 +38,7 @@ internal class Game
             }
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "java";
+                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-24.0.1.9-hotspot\\bin\\java.exe";
                 process.StartInfo.Arguments =
                     new LaunchCommandBuilder
                     (
@@ -46,20 +46,24 @@ internal class Game
                         GameVersion,
                         loginUserModel,
                         Init.systemType,
-                        IsVersionInsulation
+                        IsVersionInsulation,
+                        IsMod
                     ).BuildCommand
                     (
                         OtherArgs: string.Join
                         (
                             " ",
                             "-XX:+UseG1GC",
+                            "-XX:G1ReservePercent=20",
+                            "-XX:MaxGCPauseMillis=50",
+                            "-XX:G1HeapRegionSize=32M",
                             "-XX:+UnlockExperimentalVMOptions",
                             "-XX:-OmitStackTraceInFastThrow",
-                            "-Xmn512m -Xmx4096m",
                             "-Djdk.lang.Process.allowAmbiguousCommands=true",
-                            "-Dlog4j2.formatMsgNoLookups=true", 
+                            "-Dlog4j2.formatMsgNoLookups=true",
                             "-Dfml.ignoreInvalidMinecraftCertificates=True",
                             "-Dfml.ignorePatchDiscrepancies=True"
+                        //"-DFabricMcEmu=net.minecraft.client.main.Main"
                         )
 
                     );
@@ -88,7 +92,7 @@ internal class Game
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit(); // 等待进程结束
+                process.WaitForExit(); // 不等待就不会有输出
             }
             GameClosedEvent?.Invoke();
         }

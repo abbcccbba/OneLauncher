@@ -7,8 +7,11 @@
              x:Class="OneLauncher.Home">
 	<Grid>
 		<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-			<TextBlock FontSize="52"  Text="欢迎回来！ 🖐️" />
-			<TextBlock Margin="20,0,0,0" Text="What you want to play? Boss"/>
+			<TextBlock FontSize="52" Text="欢迎回来！ 🖐️" />
+			<StackPanel Orientation="Horizontal" Spacing="12">
+				<TextBlock FontSize="18" Text="What you want to play? Boss"/>
+				<Button Margin="30,0,0,0" Click="Button_Click" Content="快速游戏"/>
+			</StackPanel>
 		</StackPanel>
 	</Grid>
 </UserControl>

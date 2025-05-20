@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core;
 public enum DownProgress
 {
+    DownMod,
     DownLibs,
     DownAssets,
     DownMain,
@@ -84,6 +85,7 @@ public class Download : IDisposable
     /// <param name="OsType">系统类型</param>
     /// <param name="progress">进度回调</param>
     /// <param name="IsVersionIsolation">是否启用版本隔离</param>
+    /// <param name="IsMod">是否下载Mod（Fabric）版本</param>
     /// <param name="maxConcurrentDownloads">最大下载线程</param>
     /// <param name="maxConcurrentSha1">最大sha1校验线程</param>
     /// <param name="IsSha1">是否校验sha1</param>
@@ -97,12 +99,15 @@ public class Download : IDisposable
         int maxConcurrentDownloads = 16,
         int maxConcurrentSha1 = 16,
         bool IsSha1 = true,
-        bool IsCheckFileExists = true)
+        bool IsCheckFileExists = true,
+        bool IsMod = false)
     {
+        string VersionPath = (IsVersionIsolation)
+            ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}")
+            : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString());
         // 下载 version.json
-        var versionjsonpath = (IsVersionIsolation)
-            ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", $"{DownloadVersion.ID.ToString()}.json")
-            : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), $"{DownloadVersion.ToString()}.json");
+        var versionjsonpath =
+            Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
         if(!File.Exists(versionjsonpath)) 
             await DownloadFile(DownloadVersion.Url,versionjsonpath);
         // 实例化版本信息解析器
@@ -112,20 +117,45 @@ public class Download : IDisposable
         var assetsIndex = versionInfomations.GetAssets();   
         if (!File.Exists(assetsIndex.path))
             await DownloadFile(assetsIndex.url, assetsIndex.path);
+        // 下载Mod相关资源索引
+        string modpath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabric.json");
+        if (IsMod)
+            if(!File.Exists(modpath)) 
+                await DownloadFile(
+                    $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID}/",modpath);
+        
 
         var AllNd = new List<NdDowItem>();
         var NdLibs = versionInfomations.GetLibrarys();
         var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath);
         var mainFile = versionInfomations.GetMainFile();
         NdDowItem log4j2;
+        List<NdDowItem> modLibs;
+        
         AllNd.AddRange(NdLibs);
         AllNd.AddRange(NdAssets);
         AllNd.Add(mainFile);
-
+        
         int FileCount = AllNd.Count;
         int Filed = 0;
+        // 下载Mod依赖库文件
+        if (IsMod)
+        {
+            modLibs = new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries();
+            AllNd.AddRange(modLibs);
+            FileCount = AllNd.Count;
+
+            await DownloadListAsync(
+            new Progress<(int donecount, string filename)>(p =>
+            {
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownMod, FileCount, p.donecount, p.filename));
+            }),
+            IsCheckFileExists ? CheckFilesExists(modLibs) : modLibs,
+            GameRootPath,
+            maxConcurrentDownloads);
+        }
         // 下载资源文件和库文件
-        //progress.Report((DownProgress.DownLibs,FileCount,Filed,""));
         await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
@@ -141,7 +171,6 @@ public class Download : IDisposable
             (IsVersionIsolation)
             ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", "natives")
             : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), "natives"));
-        //progress.Report((DownProgress.DownAssets, FileCount, Filed, ""));
         await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
@@ -275,13 +304,14 @@ public class Download : IDisposable
         var sha1Tasks = new List<Task>(FDI.Count);
         foreach (var item in FDI)
         {
+            if (item.sha1 == null)
+                continue;
             await semaphore.WaitAsync();
             sha1Tasks.Add(Task.Run(async () =>
             {
                 using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
                 using (var sha1Hash = SHA1.Create())
                 {
-                    //Debug.WriteLine($"正在校验文件: {item.path}");
                     byte[] hash = await sha1Hash.ComputeHashAsync(stream);
                     string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                     if (!string.Equals(calculatedSha1, item.sha1, StringComparison.OrdinalIgnoreCase))
