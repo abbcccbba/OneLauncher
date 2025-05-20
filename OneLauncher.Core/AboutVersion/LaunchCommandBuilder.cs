@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OneLauncher.Core.fabric;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,17 +20,28 @@ public class LaunchCommandBuilder
     private readonly string basePath;
     private readonly SystemType systemType;
     private readonly bool IsVersionInsulation;
-    /// <param ID="basePath">游戏基本路径（不含.minecraft，末尾加'/'）</param>
+    private readonly bool IsMod;
+    private readonly FabricVJParser fabricParser;
+    /// <param ID="basePath">游戏基本路径（含.minecraft）</param>
     /// <param ID="version">游戏版本</param>
     /// <param ID="userModel">以哪个用户模型来拼接启动参数？</param>
     /// <param ID="system">运行时系统类型</param>
-    public LaunchCommandBuilder(string basePath, string version, UserModel userModel,SystemType system,bool VersionInsulation = false)
+    public LaunchCommandBuilder
+        (
+            string basePath, 
+            string version, 
+            UserModel userModel,
+            SystemType system,
+            bool VersionInsulation = false,
+            bool IsMod = false
+        )
     {
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
         this.systemType = system;
         this.IsVersionInsulation = VersionInsulation;
+        this.IsMod = IsMod;
         versionInfo = new VersionInfomations(
             File.ReadAllText(
                 (VersionInsulation)
@@ -37,11 +49,16 @@ public class LaunchCommandBuilder
                 : Path.Combine(basePath,"versions",version,$"{version}.json")),
             basePath,system,IsVersionInsulation
         );
+        if(IsMod)
+            fabricParser = new fabric.FabricVJParser(
+              Path.Combine(basePath, (IsVersionInsulation
+                ? Path.Combine($"v{version}", $"{version}-fabric.json")
+                : Path.Combine("versions", version, $"{version}-fabric.json"))), basePath);
     }
 
     public string BuildCommand(string OtherArgs = "")
     {
-        string Args = $"{OtherArgs} {BuildJvmArgs()} {versionInfo.GetMainClass()} {BuildGameArgs()}";
+        string Args = $"{OtherArgs} {BuildJvmArgs()} {((IsMod) ? fabricParser.GetMainClass() : versionInfo.GetMainClass())} {BuildGameArgs()}";
         return Args;
     }
     private string BuildJvmArgs()
@@ -122,15 +139,16 @@ public class LaunchCommandBuilder
     }
     private string BuildClassPath()
     {
-        // 缓存机制
-        string cacheFilePath = Path.Combine(basePath, ".minecraft", "versions", version, "classpath.cache");
+        string modLibs = string.Empty;
         string separator = systemType == SystemType.windows ? ";" : ":";
-        //string AllClassArgs = $"\"\"{separator}{Libs}{separator}\"{versionInfo.GetMainFile(version).path}\"{separator}\"\"";
-        var sb = new StringBuilder(); sb.Append($"\"\"{separator}");
-        foreach (var path in versionInfo.GetLibrarys().Select(x => x.path))
-        sb.Append($"\"{path}\"{separator}");
-        sb.Append($"\"{versionInfo.GetMainFile().path}\"{separator}\"\"");
-        return sb.ToString();
+        if(this.IsMod)
+        {
+            modLibs = string.Join(separator, fabricParser.GetLibraries().Select(x => x.path).ToList());
+        }
+        string Libs = string.Join(separator, versionInfo.GetLibrarys().Select(x => x.path));
+        // 使用三引号可能导致模组加载器故障
+        string AllClassArgs = $"{Libs}{separator}{versionInfo.GetMainFile().path}{separator}{modLibs}";
+        return AllClassArgs;
     }
     private string BuildGameArgs()
     {

@@ -1,0 +1,103 @@
+﻿using OneLauncher.Core.fabric.JsonModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+namespace OneLauncher.Core.fabric;
+
+public class FabricVJParser
+{
+    public readonly RootFabric info;
+    private readonly string basePath;
+    public FabricVJParser(string jsonPath, string BasePath)
+    {
+        this.basePath = BasePath;
+
+        // 使用 FileStream 进行流式读取
+        using (FileStream stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
+        {
+            using (JsonDocument document = JsonDocument.Parse(stream))
+            {
+                JsonElement root = document.RootElement;
+                JsonElement firstObjectElement = root[0];
+                info = JsonSerializer.Deserialize<RootFabric>(firstObjectElement.GetRawText());
+            }
+        }
+    }
+    public string GetMainClass()
+    {
+        return info.LauncherMeta.MainClass.Client;
+    }
+    public int GetJavaVersion()
+    {
+        return info.LauncherMeta.MinJavaVersion;
+    }
+    public List<NdDowItem> GetLibraries(bool iv = false)
+    {
+        List<NdDowItem> dowItems = new List<NdDowItem>(info.LauncherMeta.Libraries.Common.Count);
+        foreach (var item in info.LauncherMeta.Libraries.Common)
+        {
+            string[] parts = item.Name.Split(':');
+
+            // 包
+            string groupId = parts[0];
+            // 名
+            string artifactId = parts[1];
+            // 版本
+            string version = parts[2];
+
+            // 构造 Url
+            // org.ow2.asm:asm:9.8 -> org/ow2/asm/asm/9.8/asm-9.8.jar
+            string urlPathSegments = Path.Combine(groupId.Replace('.', Path.DirectorySeparatorChar),
+                                                  artifactId,
+                                                  version,
+                                                  $"{artifactId}-{version}.jar");
+            string url = $"https://maven.fabricmc.net/{urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
+
+            // 构造 Path
+            // Path.Combine(basePath,"libraries", "org","ow2","asm","asm","9.8","asm-9.8.jar");
+            string fullPath = Path.Combine(basePath,
+                                                "libraries",
+                                                groupId.Replace('.', Path.DirectorySeparatorChar),
+                                                artifactId,
+                                                version,
+                                                $"{artifactId}-{version}.jar");
+            dowItems.Add(new NdDowItem(url, fullPath, item.Size, item.Sha1));
+        }
+        // 额外添加两个特殊的
+        string[] _parts;
+        _parts = info.Loader.DownName.Split(':');
+        string _groupId = _parts[0], _artifactId = _parts[1], _version = _parts[2];
+        string _urlPathSegments = Path.Combine(_groupId.Replace('.', Path.DirectorySeparatorChar),
+                                                  _artifactId,
+                                                  _version,
+                                                  $"{_artifactId}-{_version}.jar");
+        string _url = $"https://maven.fabricmc.net/{_urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
+        string _fullPath = Path.Combine(basePath,
+                                            "libraries",
+                                            _groupId.Replace('.', Path.DirectorySeparatorChar),
+                                            _artifactId,
+                                            _version,
+                                            $"{_artifactId}-{_version}.jar");
+        dowItems.Add(new NdDowItem(_url, _fullPath, 0));
+
+        _parts = info.Intermediary.DownName.Split(':');
+        _groupId = _parts[0]; _artifactId = _parts[1]; _version = _parts[2];
+        _urlPathSegments = Path.Combine(_groupId.Replace('.', Path.DirectorySeparatorChar),
+                                                  _artifactId,
+                                                  _version,
+                                                  $"{_artifactId}-{_version}.jar");
+        _url = $"https://maven.fabricmc.net/{_urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
+        _fullPath = Path.Combine(basePath,
+                                            "libraries",
+                                            _groupId.Replace('.', Path.DirectorySeparatorChar),
+                                            _artifactId,
+                                            _version,
+                                            $"{_artifactId}-{_version}.jar");
+        dowItems.Add(new NdDowItem(_url, _fullPath, 0));
+        return dowItems;
+    }
+}

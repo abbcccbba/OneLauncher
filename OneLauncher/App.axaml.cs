@@ -1,8 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-
+using OneLauncher.Core.fabric;
 using OneLauncher.Views;
+using System;
+using System.Diagnostics;
 
 namespace OneLauncher;
 

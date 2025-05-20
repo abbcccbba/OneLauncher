@@ -15,8 +15,11 @@ public class AppConfig
     // 当前启动器已安装的所有版本列表，默认初始化为空列表
     public List<aVersion> VersionList { get; set; } = new List<aVersion>();
     // 当前启动器有的所有用户登入模型，默认初始化为空列表
-    public UserModel DefaultUserModel { get; set; } = new UserModel();
     public List<UserModel> UserModelList { get; set; } = new List<UserModel>();
+    // 默认用户模型，未指定下默认为 Zhi Wei
+    public UserModel DefaultUserModel { get; set; } = new UserModel();
+    // 默认版本（固定到仪表盘），未指定下为null
+    public aVersion DefaultVersion { get; set; } = null;
 }
 
 public class DBManger
