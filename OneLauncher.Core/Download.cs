@@ -16,7 +16,8 @@ public enum DownProgress
     DownAssets,
     DownMain,
     DownLog4j2,
-    Verify
+    Verify,
+    Done
 }
 public class Download : IDisposable
 {
@@ -100,32 +101,52 @@ public class Download : IDisposable
         bool IsCheckFileExists = true)
     {
         // 下载 version.json
-        await DownloadFile(DownloadVersion.DownInfo);
+        var versionjsonpath = (IsVersionIsolation)
+            ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", $"{DownloadVersion.ID.ToString()}.json")
+            : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), $"{DownloadVersion.ToString()}.json");
+        await DownloadFile(new NdDowItem(DownloadVersion.Url,versionjsonpath,0));
         // 实例化版本信息解析器
         versionInfomations = new VersionInfomations
-            (await File.ReadAllTextAsync(DownloadVersion.DownInfo.path), GameRootPath, OsType);
+            (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType,IsVersionIsolation);
         // 下载资源文件索引
         await DownloadFile(versionInfomations.GetAssets());
-        // 启动下载库文件线程
+
+        var AllNd = new List<NdDowItem>();
         var NdLibs = versionInfomations.GetLibrarys();
+        var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath);
+        var mainFile = versionInfomations.GetMainFile();
+        AllNd.AddRange(NdLibs);
+        AllNd.AddRange(NdAssets);
+        AllNd.Add(mainFile);
+        int FileCount = AllNd.Count;
+        int Filed = 0;
+        // 下载资源文件和库文件
+        progress.Report((DownProgress.DownLibs,FileCount,Filed,""));
         await DownloadListAsync(
-            // 向上回调
-            new Progress<(int a, string b)>(p => progress.Report((DownProgress.DownLibs, 0, p.a, p.b))), 
+            new Progress<(int donecount, string filename)>(p =>
+            {
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownLibs, FileCount, p.donecount, p.filename)); 
+            }), 
             IsCheckFileExists ? CheckFilesExists(NdLibs) : NdLibs,
             GameRootPath,
             maxConcurrentDownloads);
-        // 启动下载资源文件的线程
-        var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync( versionInfomations.GetAssets().path), GameRootPath);
+        progress.Report((DownProgress.DownAssets, FileCount, 0, ""));
         await DownloadListAsync(
-            // 向上回调
-            new Progress<(int a, string b)>(p => progress.Report((DownProgress.DownAssets, 0, p.a, p.b))),
+            new Progress<(int donecount, string filename)>(p =>
+            {
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownAssets, FileCount, p.donecount, p.filename));
+            }),
             IsCheckFileExists ? CheckFilesExists(NdAssets) : NdAssets,
             GameRootPath,
             maxConcurrentDownloads
         );
+
         // 下载主文件
-        await DownloadFile(versionInfomations.GetMainFile());
-        progress.Report((DownProgress.DownMain, 0, 0, versionInfomations.GetMainFile().path));
+        await DownloadFile(mainFile);
+        Interlocked.Increment(ref Filed);
+        progress.Report((DownProgress.DownMain, FileCount, Filed, versionInfomations.GetMainFile().path));
         // 下载日志配置文件
         if (DownloadVersion.ID > new Version("1.7"))
         {
@@ -196,14 +217,11 @@ public class Download : IDisposable
     }
     private List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI)
     {
-        List<NdDowItem> filesToDownload = new List<NdDowItem>();
+        List<NdDowItem> filesToDownload = new List<NdDowItem>(FDI.Count);
         foreach (var item in FDI)
         {
             if (File.Exists(item.path))
                 continue;
-            
-            string directoryPath = Path.GetDirectoryName(item.path);
-            Directory.CreateDirectory(directoryPath);
             filesToDownload.Add(item);
         }
         return filesToDownload;
@@ -216,9 +234,13 @@ public class Download : IDisposable
             {
                 response.EnsureSuccessStatusCode();
                 using (var httpStream = await response.Content.ReadAsStreamAsync())
-                using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                 {
-                    await httpStream.CopyToAsync(fileStream, 8192);
+                    // 创建目录
+                    Directory.CreateDirectory(Path.GetDirectoryName(item.path));
+                    using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
+                    {
+                        await httpStream.CopyToAsync(fileStream, 8192);
+                    }
                 }
             }
         }

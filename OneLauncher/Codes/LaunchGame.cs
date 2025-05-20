@@ -65,12 +65,12 @@ internal class Game
                     if (e.Data.Contains("Backend library: LWJGL version"))
                         GameStartedEvent?.Invoke();
                 };
-                process.ErrorDataReceived += (sender, e) =>
+                process.ErrorDataReceived += async (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
                     Debug.WriteLine($"[ERROR] {e.Data}"); // 输出到控制台
                     if(e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
-                        MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失",true);
+                        await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true));
                 };
                 process.Start();
                 process.BeginOutputReadLine();

@@ -56,7 +56,7 @@ public partial class download : UserControl
                 }
             }
             // 路径（3）
-            vl = new VersionsList(await File.ReadAllTextAsync($"{Init.BasePath}/version_manifest.json"));
+            vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
             // 提前缓存避免UI线程循环卡顿
             List<VersionBasicInfo> releaseVersions = vl.GetReleaseVersionList();        
             await Dispatcher.UIThread.InvokeAsync(() =>
