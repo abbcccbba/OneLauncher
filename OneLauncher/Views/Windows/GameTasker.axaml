@@ -1,0 +1,13 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="320"
+        x:Class="OneLauncher.Views.Windows.GameTasker"
+		Icon="/Assets/window-logo.ico"
+        Title="游戏监视器" Width="250" Height="320">
+	<Grid RowDefinitions="32,*" Margin="12">
+		<TextBlock Grid.Row="0" Text="你可以安全的关闭此窗口"/>
+		<TextBox Grid.Row="1" Text="{Binding Out}" AcceptsReturn="True" TextWrapping="NoWrap"/>
+	</Grid>
+</Window>

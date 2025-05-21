@@ -22,16 +22,17 @@ internal partial class VersionItem
     }
     public aVersion V { get; set; }
     [RelayCommand]
-    public void LaunchGame(aVersion version)
-    {
-        // 用多线程而不是异步，否则某些特定版本会阻塞
-        MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
-        var game = new Game();
-        game.GameStartedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("游戏已启动！"));
-        game.GameClosedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("游戏已关闭！"));
-
-        Task.Run(() => game.LaunchGame(version.VersionID, Init.ConfigManger.config.DefaultUserModel, version.IsVersionIsolation, version.IsMod));
-    }
+    // 直接启动
+    public void LaunchGame(aVersion version) => Views.version.EasyGameLauncher(version);
+    [RelayCommand]
+    // 原版模式
+    public void LaunchGameOriginal(aVersion version) =>  Views.version.EasyGameLauncher(version,IsOriginal: true);
+    [RelayCommand]
+    // 调试模式
+    public void LaunchGameDebug(aVersion version) => Views.version.EasyGameLauncher(version,UseGameTasker: true);
+    [RelayCommand]
+    // 原版调试模式
+    public void LaunchGameOriginalDebug(aVersion version) => Views.version.EasyGameLauncher(version,IsOriginal: true ,UseGameTasker: true);
     [RelayCommand]
     public void PinToDesktop(aVersion version)
     {

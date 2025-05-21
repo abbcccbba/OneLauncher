@@ -1,8 +1,11 @@
 ﻿using Avalonia.Controls.Documents;
 using Avalonia.Data;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core;
 using OneLauncher.Views;
+using OneLauncher.Views.Windows;
+using OneLauncher.Views.Windows.WindowViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,7 +26,13 @@ internal class Game
     /// <param name="loginUserModel">登入用户模型</param>
     /// <param name="IsVersionInsulation">版本是否启用了版本隔离</param>
     /// <param name="IsMod">版本是否是mod版本</param>
-    public async Task LaunchGame(string GameVersion, UserModel loginUserModel, bool IsVersionInsulation = false,bool IsMod = false)
+    /// <param name="UseGameTasker">是否使用游戏监视器</param>
+    public async Task LaunchGame(
+        string GameVersion, 
+        UserModel loginUserModel, 
+        bool IsVersionInsulation = false,
+        bool IsMod = false,
+        bool UseGameTasker = false)
     {
         try
         {
@@ -36,9 +45,16 @@ internal class Game
             {
                 File.WriteAllText(optionsPath, $"lang:zh_cn");
             }
+            if (UseGameTasker)
+                await Dispatcher.UIThread.InvokeAsync(() => 
+                {
+                    var gameTasker = new GameTasker();
+                    gameTasker.Show();
+                });
+                     
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-24.0.1.9-hotspot\\bin\\java.exe";
+                process.StartInfo.FileName = "java";
                 process.StartInfo.Arguments =
                     new LaunchCommandBuilder
                     (
@@ -75,18 +91,20 @@ internal class Game
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = true;
-                process.OutputDataReceived += (sender, e) =>
+                process.OutputDataReceived += async (sender, e) =>
                 {
-                    if (string.IsNullOrEmpty(e.Data)) return;
-                    Debug.WriteLine($"[STDOUT] {e.Data}"); // 输出到控制台
+                    if (string.IsNullOrEmpty(e.Data)) return; 
+                    Debug.WriteLine(e.Data);
+                    WeakReferenceMessenger.Default.Send(new GameMessage($"[STDOUT] {e.Data}{Environment.NewLine}"));
                     if (e.Data.Contains("Backend library: LWJGL version"))
                         GameStartedEvent?.Invoke();
                 };
                 process.ErrorDataReceived += async (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
-                    Debug.WriteLine($"[ERROR] {e.Data}"); // 输出到控制台
-                    if(e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
+                    Debug.WriteLine(e.Data);
+                    WeakReferenceMessenger.Default.Send(new GameMessage($"[ERROE] {e.Data}{Environment.NewLine}"));
+                    if (e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
                         await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true));
                 };
                 process.Start();
@@ -98,16 +116,7 @@ internal class Game
         }
         catch (Exception ex)
         {
-            await Dispatcher.UIThread.InvokeAsync(()=> 
-            MainWindow.mainwindow.ShowFlyout($"启动失败，错误信息：{ex.Message}。请尝试安装Java "+
-            new VersionInfomations(
-                File.ReadAllText(
-                    (IsVersionInsulation)
-                    ? Path.Combine(Init.GameRootPath,$"v{GameVersion}",$"{GameVersion}.json")
-                    : Path.Combine(Init.GameRootPath, "versions", GameVersion, $"{GameVersion}.json"))
-                ,Init.GameRootPath
-                ,Init.systemType)
-            .GetJavaVersion(),true));
+            await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout($"[致命性错误] 请尝试安装合适的 Java",true));
         }
     }
 }
