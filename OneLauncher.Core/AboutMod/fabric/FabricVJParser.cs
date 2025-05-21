@@ -18,14 +18,13 @@ public class FabricVJParser
 
         // 使用 FileStream 进行流式读取
         using (FileStream stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
-        {
             using (JsonDocument document = JsonDocument.Parse(stream))
             {
                 JsonElement root = document.RootElement;
                 JsonElement firstObjectElement = root[0];
                 info = JsonSerializer.Deserialize<RootFabric>(firstObjectElement.GetRawText());
             }
-        }
+        
     }
     public string GetMainClass()
     {
