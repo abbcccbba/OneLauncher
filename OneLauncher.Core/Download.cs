@@ -99,7 +99,6 @@ public class Download : IDisposable
         int maxConcurrentDownloads = 16,
         int maxConcurrentSha1 = 16,
         bool IsSha1 = true,
-        bool IsCheckFileExists = true,
         bool IsMod = false)
     {
         string VersionPath = (IsVersionIsolation)
@@ -119,17 +118,25 @@ public class Download : IDisposable
             await DownloadFile(assetsIndex.url, assetsIndex.path);
         // 下载Mod相关资源索引
         string modpath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabric.json");
+        string modapipath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabricapi-Modrinth.json");
         if (IsMod)
-            if(!File.Exists(modpath)) 
+        {
+            // 加载器
+            if (!File.Exists(modpath))
                 await DownloadFile(
-                    $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID}/",modpath);
-        
+                    $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID.ToString()}/", modpath);
+            // API
+            if (!File.Exists(modapipath))
+                await DownloadFile(
+                    $"https://api.modrinth.com/v2/project/fabric-api/version?game_versions=[\"{DownloadVersion.ID.ToString()}\"]", modapipath);
+        }
 
         var AllNd = new List<NdDowItem>();
         var NdLibs = versionInfomations.GetLibrarys();
         var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath);
         var mainFile = versionInfomations.GetMainFile();
         NdDowItem log4j2;
+        NdDowItem modApi;
         List<NdDowItem> modLibs;
         
         AllNd.AddRange(NdLibs);
@@ -138,11 +145,16 @@ public class Download : IDisposable
         
         int FileCount = AllNd.Count;
         int Filed = 0;
-        // 下载Mod依赖库文件
+        // 下载Mod依赖文件
         if (IsMod)
         {
             modLibs = new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries();
+            modApi = new Modrinth.GetModrinth(modapipath,
+                ((!IsVersionIsolation)
+                ? Path.Combine(GameRootPath, "mods")
+                : Path.Combine(VersionPath, "mods"))).GetDownloadInfos();
             AllNd.AddRange(modLibs);
+            AllNd.Add(modApi);
             FileCount = AllNd.Count;
 
             await DownloadListAsync(
@@ -151,9 +163,13 @@ public class Download : IDisposable
                 Interlocked.Increment(ref Filed);
                 progress.Report((DownProgress.DownMod, FileCount, p.donecount, p.filename));
             }),
-            IsCheckFileExists ? CheckFilesExists(modLibs) : modLibs,
+            CheckFilesExists(modLibs),
             GameRootPath,
             maxConcurrentDownloads);
+
+            Interlocked.Increment(ref Filed);
+            progress.Report((DownProgress.DownMod, FileCount, Filed, modApi.path));
+            await DownloadFile(modApi.url, modApi.path);
         }
         // 下载资源文件和库文件
         await DownloadListAsync(
@@ -162,43 +178,42 @@ public class Download : IDisposable
                 Interlocked.Increment(ref Filed);
                 progress.Report((DownProgress.DownLibs, FileCount, p.donecount, p.filename)); 
             }), 
-            IsCheckFileExists ? CheckFilesExists(NdLibs) : NdLibs,
+            CheckFilesExists(NdLibs),
             GameRootPath,
             maxConcurrentDownloads);
         // 释放本地库文件
         foreach (var i in versionInfomations.NativesLibs)
-            ExtractFile(Path.Combine(GameRootPath, "libraries", i), 
-            (IsVersionIsolation)
-            ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}", "natives")
-            : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString(), "natives"));
+            ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(VersionPath, "natives"));
         await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
                 Interlocked.Increment(ref Filed);
                 progress.Report((DownProgress.DownAssets, FileCount, p.donecount, p.filename));
             }),
-            IsCheckFileExists ? CheckFilesExists(NdAssets) : NdAssets,
+            CheckFilesExists(NdAssets),
             GameRootPath,
             maxConcurrentDownloads
         );
 
         // 下载主文件
+        Interlocked.Increment(ref Filed);
         progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
         if (!File.Exists(mainFile.path))
             await DownloadFile(mainFile.url, mainFile.path);
-        Interlocked.Increment(ref Filed);
+        
         
         // 下载日志配置文件
         if (DownloadVersion.ID > new Version("1.7"))
         {
             log4j2 = versionInfomations.GetLoggingConfig();
+            FileCount = AllNd.Count;
             if (log4j2 != null)
             {
                 AllNd.Add(log4j2);
+                Interlocked.Increment(ref Filed);
                 progress.Report((DownProgress.DownLog4j2, FileCount, Filed, log4j2.path));
                 if (!File.Exists(log4j2.path))
-                    await DownloadFile(log4j2.url,log4j2.path);
-                Interlocked.Increment(ref Filed);
+                    await DownloadFile(log4j2.url,log4j2.path); 
             }
         }
         // 校验所有文件

@@ -11,11 +11,14 @@
 	<ItemGroup>
 		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\OneLauncher\OneLauncher.csproj" />
 	</ItemGroup>
+	<PropertyGroup>
+		<ApplicationIcon>window-logo.ico</ApplicationIcon>
+	</PropertyGroup>
 </Project>
