@@ -26,7 +26,7 @@ internal partial class VersionItem
     public void LaunchGame(aVersion version) => Views.version.EasyGameLauncher(version);
     [RelayCommand]
     // 原版模式
-    public void LaunchGameOriginal(aVersion version) =>  Views.version.EasyGameLauncher(version,IsOriginal: true);
+    public void LaunchGameOriginal(aVersion version) => Views.version.EasyGameLauncher(version,IsOriginal: true);
     [RelayCommand]
     // 调试模式
     public void LaunchGameDebug(aVersion version) => Views.version.EasyGameLauncher(version,UseGameTasker: true);
@@ -65,7 +65,6 @@ internal partial class VersionItem
                     "-Dlog4j2.formatMsgNoLookups=true",
                     "-Dfml.ignoreInvalidMinecraftCertificates=True",
                     "-Dfml.ignorePatchDiscrepancies=True"
-                //"--enable-native-access=ALL-UNNAMED" // 1.13以下的版本可能会因此报错
                 )
         ));
         MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");

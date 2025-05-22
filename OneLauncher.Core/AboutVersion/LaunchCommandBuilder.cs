@@ -14,14 +14,14 @@ namespace OneLauncher.Core;
 /// </summary>
 public class LaunchCommandBuilder
 {
-    private readonly VersionInfomations versionInfo;
+    private VersionInfomations versionInfo;
     private readonly string version;
     private readonly UserModel userModel;
     private readonly string basePath;
     private readonly SystemType systemType;
     private readonly bool IsVersionInsulation;
     private readonly bool IsMod;
-    private readonly FabricVJParser fabricParser;
+    private  FabricVJParser fabricParser;
     /// <param ID="basePath">游戏基本路径（含.minecraft）</param>
     /// <param ID="version">游戏版本</param>
     /// <param ID="userModel">以哪个用户模型来拼接启动参数？</param>
@@ -41,23 +41,21 @@ public class LaunchCommandBuilder
         this.userModel = userModel;
         this.systemType = system;
         this.IsVersionInsulation = VersionInsulation;
-        this.IsMod = IsMod;
-        versionInfo = new VersionInfomations(
-            File.ReadAllText(
-                (VersionInsulation)
-                ? Path.Combine(basePath,$"v{version}",$"{version}.json")
-                : Path.Combine(basePath,"versions",version,$"{version}.json")),
-            basePath,system,IsVersionInsulation
-        );
-        if(IsMod)
-            fabricParser = new fabric.FabricVJParser(
-              Path.Combine(basePath, (IsVersionInsulation
-                ? Path.Combine($"v{version}", $"{version}-fabric.json")
-                : Path.Combine("versions", version, $"{version}-fabric.json"))), basePath);
+        this.IsMod = IsMod;   
     }
 
-    public string BuildCommand(string OtherArgs = "")
+    public async Task<string> BuildCommand(string OtherArgs = "")
     {
+        string VersionPath = (IsVersionInsulation)
+                ? Path.Combine(basePath, $"v{version}")
+                : Path.Combine(basePath, "versions", version);
+        versionInfo = new VersionInfomations(
+            await File.ReadAllTextAsync(Path.Combine(VersionPath,$"{version}.json")),
+            basePath, systemType, IsVersionInsulation
+        );
+        if (IsMod)
+            fabricParser = new fabric.FabricVJParser(
+              Path.Combine(VersionPath, $"{version}-fabric.json"), basePath);
         string Args = $"{OtherArgs} {BuildJvmArgs()} {((IsMod) ? fabricParser.GetMainClass() : versionInfo.GetMainClass())} {BuildGameArgs()}";
         return Args;
     }

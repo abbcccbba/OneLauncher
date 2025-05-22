@@ -1,18 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
+﻿using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
-using OneLauncher.Views;
-using Avalonia.Controls;
-using OneLauncher.Views.Panes;
 using OneLauncher.Core;
+using OneLauncher.Core.Modrinth;
+using OneLauncher.Core.Modrinth.JsonModelSearch;
+using OneLauncher.Views;
+using OneLauncher.Views.Panes;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Input;
 namespace OneLauncher.Views.ViewModels;
 
 internal partial class DownloadPageViewModel : BaseViewModel
@@ -61,4 +65,72 @@ internal partial class DownloadPageViewModel : BaseViewModel
             DownloadPaneContent = new DownloadPane(value, this);
         }
     }
+
+    [ObservableProperty]
+    public string _SearchContent;
+    [ObservableProperty]
+    public List<ModItem> _SearchItems;
+    [RelayCommand]
+    public async void ToSearch()
+    {
+        using (SearchModrinth SearchTask = new SearchModrinth())
+        {
+            SearchItems = await ModItem.Create(await SearchTask.ToSearch(SearchContent));
+        }
+    }
+    [RelayCommand]
+    public void ToInstallMod(ModItem item)
+    {
+        IsPaneShow = true;
+        DownloadPaneContent = new InstallModPane(item);
+    }
+}
+internal partial class ModItem : BaseViewModel
+{
+    public static async Task<List<ModItem>> Create(ModrinthSearch info)
+    {
+        List<ModItem> modItems = new List<ModItem>();
+        using (var httpClient = new HttpClient())
+        {
+            foreach (var item in info.Hits)
+            {
+                var i = new ModItem()
+                {
+                    Title = item.Title,
+                    Description = item.Description,
+                    ID = item.ProjectId,
+                    time = item.DateCreated,
+                };
+                foreach (var v in item.Versions)
+                {
+                    try
+                    {
+                        i.SupportVersions.Add(new Version(v));
+                    }
+                    catch (FormatException)
+                    {
+                        continue;
+                    }
+                    catch (ArgumentException)
+                    {
+                        continue;
+                    }
+                }
+                using (HttpResponseMessage response = await httpClient.GetAsync(info.Hits[0].IconUrl))
+                {
+                    response.EnsureSuccessStatusCode();
+                    using (var stream = await response.Content.ReadAsStreamAsync())
+                        i.Icon = new Bitmap(stream);
+                }
+                modItems.Add(i);
+            }
+        }
+        return modItems;
+    }
+    public string Title { get; set; }
+    public Bitmap Icon { get; set; }
+    public string Description { get; set; }
+    public string ID { get; set; }
+    public List<Version> SupportVersions { get; set; } = new List<Version>();
+    public DateTime time { get; set; }
 }

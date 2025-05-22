@@ -40,6 +40,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public async void ToDownload()
     {
+        IsAllowDownloading = false;
         using (Download download = new Download())
         {
             int i = 0;
@@ -50,19 +51,18 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     if (i % 3 == 0)
                     {
                         Dp = (p.d == DownProgress.DownMod) ? "正在下载Mod（Fabric）相关文件..."
+                        : (p.d == DownProgress.DownLog4j2) ? "正在下载日志配置文件"
                         : (p.d == DownProgress.DownLibs) ? "正在下载库文件..." 
                         : (p.d == DownProgress.DownAssets) ? "正在下载资源文件..." 
                         : (p.d == DownProgress.DownMain) ? "正在下载主文件"
-                        : (p.d == DownProgress.DownLog4j2) ? "正在下载日志配置文件"
                         : (p.d == DownProgress.Verify) ? "正在校验，请稍后..."
                         : (p.d == DownProgress.Done) ? "已下载完毕" : string.Empty;
                         Fs = $"{p.a}/{p.b}";
-                        CurrentProgress = (double)p.a / p.b * 100;
+                        CurrentProgress = (double)p.b / p.a * 100;
                     }
                     i++;
                 }), IsVersionIsolation: IsVI,IsMod: this.IsMod);
         }
-        IsAllowDownloading = false;
         // 在配置文件中添加版本信息
         Init.ConfigManger.WriteVersion(new aVersion
         {
