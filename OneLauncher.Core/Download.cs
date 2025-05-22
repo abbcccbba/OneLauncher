@@ -12,10 +12,10 @@ namespace OneLauncher.Core;
 public enum DownProgress
 {
     DownMod,
+    DownLog4j2,
     DownLibs,
     DownAssets,
     DownMain,
-    DownLog4j2,
     Verify,
     Done
 }
@@ -104,31 +104,30 @@ public class Download : IDisposable
         string VersionPath = (IsVersionIsolation)
             ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}")
             : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString());
+
         // 下载 version.json
         var versionjsonpath =
             Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
         if(!File.Exists(versionjsonpath)) 
             await DownloadFile(DownloadVersion.Url,versionjsonpath);
+
         // 实例化版本信息解析器
         versionInfomations = new VersionInfomations
             (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType,IsVersionIsolation);
+
         // 下载资源文件索引
         var assetsIndex = versionInfomations.GetAssets();   
         if (!File.Exists(assetsIndex.path))
             await DownloadFile(assetsIndex.url, assetsIndex.path);
+
         // 下载Mod相关资源索引
         string modpath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabric.json");
-        string modapipath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabricapi-Modrinth.json");
         if (IsMod)
         {
             // 加载器
             if (!File.Exists(modpath))
                 await DownloadFile(
                     $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID.ToString()}/", modpath);
-            // API
-            if (!File.Exists(modapipath))
-                await DownloadFile(
-                    $"https://api.modrinth.com/v2/project/fabric-api/version?game_versions=[\"{DownloadVersion.ID.ToString()}\"]", modapipath);
         }
 
         var AllNd = new List<NdDowItem>();
@@ -145,14 +144,21 @@ public class Download : IDisposable
         
         int FileCount = AllNd.Count;
         int Filed = 0;
+
         // 下载Mod依赖文件
         if (IsMod)
         {
+            // 获取 Fabric 加载器下载信息
             modLibs = new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries();
-            modApi = new Modrinth.GetModrinth(modapipath,
+            // 获取Fabric API下载信息
+            var a = new Modrinth.GetModrinth(
+               "fabric-api",DownloadVersion.ID.ToString(),
                 ((!IsVersionIsolation)
                 ? Path.Combine(GameRootPath, "mods")
-                : Path.Combine(VersionPath, "mods"))).GetDownloadInfos();
+                : Path.Combine(VersionPath, "mods")));
+            await a.Init();
+            modApi = a.GetDownloadInfos();
+
             AllNd.AddRange(modLibs);
             AllNd.Add(modApi);
             FileCount = AllNd.Count;
@@ -170,6 +176,20 @@ public class Download : IDisposable
             Interlocked.Increment(ref Filed);
             progress.Report((DownProgress.DownMod, FileCount, Filed, modApi.path));
             await DownloadFile(modApi.url, modApi.path);
+        }
+        // 下载日志配置文件
+        if (DownloadVersion.ID > new Version("1.7"))
+        {
+            log4j2 = versionInfomations.GetLoggingConfig();
+            FileCount = AllNd.Count;
+            if (log4j2 != null)
+            {
+                AllNd.Add(log4j2);
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownLog4j2, FileCount, Filed, log4j2.path));
+                if (!File.Exists(log4j2.path))
+                    await DownloadFile(log4j2.url, log4j2.path);
+            }
         }
         // 下载资源文件和库文件
         await DownloadListAsync(
@@ -200,22 +220,7 @@ public class Download : IDisposable
         progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
         if (!File.Exists(mainFile.path))
             await DownloadFile(mainFile.url, mainFile.path);
-        
-        
-        // 下载日志配置文件
-        if (DownloadVersion.ID > new Version("1.7"))
-        {
-            log4j2 = versionInfomations.GetLoggingConfig();
-            FileCount = AllNd.Count;
-            if (log4j2 != null)
-            {
-                AllNd.Add(log4j2);
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownLog4j2, FileCount, Filed, log4j2.path));
-                if (!File.Exists(log4j2.path))
-                    await DownloadFile(log4j2.url,log4j2.path); 
-            }
-        }
+
         // 校验所有文件
         if (IsSha1)
         {

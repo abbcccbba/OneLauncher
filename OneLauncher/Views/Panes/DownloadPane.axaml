@@ -52,7 +52,7 @@
 			</StackPanel>
 			<StackPanel>
 				<CheckBox IsChecked="{Binding IsVI}">是否启用版本隔离</CheckBox>
-				<CheckBox IsChecked="{Binding IsMod}" >是否带Fabric模组加载器</CheckBox>
+				<CheckBox IsChecked="{Binding IsMod}" >是否带Fabric Loader/API</CheckBox>
 				<StackPanel Orientation="Horizontal" Spacing="8">
 					<TextBlock Text="{Binding Dp}"/>
 					<TextBlock Text="{Binding Fs}"/>

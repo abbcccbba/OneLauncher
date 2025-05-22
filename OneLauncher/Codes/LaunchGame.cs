@@ -34,29 +34,27 @@ internal class Game
         bool IsMod = false,
         bool UseGameTasker = false)
     {
-        try
+        // 初次启动时帮用户设置语言
+        var optionsPath = Path.Combine(
+            (IsVersionInsulation
+            ? Path.Combine(Init.GameRootPath, $"v{GameVersion}")
+            : Init.GameRootPath), "options.txt");
+        if (!File.Exists(optionsPath))
         {
-            // 初次启动时帮用户设置语言
-            var optionsPath = Path.Combine(
-                (IsVersionInsulation
-                ? Path.Combine(Init.GameRootPath, $"v{GameVersion}")
-                : Init.GameRootPath), "options.txt");
-            if (!File.Exists(optionsPath))
+            File.WriteAllText(optionsPath, $"lang:zh_cn");
+        }
+        if (UseGameTasker)
+            await Dispatcher.UIThread.InvokeAsync(() => 
             {
-                File.WriteAllText(optionsPath, $"lang:zh_cn");
-            }
-            if (UseGameTasker)
-                await Dispatcher.UIThread.InvokeAsync(() => 
-                {
-                    var gameTasker = new GameTasker();
-                    gameTasker.Show();
-                });
-                     
+                var gameTasker = new GameTasker();
+                gameTasker.Show();
+            });
+        try {            
             using (Process process = new Process())
             {
                 process.StartInfo.FileName = "java";
                 process.StartInfo.Arguments =
-                    new LaunchCommandBuilder
+                    await new LaunchCommandBuilder
                     (
                         Init.GameRootPath,
                         GameVersion,
