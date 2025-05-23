@@ -5,49 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Views.download"
 			 Background="White">
-	<UserControl.Styles>
-		<Style Selector="ListBoxItem">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Padding" Value="5"/>
-			<Setter Property="Transitions">
-				<Transitions>
-					<BrushTransition Property="Background" Duration="0:0:0.23"/>
-					<BrushTransition Property="Background" Duration="0:0:0.3" Easing="QuadraticEaseInOut"/>
-				</Transitions>
-			</Setter>
-		</Style>
-		<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Opacity" Value="0.95"/>
-			<Setter Property="RenderTransform">
-				<ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
-			</Setter>
-		</Style>
-		<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-		<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-			<Setter Property="Background" Value="Transparent"/>
-		</Style>
-		<!-- 阴影样式 -->
-		<Style Selector="ListBoxItem > Border">
-			<Setter Property="ClipToBounds" Value="False"/>
-			<Setter Property="Margin" Value="4"/>
-			<Setter Property="BoxShadow" Value="0 0 4 1 #22000000"/>
-		</Style>
-		<Style Selector="ListBoxItem:pointerover > Border">
-			<Setter Property="BoxShadow" Value="2 2 8 2 #33000000"/>
-		</Style>
-		<Style Selector="ListBoxItem:pressed > Border">
-			<Setter Property="BoxShadow" Value="1 1 4 1 #22000000"/>
-		</Style>
-		<!-- 确保内容不被裁剪 -->
-		<Style Selector="ListBoxItem > Border">
-			<Setter Property="ClipToBounds" Value="False"/>
-			<Setter Property="Margin" Value="10"/>
-		</Style>
-	</UserControl.Styles>
-	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
+	<SplitView IsPaneOpen="{Binding IsPaneShow}"
                DisplayMode="Inline"
                OpenPaneLength="650"
                PanePlacement="Right">
@@ -57,66 +15,32 @@
 			</TransitioningContentControl>
 		</SplitView.Pane>
 		<!-- 版本列表 -->
-		<TabControl Margin="12">
-			<TabItem Header="Modrinth模组浏览器">
-				<ScrollViewer>
-					<StackPanel>
-						<StackPanel Orientation="Horizontal" VerticalAlignment="Top">
-							<TextBox Watermark="搜索模组..." Text="{Binding SearchContent}"/>
-							<Button Content="搜索" Command="{Binding ToSearchCommand}"/>
-						</StackPanel>
-						<ListBox ItemsSource="{Binding SearchItems}" Background="Transparent">
-							<ListBox.ItemTemplate>
-								<DataTemplate>
-									<Border CornerRadius="5" Background="#F4F4F5">
-										<Grid RowDefinitions="*,*" ColumnDefinitions="100,Auto,*" >
-											<Border Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Center" >
-												<Image Width="72" Height="72" Source="{Binding Icon}"/>
-											</Border>
-											<TextBlock TextWrapping="Wrap" Grid.Row="0" Margin="6" Grid.Column="1" FontSize="18" Text="{Binding Title}" FontWeight="Bold"/>
-											<TextBlock Margin="4,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding Description}"/>
-											<Button Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Command="{Binding $parent[ListBox].DataContext.ToInstallModCommand}" CommandParameter="{Binding}">
-												<StackPanel Orientation="Horizontal">
-													<TextBlock Text="安装"/>
-												</StackPanel>
-											</Button>
-										</Grid>
-									</Border>
-								</DataTemplate>
-							</ListBox.ItemTemplate>				
-						</ListBox>
-					</StackPanel>
-				</ScrollViewer>
-			</TabItem>
-			<TabItem Header="基本版本下载">
-				<ScrollViewer>
-					<StackPanel HorizontalAlignment="Center"
-								VerticalAlignment="Center"
-								Spacing="4"
-								IsEnabled="{Binding IsAllowDownloading}">
-						<TextBlock FontSize="42" Text="选择下载版本"/>
-						<AutoCompleteBox
-							Watermark="搜索版本..."
-							Width="300"
-							CornerRadius="6"
-							ItemsSource="{Binding AutoVersionList}"
-							SelectedItem="{Binding SelectedItem}">
-							<AutoCompleteBox.ItemTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding ID}"/>
-								</DataTemplate>
-							</AutoCompleteBox.ItemTemplate>
-						</AutoCompleteBox>
-						<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" >
-							<ListBox.ItemTemplate>
-								<DataTemplate>
-									<TextBlock Text="{Binding ID}"/>
-								</DataTemplate>
-							</ListBox.ItemTemplate>
-						</ListBox>
-					</StackPanel>
-				</ScrollViewer>
-			</TabItem>
-		</TabControl>
+		<ScrollViewer>
+			<StackPanel HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						Spacing="4"
+						IsEnabled="{Binding IsAllowDownloading}">
+				<TextBlock FontSize="42" Text="选择下载版本"/>
+				<AutoCompleteBox
+					Watermark="搜索版本..."
+					Width="300"
+					CornerRadius="6"
+					ItemsSource="{Binding AutoVersionList}"
+					SelectedItem="{Binding SelectedItem}">
+					<AutoCompleteBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding ID}"/>
+						</DataTemplate>
+					</AutoCompleteBox.ItemTemplate>
+				</AutoCompleteBox>
+				<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" >
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding ID}"/>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+			</StackPanel>
+		</ScrollViewer>
 	</SplitView>
 </UserControl>

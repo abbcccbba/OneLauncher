@@ -36,10 +36,10 @@ public partial class version : UserControl
     public static Task EasyGameLauncher(aVersion LaunchGameInfo,bool IsOriginal = false,bool UseGameTasker = false)
     {
         // 用多线程而不是异步，否则某些特定版本会阻塞
-        Dispatcher.UIThread.Invoke(() => MainWindow.mainwindow.ShowFlyout("正在启动游戏..."));
+        MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
         var game = new Game();
-        game.GameStartedEvent += () => Dispatcher.UIThread.Invoke(() => MainWindow.mainwindow.ShowFlyout("游戏已启动！"));
-        game.GameClosedEvent += () => Dispatcher.UIThread.Invoke(() => MainWindow.mainwindow.ShowFlyout("游戏已关闭！"));
+        game.GameStartedEvent += () => MainWindow.mainwindow.ShowFlyout("游戏已启动！");
+        game.GameClosedEvent += () => MainWindow.mainwindow.ShowFlyout("游戏已关闭！");
 
        return Task.Run(() => game.LaunchGame(
             LaunchGameInfo.VersionID, 

@@ -7,25 +7,34 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using OneLauncher.Codes;
+using Avalonia.Threading;
 
 namespace OneLauncher.Views;
 
 public partial class MainWindow : Window
 {
-    private Home HomePage;
-    private version versionPage;
-    private download downloadPage;
-    private settings settingsPage;
-    private account accountPage;
+    public readonly Home HomePage;
+    public readonly version versionPage;
+    public readonly download downloadPage;
+    public readonly settings settingsPage;
+    public readonly account accountPage;
+    public readonly ModsBrowser modsBrowserPage;
     public static MainWindow mainwindow;
     public MainWindow()
     {
         InitializeComponent();
         mainwindow = this;
+        HomePage = new Home();
+        versionPage = new version();
+        accountPage = new account();
+        modsBrowserPage = new ModsBrowser();
+        downloadPage = new download();
+        settingsPage = new settings();
+        PageContent.Content = HomePage;
     }
     public enum MainPage
     {
-        HomePage,VersionPage,AccountPage,DownloadPage, SettingsPage
+        HomePage,VersionPage,AccountPage,DownloadPage,SettingsPage, ModsBrowserPage
     }
     /// <summary>
     /// 手动管理页面切换
@@ -44,6 +53,9 @@ public partial class MainWindow : Window
             case MainPage.AccountPage:
                 PageContent.Content = accountPage;
                 break;
+            case MainPage.ModsBrowserPage:
+                PageContent.Content = modsBrowserPage;
+                break;
             case MainPage.DownloadPage:
                 PageContent.Content = downloadPage;
                 break;
@@ -53,64 +65,55 @@ public partial class MainWindow : Window
         }
     }
     /// <summary>
-    /// 手动管理页面内容
-    /// </summary>
-    /// <param ID="page">页面实例</param>
-    public void MainPageNavigate(UserControl page)
-    {
-        PageContent.Content = page;
-    }
-    /// <summary>
     /// 在右下角显示提示信息
     /// </summary>
     /// <param ID="text">提示信息内容</param>
-    public async void ShowFlyout(string text,bool IsWarning = false)
+    public Task ShowFlyout(string text,bool IsWarning = false)
     {
-        FytFkA.Text = text;
-        if (IsWarning)
-            FytB.Background = new SolidColorBrush(Colors.Red);
-        else
-            FytB.Background = new SolidColorBrush(Colors.LightBlue);
-        FytB.IsVisible = true;
-        await Task.Delay(3000);
-        FytB.IsVisible = false;
-    }
-    protected override async void OnOpened(EventArgs e)
-    {
-        base.OnOpened(e);
-        HomePage = new Home();
-        versionPage = new version();
-        accountPage = new account();
-        downloadPage = new download();
-        settingsPage = new settings();
-        PageContent.Content = HomePage;
-    }
-    // 统一的事件处理函数
-    private void Navigate_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is Button button && button.Tag is string tag)
+        return Dispatcher.UIThread.InvokeAsync(async() =>
         {
-            switch (tag)
-            {
-                case "Home":
-                    PageContent.Content = HomePage;
-                    break;
-                case "Version":
-                    PageContent.Content = versionPage;
-                    break;
-                case "Account":
-                    PageContent.Content = accountPage;
-                    break;
-                case "Download":
-                    PageContent.Content = downloadPage;
-                    break;
-                case "Settings":
-                    PageContent.Content = settingsPage;
-                    break;
-            }
-        }
+            FytFkA.Text = text;
+            if (IsWarning)
+                FytB.Background = new SolidColorBrush(Colors.Red);
+            else
+                FytB.Background = new SolidColorBrush(Colors.LightBlue);
+            FytB.IsVisible = true;
+            await Task.Delay(3000);
+            FytB.IsVisible = false;
+        });
     }
+    // 统一事件方法
+    private void ListBox_SelectionChanged(object? sender, Avalonia.Controls.SelectionChangedEventArgs e)
+    {
+        var listBox = sender as ListBox;
+        if (listBox == null) return;
 
+        var selectedItem = listBox.SelectedItem as ListBoxItem;
+        if (selectedItem == null) return;
+
+        switch (selectedItem.Tag)
+        {
+            case "Home":
+                PageContent.Content = HomePage;
+                break;
+            case "Version":
+                PageContent.Content = versionPage;
+                break;
+            case "Account":
+                PageContent.Content = accountPage;
+                break;
+            case "ModsBrowser":
+                PageContent.Content = modsBrowserPage;
+                break;
+            case "Download":
+                PageContent.Content = downloadPage;
+                break;
+            case "Settings":
+                PageContent.Content = settingsPage;
+                break;
+        }
+        
+    }
     // 切换侧边栏展开/折叠
     private void MangePaneOpenAndClose(bool IsOpen)
     {
@@ -119,32 +122,8 @@ public partial class MainWindow : Window
         AccountText.IsVisible = IsOpen;
         DownloadText.IsVisible = IsOpen;
         SettingsText.IsVisible = IsOpen;
+        ModsBrowserText.IsVisible = IsOpen;
         SidebarSplitView.IsPaneOpen = IsOpen;
-        /*
-        var splitView = this.FindControl<SplitView>("SidebarSplitView");
-        if (splitView != null)
-        {
-            splitView.IsPaneOpen = !splitView.IsPaneOpen;
-
-            // 动态调整文字显示
-            var textBlocks = new[]
-            {
-                this.FindControl<TextBlock>("HomeText"),
-                this.FindControl<TextBlock>("VersionText"),
-                this.FindControl<TextBlock>("AccountText"),
-                this.FindControl<TextBlock>("DownloadText"),
-                this.FindControl<TextBlock>("SettingsText")
-            };
-
-            foreach (var textBlock in textBlocks)
-            {
-                if (textBlock != null)
-                {
-                    textBlock.IsVisible = splitView.IsPaneOpen;
-                }
-            }
-        }
-        */
     }
     // 鼠标进入事件
     private void Sb_in(object? sender, Avalonia.Input.PointerEventArgs e) => MangePaneOpenAndClose(true);

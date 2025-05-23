@@ -15,19 +15,19 @@ public class ModrinthProjects
     [JsonPropertyName("name")]
     public string Name { get; set; }
 
-    [JsonPropertyName("version_number")]
-    public string VersionNumber { get; set; }
-
-    [JsonPropertyName("date_published")]
-    public DateTime DatePublished { get; set; }
-
     [JsonPropertyName("version_type")]
     public string VersionType { get; set; }
 
     [JsonPropertyName("files")]
     public List<JarDownload> Files { get; set; }
+    [JsonPropertyName("dependencies")]
+    public List<Dependency> Dependencies { get; set; }
 }
-
+public class Dependency
+{
+    [JsonPropertyName("project_id")]
+    public string ProjectId { get; set; }
+}
 public class JarDownload
 {
     [JsonPropertyName("hashes")]
