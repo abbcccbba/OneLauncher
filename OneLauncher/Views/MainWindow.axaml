@@ -12,7 +12,6 @@
 		ExtendClientAreaToDecorationsHint="True"
 		Width="1150"
 		Height="650">
-						<!-- 在这里改为为 CompactOverlay -->
 	<SplitView x:Name="SidebarSplitView"
 				   IsPaneOpen="False"
 				   DisplayMode="CompactInline" 
@@ -31,150 +30,91 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Top">
 					<!-- 开始菜单按钮 -->
-					<Button x:Name="HomeButton"
-                            Background="Transparent"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Padding="12"
-                            Tag="Home"
-                            Click="Navigate_Click">
-						<StackPanel Orientation="Horizontal" Spacing="8">
-							<Image Source="/Assets/icos/home.png" Width="32" Height="32"/>
-							<TextBlock x:Name="HomeText"
-                                       Text="开始菜单"
-                                       VerticalAlignment="Center"
-                                       FontSize="16"
-                                       IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-						</StackPanel>
-						<Button.Styles>
-							<Style Selector="Button">
+					<ListBox Background="Transparent" SelectionChanged="ListBox_SelectionChanged">
+						<ListBoxItem Tag="Home">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Image Source="/Assets/icos/home.png" Width="32" Height="32"/>
+								<TextBlock x:Name="HomeText"
+											Text="开始菜单"
+											VerticalAlignment="Center"
+											FontSize="16"
+											IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
+							</StackPanel>
+						</ListBoxItem>
+						<ListBoxItem Tag="Version">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Image Source="/Assets/icos/version.png" Width="32" Height="32"/>
+								<TextBlock x:Name="VersionText"
+										   Text="版本管理"
+										   VerticalAlignment="Center"
+										   FontSize="16"
+										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
+							</StackPanel>
+						</ListBoxItem>
+						<ListBoxItem Tag="Account">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Image Source="/Assets/icos/account.png" Width="32" Height="32"/>
+								<TextBlock x:Name="AccountText"
+										   Text="账户管理"
+										   VerticalAlignment="Center"
+										   FontSize="16"
+										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
+							</StackPanel>
+						</ListBoxItem>
+						<ListBoxItem Tag="ModsBrowser">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Image Source="/Assets/icos/browser.png" Width="32" Height="32"/>
+								<TextBlock x:Name="ModsBrowserText"
+										   Text="模组浏览"
+										   VerticalAlignment="Center"
+										   FontSize="16"
+										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
+							</StackPanel>
+						</ListBoxItem>
+						<ListBoxItem Tag="Download">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Image Source="/Assets/icos/download.png" Width="32" Height="32"/>
+								<TextBlock x:Name="DownloadText"
+										   Text="下载管理"
+										   VerticalAlignment="Center"
+										   FontSize="16"
+										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
+							</StackPanel>
+						</ListBoxItem>
+						<ListBoxItem Tag="Settings">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Image Source="/Assets/icos/settings1.png" Width="32" Height="32"/>
+								<TextBlock x:Name="SettingsText"
+										   Text="设置选项"
+										   VerticalAlignment="Center"
+										   FontSize="16"
+										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
+							</StackPanel>
+						</ListBoxItem>
+						<ListBox.Styles>
+							<Style Selector="ListBox /template/ ContentPresenter">
 								<Setter Property="Background" Value="Transparent"/>
+								<Setter Property="CornerRadius" Value="16"/>
+							</Style>
+							<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+								<Setter Property="Background" Value="#777777"/>
+								<Setter Property="CornerRadius" Value="16"/>
+							</Style>
+							<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+								<Setter Property="Background" Value="#666666"/>
+								<Setter Property="CornerRadius" Value="16"/>
+							</Style>
+							<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+								<Setter Property="Background" Value="#555555"/>
 								<Setter Property="CornerRadius" Value="24"/>
 							</Style>
-							<Style Selector="Button:pointerover">
-								<Setter Property="Background" Value="#555555"/>
-							</Style>
-							<Style Selector="Button:pressed">
-								<Setter Property="Background" Value="#777777"/>
-							</Style>
-						</Button.Styles>
-					</Button>
-					<!-- 版本管理按钮 -->
-					<Button x:Name="VersionMangerButton"
-                            Background="Transparent"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Padding="12"
-                            Tag="Version"
-                            Click="Navigate_Click">
-						<StackPanel Orientation="Horizontal" Spacing="8">
-							<Image Source="/Assets/icos/version.png" Width="32" Height="32"/>
-							<TextBlock x:Name="VersionText"
-                                       Text="版本管理"
-                                       VerticalAlignment="Center"
-                                       FontSize="16"
-                                       IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-						</StackPanel>
-						<Button.Styles>
-							<Style Selector="Button">
+							<Style Selector="ListBoxItem /template/ ContentPresenter">
+								<Setter Property="Margin" Value="8"/>
 								<Setter Property="Background" Value="Transparent"/>
-								<Setter Property="CornerRadius" Value="24"/>
+								<Setter Property="CornerRadius" Value="16"/>
 							</Style>
-							<Style Selector="Button:pointerover">
-								<Setter Property="Background" Value="#555555"/>
-							</Style>
-							<Style Selector="Button:pressed">
-								<Setter Property="Background" Value="#777777"/>
-							</Style>
-						</Button.Styles>
-					</Button>
-					<!-- 账户管理按钮 -->
-					<Button x:Name="AccountMangerButton"
-                            Background="Transparent"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Padding="12"
-                            Tag="Account"
-                            Click="Navigate_Click">
-						<StackPanel Orientation="Horizontal" Spacing="8">
-							<Image Source="/Assets/icos/account.png" Width="32" Height="32"/>
-							<TextBlock x:Name="AccountText"
-                                       Text="账户管理"
-                                       VerticalAlignment="Center"
-                                       FontSize="16"
-                                       IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-						</StackPanel>
-						<Button.Styles>
-							<Style Selector="Button">
-								<Setter Property="Background" Value="Transparent"/>
-								<Setter Property="CornerRadius" Value="24"/>
-							</Style>
-							<Style Selector="Button:pointerover">
-								<Setter Property="Background" Value="#555555"/>
-							</Style>
-							<Style Selector="Button:pressed">
-								<Setter Property="Background" Value="#777777"/>
-							</Style>
-						</Button.Styles>
-					</Button>
-					<!-- 下载管理按钮 -->
-					<Button x:Name="DownloadButton"
-                            Background="Transparent"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Padding="12"
-                            Tag="Download"
-                            Click="Navigate_Click">
-						<StackPanel Orientation="Horizontal" Spacing="8">
-							<Image Source="/Assets/icos/download.png" Width="32" Height="32"/>
-							<TextBlock x:Name="DownloadText"
-                                       Text="下载管理"
-                                       VerticalAlignment="Center"
-                                       FontSize="16"
-                                       IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-						</StackPanel>
-						<Button.Styles>
-							<Style Selector="Button">
-								<Setter Property="Background" Value="Transparent"/>
-								<Setter Property="CornerRadius" Value="24"/>
-							</Style>
-							<Style Selector="Button:pointerover">
-								<Setter Property="Background" Value="#555555"/>
-							</Style>
-							<Style Selector="Button:pressed">
-								<Setter Property="Background" Value="#777777"/>
-							</Style>
-						</Button.Styles>
-					</Button>
-					<!-- 设置选项按钮 -->
-					<Button x:Name="SettingsButton"
-                            Background="Transparent"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            Padding="12"
-                            Tag="Settings"
-                            Click="Navigate_Click">
-						<StackPanel Orientation="Horizontal" Spacing="8">
-							<Image Source="/Assets/icos/settings1.png" Width="32" Height="32"/>
-							<TextBlock x:Name="SettingsText"
-                                       Text="设置选项"
-                                       VerticalAlignment="Center"
-                                       FontSize="16"
-                                       IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-						</StackPanel>
-						<Button.Styles>
-							<Style Selector="Button">
-								<Setter Property="Background" Value="Transparent"/>
-								<Setter Property="CornerRadius" Value="24"/>
-							</Style>
-							<Style Selector="Button:pointerover">
-								<Setter Property="Background" Value="#555555"/>
-							</Style>
-							<Style Selector="Button:pressed">
-								<Setter Property="Background" Value="#777777"/>
-							</Style>
-						</Button.Styles>
-					</Button>
+						</ListBox.Styles>
+					</ListBox>
 				</StackPanel>
 			</Grid>
 		</SplitView.Pane>

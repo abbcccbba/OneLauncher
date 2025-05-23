@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OneLauncher.Core.Modrinth;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
@@ -202,8 +203,11 @@ public class Download : IDisposable
             GameRootPath,
             maxConcurrentDownloads);
         // 释放本地库文件
-        foreach (var i in versionInfomations.NativesLibs)
-            ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(VersionPath, "natives"));
+        await Task.Run(() =>
+        {
+            foreach (var i in versionInfomations.NativesLibs)
+                ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(VersionPath, "natives"));
+        });
         await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
@@ -229,6 +233,77 @@ public class Download : IDisposable
         }
         progress.Report((DownProgress.Done,FileCount,Filed,"OK"));
     }
+    /// <summary>
+    /// 开始异步下载Mod（可选是否下载依赖项）
+    /// </summary>
+    /// <param name="progress">进度回调：总字节数，已经下载的字节数，当前正在操作的文件名</param>
+    /// <param name="ModID">Mod ID （Modrinth）</param>
+    /// <param name="ModPath">Mods文件夹路径</param>
+    /// <param name="version">需要安装Mod的版本的版本号</param>
+    /// <param name="IsIncludeDependencies">是否下载依赖</param>
+    /// <param name="maxConcurrentDownloads">最大下载线程</param>
+    /// <param name="maxConcurrentSha1">最大Sha1校验线程</param>
+    /// <param name="IsSha1">是否校验Sha1</param>
+    /// <returns></returns>
+    public async Task StartDownloadMod(
+        IProgress<(long AllSizes, long DownedSizes, string DowingFileName)> progress,
+        string ModID,
+        string ModPath,
+        string version,
+        bool IsIncludeDependencies = true,
+        int maxConcurrentDownloads = 8,
+        int maxConcurrentSha1 = 4,
+        bool IsSha1 = true
+        )
+    {
+        // 初始化 Modrinth Mod获取解析器
+        var GetTask = new GetModrinth(ModID, version, ModPath);
+        await GetTask.Init();
+
+        // 获取主 Mod 文件信息
+        NdDowItem mainMod = GetTask.GetDownloadInfos();
+        List<NdDowItem> filesToProcess = new List<NdDowItem> { mainMod };
+
+        // 如果需要下载依赖项，则获取依赖项信息并添加到下载列表
+        if (IsIncludeDependencies)
+        {
+            List<NdDowItem> dependencies = GetTask.GetDependenciesInfos();
+            filesToProcess.AddRange(dependencies);
+        }
+
+        // 过滤掉已经存在的文件
+        List<NdDowItem> actualDownloads = CheckFilesExists(filesToProcess);
+
+        // 计算总下载文件大小
+        long totalBytesToDownload = actualDownloads.Sum(item => (long)item.size);
+        // 用于累积已下载字节数，将在 DownloadListAsync 报告文件完成时更新
+        long accumulatedDownloadedBytes = 0;
+
+        // 创建一个内部进度报告器，用于适配 DownloadListAsync 的进度到 StartDownloadMod 的进度
+        var fileCompletionProgress = new Progress<(int completedFiles, string FilesName)>(p =>
+        {
+            // 当 DownloadListAsync 报告一个文件完成时，我们会在这里接收到通知
+            // p.FilesName 是刚刚完成下载的文件的完整路径
+            var completedItem = actualDownloads.FirstOrDefault(item => item.path == p.FilesName);
+            if (completedItem != null)
+            {
+                Interlocked.Add(ref accumulatedDownloadedBytes, completedItem.size);
+                progress?.Report(((int)totalBytesToDownload, (int)accumulatedDownloadedBytes, Path.GetFileName(p.FilesName)));
+            }
+        });
+
+        progress?.Report(((int)totalBytesToDownload, 0, "开始下载Mod文件..."));
+        await DownloadListAsync(fileCompletionProgress, actualDownloads, ModPath, maxConcurrentDownloads);
+
+        if (IsSha1)
+        {
+            progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "正在校验文件..."));
+            await CheckAllSha1(filesToProcess, maxConcurrentSha1);
+        }
+
+        progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "下载完成！"));
+    }
+
     private async Task DownloadListAsync(IProgress<(int completedFiles,string FilesName)> progress, List<NdDowItem> downloadNds,string GameRootPath,int maxConcurrentDownloads)
     {
         // 初始化已完成文件数

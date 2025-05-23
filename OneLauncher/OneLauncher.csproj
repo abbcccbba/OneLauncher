@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
     <PackageReference Include="Avalonia" Version="11.3.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
 	  <!--
@@ -22,5 +23,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneLauncher.Core\OneLauncher.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\ModsBrowser.axaml.cs">
+      <DependentUpon>ModsBrowser.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

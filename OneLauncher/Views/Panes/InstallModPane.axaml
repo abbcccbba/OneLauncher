@@ -35,7 +35,8 @@
 						</ListBox.Styles>
 					</ListBox>
 					<TextBlock FontSize="18" Text="安装到哪个版本？"/>
-					<ComboBox PlaceholderText="选择版本..." ItemsSource="{Binding OwnedVersoins}" >
+					<StackPanel Orientation="Horizontal" >
+					<ComboBox PlaceholderText="选择版本..." SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding OwnedVersoins}" >
 						<ComboBox.ItemTemplate>
 							<DataTemplate>
 								<StackPanel Orientation="Horizontal">
@@ -45,6 +46,8 @@
 							</DataTemplate>
 						</ComboBox.ItemTemplate>
 					</ComboBox>
+						<Button Command="{Binding ToInstallCommand}" Content="安装"/>
+					</StackPanel>
 				</StackPanel>
 			</ScrollViewer>
 			<StackPanel Grid.Row="1">

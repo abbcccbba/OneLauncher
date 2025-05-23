@@ -52,7 +52,7 @@ internal class Game
         try {            
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "java";
+                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.15.6-hotspot\\bin\\java.exe";
                 process.StartInfo.Arguments =
                     await new LaunchCommandBuilder
                     (
@@ -103,7 +103,7 @@ internal class Game
                     Debug.WriteLine(e.Data);
                     WeakReferenceMessenger.Default.Send(new GameMessage($"[ERROE] {e.Data}{Environment.NewLine}"));
                     if (e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
-                        await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true));
+                        await MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true);
                 };
                 process.Start();
                 process.BeginOutputReadLine();
@@ -112,9 +112,9 @@ internal class Game
             }
             GameClosedEvent?.Invoke();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout($"[致命性错误] 请尝试安装合适的 Java",true));
+            await MainWindow.mainwindow.ShowFlyout($"[致命性错误] 请尝试安装合适的 Java",true);
         }
     }
 }

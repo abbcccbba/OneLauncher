@@ -40,14 +40,12 @@ public class FabricVJParser
         foreach (var item in info.LauncherMeta.Libraries.Common)
         {
             string[] parts = item.Name.Split(':');
-
             // 包
             string groupId = parts[0];
             // 名
             string artifactId = parts[1];
             // 版本
             string version = parts[2];
-
             // 构造 Url
             // org.ow2.asm:asm:9.8 -> org/ow2/asm/asm/9.8/asm-9.8.jar
             string urlPathSegments = Path.Combine(groupId.Replace('.', Path.DirectorySeparatorChar),

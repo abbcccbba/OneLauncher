@@ -1,0 +1,93 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OneLauncher.Views.ModsBrowser"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia">
+	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
+               DisplayMode="Overlay"
+               OpenPaneLength="650"
+               PanePlacement="Right">
+		<SplitView.Pane>
+			<TransitioningContentControl
+					Content="{Binding InstallModPaneContent}" Background="#FAFAFA">
+			</TransitioningContentControl>
+		</SplitView.Pane>
+		<ScrollViewer>
+			<StackPanel>
+				<StackPanel Margin="12" Orientation="Horizontal" VerticalAlignment="Top" Spacing="8">
+					<TextBox Watermark="搜索模组..." Width="300" 
+							 Text="{Binding SearchContent}">
+						<TextBox.KeyBindings>
+							<KeyBinding Gesture="Enter" Command="{Binding ToSearchCommand}" />
+						</TextBox.KeyBindings>
+					</TextBox>
+					<Button Content="搜索" Command="{Binding ToSearchCommand}"/>
+				</StackPanel>
+				<ListBox ItemsSource="{Binding SearchItems}" Background="Transparent">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Border CornerRadius="5" Background="#F4F4F5">
+								<Grid RowDefinitions="*,*" ColumnDefinitions="100,*,Auto" >
+									<Border Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Center" >
+										<Image Width="72" Height="72" asyncImageLoader:ImageLoader.Source="{Binding IconUrl}"/>
+									</Border>
+									<TextBlock TextWrapping="Wrap" Grid.Row="0" Margin="6" Grid.Column="1" FontSize="18" Text="{Binding Title}" FontWeight="Bold"/>
+									<TextBlock TextWrapping="Wrap" Margin="4,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding Description}"/>
+									<Button Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Command="{Binding $parent[ListBox].DataContext.ToInstallModCommand}" CommandParameter="{Binding}">
+										<StackPanel Orientation="Horizontal">
+											<TextBlock Text="安装"/>
+										</StackPanel>
+									</Button>
+								</Grid>
+							</Border>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+					<ListBox.Styles>
+						<Style Selector="ListBoxItem">
+							<Setter Property="Background" Value="Transparent"/>
+							<Setter Property="Padding" Value="5"/>
+							<Setter Property="Transitions">
+								<Transitions>
+									<BrushTransition Property="Background" Duration="0:0:0.23"/>
+									<BrushTransition Property="Background" Duration="0:0:0.3" Easing="QuadraticEaseInOut"/>
+								</Transitions>
+							</Setter>
+						</Style>
+						<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+							<Setter Property="Background" Value="Transparent"/>
+							<Setter Property="Opacity" Value="0.95"/>
+							<Setter Property="RenderTransform">
+								<ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
+							</Setter>
+						</Style>
+						<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+							<Setter Property="Background" Value="Transparent"/>
+						</Style>
+						<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+							<Setter Property="Background" Value="Transparent"/>
+						</Style>
+						<!-- 阴影样式 -->
+						<Style Selector="ListBoxItem > Border">
+							<Setter Property="ClipToBounds" Value="False"/>
+							<Setter Property="Margin" Value="4"/>
+							<Setter Property="BoxShadow" Value="0 0 4 1 #22000000"/>
+						</Style>
+						<Style Selector="ListBoxItem:pointerover > Border">
+							<Setter Property="BoxShadow" Value="2 2 8 2 #33000000"/>
+						</Style>
+						<Style Selector="ListBoxItem:pressed > Border">
+							<Setter Property="BoxShadow" Value="1 1 4 1 #22000000"/>
+						</Style>
+						<!-- 确保内容不被裁剪 -->
+						<Style Selector="ListBoxItem > Border">
+							<Setter Property="ClipToBounds" Value="False"/>
+							<Setter Property="Margin" Value="10"/>
+						</Style>
+					</ListBox.Styles>
+				</ListBox>
+			</StackPanel>
+		</ScrollViewer>
+	</SplitView>
+</UserControl>
