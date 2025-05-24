@@ -20,13 +20,9 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneLauncher.Core\OneLauncher.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Views\ModsBrowser.axaml.cs">
-      <DependentUpon>ModsBrowser.axaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 </Project>

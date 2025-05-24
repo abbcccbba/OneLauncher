@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Net.msa;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace OneLauncher.Views.ViewModels;
 internal partial class UserItem
@@ -50,6 +52,9 @@ internal partial class AccountPageViewModel : BaseViewModel
     public bool _IsPaneShow = false;
     [ObservableProperty]
     public string _UserName;
+
+    public object WebApplication { get; private set; }
+
     [RelayCommand]
     public void NewUserModel()
     {
@@ -81,6 +86,14 @@ internal partial class AccountPageViewModel : BaseViewModel
     {
         IsPaneShow = false;
         MainWindow.mainwindow.ShowFlyout("已暂存修改！");
+    }
+    [RelayCommand]
+    public void LoginWithMicrosoft()
+    {
+        using (var verTask = new MicrosoftAuthenticator(WebApplication.CreateBuilder(args).Configuration["AzureApplicationID"];))
+        {
+
+        }
     }
     [RelayCommand]
     public void SetDefault(UserModel user)

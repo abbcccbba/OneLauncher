@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneLauncher.Desktop", "OneL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneLauncher.Core", "OneLauncher.Core\OneLauncher.Core.csproj", "{7844EC8C-5320-4E0B-84FA-BC6F89A4AD9B}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "OneLauncher.Core.Net", "OneLauncher.Core.Net\OneLauncher.Core.Net.shproj", "{69B1035D-AD5E-4603-84E2-526F1009610A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,5 +91,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {84522990-1C5A-4180-9BDD-BDF56ACC2605}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		OneLauncher.Core.Net\OneLauncher.Core.Net.projitems*{69b1035d-ad5e-4603-84e2-526f1009610a}*SharedItemsImports = 13
+		OneLauncher.Core.Net\OneLauncher.Core.Net.projitems*{7844ec8c-5320-4e0b-84fa-bc6f89a4ad9b}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

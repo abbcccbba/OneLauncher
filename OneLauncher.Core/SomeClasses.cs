@@ -94,25 +94,35 @@ public class VersionBasicInfo
 }
 public struct UserModel
 {
-    public UserModel(string Name, Guid uuid, Guid? accessToken = null)
+    /// <param name="accessToken">访问令牌</param>
+    /// <param name="refreshToken">刷新令牌</param>
+    public UserModel(string Name, Guid uuid, string? accessToken = null, string? refreshToken = null)
     {
         if (accessToken == null)
         {
-            accessToken = Guid.Empty;
+            accessToken = "0";
             userType = "legacy";
         }
         else
         {
-            userType = "msa"; 
-            this.accessToken = (Guid)accessToken;
+            userType = "msa";
+            this.accessToken = accessToken;
+
+            this.refreshToken = refreshToken ?? string.Empty;
+            this.AuthTime = DateTimeOffset.UtcNow;
         }
         this.Name = Name;
         this.uuid = uuid;
     }
+
     public string Name { get; set; }
     public Guid uuid { get; set; }
-    public Guid accessToken { get; set; }
+    public string accessToken { get; set; }
     public string userType { get; set; }
+
+    
+    public string refreshToken { get; set; }
+    public DateTimeOffset AuthTime { get; set; } 
 }
 public enum SystemType
 {
