@@ -57,8 +57,10 @@ internal partial class InstallModPaneViewModel : BaseViewModel
                 ((SelectedItem.IsVersionIsolation)
                 ? Path.Combine(Init.GameRootPath,$"v{SelectedItem.VersionID}","mods")
                 : Path.Combine(Init.GameRootPath,"mods")),
-                SelectedItem.VersionID);
+                SelectedItem.VersionID, IsIncludeDependencies: IsICS);
     }
+    [ObservableProperty]
+    public bool _IsICS;
     [ObservableProperty]
     public string _Dp = "下载未开始";
     [ObservableProperty]

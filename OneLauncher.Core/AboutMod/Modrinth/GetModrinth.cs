@@ -33,12 +33,16 @@ public class GetModrinth
             Debug.WriteLine(Url);
             HttpResponseMessage response = await client.GetAsync(Url);
             response.EnsureSuccessStatusCode();
-            using (JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync()))
+            try
             {
-                JsonElement root = document.RootElement;
-                JsonElement firstObjectElement = root[0];
-                info = JsonSerializer.Deserialize<ModrinthProjects>(firstObjectElement.GetRawText());
+                using (JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync()))
+                {
+                    JsonElement root = document.RootElement;
+                    JsonElement firstObjectElement = root[0];
+                    info = JsonSerializer.Deserialize<ModrinthProjects>(firstObjectElement.GetRawText());
+                }
             }
+            catch (Exception ex) { }
             if (info.Dependencies == null || info.Dependencies.Count == 0)
                 return;
             this.dependencies = new List<ModrinthProjects>();
