@@ -49,10 +49,10 @@ public class LauncherMeta
 public class Libraries
 {
     [JsonPropertyName("common")]
-    public List<Library> Common { get; set; }
+    public List<FabricLibrary> Common { get; set; }
 }
 
-public class Library
+public class FabricLibrary
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }

@@ -27,68 +27,58 @@ public class DBManger
     public AppConfig config;
     private readonly string ConfigFilePath;
     private readonly string BasePath;
-    public DBManger(AppConfig FirstConfig,string BasePath)
+    private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
+    {
+        WriteIndented = true, 
+        TypeInfoResolver = AppJsonSerializerContext.Default
+    };
+    public DBManger(AppConfig FirstConfig, string BasePath)
     {
         this.BasePath = BasePath;
-        ConfigFilePath = Path.Combine(BasePath,"config.json");
+        ConfigFilePath = Path.Combine(BasePath, "config.json");
         if (File.Exists(ConfigFilePath))
+        {
             Read();
+        }
         else
+        {
             Write(FirstConfig);
+        }
     }
+
     public void Write(AppConfig config)
     {
         try
         {
             this.config = config;
             Directory.CreateDirectory(BasePath);
-            File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            }));
+            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(config, Options));
         }
         catch (Exception ex)
         {
             throw new IOException($"配置文件写入错误： {ex.Message}", ex);
         }
     }
-    public void WriteVersion(aVersion config)
+    public void Save()
     {
         try
         {
-            this.config.VersionList.Add(config);
-            File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            }));
+            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, Options));
         }
         catch (Exception ex)
         {
             throw new IOException($"配置文件写入错误： {ex.Message}", ex);
         }
     }
-    public void WriteUserModel(UserModel config)
-    {
-        try
-        {
-            this.config.UserModelList.Add(config);
-            File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(this.config, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            }));
-        }
-        catch (Exception ex)
-        {
-            throw new IOException($"配置文件写入错误： {ex.Message}", ex);
-        }
-    }
+
     public AppConfig Read()
     {
         try
         {
-            var config = JsonSerializer.Deserialize<AppConfig>(File.ReadAllText(ConfigFilePath));
-            this.config = config;
-            return config;
+            string jsonString = File.ReadAllText(ConfigFilePath);
+            AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, Options);
+            this.config = readConfig;
+            return readConfig;
         }
         catch (Exception ex)
         {

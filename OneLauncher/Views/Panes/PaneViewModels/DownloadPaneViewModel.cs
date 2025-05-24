@@ -64,13 +64,14 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 }), IsVersionIsolation: IsVI,IsMod: this.IsMod);
         }
         // 在配置文件中添加版本信息
-        Init.ConfigManger.WriteVersion(new aVersion
+        Init.ConfigManger.config.VersionList.Add(new aVersion
         {
             VersionID = VersionName,
             IsMod = this.IsMod,
             AddTime = DateTime.Now,
             IsVersionIsolation = IsVI
         });
+        Init.ConfigManger.Save();
     }
     [ObservableProperty]
     public string _Dp = "下载未开始";
