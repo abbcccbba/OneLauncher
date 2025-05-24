@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Views.account"
 			 >
-	<SplitView IsPaneOpen="True"
+	<SplitView IsPaneOpen="{Binding IsPaneShow}"
                DisplayMode="Overlay"
                OpenPaneLength="650"
                PanePlacement="Right">
@@ -21,23 +21,18 @@
 					<TextBlock Margin="0,0,0,0" Grid.Column="1"  Text="收集信息..." FontSize="48"/>
 				</Grid>
 				<StackPanel Margin="12" Grid.Row="1" Spacing="12">
-					<ComboBox PlaceholderText="选择登入类型">
-						<ComboBoxItem>
-							<TextBlock Text="离线登入"/>
-						</ComboBoxItem>
-						<ComboBoxItem>
-							<TextBlock Text="微软登入"/>
-						</ComboBoxItem>
+					<ComboBox SelectedItem="{Binding WhiceLoginType}" PlaceholderText="选择登入类型">
+						<ComboBoxItem>离线登入</ComboBoxItem>
+						<ComboBoxItem>微软登入</ComboBoxItem>
 					</ComboBox>
-					<StackPanel IsVisible="False" Orientation="Horizontal" Spacing="8">
+					<StackPanel IsVisible="{Binding IsYaLogin}" Orientation="Horizontal" Spacing="8">
 						<TextBox Text="{Binding UserName}" Watermark="输入用户名"/>
 						<Button Command="{Binding DoneCommand}" Content="完成"/>
 					</StackPanel>
-					<StackPanel IsVisible="{Binding IsMsaLogin,FallbackValue=true}">
+					<StackPanel IsVisible="{Binding IsMsaLogin}">
 						<StackPanel Orientation="Horizontal" Spacing="12">
 							<Button Content="跳转登入" Command="{Binding LoginWithMicrosoftCommand}"/>
-							<TextBlock VerticalAlignment="Center" Text="授权登入码："/>
-							<TextBlock VerticalAlignment="Center" Text="{Binding UserCode}"/>
+							<TextBox Watermark="登入授权码" VerticalAlignment="Center" Text="{Binding UserCode}"/>
 						</StackPanel>
 					</StackPanel>
 				</StackPanel>

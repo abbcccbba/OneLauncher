@@ -135,9 +135,9 @@ public class Download : IDisposable
         var NdLibs = versionInfomations.GetLibrarys();
         var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath);
         var mainFile = versionInfomations.GetMainFile();
-        NdDowItem log4j2;
-        NdDowItem modApi;
-        List<NdDowItem> modLibs;
+        NdDowItem? log4j2;
+        NdDowItem? modApi;
+        List<NdDowItem>? modLibs;
         
         AllNd.AddRange(NdLibs);
         AllNd.AddRange(NdAssets);
@@ -158,10 +158,10 @@ public class Download : IDisposable
                 ? Path.Combine(GameRootPath, "mods")
                 : Path.Combine(VersionPath, "mods")));
             await a.Init();
-            modApi = a.GetDownloadInfos();
+            modApi = (NdDowItem)a.GetDownloadInfos();
 
             AllNd.AddRange(modLibs);
-            AllNd.Add(modApi);
+            AllNd.Add((NdDowItem)modApi);
             FileCount = AllNd.Count;
 
             await DownloadListAsync(
@@ -175,21 +175,21 @@ public class Download : IDisposable
             maxConcurrentDownloads);
 
             Interlocked.Increment(ref Filed);
-            progress.Report((DownProgress.DownMod, FileCount, Filed, modApi.path));
-            await DownloadFile(modApi.url, modApi.path);
+            progress.Report((DownProgress.DownMod, FileCount, Filed, ((NdDowItem)modApi).path));
+            await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
         }
         // 下载日志配置文件
         if (DownloadVersion.ID > new Version("1.7"))
         {
-            log4j2 = versionInfomations.GetLoggingConfig();
+            log4j2 = (NdDowItem)versionInfomations.GetLoggingConfig();
             FileCount = AllNd.Count;
-            if (log4j2 != null)
+            if (log4j2.HasValue)
             {
-                AllNd.Add(log4j2);
+                AllNd.Add((NdDowItem)log4j2);
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownLog4j2, FileCount, Filed, log4j2.path));
-                if (!File.Exists(log4j2.path))
-                    await DownloadFile(log4j2.url, log4j2.path);
+                progress.Report((DownProgress.DownLog4j2, FileCount, Filed, ((NdDowItem)log4j2).path));
+                if (!File.Exists(((NdDowItem)log4j2).path))
+                    await DownloadFile(((NdDowItem)log4j2).url, ((NdDowItem)log4j2).path);
             }
         }
         // 下载资源文件和库文件
@@ -261,10 +261,10 @@ public class Download : IDisposable
         await GetTask.Init();
 
         // 获取主 Mod 文件信息
-        NdDowItem mainMod = GetTask.GetDownloadInfos();
-        if (mainMod == null)
+        NdDowItem? mainMod = GetTask.GetDownloadInfos();
+        if (mainMod.HasValue)
             return;
-        List<NdDowItem> filesToProcess = new List<NdDowItem> { mainMod };
+        List<NdDowItem> filesToProcess = new List<NdDowItem> { (NdDowItem)mainMod };
 
         // 如果需要下载依赖项，则获取依赖项信息并添加到下载列表
         if (IsIncludeDependencies)
@@ -286,10 +286,10 @@ public class Download : IDisposable
         {
             // 当 DownloadListAsync 报告一个文件完成时，我们会在这里接收到通知
             // p.FilesName 是刚刚完成下载的文件的完整路径
-            var completedItem = actualDownloads.FirstOrDefault(item => item.path == p.FilesName);
-            if (completedItem != null)
+            NdDowItem? completedItem = actualDownloads.FirstOrDefault(item => item.path == p.FilesName);
+            if (completedItem.HasValue)
             {
-                Interlocked.Add(ref accumulatedDownloadedBytes, completedItem.size);
+                Interlocked.Add(ref accumulatedDownloadedBytes, ((NdDowItem)completedItem).size);
                 progress?.Report(((int)totalBytesToDownload, (int)accumulatedDownloadedBytes, Path.GetFileName(p.FilesName)));
             }
         });
