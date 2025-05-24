@@ -112,9 +112,10 @@ internal class Game
             }
             GameClosedEvent?.Invoke();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await MainWindow.mainwindow.ShowFlyout($"[致命性错误] 请尝试安装合适的 Java",true);
+            Debug.WriteLine(ex.Message);
         }
     }
 }
