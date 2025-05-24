@@ -64,10 +64,12 @@ internal partial class AccountPageViewModel : BaseViewModel
             MainWindow.mainwindow.ShowFlyout("用户名包含非法字符！", true);
             return;
         }
-        Init.ConfigManger.WriteUserModel(new UserModel(
-            UserName,
-            Guid.NewGuid()
-        ));
+        Init.ConfigManger.config.UserModelList.Add(new UserModel()
+        {
+            Name = UserName,
+            uuid = Guid.NewGuid()
+        });
+        Init.ConfigManger.Save();
         UserModelList = Init.ConfigManger.config.UserModelList
                 .Select(x => new UserItem()
                 {
