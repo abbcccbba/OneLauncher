@@ -52,7 +52,7 @@ internal class Game
         try {            
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.15.6-hotspot\\bin\\java.exe";
+                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.7.6-hotspot\\bin\\java.exe";
                 process.StartInfo.Arguments =
                     await new LaunchCommandBuilder
                     (
