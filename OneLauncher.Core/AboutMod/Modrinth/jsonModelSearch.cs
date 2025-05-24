@@ -15,7 +15,6 @@ public class ModrinthSearch
     // [JsonProperty("hits")] // Newtonsoft.Json
     public List<ModrinthProjectHit> Hits { get; set; }
 }
-
 public class ModrinthProjectHit
 {
     [JsonPropertyName("project_id")]

@@ -6,12 +6,8 @@
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Platforms>AnyCPU;x64</Platforms>
-		
+				
 	</PropertyGroup>
-	<ItemGroup>
-		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />
-	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
 	</ItemGroup>

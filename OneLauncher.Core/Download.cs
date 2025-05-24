@@ -262,6 +262,8 @@ public class Download : IDisposable
 
         // 获取主 Mod 文件信息
         NdDowItem mainMod = GetTask.GetDownloadInfos();
+        if (mainMod == null)
+            return;
         List<NdDowItem> filesToProcess = new List<NdDowItem> { mainMod };
 
         // 如果需要下载依赖项，则获取依赖项信息并添加到下载列表

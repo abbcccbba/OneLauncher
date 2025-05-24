@@ -23,31 +23,39 @@ public class VersionInfomations
     public readonly bool? IsVersionInsulation;
     public readonly SystemType OsType;
     public List<string> NativesLibs = new List<string>();
+    
+    private static readonly JsonSerializerOptions VersionInfoJsonOptions = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true, // 保持不区分大小写
+        TypeInfoResolver = AppJsonSerializerContext.Default // 关键：指定 TypeInfoResolver 为源生成器
+    };
     /// <summary>
-    /// 初始化VersionInfomations实例，解析version.json字符串。
+    /// version.json 文件解析器构造函数。
     /// </summary>
-    /// <param ID="json">version.json文件的字符串内容。</param>
-    /// <param ID="basePath">游戏存放目录路径（不含 .minecraft）</param>
-    /// <param ID="OsType">运行时操作系统类型</param>
-    /// <exception cref="InvalidOperationException">如果JSON解析失败或内容无效，抛出此异常。</exception>
-    public VersionInfomations(string json, string basePath,SystemType OsType, bool? IsVersionInsulation = false)
+    /// <param name="json">json文件内容</param>
+    /// <param name="basePath">游戏资本路径（含.minecraft）</param>
+    /// <param name="OsType">系统类型</param>
+    /// <param name="IsVersionInsulation">是否启用了版本隔离</param>
+    /// <exception cref="InvalidOperationException">当json解析出错时</exception>
+    public VersionInfomations(string json, string basePath, SystemType OsType, bool? IsVersionInsulation = false)
     {
         this.basePath = basePath;
         this.OsType = OsType;
         try
         {
-            info = JsonSerializer.Deserialize<Models.VersionInformation>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            }) ?? throw new InvalidOperationException("解析版本JSON失败"); // 消除警告     
+            // 使用带有选项的源生成器反序列化
+            info = JsonSerializer.Deserialize<VersionInformation>(json, VersionInfoJsonOptions)
+                ?? throw new InvalidOperationException("解析版本JSON失败");
         }
         catch (Exception ex)
         {
+            Debug.WriteLine(ex.Message);
             throw new InvalidOperationException("解析版本JSON时出错", ex);
         }
 
         this.IsVersionInsulation = IsVersionInsulation;
     }
+    
     public List<NdDowItem> GetLibrarys()
     {
         var libraries = new List<NdDowItem>(info.Libraries.Count); // 提前初始化相应长度内存，避免频繁扩容影响性能
