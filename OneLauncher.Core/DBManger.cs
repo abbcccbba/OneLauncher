@@ -18,8 +18,8 @@ public class AppConfig
     public List<UserModel> UserModelList { get; set; } = new List<UserModel>();
     // 默认用户模型，未指定下默认为 Zhi Wei
     public UserModel DefaultUserModel { get; set; } = new UserModel();
-    // 默认版本（固定到仪表盘），未指定下为null
-    public aVersion DefaultVersion { get; set; } = null;
+    // 默认版本（固定到仪表盘）
+    public aVersion DefaultVersion { get; set; }
 }
 
 public class DBManger
@@ -27,11 +27,6 @@ public class DBManger
     public AppConfig config;
     private readonly string ConfigFilePath;
     private readonly string BasePath;
-    private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
-    {
-        WriteIndented = true, 
-        TypeInfoResolver = AppJsonSerializerContext.Default
-    };
     public DBManger(AppConfig FirstConfig, string BasePath)
     {
         this.BasePath = BasePath;
@@ -52,7 +47,7 @@ public class DBManger
         {
             this.config = config;
             Directory.CreateDirectory(BasePath);
-            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(config, Options));
+            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(config));
         }
         catch (Exception ex)
         {
@@ -63,7 +58,7 @@ public class DBManger
     {
         try
         {
-            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(this.config, Options));
+            Write(this.config);
         }
         catch (Exception ex)
         {
@@ -76,7 +71,7 @@ public class DBManger
         try
         {
             string jsonString = File.ReadAllText(ConfigFilePath);
-            AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, Options);
+            AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString);
             this.config = readConfig;
             return readConfig;
         }

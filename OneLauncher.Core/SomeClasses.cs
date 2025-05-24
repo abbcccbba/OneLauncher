@@ -44,7 +44,7 @@ public static class Tools
 /// 描述单个下载项
 /// </summary>
 /// 
-public class NdDowItem
+public struct NdDowItem
 {
     /// <param ID="Url">下载地址</param>
     /// <param ID="Sha1">SHA1校验码</param>
@@ -62,14 +62,14 @@ public class NdDowItem
     public int size;
     public string? sha1;
 }
-public class aVersion
+public struct aVersion
 {
     public string VersionID { get; set; }
     public bool IsMod { get; set; }//预留
     public bool IsVersionIsolation { get; set; }
     public DateTime AddTime { get; set; } 
 }
-public class VersionBasicInfo
+public struct VersionBasicInfo
 {
     /// <param ID="name">版本标识符</param>
     /// <param ID="type">版本类型</param>

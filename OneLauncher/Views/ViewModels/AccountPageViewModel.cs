@@ -6,12 +6,12 @@ using OneLauncher.Core;
 using OneLauncher.Core.Net.msa;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace OneLauncher.Views.ViewModels;
 internal partial class UserItem
@@ -75,11 +75,7 @@ internal partial class AccountPageViewModel : BaseViewModel
             uuid = Guid.NewGuid()
         });
         Init.ConfigManger.Save();
-        UserModelList = Init.ConfigManger.config.UserModelList
-                .Select(x => new UserItem()
-                {
-                    um = x
-                }).ToList();
+        RefList();
         IsPaneShow = false;
         MainWindow.mainwindow.ShowFlyout($"已新建用户:{UserName}");
     }
@@ -89,26 +85,70 @@ internal partial class AccountPageViewModel : BaseViewModel
         IsPaneShow = false;
         MainWindow.mainwindow.ShowFlyout("已暂存修改！");
     }
-    [RelayCommand]
-    public void LoginWithMicrosoft()
+    [ObservableProperty]
+    public string _UserCode;
+    [ObservableProperty]
+    public bool _IsYaLogin= true;
+    [ObservableProperty]
+    public bool _IsMsaLogin = false;
+    private ListBoxItem _whiceLoginType;
+    public ListBoxItem WhiceLoginType
     {
-        using (var verTask = new MicrosoftAuthenticator(WebApplication.CreateBuilder(args).Configuration["AzureApplicationID"];))
+        set {
+            _whiceLoginType = value;
+            if (value.Content == "离线登入")
+            {
+                Debug.WriteLine("离线登入");
+                IsYaLogin = true;
+                IsMsaLogin = false;
+            }
+            if (value.Content == "微软登入")
+            {
+                Debug.WriteLine("微软登入");
+                IsYaLogin = false;
+                IsMsaLogin = true;
+            }
+        }
+        get {
+            return _whiceLoginType;
+        }
+    }
+    [RelayCommand]
+    public async Task LoginWithMicrosoft()
+    {
+        using (var verTask = new MicrosoftAuthenticator(Key.AzureApplicationID))
         {
-
+            try
+            {
+                var um = await verTask.AuthUseCode(new Progress<(string a, string b)>((x) =>
+                {
+                    // 打开网页并提醒用户
+                    Process.Start(new ProcessStartInfo { FileName = x.a, UseShellExecute = true });
+                    UserCode = x.b;
+                }));
+                Init.ConfigManger.config.UserModelList.Add((UserModel)um);
+                Init.ConfigManger.Save();
+                RefList();
+            }
+            catch (MsaException ex)
+            {
+                await MainWindow.mainwindow.ShowFlyout(ex.Message, true);
+                return;
+            }
         }
     }
     [RelayCommand]
     public void SetDefault(UserModel user)
     {
         Init.ConfigManger.config.DefaultUserModel = user;
-        Init.ConfigManger.Write(Init.ConfigManger.config);
+        Init.ConfigManger.Save();
         MainWindow.mainwindow.ShowFlyout($"已将默认用户模型设置为{user.Name}");
     }
     [RelayCommand]
     public void DeleteUser(UserModel user)
     {
         Init.ConfigManger.config.UserModelList.Remove(user);
-        Init.ConfigManger.Write(Init.ConfigManger.config);
+        Init.ConfigManger.Save();
         RefList();
         MainWindow.mainwindow.ShowFlyout($"已移除用户模型{user.Name}", true);
     }

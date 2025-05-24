@@ -8,6 +8,7 @@ using OneLauncher.Core.Modrinth;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -52,6 +53,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
                     CurrentProgress = (double)p.b / p.a * 100;
                     Dp = p.c;
                     Fs = $"{p.a}/{p.b}";
+                    Debug.WriteLine($"a: {p.a} b: {p.b} c: {p.c}");
                 })),
                 modItem.ID,
                 ((SelectedItem.IsVersionIsolation)

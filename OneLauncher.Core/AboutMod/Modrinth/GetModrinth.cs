@@ -83,7 +83,7 @@ public class GetModrinth
             }
         }
     }
-    public NdDowItem GetDownloadInfos()
+    public NdDowItem? GetDownloadInfos()
     {
         if (info == null)
             return null;

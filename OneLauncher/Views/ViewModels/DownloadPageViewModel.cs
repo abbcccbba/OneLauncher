@@ -55,7 +55,7 @@ internal partial class DownloadPageViewModel : BaseViewModel
         set
         {
             // 避免未选中时转换类型导致异常
-            if (value == null)
+            if (value.Equals(default(VersionBasicInfo)))
                 return;
             selectedItem = value;
 
