@@ -43,7 +43,14 @@ public class LaunchCommandBuilder
         this.IsVersionInsulation = VersionInsulation;
         this.IsMod = IsMod;   
     }
-
+    public string GetJavaPath()
+    {
+        var vjava = versionInfo.GetJavaVersion();
+        var t = Path.Combine(Path.GetDirectoryName(basePath), "JavaRuntimes",vjava.ToString());
+        if (Init.ConfigManger.config.JavaList.Contains(vjava))
+            return Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
+        return "java"; // 否则默认使用系统Java  
+    }
     public async Task<string> BuildCommand(string OtherArgs = "")
     {
         string VersionPath = (IsVersionInsulation)
