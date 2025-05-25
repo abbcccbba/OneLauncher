@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Net.java;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Diagnostics;
@@ -35,6 +36,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [ObservableProperty]
     public bool _IsMod;
     [ObservableProperty]
+    public bool _IsJava;
+    [ObservableProperty]
     public bool _IsAllowDownloading = true; // 默认允许下载
 
     [RelayCommand]
@@ -47,6 +50,16 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             await download.StartAsync(thisVersionBasicInfo, Init.GameRootPath, Init.systemType, new Progress<(DownProgress d, int a, int b, string c)>
                 (p =>
                 {
+                    Dp = p.d switch { 
+                        DownProgress.DownMod => "正在下载Mod（Fabric）相关文件...",
+                        DownProgress.DownLog4j2 => "正在下载日志配置文件",
+                        DownProgress.DownLibs => "正在下载库文件...",
+                        DownProgress.DownAssets => "正在下载资源文件...",
+                        DownProgress.DownMain => "正在下载主文件",
+                        DownProgress.Verify => "正在校验，请稍后...",
+                        DownProgress.Done => "已下载完毕",
+                    };
+                    /*
                     Dp = (p.d == DownProgress.DownMod) ? "正在下载Mod（Fabric）相关文件..."
                     : (p.d == DownProgress.DownLog4j2) ? "正在下载日志配置文件"
                     : (p.d == DownProgress.DownLibs) ? "正在下载库文件..." 
@@ -54,9 +67,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     : (p.d == DownProgress.DownMain) ? "正在下载主文件"
                     : (p.d == DownProgress.Verify) ? "正在校验，请稍后..."
                     : (p.d == DownProgress.Done) ? "已下载完毕" : string.Empty;
+                    */
                     Fs = $"{p.a}/{p.b}";
                     CurrentProgress = (double)p.b / p.a * 100;
-                }), IsVersionIsolation: IsVI,IsMod: this.IsMod);
+                }), IsVersionIsolation: IsVI,IsMod: this.IsMod,AndJava: this.IsJava);
         }
         // 在配置文件中添加版本信息
         Init.ConfigManger.config.VersionList.Add(new aVersion
