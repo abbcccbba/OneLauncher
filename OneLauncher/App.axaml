@@ -1,48 +1,50 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:themes="clr-namespace:Avalonia.Styling;assembly=Avalonia.Base"
-             xmlns:local="using:OneLauncher"
+             xmlns:views="using:OneLauncher.Views.ViewModels"
+             xmlns:diagnostics="using:Avalonia.Diagnostics"
              x:Class="OneLauncher.App"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+  <Application.Resources>
+    <ResourceDictionary>
+      <views:ThemeIconConverter x:Key="ThemeIconConverter"/>
 
-    <Application.Styles>
-        <FluentTheme />
+
+    </ResourceDictionary>
+  </Application.Resources>
+
+
+  <Application.Styles>
+    <Style Selector="Image.ThemedIcon">
+      <Setter Property="Source"
+              Value="{Binding #self.Source, Converter={StaticResource ThemeIconConverter}}"/>
+    </Style>
+    <FluentTheme />
       <Style>
         <Style.Resources>
           <ResourceDictionary>
             <Color x:Key="AppWindowBackgroundColorLight">#FFFFFFFF</Color>
             <Color x:Key="AppWindowBackgroundColorDark">#FF1E1E1E</Color>
+            <Color x:Key="AppBorderBackgroundColorLight">#99FFFFFF</Color>
+            <Color x:Key="AppBorderBackgroundColorDark">#99000000</Color>
 
             <ResourceDictionary.ThemeDictionaries>
               <ResourceDictionary x:Key="Light">
                 <SolidColorBrush x:Key="WindowBackground" Color="{StaticResource AppWindowBackgroundColorLight}" />
+                <SolidColorBrush x:Key="BorderBackground" Color="{StaticResource AppBorderBackgroundColorLight}" />
               </ResourceDictionary>
               <ResourceDictionary x:Key="Dark">
                 <SolidColorBrush x:Key="WindowBackground" Color="{StaticResource AppWindowBackgroundColorDark}" />
+                <SolidColorBrush x:Key="BorderBackground" Color="{StaticResource AppBorderBackgroundColorDark}" />
               </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
 
           </ResourceDictionary>
         </Style.Resources>
       </Style>
+
+      
     </Application.Styles>
-  <Application.Resources>
-    <ResourceDictionary>
-      <Color x:Key="AppWindowBackgroundColorLight">#FFFFFFFF</Color>
-      <Color x:Key="AppWindowBackgroundColorDark">#FF1E1E1E</Color>
 
-      <ResourceDictionary.ThemeDictionaries>
-        <ResourceDictionary x:Key="Light">
-          <SolidColorBrush x:Key="WindowBackground" Color="{StaticResource AppWindowBackgroundColorLight}" />
-        </ResourceDictionary>
-        <ResourceDictionary x:Key="Dark">
-          <SolidColorBrush x:Key="WindowBackground" Color="{StaticResource AppWindowBackgroundColorDark}" />
-        </ResourceDictionary>
-      </ResourceDictionary.ThemeDictionaries>
-
-      <local:ThemeIconConverter x:Key="ThemeIconConverter"/>
-
-    </ResourceDictionary>
-  </Application.Resources>
 </Application>

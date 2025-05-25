@@ -147,7 +147,7 @@ internal partial class AccountPageViewModel : BaseViewModel
                 return;
             }
 
-        }*/
+        }
     }
     [RelayCommand]
     public void SetDefault(UserModel user)
