@@ -34,14 +34,14 @@ internal partial class VersionItem
     // 原版调试模式
     public void LaunchGameOriginalDebug(aVersion version) => Views.version.EasyGameLauncher(version,IsOriginal: true ,UseGameTasker: true);
     [RelayCommand]
-    public void PinToDesktop(aVersion version)
+    public async void PinToDesktop(aVersion version)
     {
-        File.WriteAllTextAsync(
+        await File.WriteAllTextAsync(
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 $"启动{version.VersionID}." + (Init.systemType == SystemType.windows ? "bat" : "sh")),
             "cd " + (Init.systemType == SystemType.windows ? "/D " : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
-            + $"{Init.GameRootPath}{Environment.NewLine}java " + new LaunchCommandBuilder
+            + $"{Init.GameRootPath}{Environment.NewLine}java " + await new LaunchCommandBuilder
             (
                 Init.GameRootPath,
                 version.VersionID,
@@ -54,17 +54,7 @@ internal partial class VersionItem
                 OtherArgs: string.Join
                 (
                     " ",
-                    "-XX:+UseG1GC",
-                    "-XX:G1NewSizePercent=20",
-                    "-XX:G1ReservePercent=20",
-                    "-XX:MaxGCPauseMillis=50",
-                    "-XX:G1HeapRegionSize=32M",
-                    "-XX:+UnlockExperimentalVMOptions",
-                    "-XX:-OmitStackTraceInFastThrow",
-                    "-Djdk.lang.Process.allowAmbiguousCommands=true",
-                    "-Dlog4j2.formatMsgNoLookups=true",
-                    "-Dfml.ignoreInvalidMinecraftCertificates=True",
-                    "-Dfml.ignorePatchDiscrepancies=True"
+                    "-XX:+UseG1GC"
                 )
         ));
         MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");

@@ -69,7 +69,7 @@ public struct aVersion
     public bool IsVersionIsolation { get; set; }
     public DateTime AddTime { get; set; } 
 }
-public struct VersionBasicInfo
+public class VersionBasicInfo
 {
     /// <param ID="name">版本标识符</param>
     /// <param ID="type">版本类型</param>
@@ -100,17 +100,17 @@ public struct UserModel
     {
         if (accessToken == null)
         {
-            accessToken = "0";
-            userType = "legacy";
+            this.accessToken = "0000-0000-0000-0000";
+            this.refreshToken = "0000-0000-0000-0000";
+            this.userType = "legacy";
         }
         else
         {
             userType = "msa";
             this.accessToken = accessToken;
-
             this.refreshToken = refreshToken ?? string.Empty;
-            this.AuthTime = DateTimeOffset.UtcNow;
         }
+        this.AuthTime = DateTimeOffset.UtcNow;
         this.Name = Name;
         this.uuid = uuid;
     }
