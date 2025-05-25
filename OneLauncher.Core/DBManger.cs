@@ -77,7 +77,7 @@ public class DBManger
         }
         catch (Exception ex)
         {
-            throw new IOException($"配置文件读取错误： {ex.Message}", ex);
+           throw new IOException($"配置文件读取错误： {ex.Message}", ex);
         }
     }
 }

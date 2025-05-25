@@ -132,8 +132,8 @@ public class Download : IDisposable
         }
 
         var AllNd = new List<NdDowItem>();
-        var NdLibs = versionInfomations.GetLibrarys();
-        var NdAssets = VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath);
+        var NdLibs = CheckFilesExists(versionInfomations.GetLibrarys());
+        var NdAssets = CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath));
         var mainFile = versionInfomations.GetMainFile();
         NdDowItem? log4j2;
         NdDowItem? modApi;
@@ -150,7 +150,7 @@ public class Download : IDisposable
         if (IsMod)
         {
             // 获取 Fabric 加载器下载信息
-            modLibs = new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries();
+            modLibs = CheckFilesExists(new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries());
             // 获取Fabric API下载信息
             var a = new Modrinth.GetModrinth(
                "fabric-api",DownloadVersion.ID.ToString(),
@@ -170,7 +170,7 @@ public class Download : IDisposable
                 Interlocked.Increment(ref Filed);
                 progress.Report((DownProgress.DownMod, FileCount, p.donecount, p.filename));
             }),
-            CheckFilesExists(modLibs),
+            modLibs,
             GameRootPath,
             maxConcurrentDownloads);
 
@@ -256,14 +256,14 @@ public class Download : IDisposable
         bool IsSha1 = true
         )
     {
-        // 初始化 Modrinth Mod获取解析器
         var GetTask = new GetModrinth(ModID, version, ModPath);
         await GetTask.Init();
 
         // 获取主 Mod 文件信息
         NdDowItem? mainMod = GetTask.GetDownloadInfos();
-        if (mainMod.HasValue)
+        if (!mainMod.HasValue)
             return;
+
         List<NdDowItem> filesToProcess = new List<NdDowItem> { (NdDowItem)mainMod };
 
         // 如果需要下载依赖项，则获取依赖项信息并添加到下载列表
@@ -274,10 +274,10 @@ public class Download : IDisposable
         }
 
         // 过滤掉已经存在的文件
-        List<NdDowItem> actualDownloads = CheckFilesExists(filesToProcess);
+        filesToProcess = CheckFilesExists(filesToProcess);
 
         // 计算总下载文件大小
-        long totalBytesToDownload = actualDownloads.Sum(item => (long)item.size);
+        long totalBytesToDownload = filesToProcess.Sum(item => (long)item.size);
         // 用于累积已下载字节数，将在 DownloadListAsync 报告文件完成时更新
         long accumulatedDownloadedBytes = 0;
 
@@ -286,7 +286,7 @@ public class Download : IDisposable
         {
             // 当 DownloadListAsync 报告一个文件完成时，我们会在这里接收到通知
             // p.FilesName 是刚刚完成下载的文件的完整路径
-            NdDowItem? completedItem = actualDownloads.FirstOrDefault(item => item.path == p.FilesName);
+            NdDowItem? completedItem = filesToProcess.FirstOrDefault(item => item.path == p.FilesName);
             if (completedItem.HasValue)
             {
                 Interlocked.Add(ref accumulatedDownloadedBytes, ((NdDowItem)completedItem).size);
@@ -295,7 +295,7 @@ public class Download : IDisposable
         });
 
         progress?.Report(((int)totalBytesToDownload, 0, "开始下载Mod文件..."));
-        await DownloadListAsync(fileCompletionProgress, actualDownloads, ModPath, maxConcurrentDownloads);
+        await DownloadListAsync(fileCompletionProgress, filesToProcess, ModPath, maxConcurrentDownloads);
 
         if (IsSha1)
         {
