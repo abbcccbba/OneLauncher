@@ -75,7 +75,7 @@ public class VersionBasicInfo
     /// <param ID="type">版本类型</param>
     /// <param ID="url">版本文件下载地址</param>
     /// <param ID="time">版本发布时间</param>
-    public VersionBasicInfo(Version ID, string type, DateTime time,string url)
+    public VersionBasicInfo(string ID, string type, DateTime time,string url)
     {
         this.ID = ID;
         this.type = type;
@@ -87,7 +87,7 @@ public class VersionBasicInfo
     {
         return ID.ToString();
     }
-    public Version ID { get; set; }
+    public string ID { get; set; }
     public string type { get; set; }
     public DateTime time { get; set; }
     public string Url { get; set; }

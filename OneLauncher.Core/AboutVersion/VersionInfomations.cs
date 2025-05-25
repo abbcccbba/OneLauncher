@@ -206,11 +206,7 @@ public class VersionInfomations
             : Path.Combine(basePath, "versions", info.ID, info.Logging.Client.File.Id);
     }
 
-    /// <summary>
-    /// 获取Java版本信息。
-    /// </summary>
-    /// <returns>Java版本信息，包含组件名和主要版本号；如果无javaVersion字段，返回null。</returns>
-    public int? GetJavaVersion()
+    public int GetJavaVersion()
     {
         return info.JavaVersion.MajorVersion;
     }

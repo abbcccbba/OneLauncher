@@ -34,7 +34,7 @@ public class VersionsList
         foreach (var i in this.a.AllVersions)
         {
             if (i.Type == "release")
-                a.Add(new VersionBasicInfo(new Version(i.Id), i.Type, i.Time, i.Url));
+                a.Add(new VersionBasicInfo(i.Id, i.Type, i.Time, i.Url));
         }
         return a;
     }

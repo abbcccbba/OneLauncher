@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Modrinth;
+using OneLauncher.Core.Net.java;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -76,8 +77,8 @@ public class Download : IDisposable
             Timeout = TimeSpan.FromSeconds(60) 
         };
     }
-    private readonly HttpClient UnityClient;
-    private VersionInfomations versionInfomations;
+    public readonly HttpClient UnityClient;
+    public VersionInfomations versionInfomations;
     /// <summary>
     /// 开始异步下载
     /// </summary>
@@ -90,36 +91,48 @@ public class Download : IDisposable
     /// <param name="maxConcurrentDownloads">最大下载线程</param>
     /// <param name="maxConcurrentSha1">最大sha1校验线程</param>
     /// <param name="IsSha1">是否校验sha1</param>
-    /// <param name="IsCheckFileExists">是否检查文件是否已经存在</param>
+    /// <param name="AndJava">同时下载为其下载合适的Java版本</param>
     public async Task StartAsync(
         VersionBasicInfo DownloadVersion,
         string GameRootPath,
         SystemType OsType,
-        IProgress<(DownProgress Title,int AllFiles,int DownedFiles,string DowingFileName)> progress,
+        IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
         bool IsVersionIsolation = false,
         int maxConcurrentDownloads = 16,
         int maxConcurrentSha1 = 16,
         bool IsSha1 = true,
-        bool IsMod = false)
+        bool IsMod = false,
+        bool AndJava = false)
     {
         string VersionPath = (IsVersionIsolation)
             ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}")
             : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString());
+        { 
+            // 下载 version.json
+            var versionjsonpath =
+                Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
+            if (!File.Exists(versionjsonpath))
+                await DownloadFile(DownloadVersion.Url, versionjsonpath);
 
-        // 下载 version.json
-        var versionjsonpath =
-            Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
-        if(!File.Exists(versionjsonpath)) 
-            await DownloadFile(DownloadVersion.Url,versionjsonpath);
+            // 实例化版本信息解析器
+            versionInfomations = new VersionInfomations
+                (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType, IsVersionIsolation);
 
-        // 实例化版本信息解析器
-        versionInfomations = new VersionInfomations
-            (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType,IsVersionIsolation);
+            // 下载资源文件索引
+            var assetsIndex = versionInfomations.GetAssets();
+            if (!File.Exists(assetsIndex.path))
+                await DownloadFile(assetsIndex.url, assetsIndex.path);
+        }
 
-        // 下载资源文件索引
-        var assetsIndex = versionInfomations.GetAssets();   
-        if (!File.Exists(assetsIndex.path))
-            await DownloadFile(assetsIndex.url, assetsIndex.path);
+        // 下载Java运行时环境
+        if (AndJava && !Init.ConfigManger.config.JavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
+        {
+            await AutoJavaGetter.JavaReleaser(
+                versionInfomations.GetJavaVersion().ToString(), 
+                Path.Combine(Path.GetDirectoryName(GameRootPath), "JavaRuntimes"), OsType);
+            Init.ConfigManger.config.JavaList.Add(versionInfomations.GetJavaVersion());
+            Init.ConfigManger.Save();
+        }//);
 
         // 下载Mod相关资源索引
         string modpath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabric.json");
@@ -179,7 +192,7 @@ public class Download : IDisposable
             await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
         }
         // 下载日志配置文件
-        if (DownloadVersion.ID > new Version("1.7"))
+        if (new Version(DownloadVersion.ID) > new Version("1.7"))
         {
             log4j2 = (NdDowItem)versionInfomations.GetLoggingConfig();
             FileCount = AllNd.Count;

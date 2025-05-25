@@ -20,6 +20,8 @@ public class AppConfig
     public UserModel DefaultUserModel { get; set; } = new UserModel();
     // 默认版本（固定到仪表盘）
     public aVersion DefaultVersion { get; set; }
+    // 除了系统自带的Java以外启动器安装的所有Java版本列表
+    public List<int> JavaList { get; set; } = new List<int>();
 }
 
 public class DBManger

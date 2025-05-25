@@ -122,9 +122,8 @@ internal partial class AccountPageViewModel : BaseViewModel
         var ApiKey = Environment.GetEnvironmentVariable("AzureApplicationID");
 
         if (ApiKey == null)
-        {
             throw new Exception("请替换为你正确的Azure应用ID");
-        }
+        
         Debug.WriteLine($"ApiKey: {ApiKey}");
 
         using (var verTask = new MicrosoftAuthenticator(ApiKey))

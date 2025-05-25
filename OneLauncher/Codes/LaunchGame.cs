@@ -7,6 +7,7 @@ using OneLauncher.Views;
 using OneLauncher.Views.Windows;
 using OneLauncher.Views.Windows.WindowViewModels;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -34,7 +35,32 @@ internal class Game
         bool IsMod = false,
         bool UseGameTasker = false)
     {
-        // 初次启动时帮用户设置语言
+        #region 初始化基本游戏构建类
+        var Builder = new LaunchCommandBuilder
+                        (
+                            Init.GameRootPath,
+                            GameVersion,
+                            loginUserModel,
+                            Init.systemType,
+                            IsVersionInsulation,
+                            IsMod
+                        );
+        var OtherArgs = string.Join
+                            (
+                                " ",
+                                "-XX:+UseG1GC",
+                                "-XX:G1ReservePercent=20",
+                                "-XX:MaxGCPauseMillis=50",
+                                "-XX:G1HeapRegionSize=32M",
+                                "-XX:+UnlockExperimentalVMOptions",
+                                "-XX:-OmitStackTraceInFastThrow",
+                                "-Djdk.lang.Process.allowAmbiguousCommands=true",
+                                "-Dlog4j2.formatMsgNoLookups=true",
+                                "-Dfml.ignoreInvalidMinecraftCertificates=True",
+                                "-Dfml.ignorePatchDiscrepancies=True"
+                            );
+        #endregion
+        #region 初次启动时帮用户设置语言和在调试模式下打开调试窗口
         var optionsPath = Path.Combine(
             (IsVersionInsulation
             ? Path.Combine(Init.GameRootPath, $"v{GameVersion}")
@@ -44,43 +70,18 @@ internal class Game
             File.WriteAllText(optionsPath, $"lang:zh_cn");
         }
         if (UseGameTasker)
-            await Dispatcher.UIThread.InvokeAsync(() => 
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 var gameTasker = new GameTasker();
                 gameTasker.Show();
             });
-        try {            
+        #endregion
+        try
+        {            
             using (Process process = new Process())
             {
-                process.StartInfo.FileName = "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.7.6-hotspot\\bin\\java.exe";
-                process.StartInfo.Arguments =
-                    await new LaunchCommandBuilder
-                    (
-                        Init.GameRootPath,
-                        GameVersion,
-                        loginUserModel,
-                        Init.systemType,
-                        IsVersionInsulation,
-                        IsMod
-                    ).BuildCommand
-                    (
-                        OtherArgs: string.Join
-                        (
-                            " ",
-                            "-XX:+UseG1GC",
-                            "-XX:G1ReservePercent=20",
-                            "-XX:MaxGCPauseMillis=50",
-                            "-XX:G1HeapRegionSize=32M",
-                            "-XX:+UnlockExperimentalVMOptions",
-                            "-XX:-OmitStackTraceInFastThrow",
-                            "-Djdk.lang.Process.allowAmbiguousCommands=true",
-                            "-Dlog4j2.formatMsgNoLookups=true",
-                            "-Dfml.ignoreInvalidMinecraftCertificates=True",
-                            "-Dfml.ignorePatchDiscrepancies=True"
-                        //"-DFabricMcEmu=net.minecraft.client.main.Main"
-                        )
-
-                    );
+                process.StartInfo.Arguments = await Builder.BuildCommand(OtherArgs);
+                process.StartInfo.FileName = Builder.GetJavaPath();
                 process.StartInfo.WorkingDirectory = 
                     (IsVersionInsulation)
                     ? Path.Combine(Init.GameRootPath,$"v{GameVersion}")
