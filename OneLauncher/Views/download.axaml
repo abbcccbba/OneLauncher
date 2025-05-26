@@ -2,10 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
+             mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Views.download">
-	<SplitView IsPaneOpen="{Binding IsPaneShow}"
-               DisplayMode="Inline"
+	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
+               DisplayMode="Overlay"
                OpenPaneLength="650"
                PanePlacement="Right">
 		<SplitView.Pane>
@@ -15,7 +15,9 @@
 		</SplitView.Pane>
 		<!-- 版本列表 -->
 		<ScrollViewer>
-			<StackPanel HorizontalAlignment="Center"
+			<StackPanel 
+						Margin="48"
+						HorizontalAlignment="Left"
 						VerticalAlignment="Center"
 						Spacing="4"
 						IsEnabled="{Binding IsAllowDownloading}">
@@ -32,10 +34,13 @@
 						</DataTemplate>
 					</AutoCompleteBox.ItemTemplate>
 				</AutoCompleteBox>
-				<ListBox ItemsSource="{Binding ReleaseItems}" SelectedItem="{Binding SelectedItem}" MaxHeight="350" >
+				<ListBox ItemsSource="{Binding ReleaseItems}" MaxHeight="350" >
 					<ListBox.ItemTemplate>
 						<DataTemplate>
-							<TextBlock Text="{Binding ID}"/>
+							<Grid ColumnDefinitions="*,Auto" >
+								<TextBlock Text="{Binding ID}" Grid.Column="0"/>
+								<Button Grid.Column="1" Margin="8,0,8,0" HorizontalAlignment="Right" Content="下载" Command="{Binding $parent[ListBox].DataContext.ToDownloadCommand}" CommandParameter="{Binding}"/>
+							</Grid>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 				</ListBox>

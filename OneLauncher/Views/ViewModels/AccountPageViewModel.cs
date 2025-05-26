@@ -119,8 +119,13 @@ internal partial class AccountPageViewModel : BaseViewModel
         /*
          这里替换为你实际的Azure应用ID
          */
-        var ApiKey = Environment.GetEnvironmentVariable("AzureApplicationID");
+        string ApiKey;
+#if DEBUG
+        ApiKey = Environment.GetEnvironmentVariable("AzureApplicationID");
 
+#else
+        ApiKey = Key.AzureApplicationID;   
+#endif
         if (ApiKey == null)
             throw new Exception("请替换为你正确的Azure应用ID");
         
