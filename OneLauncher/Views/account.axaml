@@ -51,7 +51,7 @@
 		<ListBox x:Name="navVL" Grid.Row="1" ItemsSource="{Binding UserModelList}" Background="Transparent" SelectionMode="Multiple">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<Border CornerRadius="5" Background="#F4F4F5">
+					<Border CornerRadius="5">
 						<Grid RowDefinitions="*,*" ColumnDefinitions="100,Auto,*" >
 							<Border Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Center" >
 								<Image Width="72" Height="72" Source="/Assets/Imgs/steve.png"/>
@@ -110,6 +110,7 @@
 					<Setter Property="ClipToBounds" Value="False"/>
 					<Setter Property="Margin" Value="4"/>
 					<Setter Property="BoxShadow" Value="0 0 4 1 #22000000"/>
+					<Setter Property="Background" Value="{DynamicResource ListBoxItemBackgound}" />
 				</Style>
 				<Style Selector="ListBoxItem:pointerover > Border">
 					<Setter Property="BoxShadow" Value="2 2 8 2 #33000000"/>
