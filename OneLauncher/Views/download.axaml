@@ -10,7 +10,7 @@
                PanePlacement="Right">
 		<SplitView.Pane>
 			<TransitioningContentControl
-					Content="{Binding DownloadPaneContent}" Background="#FAFAFA">
+					Content="{Binding DownloadPaneContent}">
 			</TransitioningContentControl>
 		</SplitView.Pane>
 		<!-- 版本列表 -->

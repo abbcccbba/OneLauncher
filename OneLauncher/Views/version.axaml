@@ -17,7 +17,7 @@
 		<ListBox x:Name="navVL" Grid.Row="1" ItemsSource="{Binding VersionList}" Background="Transparent" SelectionMode="Multiple">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<Border CornerRadius="5" Background="#F4F4F5">
+					<Border CornerRadius="5">
 						<Grid RowDefinitions="*,*" ColumnDefinitions="Auto,*" >
 							<StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="4">
 								<TextBlock FontSize="24" Text="{Binding V.VersionID}" FontWeight="Bold"/>
@@ -50,11 +50,11 @@
 										</MenuFlyout>
 									</SplitButton.Flyout>
 								</SplitButton>
-								<SplitButton Content="移除该版本" Background="#FF2C2C" >
-									<SplitButton.Flyout>
+								<Button Content="操作">
+									<Button.Flyout>
 										
-									</SplitButton.Flyout>
-								</SplitButton>
+									</Button.Flyout>
+								</Button>
 							</StackPanel>
 						</Grid>
 					</Border>
@@ -89,6 +89,7 @@
 					<Setter Property="ClipToBounds" Value="False"/>
 					<Setter Property="Margin" Value="4"/>
 					<Setter Property="BoxShadow" Value="0 0 4 1 #22000000"/>
+					<Setter Property="Background" Value="{DynamicResource ListBoxItemBackgound}" />
 				</Style>
 				<Style Selector="ListBoxItem:pointerover > Border">
 					<Setter Property="BoxShadow" Value="2 2 8 2 #33000000"/>
