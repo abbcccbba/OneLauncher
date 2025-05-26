@@ -2,7 +2,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="798" d:DesignHeight="530"
              x:Class="OneLauncher.Views.settings">
-  Welcome to Avalonia!
+  <ScrollViewer>
+	  <Panel Margin="64">
+		  <!-- 边框颜色选择器 -->
+		  <StackPanel Spacing="8">
+			  <TextBlock FontWeight="Bold" FontSize="18" Text="边框颜色自定义"/>
+			  <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
+				  <Button Click="Button_Click" Height="36" Width="36" Grid.Row="0" Grid.Column="0" BorderThickness="0.01">
+					  <Grid ColumnDefinitions="*,*">
+						  <Rectangle Fill="White" Grid.Column="0"/>
+						  <Rectangle Fill="Black" Grid.Column="1" />
+					  </Grid>
+				  </Button>
+				  <Button Click="Button_Click_1" Height="36" Width="36" Grid.Row="0" Grid.Column="1" BorderThickness="0.01">
+					  <Rectangle Fill="LightBlue"/>
+				  </Button>
+			  </Grid>
+		  </StackPanel>
+	  </Panel>
+  </ScrollViewer>
 </UserControl>

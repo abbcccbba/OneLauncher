@@ -114,6 +114,10 @@ public struct UserModel
         this.Name = Name;
         this.uuid = uuid;
     }
+    public override string ToString()
+    {
+        return (userType == "msa" ? "正版登入" : "离线登入");
+    }
 
     public string Name { get; set; }
     public Guid uuid { get; set; }

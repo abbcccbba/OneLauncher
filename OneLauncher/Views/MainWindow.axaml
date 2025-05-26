@@ -3,21 +3,22 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:easing="using:Avalonia.Animation.Easings"
-		mc:Ignorable="d" d:DesignWidth="1150" d:DesignHeight="650"
+		mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="560"
 		x:Class="OneLauncher.Views.MainWindow"
 		Icon="/Assets/window-logo.ico"
 		Title="One Launcher"
 		TransparencyLevelHint="AcrylicBlur"
         Background="{DynamicResource MainWindowBackground}"
 		ExtendClientAreaToDecorationsHint="True"
-		Width="1150"
-		Height="650">
+		Width="860"
+		Height="560"
+		x:Name="MainWindowLabel">
 	<SplitView x:Name="SidebarSplitView"
 				   IsPaneOpen="False"
 				   DisplayMode="CompactInline" 
-				   OpenPaneLength="180"
-				   CompactPaneLength="80"
-				PaneBackground="Transparent">
+				   OpenPaneLength="152"
+				   CompactPaneLength="62"
+				   PaneBackground="Transparent">
 		<!-- 侧边栏 -->
 		<SplitView.Pane>
 			<Grid Background="Transparent" 
@@ -26,7 +27,7 @@
 				<!-- 侧边栏选项 -->
 				<StackPanel x:Name="SidebarStackPanel"
                             Spacing="20"
-                            Margin="0,24,0,0"
+                            Margin="-6,24,0,0"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Top">
 					<!-- 开始菜单按钮 -->
