@@ -48,23 +48,10 @@ internal partial class DownloadPageViewModel : BaseViewModel
     [ObservableProperty]
     public List<VersionBasicInfo> _AutoVersionList;
 
-    private VersionBasicInfo selectedItem;
-    public VersionBasicInfo SelectedItem
+    [RelayCommand]
+    public void ToDownload(VersionBasicInfo vbi)
     {
-        get { return selectedItem; }
-        set
-        {
-            // 避免未选中时转换类型导致异常
-            if (value.Equals(default(VersionBasicInfo)))
-                return;
-            selectedItem = value;
-
-            // 点击操作
-            // 展开并显示Pane
-            IsPaneShow = true;
-            DownloadPaneContent = new DownloadPane(value, this);
-        }
+        IsPaneShow = true;
+        DownloadPaneContent = new DownloadPane(vbi, this);
     }
-
-    
 }
