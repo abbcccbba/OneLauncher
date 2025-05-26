@@ -454,3 +454,4 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 /ConsoleTest/ConsoleTest.csproj
 /OneLauncher/Key.cs
+/OneLauncher/Views/Key.cs
