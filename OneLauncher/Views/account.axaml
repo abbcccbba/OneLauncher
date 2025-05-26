@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
+             mc:Ignorable="d" d:DesignWidth="798" d:DesignHeight="530"
              x:Class="OneLauncher.Views.account"
 			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow}"
@@ -52,30 +52,30 @@
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Border CornerRadius="5">
-						<Grid RowDefinitions="*,*" ColumnDefinitions="100,Auto,*" >
-							<Border Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Center" >
-								<Image Width="72" Height="72" Source="/Assets/Imgs/steve.png"/>
+						<Grid ColumnDefinitions="65,Auto,*" Margin="6">
+							<Border Grid.Column="0" Grid.RowSpan="2">
+								<Image Width="64" Height="64" Source="/Assets/Imgs/steve.png"/>
 							</Border>
-							<TextBlock Grid.Row="0" Margin="6" Grid.Column="1" FontSize="24" Text="{Binding um.Name}" FontWeight="Bold"/>
-							<TextBlock Margin="4,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding um.uuid}"/>
-							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" >
+							<StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,-8,0,0">
+								<StackPanel Orientation="Horizontal" Spacing="4">
+									<TextBlock FontSize="32" Text="{Binding um.Name}" FontWeight="Bold"/>
+									<TextBlock FontSize="16" Margin="0,12" VerticalAlignment="Center" Text="{Binding um}" FontStyle="Italic"/>
+								</StackPanel>
+								<TextBlock Text="{Binding um.uuid}"/>
+							</StackPanel>
+							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal" >
 								<Button Command="{Binding $parent[ListBox].DataContext.SetDefaultCommand}" CommandParameter="{Binding um}">
 									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image Source="/Assets/icos/pin.png" Width="20" Height="20"/>
+										<Image VerticalAlignment="Center" Source="/Assets/icos/pin.png" Width="16" Height="16"/>
 										<TextBlock Text="设为默认"/>
 									</StackPanel>
 								</Button>
-								<SplitButton >
+								<Button Command="{Binding $parent[ListBox].DataContext.DeleteUserCommand}" CommandParameter="{Binding um}">
 									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
-										<TextBlock Text="编辑"/>
+										<Image VerticalAlignment="Center" Source="/Assets/icos/settings1.png" Width="16" Height="16"/>
+										<TextBlock Text="删除" />
 									</StackPanel>
-									<SplitButton.Flyout>
-										<MenuFlyout>
-											<MenuItem Header="删除" Command="{Binding $parent[ListBox].DataContext.DeleteUserCommand}" CommandParameter="{Binding um}"/>
-										</MenuFlyout>
-									</SplitButton.Flyout>
-								</SplitButton>
+								</Button>
 							</StackPanel>
 						</Grid>
 					</Border>
