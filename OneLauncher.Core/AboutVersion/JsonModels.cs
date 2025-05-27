@@ -21,12 +21,7 @@ public class VersionInformation
 
     [JsonPropertyName("arguments")]
     public Arguments? Arguments { get; set; }
-    /*
-     * 旧版本用
-     * 未来可优化
-    [JsonPropertyName("minecraftArguments")]
-    public string? MinecraftArguments { get; set; } 
-    */
+
     [JsonPropertyName("mainClass")]
     public string? MainClass { get; set; }
 
@@ -286,4 +281,4 @@ public class ArgumentValueConverter : JsonConverter<object>
             throw new JsonException($"无效的参数值对象类型: {value?.GetType().Name}");
         }
     }
-} //*/
+} 

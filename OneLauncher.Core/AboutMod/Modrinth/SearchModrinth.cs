@@ -17,11 +17,6 @@ public class SearchModrinth : IDisposable
     {
         this.httpClient = new HttpClient();
     }
-    private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true, 
-        TypeInfoResolver = AppJsonSerializerContext.Default
-    };
     public async Task<ModrinthSearch> ToSearch(string Key)
     {
         string SearchUrl = $"https://api.modrinth.com/v2/search?query=\"{Key}\"&facets=[[\"categories:fabric\"]]";
@@ -33,7 +28,7 @@ public class SearchModrinth : IDisposable
         string jsonResponse = await response.Content.ReadAsStringAsync();
 
         // 使用带有选项的源生成器反序列化
-        info = JsonSerializer.Deserialize<ModrinthSearch>(jsonResponse, JsonOptions);
+        info = JsonSerializer.Deserialize<ModrinthSearch>(jsonResponse);
 
         return info;
     }

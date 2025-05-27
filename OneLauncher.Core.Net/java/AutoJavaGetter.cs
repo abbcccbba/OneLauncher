@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -46,38 +47,33 @@ public class AutoJavaGetter
 
                 JsonNode rootNode = await JsonNode.ParseAsync(responseStream);
 
-                string link = rootNode? // 根节点
-                              .AsArray()? // 尝试作为数组
-                              .FirstOrDefault()? // 取第一个元素
-                              .AsObject()? // 尝试作为对象
-                              .TryGetPropertyValue("binaries", out JsonNode binariesNode) == true
-                                ? binariesNode.AsArray()? // 尝试作为binaries数组
-                                .FirstOrDefault()? // 取第一个元素
-                                .AsObject()? // 尝试作为对象
-                                .TryGetPropertyValue("package", out JsonNode packageNode) == true
-                                    ? packageNode.AsObject()? // 尝试作为package对象
-                                    .TryGetPropertyValue("link", out JsonNode linkNode) == true
-                                        ? linkNode.GetValue<string>()
-                                     : null // link属性未找到或不是值
-                                 : null
-                              : null;
-
-                return link;
+                string? link = rootNode?             // 根节点
+                                .AsArray()?         // 尝试将其视为数组
+                                [0]?  // 获取数组的第一个元素
+                                ["binaries"]?       // 访问名为 "binaries" 的属性
+                                .AsArray()?         // 尝试将其视为数组
+                                [0]?  // 获取 "binaries" 数组的第一个元素
+                                ["package"]?        // 访问名为 "package" 的属性
+                                ["link"]?           // 访问名为 "link" 的属性
+                                .GetValue<string>(); // 获取其字符串值
+                
+                // 我造密码的编译器报错了就是返回null
+                return link ?? null;
             }
         }
         catch (HttpRequestException ex)
         {
-            Console.WriteLine($"网络请求错误: {ex.Message}");
+            Debug.WriteLine($"网络请求错误: {ex.Message}");
             return null;
         }
         catch (JsonException ex)
         {
-            Console.WriteLine($"JSON 解析错误: {ex.Message}");
+            Debug.WriteLine($"JSON 解析错误: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"发生未知错误: {ex.Message}");
+            Debug.WriteLine($"发生未知错误: {ex.Message}");
             return null;
         }
     }

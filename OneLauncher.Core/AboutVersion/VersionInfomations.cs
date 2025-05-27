@@ -24,11 +24,6 @@ public class VersionInfomations
     public readonly SystemType OsType;
     public List<string> NativesLibs = new List<string>();
     
-    private static readonly JsonSerializerOptions VersionInfoJsonOptions = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true, // 保持不区分大小写
-        TypeInfoResolver = AppJsonSerializerContext.Default // 关键：指定 TypeInfoResolver 为源生成器
-    };
     /// <summary>
     /// version.json 文件解析器构造函数。
     /// </summary>
@@ -44,7 +39,7 @@ public class VersionInfomations
         try
         {
             // 使用带有选项的源生成器反序列化
-            info = JsonSerializer.Deserialize<VersionInformation>(json, VersionInfoJsonOptions)
+            info = JsonSerializer.Deserialize<VersionInformation>(json)
                 ?? throw new InvalidOperationException("解析版本JSON失败");
         }
         catch (Exception ex)
@@ -100,7 +95,9 @@ public class VersionInfomations
             if (lib.Downloads.Artifact != null)
                 libraries.Add(new NdDowItem(
                     Url: lib.Downloads.Artifact.Url,
-                    Path:Path.Combine(basePath, "libraries", lib.Downloads.Artifact.Path),
+                    Path:Path.Combine(basePath, "libraries",
+                        // 手动把左斜杠转换为当前系统的路径分隔符
+                        Path.Combine(lib.Downloads.Artifact.Path.Split('/'))),
                     Size:(int)lib.Downloads.Artifact.Size,
                     Sha1:lib.Downloads.Artifact.Sha1
                     

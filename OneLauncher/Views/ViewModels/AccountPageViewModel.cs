@@ -116,22 +116,7 @@ internal partial class AccountPageViewModel : BaseViewModel
     [RelayCommand]
     public async Task LoginWithMicrosoft()
     {
-        /*
-         这里替换为你实际的Azure应用ID
-         */
-        string ApiKey;
-#if DEBUG
-        ApiKey = Environment.GetEnvironmentVariable("AzureApplicationID");
-
-#else
-        ApiKey = Key.AzureApplicationID;   
-#endif
-        if (ApiKey == null)
-            throw new Exception("请替换为你正确的Azure应用ID");
-        
-        Debug.WriteLine($"ApiKey: {ApiKey}");
-
-        using (var verTask = new MicrosoftAuthenticator(ApiKey))
+        using (var verTask = new MicrosoftAuthenticator())
         {
             try
             {

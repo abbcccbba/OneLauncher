@@ -1,13 +1,14 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
+using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Net.msa;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using OneLauncher.Codes;
-using Avalonia.Threading;
 
 namespace OneLauncher.Views;
 
@@ -31,6 +32,42 @@ public partial class MainWindow : Window
         downloadPage = new download();
         settingsPage = new settings();
         PageContent.Content = HomePage;
+        // 刷新用户令牌
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                try
+                {
+                    // 检查是否有accesstoken 过期的用户模型
+                    for (int i = 0; i < Init.ConfigManger.config.UserModelList.Count; i++)
+                    {
+                        var a = Init.ConfigManger.config.UserModelList[i];
+                        if (
+                        a.userType == "msa"
+                        && MicrosoftAuthenticator.IsExpired(a.AuthTime)
+                        && Init.ConfigManger.config.UserModelList.Count != 0
+                        )
+                        {
+                            Debug.WriteLine($"用户 {a.Name} 的 accessToken 已过期，正在更新...");
+                            // 如果过期了，则更新
+                            var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(a);
+                            lock (Init.ConfigManger.config.UserModelList)
+                            {
+                                Init.ConfigManger.config.UserModelList[i] = temp;
+                                Init.ConfigManger.Save();
+                            }
+                        }
+                    }
+                    await Task.Delay(1000 * 60 * 60 * 23); // 每23小时检查一次
+                }
+                catch (Exception ex)
+                {
+                    await ShowFlyout($"错误：无法刷新用户令牌 {ex.Message}", IsWarning: true);
+                    break;
+                }
+            }
+        });
     }
     public enum MainPage
     {

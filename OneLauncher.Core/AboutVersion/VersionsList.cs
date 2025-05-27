@@ -11,17 +11,12 @@ namespace OneLauncher.Core;
 public class VersionsList
 {
     VersionJsonInfo a;
-    private static readonly JsonSerializerOptions VersionsListJsonOptions = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true, // 如果需要，可以添加
-        TypeInfoResolver = AppJsonSerializerContext.Default // 关键：指定 TypeInfoResolver 为源生成器
-    };
     public VersionsList(string Json)
     {
         try
         {
             // 使用带有选项的源生成器反序列化
-            a = JsonSerializer.Deserialize<VersionJsonInfo>(Json, VersionsListJsonOptions);
+            a = JsonSerializer.Deserialize<VersionJsonInfo>(Json);
         }
         catch (Exception ex)
         {
