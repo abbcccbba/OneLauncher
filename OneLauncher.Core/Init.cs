@@ -1,5 +1,7 @@
-﻿using System;
+﻿using OneLauncher.Core.Net.msa;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,6 +10,7 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core;
 public static class Init
 {
+    public static string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static string BasePath { get; private set; }
     public static string GameRootPath { get; private set; }
     public static DBManger ConfigManger { get; private set; }

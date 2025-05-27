@@ -110,7 +110,7 @@ public struct UserModel
             this.accessToken = accessToken;
             this.refreshToken = refreshToken ?? string.Empty;
         }
-        this.AuthTime = DateTimeOffset.UtcNow;
+        this.AuthTime = DateTime.UtcNow;
         this.Name = Name;
         this.uuid = uuid;
     }
@@ -126,7 +126,7 @@ public struct UserModel
 
     
     public string refreshToken { get; set; }
-    public DateTimeOffset AuthTime { get; set; } 
+    public DateTime AuthTime { get; set; } 
 }
 public enum SystemType
 {

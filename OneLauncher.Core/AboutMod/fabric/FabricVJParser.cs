@@ -13,11 +13,6 @@ public class FabricVJParser
 {
     public readonly RootFabric info;
     private readonly string basePath;
-    private static readonly JsonSerializerOptions FabricJsonOptions = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true, // 保持不区分大小写
-        TypeInfoResolver = AppJsonSerializerContext.Default // 关键：指定 TypeInfoResolver 为源生成器
-    };
 
     public FabricVJParser(string jsonPath, string BasePath)
     {
@@ -32,7 +27,7 @@ public class FabricVJParser
                 if (document.RootElement.GetArrayLength() > 0)
                 {
                     JsonElement firstElement = document.RootElement[0];
-                    info = JsonSerializer.Deserialize<RootFabric>(firstElement.GetRawText(), FabricJsonOptions)
+                    info = JsonSerializer.Deserialize<RootFabric>(firstElement.GetRawText())
                         ?? throw new InvalidOperationException("解析 Fabric JSON 的第一个对象失败。");
                 }
                 else

@@ -9,8 +9,8 @@
     <Import_RootNamespace>OneLauncher.Core.Net</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)java\ApiJsonModels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)java\AutoJavaGetter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)msa\MojangProfile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)msa\msa.cs" />
   </ItemGroup>
 </Project>

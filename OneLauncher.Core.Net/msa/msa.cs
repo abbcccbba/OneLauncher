@@ -31,12 +31,12 @@ public class MicrosoftAuthenticator : IDisposable
     /// </summary>
     /// <param name="oldRefreshToken">旧的刷新令牌。</param>
     /// <returns>包含更新用户信息的 UserModel，如果刷新失败则为 null。</returns>
-    public async Task<UserModel?> RefreshToken(string oldRefreshToken)
+    public async Task<UserModel?> RefreshToken(UserModel oldUserModel)
     {
         try
         {
             var content = new StringContent(
-                $"client_id={clientId}&refresh_token={oldRefreshToken}&grant_type=refresh_token&scope=XboxLive.signin%20offline_access",
+                $"client_id={clientId}&refresh_token={oldUserModel.refreshToken}&grant_type=refresh_token&scope=XboxLive.signin%20offline_access",
                 Encoding.UTF8, "application/x-www-form-urlencoded");
 
             var response = await httpClient.PostAsync("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", content);
@@ -50,10 +50,7 @@ public class MicrosoftAuthenticator : IDisposable
                 throw new MsaException("刷新令牌失败，返回的令牌信息不完整。");
             }
 
-            // 调用公共辅助方法完成后续步骤
-            return await ToLoandauth(
-                tokenResponse.access_token,
-                tokenResponse.refresh_token);
+            return await ToLoandauth(tokenResponse.access_token, tokenResponse.refresh_token);
         }
         catch (Exception)
         {
@@ -62,7 +59,7 @@ public class MicrosoftAuthenticator : IDisposable
     }
     public static bool IsExpired(DateTime lastTime)
     {
-        return Math.Abs((DateTime.UtcNow - lastTime).TotalHours) > 24;
+        return Math.Abs((DateTime.UtcNow - lastTime).TotalHours) > 23;
     }
     private async Task<UserModel?> ToLoandauth(
         string microsoftAccessToken, string microsoftRefreshToken)
@@ -95,9 +92,9 @@ public class MicrosoftAuthenticator : IDisposable
             microsoftRefreshToken
         );
     }
-    public MicrosoftAuthenticator(string clientId)
+    public MicrosoftAuthenticator()
     {
-        this.clientId = clientId;
+        this.clientId = Init.AzureApplicationID;
         httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }

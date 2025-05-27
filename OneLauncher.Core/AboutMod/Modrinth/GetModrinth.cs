@@ -25,11 +25,6 @@ public class GetModrinth
         this.ModID = ModID;
         this.version = version;
     }
-    private static readonly JsonSerializerOptions ModrinthJsonOptions = new JsonSerializerOptions
-    {
-        PropertyNameCaseInsensitive = true, // 保持不区分大小写
-        TypeInfoResolver = AppJsonSerializerContext.Default // 关键：指定 TypeInfoResolver 为源生成器
-    };
     public async Task Init()
     {
         using (HttpClient client = new HttpClient())
@@ -44,7 +39,7 @@ public class GetModrinth
                 using (JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync()))
                 {
                     JsonElement firstElement = document.RootElement[0];
-                    info = JsonSerializer.Deserialize<ModrinthProjects>(firstElement.GetRawText(), ModrinthJsonOptions);
+                    info = JsonSerializer.Deserialize<ModrinthProjects>(firstElement.GetRawText());
                 }
             }
             catch (Exception ex)
@@ -71,7 +66,7 @@ public class GetModrinth
                     using (JsonDocument dDocument = JsonDocument.Parse(await Dresponse.Content.ReadAsStringAsync()))
                     {
                         JsonElement firstDependencyElement = dDocument.RootElement[0];
-                        ModrinthProjects dependencyProject = JsonSerializer.Deserialize<ModrinthProjects>(firstDependencyElement.GetRawText(), ModrinthJsonOptions)
+                        ModrinthProjects dependencyProject = JsonSerializer.Deserialize<ModrinthProjects>(firstDependencyElement.GetRawText())
                             ?? throw new InvalidOperationException("解析 Modrinth 依赖模组第一个版本失败。");
                         this.dependencies.Add(dependencyProject);
                     }
