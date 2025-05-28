@@ -26,7 +26,7 @@ internal partial class UserItem
 internal partial class AccountPageViewModel : BaseViewModel
 {
     // 刷新
-    public async void RefList()
+    public void RefList()
     {
         UserModelList = Init.ConfigManger.config.UserModelList
                 .Select(x => new UserItem()
@@ -36,6 +36,35 @@ internal partial class AccountPageViewModel : BaseViewModel
                     ? new Bitmap(Path.Combine(Init.BasePath, "MsaPlayerData", "body", $"{x.uuid}.png"))
                     : new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")))
                 }).ToList();
+    }
+    [RelayCommand]
+    public async Task Refresh()
+    {
+        for (int i = 0; i < Init.ConfigManger.config.UserModelList.Count; i++)
+        {
+            var UserModelItem = Init.ConfigManger.config.UserModelList[i];
+            // 无23小时检查机制直接更新
+            if (UserModelItem.IsMsaUser
+            && Init.ConfigManger.config.UserModelList.Count != 0
+            )
+            {
+                // 更新令牌
+                var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(UserModelItem!.refreshToken);
+                lock (Init.ConfigManger.config.UserModelList)
+                {
+                    // 如果是默认用户模型也更新
+                    if (UserModelItem.uuid == Init.ConfigManger.config.DefaultUserModel.uuid)
+                        Init.ConfigManger.config.DefaultUserModel = temp;
+                    Init.ConfigManger.config.UserModelList[i] = temp;
+                    Init.ConfigManger.Save();
+                }
+                // 更新皮肤
+                using (var task = new MojangProfile(Init.ConfigManger.config.UserModelList[i]))
+                    await task.GetSkinHeadImage();
+               RefList();
+               await MainWindow.mainwindow.ShowFlyout("刷新完毕");           
+            }
+        }
     }
     public AccountPageViewModel()
     {
