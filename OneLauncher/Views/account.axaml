@@ -21,6 +21,11 @@
 					<TextBlock Text="新建"/>
 				</StackPanel>
 			</Button>
+			<Button Command="{Binding RefreshCommand}">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="刷新"/>
+				</StackPanel>
+			</Button>
 		</StackPanel>
 		<TextBlock Margin="16,0,0,0" Text="*由于第三方API限制正版皮肤显示可能有延迟" FontStyle="Italic" Grid.Row="1"/>
 		<ListBox x:Name="navVL" Grid.Row="2" ItemsSource="{Binding UserModelList}" Background="Transparent" SelectionMode="Multiple">
