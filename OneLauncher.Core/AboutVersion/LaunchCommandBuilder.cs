@@ -167,7 +167,7 @@ public class LaunchCommandBuilder
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
             $"--uuid \"{userModel.uuid}\" " +
             $"--accessToken \"{userModel.accessToken.ToString()}\" " +
-            $"--userType \"{userModel.userType}\" " +
+            $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
             $"--versionType \"OneLauncher\" " +
             "--userProperties {} " 
             // 针对旧版用户验证机制

@@ -31,12 +31,12 @@ public class MicrosoftAuthenticator : IDisposable
     /// </summary>
     /// <param name="oldRefreshToken">旧的刷新令牌。</param>
     /// <returns>包含更新用户信息的 UserModel，如果刷新失败则为 null。</returns>
-    public async Task<UserModel?> RefreshToken(UserModel oldUserModel)
+    public async Task<UserModel?> RefreshToken(string oldRefreshToken)
     {
         try
         {
             var content = new StringContent(
-                $"client_id={clientId}&refresh_token={oldUserModel.refreshToken}&grant_type=refresh_token&scope=XboxLive.signin%20offline_access",
+                $"client_id={clientId}&refresh_token={oldRefreshToken}&grant_type=refresh_token&scope=XboxLive.signin%20offline_access",
                 Encoding.UTF8, "application/x-www-form-urlencoded");
 
             var response = await httpClient.PostAsync("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", content);

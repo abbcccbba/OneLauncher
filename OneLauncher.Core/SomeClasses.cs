@@ -102,11 +102,11 @@ public struct UserModel
         {
             this.accessToken = "0000-0000-0000-0000";
             this.refreshToken = "0000-0000-0000-0000";
-            this.userType = "legacy";
+            this.IsMsaUser = false;
         }
         else
         {
-            userType = "msa";
+            this.IsMsaUser= true;
             this.accessToken = accessToken;
             this.refreshToken = refreshToken ?? string.Empty;
         }
@@ -116,17 +116,17 @@ public struct UserModel
     }
     public override string ToString()
     {
-        return (userType == "msa" ? "正版登入" : "离线登入");
+        return (IsMsaUser ? "正版登入" : "离线登入");
     }
 
     public string Name { get; set; }
     public Guid uuid { get; set; }
-    public string accessToken { get; set; }
-    public string userType { get; set; }
+    public string? accessToken { get; set; }
+    public bool IsMsaUser { get; set; }
 
     
-    public string refreshToken { get; set; }
-    public DateTime AuthTime { get; set; } 
+    public string? refreshToken { get; set; }
+    public DateTime? AuthTime { get; set; } 
 }
 public enum SystemType
 {

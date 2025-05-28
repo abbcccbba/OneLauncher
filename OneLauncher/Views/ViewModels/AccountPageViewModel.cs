@@ -1,12 +1,16 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Core.Net.msa;
+using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -17,16 +21,20 @@ namespace OneLauncher.Views.ViewModels;
 internal partial class UserItem
 {
     public UserModel um { get; set; }
+    public Bitmap HeadImg { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")));
 }
 internal partial class AccountPageViewModel : BaseViewModel
 {
     // 刷新
-    private void RefList()
+    public async void RefList()
     {
         UserModelList = Init.ConfigManger.config.UserModelList
                 .Select(x => new UserItem()
                 {
-                    um = x
+                    um = x,
+                    HeadImg = (x.IsMsaUser)
+                    ? new Bitmap(Path.Combine(Init.BasePath, "MsaPlayerData", "body", $"{x.uuid}.png"))
+                    : new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")))
                 }).ToList();
     }
     public AccountPageViewModel()
@@ -40,104 +48,35 @@ internal partial class AccountPageViewModel : BaseViewModel
                 {
                     Name="ZhiWei",
                     uuid=Guid.NewGuid()
+                    
                 }
             } };
         else
 #endif
+        {
             RefList();
+        }
     }
     [ObservableProperty]
     public List<UserItem> _UserModelList;
     [ObservableProperty]
-    public bool _IsPaneShow = false;
+    public bool _IsPaneShow= false;
     [ObservableProperty]
-    public string _UserName;
-
-    public object WebApplication { get; private set; }
+    public UserControl _AccountPane;
 
     [RelayCommand]
     public void NewUserModel()
     {
         IsPaneShow = true;
+        AccountPane = new UserModelLoginPane(this);
     }
     [RelayCommand]
-    public void Done()
+    public void SkinManger(UserModel userModel)
     {
-        if (string.IsNullOrEmpty(UserName)) return;
-        if (!Regex.IsMatch(UserName, @"^[a-zA-Z0-9_]+$"))
-        {
-            MainWindow.mainwindow.ShowFlyout("用户名包含非法字符！", true);
-            return;
-        }
-        Init.ConfigManger.config.UserModelList.Add(new UserModel()
-        {
-            Name = UserName,
-            uuid = Guid.NewGuid()
-        });
-        Init.ConfigManger.Save();
-        RefList();
-        IsPaneShow = false;
-        MainWindow.mainwindow.ShowFlyout($"已新建用户:{UserName}");
+        IsPaneShow = true;
+        AccountPane = new SkinMangerPane(this,userModel);
     }
-    [RelayCommand]
-    public void Back()
-    {
-        IsPaneShow = false;
-        MainWindow.mainwindow.ShowFlyout("已暂存修改！");
-    }
-    [ObservableProperty]
-    public string _UserCode;
-    [ObservableProperty]
-    public bool _IsYaLogin= true;
-    [ObservableProperty]
-    public bool _IsMsaLogin = false;
-    private ListBoxItem _whiceLoginType;
-    public ListBoxItem WhiceLoginType
-    {
-        set {
-            _whiceLoginType = value;
-            if (value.Content == "离线登入")
-            {
-                Debug.WriteLine("离线登入");
-                IsYaLogin = true;
-                IsMsaLogin = false;
-            }
-            if (value.Content == "微软登入")
-            {
-                Debug.WriteLine("微软登入");
-                IsYaLogin = false;
-                IsMsaLogin = true;
-            }
-        }
-        get {
-            return _whiceLoginType;
-        }
-    }
-    [RelayCommand]
-    public async Task LoginWithMicrosoft()
-    {
-        using (var verTask = new MicrosoftAuthenticator())
-        {
-            try
-            {
-                var um = await verTask.AuthUseCode(new Progress<(string a, string b)>((x) =>
-                {
-                    // 打开网页并提醒用户
-                    Process.Start(new ProcessStartInfo { FileName = x.a, UseShellExecute = true });
-                    UserCode = x.b;
-                }));
-                Init.ConfigManger.config.UserModelList.Add((UserModel)um);
-                Init.ConfigManger.Save();
-                RefList();
-            }
-            catch (MsaException ex)
-            {
-                await MainWindow.mainwindow.ShowFlyout(ex.Message, true);
-                return;
-            }
-
-        }
-    }
+    
     [RelayCommand]
     public void SetDefault(UserModel user)
     {

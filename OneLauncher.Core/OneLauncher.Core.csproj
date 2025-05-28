@@ -15,4 +15,7 @@
 		<DefineConstants>$(DefineConstants);LINUX</DefineConstants>
 	</PropertyGroup>
 	<Import Project="..\OneLauncher.Core.Net\OneLauncher.Core.Net.projitems" Label="Shared" />
+	<ItemGroup>
+	  <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
+	</ItemGroup>
 </Project>
