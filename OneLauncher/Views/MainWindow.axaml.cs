@@ -42,18 +42,20 @@ public partial class MainWindow : Window
                     // 检查是否有accesstoken 过期的用户模型
                     for (int i = 0; i < Init.ConfigManger.config.UserModelList.Count; i++)
                     {
-                        var a = Init.ConfigManger.config.UserModelList[i];
-                        if (
-                        a.userType == "msa"
-                        && MicrosoftAuthenticator.IsExpired(a.AuthTime)
+                        var UserModelItem = Init.ConfigManger.config.UserModelList[i];
+                        if (UserModelItem.IsMsaUser
+                        && MicrosoftAuthenticator.IsExpired((DateTime)UserModelItem.AuthTime)
                         && Init.ConfigManger.config.UserModelList.Count != 0
                         )
                         {
-                            Debug.WriteLine($"用户 {a.Name} 的 accessToken 已过期，正在更新...");
+                            Debug.WriteLine($"用户 {UserModelItem.Name} 的 accessToken 已过期，正在更新...");
                             // 如果过期了，则更新
-                            var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(a);
+                            var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(UserModelItem!.refreshToken);
                             lock (Init.ConfigManger.config.UserModelList)
                             {
+                                // 如果是默认用户模型也更新
+                                if (UserModelItem.uuid == Init.ConfigManger.config.DefaultUserModel.uuid)
+                                    Init.ConfigManger.config.DefaultUserModel = temp;
                                 Init.ConfigManger.config.UserModelList[i] = temp;
                                 Init.ConfigManger.Save();
                             }

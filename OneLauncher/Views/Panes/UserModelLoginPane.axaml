@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OneLauncher.Views.Panes.UserModelLoginPane">
+	<Grid RowDefinitions="Auto,*">
+		<Grid Grid.Row="0" ColumnDefinitions="*,*,*">
+			<Button Command="{Binding BackCommand}" Margin="14" Grid.Column="0" HorizontalAlignment="Left">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="/Assets/icos/back.png" Width="20" Height="20"/>
+					<TextBlock Text="返回"/>
+				</StackPanel>
+			</Button>
+			<TextBlock Margin="0,0,0,0" Grid.Column="1"  Text="收集信息..." FontSize="48"/>
+		</Grid>
+		<StackPanel Margin="12" Grid.Row="1" Spacing="12">
+			<ComboBox SelectedItem="{Binding WhiceLoginType}" PlaceholderText="选择登入类型">
+				<ComboBoxItem>离线登入</ComboBoxItem>
+				<ComboBoxItem>微软登入</ComboBoxItem>
+			</ComboBox>
+			<StackPanel IsVisible="{Binding IsYaLogin}" Orientation="Horizontal" Spacing="8">
+				<TextBox Text="{Binding UserName}" Watermark="输入用户名"/>
+				<Button Command="{Binding DoneCommand}" Content="完成"/>
+			</StackPanel>
+			<StackPanel IsVisible="{Binding IsMsaLogin}">
+				<StackPanel Orientation="Horizontal" Spacing="12">
+					<Button Content="跳转登入" Command="{Binding LoginWithMicrosoftCommand}"/>
+					<TextBox Watermark="登入授权码" VerticalAlignment="Center" Text="{Binding UserCode}"/>
+				</StackPanel>
+			</StackPanel>
+		</StackPanel>
+	</Grid>
+</UserControl>

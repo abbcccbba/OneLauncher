@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="530"
+             x:Class="OneLauncher.Views.Panes.SkinMangerPane">
+	<Grid Margin="24">
+		<StackPanel Spacing="8">
+			<ComboBox PlaceholderText="选择来源..." SelectedIndex="{Binding SelectedIndex}">
+				<ComboBoxItem>通过本地上传</ComboBoxItem>
+				<ComboBoxItem>通过NameMC获取</ComboBoxItem>
+			</ComboBox>
+
+			<StackPanel IsVisible="">
+				<Button Content="选择本地文件..." Command="{Binding ToChooseSkinFileCommand}"/>
+			</StackPanel>
+			<StackPanel IsVisible="">
+
+			</StackPanel>
+			<TextBlock Text="选择模型类型："/>
+			<StackPanel Orientation="Horizontal" Spacing="4">
+				<RadioButton 
+					IsChecked="{Binding IsSteveModel,FallbackValue=true}"
+					GroupName="ModeType"
+					Content="史蒂夫模型"/>
+				<RadioButton GroupName="ModeType"
+						  Content="爱丽丝模型"/>
+			</StackPanel>
+		</StackPanel>
+	</Grid>
+</UserControl>
