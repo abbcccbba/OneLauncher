@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core;
 public struct ModType
 {
-    public bool IsFabric;
-    public bool IsNeoForge;
+    public bool IsFabric { get; set; }
+    public bool IsNeoForge { get; set; }
 }
 public static class Tools 
 {
@@ -69,7 +69,7 @@ public struct NdDowItem
 public struct aVersion
 {
     public string VersionID { get; set; }
-    public ModType ModType { get; set; }
+    public ModType modType { get; set; }
     public bool IsVersionIsolation { get; set; }
     public DateTime AddTime { get; set; } 
 }

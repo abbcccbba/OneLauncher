@@ -83,7 +83,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         Init.ConfigManger.config.VersionList.Add(new aVersion
         {
             VersionID = VersionName,
-            ModType = VersionModType,
+            modType = VersionModType,
             AddTime = DateTime.Now,
             IsVersionIsolation = IsVI
         });

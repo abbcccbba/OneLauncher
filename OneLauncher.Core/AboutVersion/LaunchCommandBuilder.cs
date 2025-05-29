@@ -217,7 +217,7 @@ public class LaunchCommandBuilder
         string GameArgs = 
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
-            $"--gameDir \"{((IsVersionInsulation) ? Path.Combine(basePath, $"v{version}") : basePath)}\" " +
+            $"--gameDir \"{((IsVersionInsulation) ? Path.Combine(basePath, "versions",version) : basePath)}\" " +
             $"--assetsDir \"{Path.Combine(basePath, "assets")}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?

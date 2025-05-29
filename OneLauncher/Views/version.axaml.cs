@@ -45,7 +45,7 @@ public partial class version : UserControl
        return Task.Run(() => game.LaunchGame(
             LaunchGameInfo.VersionID, 
             Init.ConfigManger.config.DefaultUserModel, 
-            LaunchGameInfo.ModType,
+            LaunchGameInfo.modType,
             LaunchGameInfo.IsVersionIsolation, 
             UseGameTasker));
     }
