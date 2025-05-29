@@ -45,7 +45,7 @@ public partial class version : UserControl
        return Task.Run(() => game.LaunchGame(
             LaunchGameInfo.VersionID, 
             Init.ConfigManger.config.DefaultUserModel, 
-            new ModType() { IsFabric = false,IsNeoForge=true},
+            LaunchGameInfo.ModType,
             LaunchGameInfo.IsVersionIsolation, 
             UseGameTasker));
     }
