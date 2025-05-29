@@ -141,10 +141,7 @@ public class VersionInfomations
             Url: info.Downloads.Client.Url,
             Sha1:info.Downloads.Client.Sha1,
             Size:(int)info.Downloads.Client.Size,
-            Path: 
-            (((bool)this.IsVersionInsulation)
-            ? Path.Combine(basePath,$"v{info.ID}",$"{info.ID}.jar")
-            : Path.Combine(basePath, "versions", info.ID, $"{info.ID}.jar"))
+            Path:Path.Combine(basePath, "versions", info.ID, $"{info.ID}.jar")
         );
     }
 
@@ -189,18 +186,14 @@ public class VersionInfomations
             Url: info.Logging.Client.File.Url,
             Sha1: info.Logging.Client.File.Sha1,
             Size:(int)info.Logging.Client.File.Size,
-            Path: ((bool)this.IsVersionInsulation)
-            ? Path.Combine(basePath,$"v{info.ID}",info.Logging.Client.File.Id)
-            : Path.Combine(basePath,"versions",info.ID,info.Logging.Client.File.Id)
+            Path:Path.Combine(basePath,"versions",info.ID,info.Logging.Client.File.Id)
         );
     }
     public string? GetLoggingConfigPath()
     {
         if (info.Logging?.Client?.File == null)
             return null;
-        return ((bool)this.IsVersionInsulation)
-            ? Path.Combine(basePath, $"v{info.ID}", info.Logging.Client.File.Id)
-            : Path.Combine(basePath, "versions", info.ID, info.Logging.Client.File.Id);
+        return Path.Combine(basePath, "versions", info.ID, info.Logging.Client.File.Id);
     }
 
     public int GetJavaVersion()

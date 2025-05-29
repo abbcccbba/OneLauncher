@@ -36,6 +36,7 @@ internal partial class VersionItem
     [RelayCommand]
     public async void PinToDesktop(aVersion version)
     {
+        /*
         await File.WriteAllTextAsync(
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
@@ -58,6 +59,7 @@ internal partial class VersionItem
                 )
         ));
         MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
+        */
     }
     [RelayCommand]
     public void PinInDashboard(aVersion version)
@@ -77,7 +79,7 @@ internal partial class VersionPageViewModel : BaseViewModel
         {
             VersionList = new List<VersionItem>()
             {
-                new VersionItem(new aVersion() {VersionID="1.21.5",IsMod=false,AddTime=DateTime.Now})
+                new VersionItem(new aVersion() {VersionID="1.21.5",AddTime=DateTime.Now})
             };
         }
         else

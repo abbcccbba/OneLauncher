@@ -97,17 +97,16 @@ public class Download : IDisposable
         string GameRootPath,
         SystemType OsType,
         IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
+        ModType modType,
         bool IsVersionIsolation = false,
         int maxConcurrentDownloads = 16,
         int maxConcurrentSha1 = 16,
         bool IsSha1 = true,
-        bool IsMod = false,
         bool AndJava = false)
     {
-        string VersionPath = (IsVersionIsolation)
-            ? Path.Combine(GameRootPath, $"v{DownloadVersion.ID.ToString()}")
-            : Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString());
-        { 
+        string VersionPath = Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString());
+        #region 下载原信息
+        {
             // 下载 version.json
             var versionjsonpath =
                 Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
@@ -123,7 +122,8 @@ public class Download : IDisposable
             if (!File.Exists(assetsIndex.path))
                 await DownloadFile(assetsIndex.url, assetsIndex.path);
         }
-
+        #endregion
+        #region 下载可选信息
         // 下载Java运行时环境
         if (AndJava && !Init.ConfigManger.config.JavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
         {
@@ -136,21 +136,21 @@ public class Download : IDisposable
 
         // 下载Mod相关资源索引
         string modpath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabric.json");
-        if (IsMod)
+        if (modType.IsFabric)
         {
             // 加载器
             if (!File.Exists(modpath))
                 await DownloadFile(
                     $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID.ToString()}/", modpath);
         }
-
-        var AllNd = new List<NdDowItem>();
-        var NdLibs = CheckFilesExists(versionInfomations.GetLibrarys());
-        var NdAssets = CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath));
-        var mainFile = versionInfomations.GetMainFile();
+        #endregion
+        List<NdDowItem> AllNd = new List<NdDowItem>();
+        List<NdDowItem> NdLibs = CheckFilesExists(versionInfomations.GetLibrarys());
+        List<NdDowItem> NdAssets = CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath));
+        NdDowItem mainFile = versionInfomations.GetMainFile();
         NdDowItem? log4j2;
-        NdDowItem? modApi;
-        List<NdDowItem>? modLibs;
+        NdDowItem modApi;
+        List<NdDowItem> modLibs;
         
         AllNd.AddRange(NdLibs);
         AllNd.AddRange(NdAssets);
@@ -159,22 +159,22 @@ public class Download : IDisposable
         int FileCount = AllNd.Count;
         int Filed = 0;
 
-        // 下载Mod依赖文件
-        if (IsMod)
+        #region 下载mod相关依赖
+        if (modType.IsFabric)
         {
             // 获取 Fabric 加载器下载信息
             modLibs = CheckFilesExists(new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries());
             // 获取Fabric API下载信息
             var a = new Modrinth.GetModrinth(
-               "fabric-api",DownloadVersion.ID.ToString(),
+               "fabric-api", DownloadVersion.ID.ToString(),
                 ((!IsVersionIsolation)
                 ? Path.Combine(GameRootPath, "mods")
                 : Path.Combine(VersionPath, "mods")));
             await a.Init();
-            modApi = (NdDowItem)a.GetDownloadInfos();
+            modApi = (NdDowItem)a!.GetDownloadInfos();
 
             AllNd.AddRange(modLibs);
-            AllNd.Add((NdDowItem)modApi);
+            AllNd.Add(modApi);
             FileCount = AllNd.Count;
 
             await DownloadListAsync(
@@ -191,6 +191,28 @@ public class Download : IDisposable
             progress.Report((DownProgress.DownMod, FileCount, Filed, ((NdDowItem)modApi).path));
             await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
         }
+        else if (modType.IsNeoForge)
+        {
+            NeoForgeUsing neoForge = new NeoForgeUsing(UnityClient);
+
+            string VersionJson = await neoForge.DownloadVersionJson
+                ("https://maven.neoforged.net/releases/neoforged/neoforge/20.2.38-beta/neoforge-20.2.38-beta-installer.jar/neoforge-20.2.38-beta-installer.jar");
+            // 保存进文件方便后续使用
+            await File.WriteAllTextAsync(Path.Combine(VersionPath, $"{DownloadVersion.ID}-neoforge.json"), VersionJson);
+            modLibs = CheckFilesExists(neoForge.GetLibraries(GameRootPath));
+            AllNd.AddRange(modLibs);
+            FileCount = AllNd.Count;
+            await DownloadListAsync(
+            new Progress<(int donecount, string filename)>(p =>
+            {
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownMod, FileCount, p.donecount, p.filename));
+            }),
+            modLibs,
+            GameRootPath,
+            maxConcurrentDownloads);
+        }
+        #endregion
         // 下载日志配置文件
         if (new Version(DownloadVersion.ID) > new Version("1.7"))
         {
@@ -435,9 +457,5 @@ public class Download : IDisposable
         }
         await Task.WhenAll(sha1Tasks);
     }
-    public void Dispose()
-    {
-        UnityClient.Dispose();
-    }
-}
+    public void Dispose() => UnityClient.Dispose();}
 

@@ -9,6 +9,7 @@ using OneLauncher.Views.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 namespace OneLauncher.Views;
 
@@ -44,8 +45,8 @@ public partial class version : UserControl
        return Task.Run(() => game.LaunchGame(
             LaunchGameInfo.VersionID, 
             Init.ConfigManger.config.DefaultUserModel, 
+            new ModType() { IsFabric = false,IsNeoForge=true},
             LaunchGameInfo.IsVersionIsolation, 
-            (IsOriginal) ? false : LaunchGameInfo.IsMod,
             UseGameTasker));
     }
 }

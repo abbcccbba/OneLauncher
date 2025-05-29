@@ -53,6 +53,7 @@
 			<StackPanel>
 				<CheckBox IsChecked="{Binding IsVI}">是否启用版本隔离</CheckBox>
 				<CheckBox IsChecked="{Binding IsMod}" >是否带Fabric Loader/API</CheckBox>
+				<CheckBox IsChecked="{Binding IsNeoForge}" >是否带NeoForge</CheckBox>
 				<CheckBox IsChecked="{Binding IsJava}">是否安装合适Java</CheckBox>
 				<StackPanel Orientation="Horizontal" Spacing="8">
 					<TextBlock Text="{Binding Dp}"/>

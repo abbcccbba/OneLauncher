@@ -31,8 +31,8 @@ internal class Game
     public async Task LaunchGame(
         string GameVersion, 
         UserModel loginUserModel, 
+        ModType modType,
         bool IsVersionInsulation = false,
-        bool IsMod = false,
         bool UseGameTasker = false)
     {
         #region 初始化基本游戏构建类
@@ -41,9 +41,9 @@ internal class Game
                             Init.GameRootPath,
                             GameVersion,
                             loginUserModel,
+                            modType,
                             Init.systemType,
-                            IsVersionInsulation,
-                            IsMod
+                            IsVersionInsulation     
                         );
         var OtherArgs = string.Join
                             (
@@ -80,7 +80,8 @@ internal class Game
         {            
             using (Process process = new Process())
             {
-                process.StartInfo.Arguments = await Builder.BuildCommand(OtherArgs);
+                process.StartInfo.Arguments = await Builder.BuildCommand
+                    ("");
                 process.StartInfo.FileName = Builder.GetJavaPath();
                 process.StartInfo.WorkingDirectory = 
                     (IsVersionInsulation)
