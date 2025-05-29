@@ -92,4 +92,15 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             } 
         }
     }
+    [RelayCommand]
+    public async Task OpenInNameMC()
+    {
+        
+        var dialog = new NativeWebDialog
+        {
+            Title = "Avalonia Docs",
+            CanUserResize = false,
+            Source = new Uri("https://docs.avaloniaui.net/")
+        };
+    }
 }
