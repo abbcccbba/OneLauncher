@@ -15,7 +15,7 @@
 				<Button Content="选择本地文件..." Command="{Binding ToChooseSkinFileCommand}"/>
 			</StackPanel>
 			<StackPanel IsVisible="">
-
+				
 			</StackPanel>
 			<TextBlock Text="选择模型类型："/>
 			<StackPanel Orientation="Horizontal" Spacing="4">
