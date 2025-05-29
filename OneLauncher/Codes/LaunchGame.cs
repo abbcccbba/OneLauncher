@@ -26,7 +26,6 @@ internal class Game
     /// <param name="GameVersion">游戏版本</param>
     /// <param name="loginUserModel">登入用户模型</param>
     /// <param name="IsVersionInsulation">版本是否启用了版本隔离</param>
-    /// <param name="IsMod">版本是否是mod版本</param>
     /// <param name="UseGameTasker">是否使用游戏监视器</param>
     public async Task LaunchGame(
         string GameVersion, 
@@ -60,11 +59,11 @@ internal class Game
                                 "-Dfml.ignorePatchDiscrepancies=True"
                             );
         #endregion
-        /*
+        
         #region 初次启动时帮用户设置语言和在调试模式下打开调试窗口
         var optionsPath = Path.Combine(
             (IsVersionInsulation
-            ? Path.Combine(Init.GameRootPath, $"v{GameVersion}")
+            ? Path.Combine(Init.GameRootPath, "versions",GameVersion)
             : Init.GameRootPath), "options.txt");
         if (!File.Exists(optionsPath))
         {
@@ -77,41 +76,48 @@ internal class Game
                 gameTasker.Show();
             });
         #endregion  
-        */
-        using (Process process = new Process())
+        
+        try
         {
-            process.StartInfo.Arguments = await Builder.BuildCommand(OtherArgs);
-            process.StartInfo.FileName = Builder.GetJavaPath();
-            process.StartInfo.WorkingDirectory = 
-                (IsVersionInsulation)
-                ? Path.Combine(Init.GameRootPath,$"v{GameVersion}")
-                : Init.GameRootPath;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.OutputDataReceived += async (sender, e) =>
+            using (Process process = new Process())
             {
-                if (string.IsNullOrEmpty(e.Data)) return; 
-                Debug.WriteLine(e.Data);
-                WeakReferenceMessenger.Default.Send(new GameMessage($"[STDOUT] {e.Data}{Environment.NewLine}"));
-                if (e.Data.Contains("Backend library: LWJGL version"))
-                    GameStartedEvent?.Invoke();
-            };
-            process.ErrorDataReceived += async (sender, e) =>
-            {
-                if (string.IsNullOrEmpty(e.Data)) return;
-                Debug.WriteLine(e.Data);
-                WeakReferenceMessenger.Default.Send(new GameMessage($"[ERROE] {e.Data}{Environment.NewLine}"));
-                if (e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
-                    await MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true);
-            };
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            process.WaitForExit(); // 不等待就不会有输出
+                process.StartInfo.Arguments = await Builder.BuildCommand(OtherArgs);
+                process.StartInfo.FileName = Builder.GetJavaPath();
+                process.StartInfo.WorkingDirectory =
+                    (IsVersionInsulation)
+                    ? Path.Combine(Init.GameRootPath, "versions",GameVersion)
+                    : Init.GameRootPath;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.OutputDataReceived += async (sender, e) =>
+                {
+                    if (string.IsNullOrEmpty(e.Data)) return;
+                    Debug.WriteLine(e.Data);
+                    WeakReferenceMessenger.Default.Send(new GameMessage($"[STDOUT] {e.Data}{Environment.NewLine}"));
+                    if (e.Data.Contains("Backend library: LWJGL version"))
+                        GameStartedEvent?.Invoke();
+                };
+                process.ErrorDataReceived += async (sender, e) =>
+                {
+                    if (string.IsNullOrEmpty(e.Data)) return;
+                    Debug.WriteLine(e.Data);
+                    WeakReferenceMessenger.Default.Send(new GameMessage($"[ERROE] {e.Data}{Environment.NewLine}"));
+                    if (e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
+                        await MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true);
+                };
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit(); // 不等待就不会有输出
+            }
+            GameClosedEvent?.Invoke();
         }
-        GameClosedEvent?.Invoke();
+        catch(Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+        }
     }
 }
 
