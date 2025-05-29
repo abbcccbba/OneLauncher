@@ -2,7 +2,7 @@
 
 **OneLauncher** 是一个以快速为功能核心的轻量化 Minecraft 启动器
 
-提供了直接在桌面上固定游戏而无需启动器启动的启动游戏方法
+提供了直接在桌面上固定游戏而无需启动器启动的启动游戏方法  
 
 快速安装（Windosw PowerShell）：
 
@@ -34,10 +34,21 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
 
 ## 开源与贡献
 
-OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们非常欢迎开发者共同参与完善：
+此项目使用 Apache 2.0 许可证开源  
 
-如果你有任何问题或请求可以在[这里](https://github.com/abbcccbba/OneLauncher/issues)发起提问
+OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们非常欢迎开发者共同参与完善： 
 
+如果你有任何问题或请求可以在[这里](https://github.com/abbcccbba/OneLauncher/issues)发起提问  
+
+###开源项目或需注明署名使用及贡献人员命令  
+
+- 使用项目[.NET](https://github.com/dotnet)
+- 使用项目[Avalonia](https://github.com/AvaloniaUI/Avalonia)
+- 使用项目[AsyncImageLoader.Avalonia](https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia)
+- 使用项目[SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp)
+- 借鉴项目[ProjBobcat](https://github.com/Corona-Studio/ProjBobcat/)
+- 使用图标[ICONS8](https://icons8.com/icons/)
+  
 ## 更多
 
 [服务条款](https://github.com/abbcccbba/OneLauncher/blob/master/Terms_of_Service.md)
