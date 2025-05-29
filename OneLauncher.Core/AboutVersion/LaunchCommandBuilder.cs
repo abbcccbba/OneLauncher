@@ -20,20 +20,27 @@ public class LaunchCommandBuilder
     private readonly string basePath;
     private readonly SystemType systemType;
     private readonly bool IsVersionInsulation;
-    private readonly bool IsMod;
-    private  FabricVJParser fabricParser;
-    /// <param ID="basePath">游戏基本路径（含.minecraft）</param>
-    /// <param ID="version">游戏版本</param>
-    /// <param ID="userModel">以哪个用户模型来拼接启动参数？</param>
-    /// <param ID="system">运行时系统类型</param>
+    private readonly ModType modType;
+    private FabricVJParser fabricParser;
+    private NeoForgeUsing neoForgeParser;
+    private readonly string separator;
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="basePath">游戏基本路径（含.minecraft）</param>
+    /// <param name="version">启动的游戏版本</param>
+    /// <param name="userModel">启动游戏的用户模型</param>
+    /// <param name="modType">模组类型</param>
+    /// <param name="system">系统类型</param>
+    /// <param name="VersionInsulation">此游戏是否启用了版本隔离</param>
     public LaunchCommandBuilder
         (
             string basePath, 
             string version, 
             UserModel userModel,
+            ModType modType,
             SystemType system,
-            bool VersionInsulation = false,
-            bool IsMod = false
+            bool VersionInsulation = false
         )
     {
         this.basePath = basePath;
@@ -41,7 +48,8 @@ public class LaunchCommandBuilder
         this.userModel = userModel;
         this.systemType = system;
         this.IsVersionInsulation = VersionInsulation;
-        this.IsMod = IsMod;   
+        this.modType = modType;
+        separator = systemType == SystemType.windows ? ";" : ":";
     }
     public string GetJavaPath()
     {
@@ -53,17 +61,27 @@ public class LaunchCommandBuilder
     }
     public async Task<string> BuildCommand(string OtherArgs = "")
     {
-        string VersionPath = (IsVersionInsulation)
-                ? Path.Combine(basePath, $"v{version}")
-                : Path.Combine(basePath, "versions", version);
+        string VersionPath = Path.Combine(basePath, "versions", version);
+        string MainClass;
         versionInfo = new VersionInfomations(
             await File.ReadAllTextAsync(Path.Combine(VersionPath,$"{version}.json")),
             basePath, systemType, IsVersionInsulation
         );
-        if (IsMod)
+        if (modType.IsFabric)
+        {
             fabricParser = new fabric.FabricVJParser(
               Path.Combine(VersionPath, $"{version}-fabric.json"), basePath);
-        string Args = $"{OtherArgs} {BuildJvmArgs()} {((IsMod) ? fabricParser.GetMainClass() : versionInfo.GetMainClass())} {BuildGameArgs()}";
+            MainClass = fabricParser.GetMainClass();
+        }
+        else if (modType.IsNeoForge)
+        {
+            neoForgeParser = new NeoForgeUsing();
+            await neoForgeParser.Init(basePath, version);
+            MainClass = neoForgeParser.info.MainClass;
+        }
+        else MainClass = versionInfo.GetMainClass();
+            string Args = $"{OtherArgs} {BuildJvmArgs()} {MainClass} {BuildGameArgs()}";
+        Debug.WriteLine(Args);
         return Args;
     }
     private string BuildJvmArgs()
@@ -79,14 +97,14 @@ public class LaunchCommandBuilder
             // 创建占位符映射表 
             // 参考1.21.5.json
             // 手动加上引号
-            { "natives_directory", "\""+
-            ((IsVersionInsulation)
-            ? Path.Combine(basePath,$"v{version}","natives")
-            : Path.Combine(basePath,".minecraft","versions",version,"natives"))+"\"" 
-            },
-            { "launcher_name", "\"OneLauncher\"" },
-            { "launcher_version", "\"1.0.0\"" },
-            { "classpath",$"\"{BuildClassPath()}\"" }
+            { "natives_directory", Path.Combine(basePath,".minecraft","versions",version,"natives") },
+            { "launcher_name", "OneLauncher" },
+            { "launcher_version", "1.0.0" },
+            {"classpath",BuildClassPath() },
+            // 一些仅限NeoForge的
+            { "version_name" , version},
+            { "library_directory" ,"\""+Path.Combine(basePath, "libraries")+"\""},
+            { "classpath_separator" , separator}
         };
         // 处理1.13以前版本没有Arguments的情况
         if (versionInfo.info.Arguments == null)
@@ -110,57 +128,96 @@ public class LaunchCommandBuilder
         else
         {
             var jvmArgs = new List<string>();
-            foreach (var item in versionInfo.info.Arguments.Jvm)
+            if (modType.IsNeoForge)
             {
-                if (item is string str)
+                foreach (var item in neoForgeParser.info.Arguments.Jvm)
                 {
-                    string replaced = ReplacePlaceholders(str, placeholders);
+                    string replaced = ReplacePlaceholders(item, placeholders);
                     jvmArgs.Add(replaced);
-                }
-                else if (item is Models.Argument arg)
-                {
-                    if (EvaluateRules(arg.Rules, osName, arch))
+                } 
+            }
+            foreach (var item in versionInfo.info.Arguments.Jvm)
                     {
-                        if (arg.Value is string valStr)
+                        // 判断是规则套字符串还是简单字符串
+                        if (item is string str)
                         {
-                            string replaced = ReplacePlaceholders(valStr, placeholders);
+                            string replaced = ReplacePlaceholders(str, placeholders);
                             jvmArgs.Add(replaced);
                         }
-                        else if (arg.Value is List<string> valList)
+                        else if (item is Models.Argument arg)
                         {
-                            foreach (var val in valList)
+                            if (EvaluateRules(arg.Rules, osName, arch))
                             {
-                                string replaced = ReplacePlaceholders(val, placeholders);
-                                jvmArgs.Add(replaced);
+                                if (arg.Value is string valStr)
+                                {
+                                    string replaced = ReplacePlaceholders(valStr, placeholders);
+                                    jvmArgs.Add(replaced);
+                                }
+                                else if (arg.Value is List<string> valList)
+                                {
+                                    foreach (var val in valList)
+                                    {
+                                        string replaced = ReplacePlaceholders(val, placeholders);
+                                        jvmArgs.Add(replaced);
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
 
             return $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " +
-              string.Join(" ", jvmArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+              // 打上空格和双引号
+              string.Join(" ", jvmArgs);
         }
     }
+    /// <summary>
+    /// 拼接类路径，不包含-p参数
+    /// </summary>
     private string BuildClassPath()
     {
-        string modLibs = string.Empty;
-        string separator = systemType == SystemType.windows ? ";" : ":";
-        if(this.IsMod)
+        // 使用 List<string> 来收集所有库路径
+        var allLibPaths = new List<string>();
+
+        // 1. 添加所有原版库 (来自 versionInfo)
+        allLibPaths.AddRange(versionInfo.GetLibrarys().Select(x => x.path));
+
+        // 2. 添加所有 NeoForge 库 (来自 neoForgeParser)
+        if (modType.IsNeoForge)
         {
-            modLibs = string.Join(separator, fabricParser.GetLibraries().Select(x => x.path).ToList());
+            allLibPaths.AddRange(neoForgeParser.GetLibraries(basePath).Select(x => x.path));
         }
-        string Libs = string.Join(separator, versionInfo.GetLibrarys().Select(x => x.path));
-        // 使用三引号可能导致模组加载器故障
-        string AllClassArgs = $"{Libs}{separator}{versionInfo.GetMainFile().path}{separator}{modLibs}";
+        // (如果需要支持 Fabric, 在这里添加 fabricParser 的库)
+        else if (modType.IsFabric)
+        {
+            allLibPaths.AddRange(fabricParser.GetLibraries().Select(x => x.path));
+        }
+
+        // 3. 添加主游戏 JAR 文件
+        allLibPaths.Add(versionInfo.GetMainFile().path);
+
+        // 4. 使用 Distinct() 去除可能存在的重复项，并过滤掉空路径，然后用分隔符连接
+        string AllClassArgs = string.Join(separator,
+                                          allLibPaths.Where(p => !string.IsNullOrEmpty(p))
+                                                     .Distinct());
+
+        // 5. 确保你的 -cp 参数正确地使用了这个字符串。
+        //    你需要确保你的 BuildJvmArgs() 方法最终会生成类似 "-cp <AllClassArgs>" 的参数。
+        //    如果原版 JSON 已经包含了 -cp ${classpath}，你需要确保 ${classpath} 被正确替换。
+        //    从你的输出看，你似乎是手动构建了 -cp ;... 这意味着你需要在 BuildJvmArgs 中确保
+        //    最终的 JVM 参数里包含 "-cp" 和这个构建好的路径字符串。
+        //    如果你的 BuildJvmArgs 依赖于 ${classpath}，那么你需要确保你的 placeholders 字典里
+        //    的 "classpath" 键值是这个 AllClassArgs。
+        //    看你的原始命令，似乎 -cp 后面直接跟了分号和路径，所以你可能需要返回 $";{AllClassArgs}"
+        //    或者在 BuildJvmArgs 里拼接时加上分号。
+        //    最稳妥的方式是直接返回路径，在 BuildJvmArgs 拼接时处理 -cp 和分号。
         return AllClassArgs;
     }
     private string BuildGameArgs()
     {
-        return 
+        string GameArgs = 
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
-            $"--gameDir \"{((IsVersionInsulation) ? Path.Combine(basePath,$"v{version}") : basePath)}\" " +
+            $"--gameDir \"{((IsVersionInsulation) ? Path.Combine(basePath, $"v{version}") : basePath)}\" " +
             $"--assetsDir \"{Path.Combine(basePath, "assets")}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?
@@ -169,9 +226,13 @@ public class LaunchCommandBuilder
             $"--accessToken \"{userModel.accessToken.ToString()}\" " +
             $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
             $"--versionType \"OneLauncher\" " +
-            "--userProperties {} " 
+            "--userProperties {} "
             // 针对旧版用户验证机制
-            : $"--session \"{userModel.accessToken}\"");
+            : $"--session \"{userModel.accessToken}\" ");
+        if (modType.IsNeoForge)
+            GameArgs += (
+                string.Join(" ",neoForgeParser.info.Arguments.Game));
+        return GameArgs;
     }
     private bool EvaluateRules(List<Models.Rule> rules, string osName, string arch)
     {

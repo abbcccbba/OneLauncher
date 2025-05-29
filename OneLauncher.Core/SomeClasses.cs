@@ -7,7 +7,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core;
-
+public struct ModType
+{
+    public bool IsFabric;
+    public bool IsNeoForge;
+}
 public static class Tools 
 {
     /// <summary>
@@ -65,7 +69,7 @@ public struct NdDowItem
 public struct aVersion
 {
     public string VersionID { get; set; }
-    public bool IsMod { get; set; }//预留
+    public ModType ModType { get; set; }
     public bool IsVersionIsolation { get; set; }
     public DateTime AddTime { get; set; } 
 }

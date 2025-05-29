@@ -36,6 +36,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [ObservableProperty]
     public bool _IsMod;
     [ObservableProperty]
+    public bool _IsNeoForge;
+    [ObservableProperty]
     public bool _IsJava;
     [ObservableProperty]
     public bool _IsAllowDownloading = true; // 默认允许下载
@@ -44,6 +46,11 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public async void ToDownload()
     {
         IsAllowDownloading = false;
+        var VersionModType = new ModType()
+        {
+            IsFabric = IsMod,
+            IsNeoForge = IsNeoForge,
+        };
         using (Download download = new Download())
         {
             int i = 0;
@@ -70,13 +77,13 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     */
                     Fs = $"{p.a}/{p.b}";
                     CurrentProgress = (double)p.b / p.a * 100;
-                }), IsVersionIsolation: IsVI,IsMod: this.IsMod,AndJava: this.IsJava);
+                }), IsVersionIsolation: IsVI,modType: VersionModType,AndJava: this.IsJava);
         }
         // 在配置文件中添加版本信息
         Init.ConfigManger.config.VersionList.Add(new aVersion
         {
             VersionID = VersionName,
-            IsMod = this.IsMod,
+            ModType = VersionModType,
             AddTime = DateTime.Now,
             IsVersionIsolation = IsVI
         });

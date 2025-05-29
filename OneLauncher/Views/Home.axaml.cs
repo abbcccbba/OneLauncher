@@ -17,9 +17,10 @@ public partial class Home : UserControl
     {
         InitializeComponent();
     }
-
+    
     private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
+        /*
         aVersion? NdSG = Init.ConfigManger.config.DefaultVersion;
        
         if (NdSG.HasValue)
@@ -33,6 +34,7 @@ public partial class Home : UserControl
         }
         else
             MainWindow.mainwindow.ShowFlyout("还没有指定默认版本！", true);
-
+        */
     }
+    
 }
