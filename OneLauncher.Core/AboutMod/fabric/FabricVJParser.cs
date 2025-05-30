@@ -57,6 +57,9 @@ public class FabricVJParser
             string artifactId = parts[1];
             // 版本
             string version = parts[2];
+            // 后缀
+            string? suffix = (parts.Length > 3) ? parts[3] : null;
+
             // 构造 Url
             // org.ow2.asm:asm:9.8 -> org/ow2/asm/asm/9.8/asm-9.8.jar
             string urlPathSegments = Path.Combine(groupId.Replace('.', Path.DirectorySeparatorChar),

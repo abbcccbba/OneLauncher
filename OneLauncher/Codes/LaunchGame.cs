@@ -91,7 +91,7 @@ internal class Game
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = true;
-                process.OutputDataReceived += async (sender, e) =>
+                process.OutputDataReceived += (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
                     Debug.WriteLine(e.Data);
@@ -110,7 +110,7 @@ internal class Game
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                process.WaitForExit(); // 不等待就不会有输出
+                await process.WaitForExitAsync(); 
             }
             GameClosedEvent?.Invoke();
         }

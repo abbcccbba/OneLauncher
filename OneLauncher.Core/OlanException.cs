@@ -20,10 +20,12 @@ public enum OlanExceptionAction
 public class OlanException : Exception
 {
     public OlanExceptionAction Action { get; set; }
+    public string Title { get; set; }
     public string Message {  get; set; }
     public Exception? OriginalException { get; set; }
-    public OlanException(string Message,OlanExceptionAction action)
+    public OlanException(string Title,string Message,OlanExceptionAction action)
     {
+        this.Title = Title;
         this.Message = Message;
         this.Action = action;
     }

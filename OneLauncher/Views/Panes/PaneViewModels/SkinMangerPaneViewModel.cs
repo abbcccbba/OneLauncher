@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,6 +34,16 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
         set
         {
             _selectedIndex = value;
+            if (value == 0)
+            {
+                IsUseFile = true;
+                IsUseUrl = false;
+            }
+            else if (value == 1)
+            {
+                IsUseUrl = true;
+                IsUseFile = false;
+            }
         }
         get 
         { 
@@ -92,15 +103,41 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             } 
         }
     }
+    [ObservableProperty]
+    public bool _IsUseUrl;
+    [ObservableProperty]
+    public bool _IsUseFile = true;
+    [ObservableProperty]
+    public string _Url;
     [RelayCommand]
     public async Task OpenInNameMC()
     {
-        
-        var dialog = new NativeWebDialog
+        // 检查url有效性
+        string Url = $"https://s.namemc.com/i/{this.Url}.png";
+        using (var client = new HttpClient())
         {
-            Title = "Avalonia Docs",
-            CanUserResize = false,
-            Source = new Uri("https://docs.avaloniaui.net/")
-        };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
+            var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, Url));
+            if (!response.IsSuccessStatusCode || Url == null)
+            {
+                await MainWindow.mainwindow.ShowFlyout("无效的ID", true);
+                return;
+            }
+        }
+        using (var task = new MojangProfile(SelUserModel))
+        {
+            // 上传
+            await task.SetUseUrl(new MojangSkin()
+            {
+                Skin = Url,
+                IsSlimModel = (IsSteveModel) ? false : true
+            });
+            // 重新缓存本地皮肤文件
+            await task.GetSkinHeadImage();
+            // 刷新
+            accountPageViewModel.RefList();
+
+            await MainWindow.mainwindow.ShowFlyout("已成功通过NameMC上传皮肤！");
+        }
     }
 }

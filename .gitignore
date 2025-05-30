@@ -452,6 +452,3 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-/ConsoleTest/ConsoleTest.csproj
-/OneLauncher/Key.cs
-/OneLauncher/Views/Key.cs
