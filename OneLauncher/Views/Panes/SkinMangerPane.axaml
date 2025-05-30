@@ -11,11 +11,16 @@
 				<ComboBoxItem>通过NameMC获取</ComboBoxItem>
 			</ComboBox>
 
-			<StackPanel IsVisible="">
+			<StackPanel IsVisible="{Binding IsUseFile,FallbackValue=true}">
 				<Button Content="选择本地文件..." Command="{Binding ToChooseSkinFileCommand}"/>
 			</StackPanel>
-			<StackPanel IsVisible="">
-				
+			<StackPanel Spacing="12" Orientation="Horizontal" IsVisible="{Binding IsUseUrl}">
+				<TextBox Watermark="输入NameMC的皮肤ID" Text="{Binding Url}">
+					<TextBox.KeyBindings>
+						<KeyBinding Gesture="Enter" Command="{Binding OpenInNameMCCommand}" />
+					</TextBox.KeyBindings>
+				</TextBox>
+				<Button Content="检查并添加" Command="{Binding OpenInNameMCCommand}"/>
 			</StackPanel>
 			<TextBlock Text="选择模型类型："/>
 			<StackPanel Orientation="Horizontal" Spacing="4">

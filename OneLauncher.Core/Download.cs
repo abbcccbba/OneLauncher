@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Modrinth;
+using OneLauncher.Core.neoforge;
 using OneLauncher.Core.Net.java;
 using System;
 using System.Collections.Generic;
@@ -13,11 +14,11 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core;
 public enum DownProgress
 {
-    DownMod,
-    DownLog4j2,
+    DownMain,  
     DownLibs,
+    DownMod,
     DownAssets,
-    DownMain,
+    DownLog4j2,
     Verify,
     Done
 }
@@ -144,6 +145,7 @@ public class Download : IDisposable
                     $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID.ToString()}/", modpath);
         }
         #endregion
+        #region 声明一些信息和下载主文件
         List<NdDowItem> AllNd = new List<NdDowItem>();
         List<NdDowItem> NdLibs = CheckFilesExists(versionInfomations.GetLibrarys());
         List<NdDowItem> NdAssets = CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath));
@@ -159,6 +161,27 @@ public class Download : IDisposable
         int FileCount = AllNd.Count;
         int Filed = 0;
 
+        Interlocked.Increment(ref Filed);
+        progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
+        if (!File.Exists(mainFile.path))
+            await DownloadFile(mainFile.url, mainFile.path);
+        #endregion
+        
+        await DownloadListAsync(
+            new Progress<(int donecount, string filename)>(p =>
+            {
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownLibs, FileCount, p.donecount, p.filename)); 
+            }), 
+            CheckFilesExists(NdLibs),
+            GameRootPath,
+            maxConcurrentDownloads);
+        // 释放本地库文件
+        await Task.Run(() =>
+        {
+            foreach (var i in versionInfomations.NativesLibs)
+                ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(VersionPath, "natives"));
+        });
         #region 下载mod相关依赖
         if (modType.IsFabric)
         {
@@ -193,13 +216,14 @@ public class Download : IDisposable
         }
         else if (modType.IsNeoForge)
         {
-            NeoForgeUsing neoForge = new NeoForgeUsing(UnityClient);
-
-            string VersionJson = await neoForge.DownloadVersionJson
-                ("https://maven.neoforged.net/releases/neoforged/neoforge/20.2.38-beta/neoforge-20.2.38-beta-installer.jar/neoforge-20.2.38-beta-installer.jar");
-            // 保存进文件方便后续使用
-            await File.WriteAllTextAsync(Path.Combine(VersionPath, $"{DownloadVersion.ID}-neoforge.json"), VersionJson);
-            modLibs = CheckFilesExists(neoForge.GetLibraries(GameRootPath));
+            NeoForgeInstallTasker installTasker = new NeoForgeInstallTasker
+                (
+                    this,
+                    Path.Combine(GameRootPath, "libraries"),
+                    Path.Combine(GameRootPath, "versions", DownloadVersion.ID),
+                    DownloadVersion.ID
+                );
+            modLibs = CheckFilesExists(await installTasker.StartReady("https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.173/neoforge-21.1.173-installer.jar"));
             AllNd.AddRange(modLibs);
             FileCount = AllNd.Count;
             await DownloadListAsync(
@@ -211,8 +235,29 @@ public class Download : IDisposable
             modLibs,
             GameRootPath,
             maxConcurrentDownloads);
+            // 执行NeoForge处理器
+            await installTasker.ToRunProcessors
+                (
+                    Path.Combine(GameRootPath, "versions", DownloadVersion.ID, $"{DownloadVersion.ID}.jar"),
+                    Tools.IsUseOlansJreOrOssJdk(versionInfomations.GetJavaVersion(), Path.GetDirectoryName(GameRootPath)),
+                    new Progress<(int a, int b)>(p =>
+                    {
+                        Debug.WriteLine($"执行处理器 {p.b}/{p.a}");
+                    })
+                );
         }
         #endregion
+        // 下载资源文件
+        await DownloadListAsync(
+            new Progress<(int donecount, string filename)>(p =>
+            {
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownAssets, FileCount, p.donecount, p.filename));
+            }),
+            CheckFilesExists(NdAssets),
+            GameRootPath,
+            maxConcurrentDownloads
+        );
         // 下载日志配置文件
         if (new Version(DownloadVersion.ID) > new Version("1.7"))
         {
@@ -227,39 +272,6 @@ public class Download : IDisposable
                     await DownloadFile(((NdDowItem)log4j2).url, ((NdDowItem)log4j2).path);
             }
         }
-        // 下载资源文件和库文件
-        await DownloadListAsync(
-            new Progress<(int donecount, string filename)>(p =>
-            {
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownLibs, FileCount, p.donecount, p.filename)); 
-            }), 
-            CheckFilesExists(NdLibs),
-            GameRootPath,
-            maxConcurrentDownloads);
-        // 释放本地库文件
-        await Task.Run(() =>
-        {
-            foreach (var i in versionInfomations.NativesLibs)
-                ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(VersionPath, "natives"));
-        });
-        await DownloadListAsync(
-            new Progress<(int donecount, string filename)>(p =>
-            {
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAssets, FileCount, p.donecount, p.filename));
-            }),
-            CheckFilesExists(NdAssets),
-            GameRootPath,
-            maxConcurrentDownloads
-        );
-
-        // 下载主文件
-        Interlocked.Increment(ref Filed);
-        progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
-        if (!File.Exists(mainFile.path))
-            await DownloadFile(mainFile.url, mainFile.path);
-
         // 校验所有文件
         if (IsSha1)
         {

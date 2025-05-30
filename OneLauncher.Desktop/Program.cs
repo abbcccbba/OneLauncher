@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Avalonia;
-
 namespace OneLauncher.Desktop;
 
 class Program
@@ -18,7 +17,7 @@ class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            //.WithSystemFontSource()
-            .LogToTrace();
-            //.UseAvaloniaNative();
+            .LogToTrace()
+            //.UseAvaloniaNative()
+            .UseSkia();
 }
