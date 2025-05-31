@@ -40,7 +40,7 @@ OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们�
 
 如果你有任何问题或请求可以在[这里](https://github.com/abbcccbba/OneLauncher/issues)发起提问  
 
-###开源项目或需注明署名使用及贡献人员命令  
+### 开源项目或需注明署名使用及贡献人员名单
 
 - 使用项目[.NET](https://github.com/dotnet)
 - 使用项目[Avalonia](https://github.com/AvaloniaUI/Avalonia)
