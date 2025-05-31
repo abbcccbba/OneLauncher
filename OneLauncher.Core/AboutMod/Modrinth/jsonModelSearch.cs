@@ -12,7 +12,6 @@ namespace OneLauncher.Core.Modrinth.JsonModelSearch;
 public class ModrinthSearch
 {
     [JsonPropertyName("hits")]
-    // [JsonProperty("hits")] // Newtonsoft.Json
     public List<ModrinthProjectHit> Hits { get; set; }
 }
 public class ModrinthProjectHit
@@ -37,4 +36,6 @@ public class ModrinthProjectHit
 
     [JsonPropertyName("date_created")]
     public DateTime DateCreated { get; set; }
+    [JsonPropertyName("display_categories")]
+    public List<string> Categories {  get; set; }
 }

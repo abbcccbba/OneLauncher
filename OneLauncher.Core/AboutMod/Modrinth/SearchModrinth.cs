@@ -19,7 +19,8 @@ public class SearchModrinth : IDisposable
     }
     public async Task<ModrinthSearch> ToSearch(string Key)
     {
-        string SearchUrl = $"https://api.modrinth.com/v2/search?query=\"{Key}\"&facets=[[\"categories:fabric\"]]";
+        // 搜索仅限支持fabric或支持neoforge的模组
+        string SearchUrl = $"https://api.modrinth.com/v2/search?query=\"{Key}\"&facets=[[\"categories:neoforge\",\"categories:fabric\"]]";
         Debug.WriteLine(SearchUrl);
 
         HttpResponseMessage response = await httpClient.GetAsync(SearchUrl);

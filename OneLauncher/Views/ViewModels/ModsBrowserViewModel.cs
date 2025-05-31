@@ -34,10 +34,27 @@ internal partial class ModItem : BaseViewModel
                     time = item.DateCreated,
                     SupportVersions = Tools.McVsFilter(item.Versions),
                     IconUrl = new Uri((
-                    // 处理某个缺德作者不加图标的情况
-                    (item.IconUrl == string.Empty)
-                    ? "https://img.icons8.com/carbon-copy/100/border-none.png" : item.IconUrl)),
+                        // 处理某个缺德作者不加图标的情况
+                        (string.IsNullOrEmpty(item.IconUrl))
+                        ? "https://img.icons8.com/carbon-copy/100/border-none.png" : item.IconUrl)),
+                    // 默认初始化 SupportModType
+                    SupportModType = new ModType() // 初始化为默认值（bool为false）
                 };
+
+                // 获取 SupportModType 的副本
+                ModType currentModType = i.SupportModType;
+
+                foreach (var j in item.Categories)
+                {
+                    if (j == "fabric")
+                        currentModType.IsFabric = true; // 修改副本
+                    if (j == "neoforge")
+                        currentModType.IsNeoForge = true; // 修改副本
+                }
+
+                // 将修改后的副本赋值回原属性
+                i.SupportModType = currentModType;
+
                 modItems.Add(i);
             }
         }
@@ -48,6 +65,7 @@ internal partial class ModItem : BaseViewModel
     public string Description { get; set; }
     public string ID { get; set; }
     public List<string> SupportVersions { get; set; } = new List<string>();
+    public ModType SupportModType { get; set; }
     public DateTime time { get; set; }
 }
 
