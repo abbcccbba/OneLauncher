@@ -34,7 +34,10 @@ public partial class version : UserControl
     /// </summary>
     /// <param name="IsOriginal">是否以原版模式启动（不加载Mod加载器）</param>
     /// <returns>异步任务Task</returns>
-    public static Task EasyGameLauncher(aVersion LaunchGameInfo,bool IsOriginal = false,bool UseGameTasker = false)
+    public static Task EasyGameLauncher(
+        aVersion LaunchGameInfo,
+        bool IsOriginal = false,
+        bool UseGameTasker = false)
     {
         // 用多线程而不是异步，否则某些特定版本会阻塞
         MainWindow.mainwindow.ShowFlyout("正在启动游戏...");

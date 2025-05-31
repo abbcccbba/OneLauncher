@@ -1,22 +1,16 @@
 ﻿using OneLauncher.Core.Modrinth;
 using OneLauncher.Core.neoforge;
 using OneLauncher.Core.Net.java;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Linq;
-using System.Net.Http;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OneLauncher.Core;
 public enum DownProgress
 {
     DownMain,  
     DownLibs,
-    DownMod,
+    DownAndInstModFiles,
     DownAssets,
     DownLog4j2,
     Verify,
@@ -111,16 +105,16 @@ public class Download : IDisposable
             // 下载 version.json
             var versionjsonpath =
                 Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
-            if (!File.Exists(versionjsonpath))
+            if (!System.IO.File.Exists(versionjsonpath))
                 await DownloadFile(DownloadVersion.Url, versionjsonpath);
 
             // 实例化版本信息解析器
             versionInfomations = new VersionInfomations
-                (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType, IsVersionIsolation);
+                (await System.IO.File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType, IsVersionIsolation);
 
             // 下载资源文件索引
             var assetsIndex = versionInfomations.GetAssets();
-            if (!File.Exists(assetsIndex.path))
+            if (!System.IO.File.Exists(assetsIndex.path))
                 await DownloadFile(assetsIndex.url, assetsIndex.path);
         }
         #endregion
@@ -174,7 +168,6 @@ public class Download : IDisposable
                 progress.Report((DownProgress.DownLibs, FileCount, p.donecount, p.filename)); 
             }), 
             CheckFilesExists(NdLibs),
-            GameRootPath,
             maxConcurrentDownloads);
         // 释放本地库文件
         await Task.Run(() =>
@@ -204,14 +197,13 @@ public class Download : IDisposable
             new Progress<(int donecount, string filename)>(p =>
             {
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownMod, FileCount, p.donecount, p.filename));
+                progress.Report((DownProgress.DownAndInstModFiles, FileCount, p.donecount, p.filename));
             }),
             modLibs,
-            GameRootPath,
             maxConcurrentDownloads);
 
             Interlocked.Increment(ref Filed);
-            progress.Report((DownProgress.DownMod, FileCount, Filed, ((NdDowItem)modApi).path));
+            progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, ((NdDowItem)modApi).path));
             await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
         }
         else if (modType.IsNeoForge)
@@ -223,27 +215,32 @@ public class Download : IDisposable
                     Path.Combine(GameRootPath, "versions", DownloadVersion.ID),
                     DownloadVersion.ID
                 );
-            modLibs = CheckFilesExists(await installTasker.StartReady("https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.173/neoforge-21.1.173-installer.jar"));
-            AllNd.AddRange(modLibs);
-            FileCount = AllNd.Count;
+            // 下载依赖库和工具依赖库文件
+            string url = "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.173/neoforge-21.1.173-installer.jar";
+            (List<NdDowItem> NdModLibs,List<NdDowItem> NdModToolsLibs,string BDFilePath) = await installTasker.StartReady(url);
             await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownMod, FileCount, p.donecount, p.filename));
+                progress.Report((DownProgress.DownAndInstModFiles, FileCount, p.donecount, p.filename));
             }),
-            modLibs,
-            GameRootPath,
-            maxConcurrentDownloads);
+            CheckFilesExists(NdModLibs.Concat(NdModToolsLibs).ToList()),
+            maxConcurrentDownloads
+            );
+
+            FileCount = AllNd.Count;
             // 执行NeoForge处理器
+            installTasker.ProcessorsOutEvent += (int a, int b, string c) =>
+            {
+                if (a == -1 && b == -1)
+                    throw new OlanException("NeoForge安装失败",$"执行处理器时报错。信息：{c}",OlanExceptionAction.Error);
+                progress.Report((DownProgress.DownAndInstModFiles,FileCount,Filed,$"[执行处理器({b}/{a})]\nMessage:{c}"));
+            };
             await installTasker.ToRunProcessors
                 (
                     Path.Combine(GameRootPath, "versions", DownloadVersion.ID, $"{DownloadVersion.ID}.jar"),
                     Tools.IsUseOlansJreOrOssJdk(versionInfomations.GetJavaVersion(), Path.GetDirectoryName(GameRootPath)),
-                    new Progress<(int a, int b)>(p =>
-                    {
-                        Debug.WriteLine($"执行处理器 {p.b}/{p.a}");
-                    })
+                    BDFilePath
                 );
         }
         #endregion
@@ -255,7 +252,6 @@ public class Download : IDisposable
                 progress.Report((DownProgress.DownAssets, FileCount, p.donecount, p.filename));
             }),
             CheckFilesExists(NdAssets),
-            GameRootPath,
             maxConcurrentDownloads
         );
         // 下载日志配置文件
@@ -342,7 +338,7 @@ public class Download : IDisposable
         });
 
         progress?.Report(((int)totalBytesToDownload, 0, "开始下载Mod文件..."));
-        await DownloadListAsync(fileCompletionProgress, filesToProcess, ModPath, maxConcurrentDownloads);
+        await DownloadListAsync(fileCompletionProgress, filesToProcess, maxConcurrentDownloads);
 
         if (IsSha1)
         {
@@ -353,7 +349,7 @@ public class Download : IDisposable
         progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "下载完成！"));
     }
 
-    private async Task DownloadListAsync(IProgress<(int completedFiles,string FilesName)> progress, List<NdDowItem> downloadNds,string GameRootPath,int maxConcurrentDownloads)
+    public async Task DownloadListAsync(IProgress<(int completedFiles,string FilesName)> progress, List<NdDowItem> downloadNds,int maxConcurrentDownloads)
     {
         // 初始化已完成文件数
         int completedFiles = 0;
@@ -406,7 +402,7 @@ public class Download : IDisposable
         // 等待所有任务完成
         await Task.WhenAll(downloadTasks);
     }
-    private List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI)
+    public List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI)
     {
         List<NdDowItem> filesToDownload = new List<NdDowItem>(FDI.Count);
         foreach (var item in FDI)
@@ -442,7 +438,7 @@ public class Download : IDisposable
             throw;
         }
     }
-    private async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1)
+    public async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1)
     {
         var semaphore = new SemaphoreSlim(maxConcurrentSha1);
         var sha1Tasks = new List<Task>(FDI.Count);

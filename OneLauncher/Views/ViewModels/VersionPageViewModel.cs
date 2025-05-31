@@ -22,17 +22,28 @@ internal partial class VersionItem
     }
     public aVersion V { get; set; }
     [RelayCommand]
-    // 直接启动
-    public void LaunchGame(aVersion version) => Views.version.EasyGameLauncher(version);
+    public void LaunchGameWithFabric(aVersion version) => Views.version.EasyGameLauncher(
+        new aVersion() 
+        {
+            VersionID = version.VersionID,
+            IsVersionIsolation = version.IsVersionIsolation,
+            modType = new ModType() { IsFabric = true,IsNeoForge = false}
+        });
+    [RelayCommand]
+    public void LaunchGameWithNeoforge(aVersion version) => Views.version.EasyGameLauncher(
+        new aVersion()
+        {
+            VersionID = version.VersionID,
+            IsVersionIsolation = version.IsVersionIsolation,
+            modType = new ModType() { IsFabric = false, IsNeoForge = true }
+        });
     [RelayCommand]
     // 原版模式
     public void LaunchGameOriginal(aVersion version) => Views.version.EasyGameLauncher(version,IsOriginal: true);
     [RelayCommand]
     // 调试模式
     public void LaunchGameDebug(aVersion version) => Views.version.EasyGameLauncher(version,UseGameTasker: true);
-    [RelayCommand]
-    // 原版调试模式
-    public void LaunchGameOriginalDebug(aVersion version) => Views.version.EasyGameLauncher(version,IsOriginal: true ,UseGameTasker: true);
+    
     [RelayCommand]
     public async void PinToDesktop(aVersion version)
     {
