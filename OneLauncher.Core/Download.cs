@@ -154,7 +154,7 @@ public class Download : IDisposable
         
         int FileCount = AllNd.Count;
         int Filed = 0;
-
+        
         Interlocked.Increment(ref Filed);
         progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
         if (!File.Exists(mainFile.path))
@@ -216,8 +216,11 @@ public class Download : IDisposable
                     DownloadVersion.ID
                 );
             // 下载依赖库和工具依赖库文件
-            string url = "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.173/neoforge-21.1.173-installer.jar";
-            (List<NdDowItem> NdModLibs,List<NdDowItem> NdModToolsLibs,string BDFilePath) = await installTasker.StartReady(url);
+            string neoForgeActualVersion = await new NeoForgeVersionListGetter(UnityClient)
+                // 调用Gemini写的名字贼长的方法来获取NeoForge安装程序的url
+                .GetLatestSuitableNeoForgeVersionStringAsync(DownloadVersion.ID,true);
+            string installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neoForgeActualVersion}/neoforge-{neoForgeActualVersion}-installer.jar";
+            (List<NdDowItem> NdModLibs,List<NdDowItem> NdModToolsLibs,string BDFilePath) = await installTasker.StartReady(installerUrl);
             await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
@@ -234,13 +237,13 @@ public class Download : IDisposable
             {
                 if (a == -1 && b == -1)
                     throw new OlanException("NeoForge安装失败",$"执行处理器时报错。信息：{c}",OlanExceptionAction.Error);
-                progress.Report((DownProgress.DownAndInstModFiles,FileCount,Filed,$"[执行处理器({b}/{a})]\nMessage:{c}"));
+                progress.Report((DownProgress.DownAndInstModFiles,FileCount,Filed,$"[执行处理器({b}/{a})]{Environment.NewLine}{c}"));
             };
             await installTasker.ToRunProcessors
                 (
                     Path.Combine(GameRootPath, "versions", DownloadVersion.ID, $"{DownloadVersion.ID}.jar"),
                     Tools.IsUseOlansJreOrOssJdk(versionInfomations.GetJavaVersion(), Path.GetDirectoryName(GameRootPath)),
-                    BDFilePath
+                    BDFilePath,OsType
                 );
         }
         #endregion

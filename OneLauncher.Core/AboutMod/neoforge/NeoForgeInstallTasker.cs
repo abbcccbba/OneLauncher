@@ -113,7 +113,7 @@ public class NeoForgeInstallTasker
     /// 运行NeoForge处理器
     /// 注意：此方法的所有错误信息必须通过事件抛出
     /// </summary>
-    public Task ToRunProcessors(string MainjarPath, string javaPath,string ClientLzmaFilePath) => Task.Run(async () =>
+    public Task ToRunProcessors(string MainjarPath, string javaPath,string ClientLzmaFilePath,SystemType osType) => Task.Run(async () =>
     {
         int alls;
         int dones = 0;
@@ -149,7 +149,7 @@ public class NeoForgeInstallTasker
                 {
                     StringBuilder CpArgsBuilder = new StringBuilder();
                     foreach (var icp in pros.Classpath)
-                        CpArgsBuilder.Append(Tools.MavenToPath(librariesPath, icp) + ";");
+                        CpArgsBuilder.Append(Tools.MavenToPath(librariesPath, icp) + (osType == SystemType.windows ? ";" : ":"));
                     CpArgs =
                         $"-cp \"{CpArgsBuilder.ToString().TrimEnd()}\"";
                 }
@@ -224,12 +224,12 @@ public class NeoForgeInstallTasker
                 dones++;
                 ProItem.OutputDataReceived += (sender, e) =>
                 {
-                    //Debug.WriteLine(e.Data);
+                    Debug.WriteLine(e.Data);
                     ProcessorsOutEvent?.Invoke(alls, dones, e.Data);
                 };
                 ProItem.ErrorDataReceived += (sender, e) =>
                 {
-                    //Debug.WriteLine(e.Data);
+                    Debug.WriteLine(e.Data);
                     ProcessorsOutEvent?.Invoke(alls, dones, e.Data);
                 };
                 ProItem.Start();

@@ -39,7 +39,13 @@ internal partial class VersionItem
         });
     [RelayCommand]
     // 原版模式
-    public void LaunchGameOriginal(aVersion version) => Views.version.EasyGameLauncher(version,IsOriginal: true);
+    public void LaunchGameOriginal(aVersion version) => Views.version.EasyGameLauncher(
+        new aVersion()
+        {
+            VersionID = version.VersionID,
+            IsVersionIsolation = version.IsVersionIsolation,
+            modType = new ModType() { IsFabric = false, IsNeoForge = false }
+        });
     [RelayCommand]
     // 调试模式
     public void LaunchGameDebug(aVersion version) => Views.version.EasyGameLauncher(version,UseGameTasker: true);
