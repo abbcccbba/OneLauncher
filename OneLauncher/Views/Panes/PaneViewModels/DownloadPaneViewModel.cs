@@ -100,7 +100,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         : (p.d == DownProgress.Verify) ? "正在校验，请稍后..."
                         : (p.d == DownProgress.Done) ? "已下载完毕" : string.Empty;
                         */
-                        Fs = $"{p.a}/{p.b}";
+                        Fs = $"{p.b}/{p.a}";
                         CurrentProgress = (double)p.b / p.a * 100;
                         FileName = p.c;
                     }), 

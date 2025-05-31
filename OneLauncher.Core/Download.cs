@@ -169,7 +169,7 @@ public class Download : IDisposable
             new Progress<(int donecount, string filename)>(p =>
             {
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownLibs, FileCount, p.donecount, p.filename)); 
+                progress.Report((DownProgress.DownLibs, FileCount, Filed, p.filename)); 
             }), 
             CheckFilesExists(NdLibs),
             maxConcurrentDownloads);
@@ -207,7 +207,7 @@ public class Download : IDisposable
             new Progress<(int donecount, string filename)>(p =>
             {
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAndInstModFiles, FileCount, p.donecount, p.filename));
+                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, p.filename));
             }),
             modLibs,
             maxConcurrentDownloads); 
@@ -227,17 +227,20 @@ public class Download : IDisposable
                 .GetLatestSuitableNeoForgeVersionStringAsync(DownloadVersion.ID,nS);
             string installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neoForgeActualVersion}/neoforge-{neoForgeActualVersion}-installer.jar";
             (List<NdDowItem> NdModLibs,List<NdDowItem> NdModToolsLibs,string BDFilePath) = await installTasker.StartReady(installerUrl);
+            AllNd.AddRange(NdModLibs);
+            AllNd.AddRange(NdModToolsLibs);
+            FileCount = AllNd.Count;
             await DownloadListAsync(
             new Progress<(int donecount, string filename)>(p =>
             {
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAndInstModFiles, FileCount, p.donecount, p.filename));
+                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, p.filename));
             }),
             CheckFilesExists(NdModLibs.Concat(NdModToolsLibs).ToList()),
             maxConcurrentDownloads
             );
 
-            FileCount = AllNd.Count;
+            
             // 执行NeoForge处理器
             installTasker.ProcessorsOutEvent += (int a, int b, string c) =>
             {
@@ -258,7 +261,7 @@ public class Download : IDisposable
             new Progress<(int donecount, string filename)>(p =>
             {
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAssets, FileCount, p.donecount, p.filename));
+                progress.Report((DownProgress.DownAssets, FileCount, Filed, p.filename));
             }),
             CheckFilesExists(NdAssets),
             maxConcurrentDownloads

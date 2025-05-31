@@ -7,7 +7,7 @@
 	<Grid RowDefinitions="Auto,1,*" VerticalAlignment="Top" Margin="12">
 		<!-- 标题栏 -->
 		<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8">
-			<Button Command="{Binding DataContext.ClosePaneCommand}">
+			<Button Command="{Binding $parent[UserControl].DataContext.ClosePaneCommand}">
 				<StackPanel Orientation="Horizontal" Spacing="8">
 					<Image Source="/Assets/icos/back.png" Width="20" Height="20"/>
 					<TextBlock Text="返回" VerticalAlignment="Center"/>
@@ -19,22 +19,8 @@
 		<Separator Grid.Row="1" Margin="0,24,0,52" Background="#252423"/>
 		<Grid RowDefinitions="*,*" Grid.Row="2" Margin="0,0,0,0" >
 			<ScrollViewer Grid.Row="0">
-				<StackPanel Background="#F4F4F5" Margin="24,8" Spacing="6">
-					<TextBlock FontSize="18" Text="支持的版本："/>
-					<ListBox ItemsSource="{Binding SupportVersions}">
-						<ListBox.Styles>
-							<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-								<Setter Property="Background" Value="Transparent"/>
-							</Style>
-							<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
-								<Setter Property="Background" Value="Transparent"/>
-							</Style>
-							<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-								<Setter Property="Background" Value="Transparent"/>
-							</Style>
-						</ListBox.Styles>
-					</ListBox>
-					<TextBlock FontSize="18" Text="安装到哪个版本？"/>
+				<StackPanel Margin="24,8" Spacing="6">
+					<TextBlock Text="安装到哪个版本？" FontSize="20" FontWeight="Bold"/>
 					<StackPanel Orientation="Horizontal" Spacing="6" >
 						<ComboBox PlaceholderText="选择版本..." SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding OwnedVersoins}" >
 							<ComboBox.ItemTemplate>
@@ -49,6 +35,22 @@
 						<CheckBox IsChecked="{Binding IsICS}">下载依赖</CheckBox>
 						<Button Command="{Binding ToInstallCommand}" Content="安装"/>
 					</StackPanel>
+					<Panel IsVisible="{Binding IsShowMoreInfo}">
+						<TextBlock FontSize="18" Text="支持的版本："/>
+						<ListBox ItemsSource="{Binding SupportVersions}">
+							<ListBox.Styles>
+								<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+									<Setter Property="Background" Value="Transparent"/>
+								</Style>
+								<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+									<Setter Property="Background" Value="Transparent"/>
+								</Style>
+								<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+									<Setter Property="Background" Value="Transparent"/>
+								</Style>
+							</ListBox.Styles>
+						</ListBox>
+					</Panel>
 				</StackPanel>
 			</ScrollViewer>
 			<StackPanel Grid.Row="1">
