@@ -107,20 +107,19 @@ public partial class MainWindow : Window
     /// 在右下角显示提示信息
     /// </summary>
     /// <param ID="text">提示信息内容</param>
-    public Task ShowFlyout(string text,bool IsWarning = false)
+    public Task ShowFlyout(string text,bool IsWarning = false) =>
+    Dispatcher.UIThread.InvokeAsync(async() =>
     {
-        return Dispatcher.UIThread.InvokeAsync(async() =>
-        {
-            FytFkA.Text = text;
-            if (IsWarning)
-                FytB.Background = new SolidColorBrush(Colors.Red);
-            else
-                FytB.Background = new SolidColorBrush(Colors.LightBlue);
-            FytB.IsVisible = true;
-            await Task.Delay(3000);
-            FytB.IsVisible = false;
-        });
-    }
+        FytFkA.Text = text;
+        if (IsWarning)
+            FytB.Background = new SolidColorBrush(Colors.Red);
+        else
+            FytB.Background = new SolidColorBrush(Colors.LightBlue);
+        FytB.IsVisible = true;
+        await Task.Delay(3000);
+        FytB.IsVisible = false;
+    });
+    
     // 统一事件方法
     private void ListBox_SelectionChanged(object? sender, Avalonia.Controls.SelectionChangedEventArgs e)
     {

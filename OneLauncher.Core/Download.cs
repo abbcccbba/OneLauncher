@@ -77,22 +77,26 @@ public class Download : IDisposable
     /// <summary>
     /// 开始异步下载
     /// </summary>
-    /// <param name="DownloadVersion">下载哪个版本？</param>
-    /// <param name="GameRootPath">游戏根目录（比如 F:\.minecraft ）</param>
+    /// <param name="DownloadVersion">需要下载的版本</param>
+    /// <param name="GameRootPath">游戏根路径</param>
     /// <param name="OsType">系统类型</param>
     /// <param name="progress">进度回调</param>
-    /// <param name="IsVersionIsolation">是否启用版本隔离</param>
-    /// <param name="IsMod">是否下载Mod（Fabric）版本</param>
+    /// <param name="modType">模组类型</param>
+    /// <param name="fS">对于Fabric，是否在此阶段一并下载Fabric API？</param>
+    /// <param name="nS">对于Neoforge，是否允许下载Beta版本？</param>
+    /// <param name="IsVersionIsolation">是否需要启用版本隔离</param>
     /// <param name="maxConcurrentDownloads">最大下载线程</param>
-    /// <param name="maxConcurrentSha1">最大sha1校验线程</param>
-    /// <param name="IsSha1">是否校验sha1</param>
-    /// <param name="AndJava">同时下载为其下载合适的Java版本</param>
+    /// <param name="maxConcurrentSha1">最大Sha1校验线程</param>
+    /// <param name="IsSha1">是否校验Sha1</param>
+    /// <param name="AndJava">下载时是否带合适java？</param>
     public async Task StartAsync(
         VersionBasicInfo DownloadVersion,
         string GameRootPath,
         SystemType OsType,
         IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
         ModType modType,
+        bool fS = false,
+        bool nS = false,
         bool IsVersionIsolation = false,
         int maxConcurrentDownloads = 16,
         int maxConcurrentSha1 = 16,
@@ -181,16 +185,22 @@ public class Download : IDisposable
             // 获取 Fabric 加载器下载信息
             modLibs = CheckFilesExists(new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries());
             // 获取Fabric API下载信息
-            var a = new Modrinth.GetModrinth(
-               "fabric-api", DownloadVersion.ID.ToString(),
-                ((!IsVersionIsolation)
-                ? Path.Combine(GameRootPath, "mods")
-                : Path.Combine(VersionPath, "mods")));
-            await a.Init();
-            modApi = (NdDowItem)a!.GetDownloadInfos();
+            if (fS)
+            {
+                var a = new Modrinth.GetModrinth(
+                   "fabric-api", DownloadVersion.ID.ToString(),
+                    ((!IsVersionIsolation)
+                    ? Path.Combine(GameRootPath, "mods")
+                    : Path.Combine(VersionPath, "mods")));
+                await a.Init();
+                modApi = (NdDowItem)a!.GetDownloadInfos();
+                AllNd.Add(modApi);
+                Interlocked.Increment(ref Filed);
+                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, ((NdDowItem)modApi).path));
+                await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
+            }
 
             AllNd.AddRange(modLibs);
-            AllNd.Add(modApi);
             FileCount = AllNd.Count;
 
             await DownloadListAsync(
@@ -200,13 +210,9 @@ public class Download : IDisposable
                 progress.Report((DownProgress.DownAndInstModFiles, FileCount, p.donecount, p.filename));
             }),
             modLibs,
-            maxConcurrentDownloads);
-
-            Interlocked.Increment(ref Filed);
-            progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, ((NdDowItem)modApi).path));
-            await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
+            maxConcurrentDownloads); 
         }
-        else if (modType.IsNeoForge)
+        if (modType.IsNeoForge)
         {
             NeoForgeInstallTasker installTasker = new NeoForgeInstallTasker
                 (
@@ -218,7 +224,7 @@ public class Download : IDisposable
             // 下载依赖库和工具依赖库文件
             string neoForgeActualVersion = await new NeoForgeVersionListGetter(UnityClient)
                 // 调用Gemini写的名字贼长的方法来获取NeoForge安装程序的url
-                .GetLatestSuitableNeoForgeVersionStringAsync(DownloadVersion.ID,true);
+                .GetLatestSuitableNeoForgeVersionStringAsync(DownloadVersion.ID,nS);
             string installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neoForgeActualVersion}/neoforge-{neoForgeActualVersion}-installer.jar";
             (List<NdDowItem> NdModLibs,List<NdDowItem> NdModToolsLibs,string BDFilePath) = await installTasker.StartReady(installerUrl);
             await DownloadListAsync(
@@ -392,7 +398,7 @@ public class Download : IDisposable
                             continue;
                         }
                     }
-                    throw;
+                    throw new OlanException("下载失败","重试到达阈值抛出",OlanExceptionAction.Error,ex);
                 }
                 finally
                 {
@@ -459,7 +465,10 @@ public class Download : IDisposable
                     string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                     if (!string.Equals(calculatedSha1, item.sha1, StringComparison.OrdinalIgnoreCase))
                     {
-                        throw new InvalidDataException($"SHA1 校验失败。文件: {item.path}, 预期: {item.sha1}, 实际: {calculatedSha1}");
+                        throw new OlanException(
+                            "下载失败",
+                            $"无法校验文件({item.path})Sha1，实际：{calculatedSha1}预期：{item.sha1}",
+                            OlanExceptionAction.Warning);
                     }
                 }
                 
@@ -468,5 +477,6 @@ public class Download : IDisposable
         }
         await Task.WhenAll(sha1Tasks);
     }
-    public void Dispose() => UnityClient.Dispose();}
+    public void Dispose() => UnityClient.Dispose();
+}
 
