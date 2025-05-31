@@ -58,7 +58,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 (p =>
                 {
                     Dp = p.d switch { 
-                        DownProgress.DownMod => "正在下载Mod（Fabric）相关文件...",
+                        DownProgress.DownAndInstModFiles => "正在下载Mod相关文件...",
                         DownProgress.DownLog4j2 => "正在下载日志配置文件",
                         DownProgress.DownLibs => "正在下载库文件...",
                         DownProgress.DownAssets => "正在下载资源文件...",
@@ -77,6 +77,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     */
                     Fs = $"{p.a}/{p.b}";
                     CurrentProgress = (double)p.b / p.a * 100;
+                    FileName = p.c;
                 }), IsVersionIsolation: IsVI,modType: VersionModType,AndJava: this.IsJava);
         }
         // 在配置文件中添加版本信息
@@ -93,6 +94,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public string _Dp = "下载未开始";
     [ObservableProperty]
     public string _Fs = "?/0";
+    [ObservableProperty]
+    public string _FileName = "操作文件名：（下载未开始）";
     [ObservableProperty]
     public double _CurrentProgress = 0;
     [RelayCommand]

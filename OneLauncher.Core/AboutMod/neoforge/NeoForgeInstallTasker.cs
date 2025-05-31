@@ -14,8 +14,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.neoforge;
+public delegate void ProcessorsOut(int all,int done,string message);
 /// <summary>
-/// 接管NeoForge几乎所有的下载和安装操作
+/// 接管NeoForge几乎所有安装操作
 /// </summary>
 public class NeoForgeInstallTasker
 {
@@ -25,7 +26,11 @@ public class NeoForgeInstallTasker
     public readonly string librariesPath;
     public readonly string gamePath;
     public readonly string gameVersion;
-    public NeoForgeInstallTasker(Download downloadTask,string librariesPath, string gamePath, string gameVersion)
+    public NeoForgeInstallTasker(
+        Download downloadTask,
+        string librariesPath, 
+        string gamePath, 
+        string gameVersion)
     {
         this.downloadTask = downloadTask;
         this.librariesPath = librariesPath;
@@ -36,10 +41,10 @@ public class NeoForgeInstallTasker
     /// 完成安装NeoForge的准备阶段
     /// 下载安装器并拆包，提取必要文件
     /// </summary>
-    /// <param name="InstallerUrl">安装包Url</param>
-    /// <returns>准备阶段需要下载的所有文件列表</returns>
-    public async Task<List<NdDowItem>> StartReady(string InstallerUrl)
+    /// <param name="InstallerUrl">安装程序网络Url链接</param>
+    public async Task<(List<NdDowItem>,List<NdDowItem>,string)> StartReady(string InstallerUrl)
     {
+        #region 从网络读取
         // 通过网络写入内存流方便后续操作
         HttpClient httpClient = downloadTask.UnityClient;
         using var response = await httpClient.GetAsync(InstallerUrl, HttpCompletionOption.ResponseHeadersRead);
@@ -69,38 +74,46 @@ public class NeoForgeInstallTasker
         NeoForgeVersionJson? versioninfo = await JsonSerializer.DeserializeAsync<NeoForgeVersionJson>(versionJsonStream);
         Root? installinfo = await JsonSerializer.DeserializeAsync<Root>(installProfileStream);
         installProfileExample = installinfo;
-        #region 把游戏和安装工具的依赖库文件添加到需要下载的文件列表
-        List<NdDowItem> FilesNeedToDownloadList = new List<NdDowItem>(versioninfo.Libraries.Count+installinfo.Libraries.Count);
+        #endregion
+        #region 下载游戏和安装工具的依赖库
+        List<NdDowItem> NdLib = new List<NdDowItem>(versioninfo.Libraries.Count);
         foreach (var item in versioninfo.Libraries)
-            FilesNeedToDownloadList.Add(new NdDowItem
+            NdLib.Add(new NdDowItem
                 (
                     Url: item.Downloads.Artifact.Url,
                     Path: Path.Combine(librariesPath,Path.Combine(item.Downloads.Artifact.Path.Split("/"))),
                     Size: item.Downloads.Artifact.Size,
                     Sha1: item.Downloads.Artifact.Sha1
                 ));
+        List<NdDowItem> NdToolsLib = new List<NdDowItem>(versioninfo.Libraries.Count);
         foreach (var item in installinfo.Libraries)
-        {
-            FilesNeedToDownloadList.Add(new NdDowItem
+            NdToolsLib.Add(new NdDowItem
                 (
                     Url: item.Downloads.Artifact.Url,
                     Path: Path.Combine(librariesPath, Path.Combine(item.Downloads.Artifact.Path.Split("/"))),
                     Size: item.Downloads.Artifact.Size,
                     Sha1: item.Downloads.Artifact.Sha1
                 ));
-            //InstallToolsPath.Add(item.Downloads.Artifact.Path);
-        }
+
         #endregion
+        #region 写入一些文件
         // 重新打开文件，因为原文件流已移动到末尾，不可读取有效信息
+        string ClientLzmeTempFileName = Path.GetTempFileName();
         using (var versionJsonStreamR = versionJson.Open())
         using (var fs = new FileStream(Path.Combine(gamePath,$"{gameVersion}-neoforge.json"),FileMode.Create, FileAccess.Write))
             await versionJsonStreamR.CopyToAsync(fs);
         using (var DataClientLazmStreamR = DataClientLazm.Open())
-        using (var fs = new FileStream(Path.Combine(librariesPath,"client.lzma"), FileMode.Create, FileAccess.Write))
+        using (var fs = new FileStream(ClientLzmeTempFileName, FileMode.Create, FileAccess.Write))
             await DataClientLazmStreamR.CopyToAsync(fs);
-        return FilesNeedToDownloadList;
+        #endregion
+        return (NdLib,NdToolsLib,ClientLzmeTempFileName);
     }
-    public Task ToRunProcessors(string MainjarPath, string javaPath, IProgress<(int all, int done)> progress) => Task.Run(async () =>
+    public event ProcessorsOut ProcessorsOutEvent;
+    /// <summary>
+    /// 运行NeoForge处理器
+    /// 注意：此方法的所有错误信息必须通过事件抛出
+    /// </summary>
+    public Task ToRunProcessors(string MainjarPath, string javaPath,string ClientLzmaFilePath) => Task.Run(async () =>
     {
         int alls;
         int dones = 0;
@@ -110,7 +123,7 @@ public class NeoForgeInstallTasker
             { "MC_SLIM",Tools.MavenToPath(librariesPath,installProfileExample.Data.MCSlim.Client)},
             { "MC_UNPACKED",Tools.MavenToPath(librariesPath,installProfileExample.Data.MCUnpacked.Client) },
             { "MERGED_MAPPINGS",Tools.MavenToPath(librariesPath,installProfileExample.Data.MergedMappings.Client) },
-            { "BINPATCH" , Path.Combine(librariesPath,"client.lzma")},
+            { "BINPATCH" , ClientLzmaFilePath},
             { "MCP_VERSION",installProfileExample.Data.MCPVersion.Client.Trim('\'') },
             { "MAPPINGS",Tools.MavenToPath(librariesPath,installProfileExample.Data.Mappings.Client) },
             { "MC_EXTRA",Tools.MavenToPath(librariesPath,installProfileExample.Data.MCExtra.Client) },
@@ -149,7 +162,7 @@ public class NeoForgeInstallTasker
                     {
                         ZipArchiveEntry? MainClassInFile = ToFindMainClass.GetEntry("META-INF/MANIFEST.MF");
                         if (ToFindMainClass == null || MainClassInFile == null)
-                            throw new OlanException("NeoForge安装失败", "无法读取主类名", OlanExceptionAction.Error);
+                            ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}查找主类名时出错");
                         using (StreamReader MainClassReader = new StreamReader(MainClassInFile.Open()))
                         {
                             string line;
@@ -167,18 +180,25 @@ public class NeoForgeInstallTasker
                     StringBuilder StdArgsBuilder = new StringBuilder();
                     foreach (var aArg in pros.Args)
                     {
-                        // 代表参数名称，直接返回原始
-                        if (aArg[0] == '-')
-                            StdArgsBuilder.Append(aArg);
-                        // 代表sb仓库坐标，送过去解析
-                        else if (aArg[0] == '[')
-                            StdArgsBuilder.Append($"\"{Tools.MavenToPath(librariesPath, aArg)}\"");
-                        // 代表占位符
-                        else if (aArg[0] == '{')
-                            StdArgsBuilder.Append($"\"{(ArgsExel[aArg.TrimStart('{').TrimEnd('}')])}\"");
-                        else
-                            StdArgsBuilder.Append(aArg);
-                        StdArgsBuilder.Append(" ");
+                        try
+                        {
+                            // 代表参数名称，直接返回原始
+                            if (aArg[0] == '-')
+                                StdArgsBuilder.Append(aArg);
+                            // 代表sb仓库坐标，送过去解析
+                            else if (aArg[0] == '[')
+                                StdArgsBuilder.Append($"\"{Tools.MavenToPath(librariesPath, aArg)}\"");
+                            // 代表占位符
+                            else if (aArg[0] == '{')
+                                StdArgsBuilder.Append($"\"{(ArgsExel[aArg.TrimStart('{').TrimEnd('}')])}\"");
+                            else
+                                StdArgsBuilder.Append(aArg);
+                            StdArgsBuilder.Append(" ");
+                        }
+                        catch(KeyNotFoundException)
+                        {
+                            ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}替换占位符时出错，未知占位符{aArg}");
+                        }
                     }
                     StdArgs = StdArgsBuilder.ToString();
                 }
@@ -199,14 +219,30 @@ public class NeoForgeInstallTasker
         alls = Processors.Count;
         foreach(var ProItem in Processors)
         {
-            dones++;
-            progress?.Report((alls, dones));
-            ProItem.OutputDataReceived += (sender, e) => Debug.WriteLine(e.Data);
-            ProItem.ErrorDataReceived += (sender, e) => Debug.WriteLine(e.Data);
-            ProItem.Start();
-            ProItem.BeginOutputReadLine();
-            ProItem.BeginErrorReadLine();
-            await ProItem.WaitForExitAsync();
+            try
+            {
+                dones++;
+                ProItem.OutputDataReceived += (sender, e) =>
+                {
+                    //Debug.WriteLine(e.Data);
+                    ProcessorsOutEvent?.Invoke(alls, dones, e.Data);
+                };
+                ProItem.ErrorDataReceived += (sender, e) =>
+                {
+                    //Debug.WriteLine(e.Data);
+                    ProcessorsOutEvent?.Invoke(alls, dones, e.Data);
+                };
+                ProItem.Start();
+                ProItem.BeginOutputReadLine();
+                ProItem.BeginErrorReadLine();
+                await ProItem.WaitForExitAsync();
+                if (ProItem.ExitCode != 0)
+                    ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}执行时出错");
+            }
+            catch
+            {
+                ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}调用时出错");
+            }
         }
     });
 }
