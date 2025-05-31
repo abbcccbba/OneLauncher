@@ -38,6 +38,8 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     }
     private ModType SupportModType;
     [ObservableProperty]
+    public bool _IsShowMoreInfo = true;
+    [ObservableProperty]
     public string _ModName;
     [ObservableProperty]
     public List<string> _SupportVersions;
@@ -54,6 +56,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
             await MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应加载器",true);
             return;
         }
+        IsShowMoreInfo = false;
         foreach (var needVersion in SupportVersions)
             if (needVersion == SelectedItem.VersionID)
             {
@@ -85,4 +88,9 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     public string _Fs = "?/0";
     [ObservableProperty]
     public double _CurrentProgress = 0;
+    [RelayCommand]
+    public void ClosePane()
+    {
+
+    }
 }
