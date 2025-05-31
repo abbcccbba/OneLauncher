@@ -178,7 +178,7 @@ public class LaunchCommandBuilder
         // 2. 添加所有 NeoForge 库 (来自 neoForgeParser)
         if (modType.IsNeoForge)
         {
-            allLibPaths.AddRange(neoForgeParser.GetLibraries(basePath).Select(x => x.path));
+            allLibPaths.AddRange(neoForgeParser.GetLibrariesForLaunch(basePath));
         }
         // (如果需要支持 Fabric, 在这里添加 fabricParser 的库)
         else if (modType.IsFabric)

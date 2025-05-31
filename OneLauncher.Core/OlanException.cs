@@ -23,16 +23,27 @@ public class OlanException : Exception
     public string Title { get; set; }
     public string Message {  get; set; }
     public Exception? OriginalException { get; set; }
+    // 重试方法，会在窗口显示，并由用户决定是否调用
+    public Action TryAgainFunction { get; set; }
     public OlanException(string Title,string Message,OlanExceptionAction action)
     {
         this.Title = Title;
         this.Message = Message;
         this.Action = action;
     }
-    public OlanException(string Message,OlanExceptionAction action,Exception originalException) 
-    { 
+    public OlanException(string Title, string Message,OlanExceptionAction action,Exception originalException) 
+    {
+        this.Title = Title;
         this.Message=Message;
         this.Action=action;
         this.OriginalException = originalException;
+    }
+    public OlanException(string Title, string Message, OlanExceptionAction action, Exception originalException,Action taf)
+    {
+        this.Title = Title;
+        this.Message = Message;
+        this.Action = action;
+        this.OriginalException = originalException;
+        TryAgainFunction = taf;
     }
 }

@@ -26,7 +26,14 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         VersionName = Version.ID.ToString();
         thisVersionBasicInfo = Version;
         this.downloadPage = downloadPane;
+        // 这个版本以下不支持模组加载器
+        IsAllowFabric = new System.Version(Version.ID) < new System.Version("1.14") ? false : true;
+        IsAllowNeoforge = new System.Version(Version.ID) < new System.Version("1.20.2") ? false : true;
     }
+    [ObservableProperty]
+    public bool _IsAllowFabric;
+    [ObservableProperty]
+    public bool _IsAllowNeoforge;
     private VersionBasicInfo thisVersionBasicInfo;
     DownloadPageViewModel downloadPage;
     [ObservableProperty]

@@ -38,7 +38,17 @@ internal partial class DownloadPageViewModel : BaseViewModel
     
     [ObservableProperty]
     public List<VersionBasicInfo> _ReleaseItems;
-
+    private VersionBasicInfo selectedItem;
+    public VersionBasicInfo SelectedItem 
+    {
+        set 
+        { 
+            selectedItem = value;
+            if(value != null)
+                ToDownload(value);
+        }
+        get { return selectedItem; }
+    }
     [ObservableProperty]
     public UserControl _DownloadPaneContent;
     [ObservableProperty]
