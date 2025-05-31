@@ -2,7 +2,7 @@
 
 # 配置
 $OutputEncoding = [System.Text.Encoding]::UTF8
-$softwareUrl = "https://github.com/abbcccbba/OneLauncher/releases/download/v0.0.7v1.0.0/OneLauncher.Desktop.exe"
+$softwareUrl = "https://github.com/abbcccbba/OneLauncher/releases/download/v0.1.0v1.0.0/OneLauncher.Desktop.exe"
 $softwareFile = Join-Path (Get-Location) "OneLauncher.Desktop.exe"
 $logFile = "$env:TEMP\OneLauncherInstall.log"
 
