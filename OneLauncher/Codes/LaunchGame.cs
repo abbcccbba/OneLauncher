@@ -104,19 +104,40 @@ internal class Game
                     if (string.IsNullOrEmpty(e.Data)) return;
                     Debug.WriteLine(e.Data);
                     WeakReferenceMessenger.Default.Send(new GameMessage($"[ERROE] {e.Data}{Environment.NewLine}"));
-                    if (e.Data.Contains("java.lang.ClassNotFoundException: net.minecraft.client.main.Main"))
-                        await MainWindow.mainwindow.ShowFlyout("启动失败，游戏文件缺失", true);
+                    if (e.Data.Contains("java.lang.ClassNotFoundException")) 
+                        await OlanExceptionWorker.ForOlanException(
+                        new OlanException("启动失败","Jvm无法找到主类，请尝试重新安装游戏",OlanExceptionAction.Error),
+                        async () => await LaunchGame(
+                                GameVersion,
+                                loginUserModel,
+                                modType,
+                                IsVersionInsulation,
+                                UseGameTasker
+                            ));
+
+   
                 };
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
                 await process.WaitForExitAsync(); 
+                if(process.ExitCode != 0)
+                    await OlanExceptionWorker.ForOlanException(
+                        new OlanException("启动失败", "未知错误，请尝试以调试模式启动游戏以查找出错原因", OlanExceptionAction.Error),
+                        async () => await LaunchGame(
+                                GameVersion,
+                                loginUserModel,
+                                modType,
+                                IsVersionInsulation,
+                                true
+                            ));
             }
             GameClosedEvent?.Invoke();
         }
         catch(Exception ex)
         {
-            Debug.WriteLine(ex.Message);
+            await OlanExceptionWorker.ForOlanException(
+                        new OlanException("启动失败", "系统未安装Java或系统错误", OlanExceptionAction.Error));
         }
     }
 }

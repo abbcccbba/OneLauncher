@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using OneLauncher.Core;
 
 namespace OneLauncher.Core;
-
+public class AppSettings
+{
+    public int MaximumDownloadThreads { get; set; } = 24;
+    public int MaximumSha1Threads { get; set; } = 24;
+    public bool IsSha1 { get; set; } = true;
+}
 public class AppConfig
 {
     // 当前启动器已安装的所有版本列表，默认初始化为空列表
@@ -22,6 +28,7 @@ public class AppConfig
     public aVersion DefaultVersion { get; set; }
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
     public List<int> JavaList { get; set; } = new List<int>();
+    public AppSettings OlanSettings { get; set; } = new AppSettings();
 }
 
 public class DBManger
@@ -35,7 +42,7 @@ public class DBManger
         ConfigFilePath = Path.Combine(BasePath, "config.json");
         if (File.Exists(ConfigFilePath))
         {
-            Read();
+            Read(FirstConfig);
         }
         else
         {
@@ -68,11 +75,16 @@ public class DBManger
         }
     }
 
-    public AppConfig Read()
+    public AppConfig Read(AppConfig Bk)
     {
         try
         {
             string jsonString = File.ReadAllText(ConfigFilePath);
+            if (string.IsNullOrEmpty(jsonString))
+            {
+                Write(Bk);
+                return config;
+            }
             AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString);
             this.config = readConfig;
             return readConfig;
