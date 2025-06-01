@@ -20,4 +20,12 @@ internal partial class DownloadPane : UserControl
         InitializeComponent();
         this.DataContext = new PaneViewModels.DownloadPaneViewModel(Version,downloadPage);
     }
+    public DownloadPane(aVersion Version)
+    {
+        InitializeComponent();
+        // 找到VersionBasicInfo实例
+        foreach(var versionItem in DownloadPageViewModel.ReleaseItems) 
+            if(versionItem.ID == Version.VersionID) 
+                DataContext = new PaneViewModels.DownloadPaneViewModel(versionItem,Version);
+    }
 }

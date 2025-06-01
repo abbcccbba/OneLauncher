@@ -14,18 +14,17 @@ internal class OlanExceptionWorker
 {
     public static Task ForOlanException(OlanException exception, Action TryAgainFunction = null)
     {
-        OlanException olanException = exception;
         if(TryAgainFunction != null)
-            olanException.TryAgainFunction = TryAgainFunction;
+            exception.TryAgainFunction = TryAgainFunction;
         return Dispatcher.UIThread.InvokeAsync(async () => 
         {
-            if (olanException.Action == OlanExceptionAction.Warning)
-                await MainWindow.mainwindow.ShowFlyout(olanException.Message,true);
-            if (olanException.Action == OlanExceptionAction.Error)
-                await new ExceptionTip(olanException).ShowDialog(MainWindow.mainwindow);
-            if (olanException.Action == OlanExceptionAction.FatalError)
+            if (exception.Action == OlanExceptionAction.Warning)
+                await MainWindow.mainwindow.ShowFlyout(exception.Message,true);
+            if (exception.Action == OlanExceptionAction.Error)
+                await new ExceptionTip(exception).ShowDialog(MainWindow.mainwindow);
+            if (exception.Action == OlanExceptionAction.FatalError)
             {
-                await new ExceptionTip(olanException).ShowDialog(MainWindow.mainwindow);
+                await new ExceptionTip(exception).ShowDialog(MainWindow.mainwindow);
                 Environment.Exit(1);
             }
         });

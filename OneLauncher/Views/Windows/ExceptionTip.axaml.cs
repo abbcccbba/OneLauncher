@@ -15,6 +15,8 @@ public partial class ExceptionTip : Window
         this.olanException = olanException;
         if(TAF != null)
             this.olanException.TryAgainFunction = TAF;
+        ErrorTitle.Text = olanException.Title;
+        ErrorDetails.Text = olanException.Message;
     }
 
     private void TryAgainFunction(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

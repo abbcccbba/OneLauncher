@@ -32,6 +32,21 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         IsAllowFabric = new System.Version(Version.ID) < new System.Version("1.14") ? false : true;
         IsAllowNeoforge = new System.Version(Version.ID) < new System.Version("1.20.2") ? false : true;
     }
+    public DownloadPaneViewModel(VersionBasicInfo Version,aVersion userVersion)
+    {
+        VersionName = Version.ID.ToString();
+        thisVersionBasicInfo = Version;
+        IsVI = userVersion.IsVersionIsolation;
+        IsMod = userVersion.modType.IsFabric;
+        IsNeoForge = userVersion.modType.IsNeoForge;
+        IsJava = true;
+        Task.Run(async () => 
+        {
+            // 给用户二秒选择时间，然后开始下载
+            await Task.Delay(2000);
+            await ToDownload();
+        });
+    }
     #region 数据绑定区
     [ObservableProperty]
     public bool _IsAllowFabric;
@@ -65,7 +80,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public double _CurrentProgress = 0;
     #endregion
     [RelayCommand]
-    public async void ToDownload()
+    public async Task ToDownload()
     {
         try
         {
@@ -115,13 +130,14 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     );
             }
             // 在配置文件中添加版本信息
-            Init.ConfigManger.config.VersionList.Add(new aVersion
-            {
-                VersionID = VersionName,
-                modType = VersionModType,
-                AddTime = DateTime.Now,
-                IsVersionIsolation = IsVI
-            });
+            if(downloadPage != null)
+                Init.ConfigManger.config.VersionList.Add(new aVersion
+                {
+                    VersionID = VersionName,
+                    modType = VersionModType,
+                    AddTime = DateTime.Now,
+                    IsVersionIsolation = IsVI
+                });
             Init.ConfigManger.Save();
         }
         catch(OlanException ex) 
@@ -132,7 +148,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public void ClosePane()
     {
-        downloadPage.IsPaneShow = false;
+        if (downloadPage != null)
+            downloadPage.IsPaneShow = false;
     }
     [RelayCommand]
     public void CheckOnWeb()
