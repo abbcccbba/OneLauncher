@@ -21,6 +21,7 @@ internal partial class VersionItem
         V = a;
     }
     public aVersion V { get; set; }
+    #region 启动
     [RelayCommand]
     public void LaunchGameWithFabric(aVersion version) => Views.version.EasyGameLauncher(
         new aVersion() 
@@ -49,7 +50,8 @@ internal partial class VersionItem
     [RelayCommand]
     // 调试模式
     public void LaunchGameDebug(aVersion version) => Views.version.EasyGameLauncher(version,UseGameTasker: true);
-    
+    #endregion
+
     [RelayCommand]
     public async void PinToDesktop(aVersion version)
     {
@@ -105,10 +107,20 @@ internal partial class VersionPageViewModel : BaseViewModel
     }
     [ObservableProperty]
     public List<VersionItem> _VersionList;
+    [ObservableProperty]
+    public UserControl _RefDownPane;
+    [ObservableProperty]
+    public bool _IsPaneShow;
     [RelayCommand]
     public void ToDownloadGame()
     {
         MainWindow.mainwindow.MainPageControl(MainWindow.MainPage.DownloadPage);
+    }
+    [RelayCommand]
+    public void DownloadGameAgain(aVersion version)
+    {
+        IsPaneShow = true;
+        RefDownPane = new DownloadPane(version);
     }
 }
 

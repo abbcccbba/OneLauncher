@@ -32,12 +32,11 @@ internal partial class DownloadPageViewModel : BaseViewModel
     public DownloadPageViewModel (List<VersionBasicInfo> ReleaseVersionList)
     {
         IsAllowDownloading = true;
-        this.ReleaseItems = ReleaseVersionList;
+        ReleaseItems = new ObservableCollection<VersionBasicInfo>(ReleaseVersionList);
         AutoVersionList = ReleaseVersionList;
     }
     
-    [ObservableProperty]
-    public List<VersionBasicInfo> _ReleaseItems;
+    public static ObservableCollection<VersionBasicInfo> ReleaseItems { get; set; }
     private VersionBasicInfo selectedItem;
     public VersionBasicInfo SelectedItem 
     {

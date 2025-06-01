@@ -248,12 +248,18 @@ public class Download : IDisposable
                     throw new OlanException("NeoForge安装失败",$"执行处理器时报错。信息：{c}",OlanExceptionAction.Error);
                 progress.Report((DownProgress.DownAndInstModFiles,FileCount,Filed,$"[执行处理器({b}/{a})]{Environment.NewLine}{c}"));
             };
-            await installTasker.ToRunProcessors
+            // 不等待以优化性能，错误信息在事件处理
+            _=Task.Run(async() =>
+            {
+                await installTasker.ToRunProcessors
                 (
                     Path.Combine(GameRootPath, "versions", DownloadVersion.ID, $"{DownloadVersion.ID}.jar"),
                     Tools.IsUseOlansJreOrOssJdk(versionInfomations.GetJavaVersion(), Path.GetDirectoryName(GameRootPath)),
-                    BDFilePath,OsType
+                    BDFilePath, OsType
                 );
+                // 确保即便处理器执行操作晚于其他下载操作执行用户也依旧能收到报告
+                progress.Report((DownProgress.Done, FileCount, Filed, "下载完毕"));
+            });
         }
         #endregion
         // 下载资源文件
@@ -286,7 +292,7 @@ public class Download : IDisposable
             progress.Report((DownProgress.Verify, FileCount, Filed, "All Files"));
             await CheckAllSha1(AllNd, maxConcurrentSha1);
         }
-        progress.Report((DownProgress.Done,FileCount,Filed,"OK"));
+        progress.Report((DownProgress.Done,FileCount,Filed,"下载完毕"));
     }
     /// <summary>
     /// 开始异步下载Mod（可选是否下载依赖项）

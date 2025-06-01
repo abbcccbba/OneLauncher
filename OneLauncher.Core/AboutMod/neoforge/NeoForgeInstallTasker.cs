@@ -113,7 +113,7 @@ public class NeoForgeInstallTasker
     /// 运行NeoForge处理器
     /// 注意：此方法的所有错误信息必须通过事件抛出
     /// </summary>
-    public Task ToRunProcessors(string MainjarPath, string javaPath,string ClientLzmaFilePath,SystemType osType) => Task.Run(async () =>
+    public async Task ToRunProcessors(string MainjarPath, string javaPath,string ClientLzmaFilePath,SystemType osType)
     {
         int alls;
         int dones = 0;
@@ -244,5 +244,5 @@ public class NeoForgeInstallTasker
                 ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}调用时出错");
             }
         }
-    });
+    }
 }

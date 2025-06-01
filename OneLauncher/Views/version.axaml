@@ -4,7 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Views.version">
-	<Grid RowDefinitions="52,*" Margin="24">
+	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
+               DisplayMode="Overlay"
+               OpenPaneLength="650"
+               PanePlacement="Right">
+		<SplitView.Pane>
+			<TransitioningContentControl Content="{Binding RefDownPane}"/>
+		</SplitView.Pane>
+		<Grid RowDefinitions="52,*" Margin="24">
 		<StackPanel Margin="9,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
 			<TextBlock Grid.Row="0" Text="管理你的游戏版本" FontSize="36"/>
 			<Button Command="{Binding ToDownloadGameCommand}">
@@ -24,6 +31,7 @@
 							</StackPanel>
 							<TextBlock Margin="0,8,0,0" Grid.Row="1" Grid.Column="0"  Text="{Binding V.AddTime}"/>
 							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
+								<!-- Fabric -->
 								<SplitButton IsVisible="{Binding V.modType.IsFabric}" Command="{Binding LaunchGameWithFabricCommand}" CommandParameter="{Binding V}">
 									<StackPanel Orientation="Horizontal" Spacing="2">
 										<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
@@ -75,6 +83,14 @@
 												</MenuItem.Header>
 												<MenuItem Command="{Binding PinInDashboardCommand}" CommandParameter="{Binding V}" Header="固定到仪表盘"/>
 												<MenuItem Command="{Binding PinToDesktopCommand}" CommandParameter="{Binding V}" Header="固定到桌面" />
+											</MenuItem>
+											<MenuItem Command="{Binding $parent[ListBox].DataContext.DownloadGameAgainCommand}" CommandParameter="{Binding V}">
+												<MenuItem.Header>
+													<StackPanel Orientation="Horizontal">
+														<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
+														<TextBlock Text="修复文件"/>
+													</StackPanel>
+												</MenuItem.Header>
 											</MenuItem>
 										</MenuFlyout>
 									</Button.Flyout>
@@ -129,4 +145,5 @@
 			</ListBox.Styles>
 		</ListBox>
 	</Grid>
+	</SplitView>
 </UserControl>
