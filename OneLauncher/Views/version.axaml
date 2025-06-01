@@ -92,6 +92,14 @@
 													</StackPanel>
 												</MenuItem.Header>
 											</MenuItem>
+											<MenuItem IsVisible="{Binding IsMod}" Command="{Binding OpenModsFolderCommand}" CommandParameter="{Binding V}">
+												<MenuItem.Header>
+													<StackPanel Orientation="Horizontal">
+														
+														<TextBlock Text="打开Mods文件夹"/>
+													</StackPanel>
+												</MenuItem.Header>
+											</MenuItem>
 										</MenuFlyout>
 									</Button.Flyout>
 								</Button>
