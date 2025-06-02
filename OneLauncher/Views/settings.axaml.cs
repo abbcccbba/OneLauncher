@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using OneLauncher.Views.ViewModels;
 namespace OneLauncher.Views;
 
 public partial class settings : UserControl
@@ -10,14 +11,6 @@ public partial class settings : UserControl
     public settings()
     {
         InitializeComponent();
-    }
-
-    private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        
-    }
-
-    private void Button_Click_1(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
+        this.DataContext = new SettingsPageViewModel();
     }
 }

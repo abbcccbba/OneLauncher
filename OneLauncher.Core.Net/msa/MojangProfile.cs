@@ -156,6 +156,21 @@ public class MojangProfile : IDisposable
 
             // 发送 POST 请求
             var response = await httpClient.PostAsync(requestUrl, content);
+            // 这可能代表麻将服务器无法连接到url，这里尝试下载并手动上传
+            if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                try
+                {
+                    var tempSavePath = Path.GetTempPath();
+                    using (var downTask = new Download(httpClient))
+                        await downTask.DownloadFile(skin.Skin,tempSavePath);
+                    await SetUseLocalFile(new MojangSkin() { Skin = tempSavePath, IsSlimModel = skin.IsSlimModel });
+                }
+                catch (HttpRequestException e) 
+                {
+                    throw new OlanException("无法上传皮肤","在再次尝试后依旧捕获到网络错误",OlanExceptionAction.Error,e);
+                }
+            }
             response.EnsureSuccessStatusCode();
 
             Debug.WriteLine($"成功通过 URL 更改皮肤: {skin.Skin.ToString()}");
