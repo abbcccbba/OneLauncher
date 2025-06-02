@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OneLauncher.Core;
+﻿namespace OneLauncher.Core;
 /// <summary>
 /// 出现已知错误时应该做什么？
 /// Warning : 仅在右下角显示警告
@@ -21,24 +15,24 @@ public class OlanException : Exception
 {
     public OlanExceptionAction Action { get; set; }
     public string Title { get; set; }
-    public string Message {  get; set; }
+    public string Message { get; set; }
     public Exception? OriginalException { get; set; }
     // 重试方法，会在窗口显示，并由用户决定是否调用
     public Action? TryAgainFunction { get; set; } = null;
-    public OlanException(string Title,string Message,OlanExceptionAction action)
+    public OlanException(string Title, string Message, OlanExceptionAction action)
     {
         this.Title = Title;
         this.Message = Message;
         this.Action = action;
     }
-    public OlanException(string Title, string Message,OlanExceptionAction action,Exception originalException) 
+    public OlanException(string Title, string Message, OlanExceptionAction action, Exception originalException)
     {
         this.Title = Title;
-        this.Message=Message;
-        this.Action=action;
+        this.Message = Message;
+        this.Action = action;
         this.OriginalException = originalException;
     }
-    public OlanException(string Title, string Message, OlanExceptionAction action, Exception originalException,Action taf)
+    public OlanException(string Title, string Message, OlanExceptionAction action, Exception originalException, Action taf)
     {
         this.Title = Title;
         this.Message = Message;

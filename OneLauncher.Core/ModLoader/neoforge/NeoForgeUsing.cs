@@ -1,25 +1,18 @@
-﻿using OneLauncher.Core;
-using OneLauncher.Core.ModLoader.neoforge.JsonModels;
-using System;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net.Http;
+﻿using OneLauncher.Core.ModLoader.neoforge.JsonModels;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 namespace OneLauncher.Core.ModLoader.neoforge;
 public class NeoForgeUsing
 {
     public NeoForgeVersionJson info;
     public NeoForgeUsing()
     {
-        
+
     }
-    public async Task Init(string basePath,string version)
+    public async Task Init(string basePath, string version)
     {
         string jsonPath = Path.Combine(basePath, "versions", version, $"{version}-neoforge.json");
-        string jsonString = await File.ReadAllTextAsync(jsonPath,Encoding.UTF8);
+        string jsonString = await File.ReadAllTextAsync(jsonPath, Encoding.UTF8);
         info = JsonSerializer.Deserialize<NeoForgeVersionJson>(jsonString);
     }
     /// <summary>

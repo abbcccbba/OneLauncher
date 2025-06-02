@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Minecraft.JsonModels;
 // 表示version.json的顶层结构
@@ -68,7 +63,7 @@ public class Downloads
 public class DownloadUrl
 {
     [JsonPropertyName("sha1")]
-    public string? Sha1 { get; set; } 
+    public string? Sha1 { get; set; }
 
     [JsonPropertyName("url")]
     public string? Url { get; set; }
@@ -91,25 +86,25 @@ public class LibraryDownloads
 {
     // 普通库文件
     [JsonPropertyName("artifact")]
-    public LibraryArtifact? Artifact { get; set; } 
+    public LibraryArtifact? Artifact { get; set; }
 
     [JsonPropertyName("classifiers")]
-    public Dictionary<string, LibraryArtifact>? Classifiers { get; set; } 
+    public Dictionary<string, LibraryArtifact>? Classifiers { get; set; }
 }
 
 // 表示普通库文件的具体下载信息
 public class LibraryArtifact
 {
     [JsonPropertyName("path")]
-    public string? Path { get; set; } 
+    public string? Path { get; set; }
 
     [JsonPropertyName("sha1")]
-    public string? Sha1 { get; set; } 
+    public string? Sha1 { get; set; }
 
     [JsonPropertyName("url")]
     public string? Url { get; set; }
     [JsonPropertyName("size")]
-    public int? Size { get; set; } 
+    public int? Size { get; set; }
 }
 // 表示启动参数（jvm和game）
 public class Arguments
@@ -281,4 +276,4 @@ public class ArgumentValueConverter : JsonConverter<object>
             throw new JsonException($"无效的参数值对象类型: {value?.GetType().Name}");
         }
     }
-} 
+}

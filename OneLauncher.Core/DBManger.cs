@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using OneLauncher.Core;
+﻿using System.Text.Json;
 
 namespace OneLauncher.Core;
 public class AppSettings
@@ -91,7 +82,7 @@ public class DBManger
         }
         catch (Exception ex)
         {
-           throw new IOException($"配置文件读取错误： {ex.Message}", ex);
+            throw new IOException($"配置文件读取错误： {ex.Message}", ex);
         }
     }
 }

@@ -1,18 +1,10 @@
-﻿using SixLabors.ImageSharp.Metadata.Profiles.Icc;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.IO.Compression;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace OneLauncher.Core.ModLoader.neoforge.JsonModels;
-public delegate void ProcessorsOut(int all,int done,string message);
+public delegate void ProcessorsOut(int all, int done, string message);
 /// <summary>
 /// 接管NeoForge几乎所有安装操作
 /// </summary>
@@ -26,8 +18,8 @@ public class NeoForgeInstallTasker
     public readonly string gameVersion;
     public NeoForgeInstallTasker(
         Download downloadTask,
-        string librariesPath, 
-        string gamePath, 
+        string librariesPath,
+        string gamePath,
         string gameVersion)
     {
         this.downloadTask = downloadTask;
@@ -40,7 +32,7 @@ public class NeoForgeInstallTasker
     /// 下载安装器并拆包，提取必要文件
     /// </summary>
     /// <param name="InstallerUrl">安装程序网络Url链接</param>
-    public async Task<(List<NdDowItem>,List<NdDowItem>,string)> StartReady(string InstallerUrl)
+    public async Task<(List<NdDowItem>, List<NdDowItem>, string)> StartReady(string InstallerUrl)
     {
         #region 从网络读取
         // 通过网络写入内存流方便后续操作
@@ -59,12 +51,12 @@ public class NeoForgeInstallTasker
         */
         using ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
         if (archive == null)
-            throw new OlanException("NeoForge安装失败","无法找到的所需的文件",OlanExceptionAction.Error);
+            throw new OlanException("NeoForge安装失败", "无法找到的所需的文件", OlanExceptionAction.Error);
         ZipArchiveEntry? versionJson = archive!.GetEntry("version.json");
         ZipArchiveEntry? installProfile = archive!.GetEntry("install_profile.json");
         ZipArchiveEntry? DataClientLazm = archive!.GetEntry("data/client.lzma");
         if (versionJson == null || installProfile == null || DataClientLazm == null)
-            throw new OlanException("NeoForge安装失败","无法从安装包中提取所需的文件",OlanExceptionAction.Error);
+            throw new OlanException("NeoForge安装失败", "无法从安装包中提取所需的文件", OlanExceptionAction.Error);
         // 读取文件并提取需要下载的文件列表
         using Stream versionJsonStream = versionJson.Open();
         using Stream installProfileStream = installProfile.Open();
@@ -79,7 +71,7 @@ public class NeoForgeInstallTasker
             NdLib.Add(new NdDowItem
                 (
                     Url: item.Downloads.Artifact.Url,
-                    Path: Path.Combine(librariesPath,Path.Combine(item.Downloads.Artifact.Path.Split("/"))),
+                    Path: Path.Combine(librariesPath, Path.Combine(item.Downloads.Artifact.Path.Split("/"))),
                     Size: item.Downloads.Artifact.Size,
                     Sha1: item.Downloads.Artifact.Sha1
                 ));
@@ -98,20 +90,20 @@ public class NeoForgeInstallTasker
         // 重新打开文件，因为原文件流已移动到末尾，不可读取有效信息
         string ClientLzmeTempFileName = Path.GetTempFileName();
         using (var versionJsonStreamR = versionJson.Open())
-        using (var fs = new FileStream(Path.Combine(gamePath,$"{gameVersion}-neoforge.json"),FileMode.Create, FileAccess.Write))
+        using (var fs = new FileStream(Path.Combine(gamePath, $"{gameVersion}-neoforge.json"), FileMode.Create, FileAccess.Write))
             await versionJsonStreamR.CopyToAsync(fs);
         using (var DataClientLazmStreamR = DataClientLazm.Open())
         using (var fs = new FileStream(ClientLzmeTempFileName, FileMode.Create, FileAccess.Write))
             await DataClientLazmStreamR.CopyToAsync(fs);
         #endregion
-        return (NdLib,NdToolsLib,ClientLzmeTempFileName);
+        return (NdLib, NdToolsLib, ClientLzmeTempFileName);
     }
     public event ProcessorsOut ProcessorsOutEvent;
     /// <summary>
     /// 运行NeoForge处理器
     /// 注意：此方法的所有错误信息必须通过事件抛出
     /// </summary>
-    public async Task ToRunProcessors(string MainjarPath, string javaPath,string ClientLzmaFilePath,SystemType osType)
+    public async Task ToRunProcessors(string MainjarPath, string javaPath, string ClientLzmaFilePath, SystemType osType)
     {
         int alls;
         int dones = 0;
@@ -135,7 +127,7 @@ public class NeoForgeInstallTasker
         Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
         File.Copy(MainjarPath, destFileName, overwrite: true);
         List<Process> Processors = new List<Process>();
-        
+
         foreach (var pros in installProfileExample.Processors)
             if (pros?.Sides == null || pros?.Sides[0] == "client")
             {
@@ -193,7 +185,7 @@ public class NeoForgeInstallTasker
                                 StdArgsBuilder.Append(aArg);
                             StdArgsBuilder.Append(" ");
                         }
-                        catch(KeyNotFoundException)
+                        catch (KeyNotFoundException)
                         {
                             ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}替换占位符时出错，未知占位符{aArg}");
                         }
@@ -210,12 +202,12 @@ public class NeoForgeInstallTasker
                         RedirectStandardError = true,
                         UseShellExecute = false,
                         CreateNoWindow = true
-                    }, 
+                    },
                 });
-                
+
             }
         alls = Processors.Count;
-        foreach(var ProItem in Processors)
+        foreach (var ProItem in Processors)
         {
             try
             {

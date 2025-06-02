@@ -1,13 +1,7 @@
-﻿using OneLauncher.Core;
-using System;
-using System.Diagnostics;
-using System.Net.Http;
+﻿using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Net.msa;
 [Serializable]
@@ -105,7 +99,7 @@ public class MicrosoftAuthenticator : IDisposable
     /// <param name="cancellationToken">用于取消操作的 CancellationToken。</param>
     /// <param name="pollIntervalSeconds">轮询用户授权状态的间隔时间（秒）。</param>
     /// <returns>包含用户信息的 UserModel，如果认证失败则为 null。</returns>
-    public async Task<UserModel?> AuthUseCode(IProgress<(string VerityUrl,string UserCode)> OnUserNeedAction, int pollIntervalSeconds = 5)
+    public async Task<UserModel?> AuthUseCode(IProgress<(string VerityUrl, string UserCode)> OnUserNeedAction, int pollIntervalSeconds = 5)
     {
         try
         {
@@ -113,7 +107,7 @@ public class MicrosoftAuthenticator : IDisposable
             var deviceCodeResponse = await GetDeviceCode();
             if (deviceCodeResponse == null) return null;
 
-            OnUserNeedAction.Report((deviceCodeResponse.verification_uri,deviceCodeResponse.user_code));
+            OnUserNeedAction.Report((deviceCodeResponse.verification_uri, deviceCodeResponse.user_code));
 
             // 2. 轮询用户授权状态
             var tokenResponse = await PollAutoState(
@@ -122,7 +116,7 @@ public class MicrosoftAuthenticator : IDisposable
                 deviceCodeResponse.expires_in);
             if (tokenResponse == null) return null;
 
-            return await ToLoandauth(tokenResponse.access_token,tokenResponse.refresh_token);
+            return await ToLoandauth(tokenResponse.access_token, tokenResponse.refresh_token);
         }
         catch (OperationCanceledException)
         {
@@ -308,7 +302,7 @@ public class MicrosoftAuthenticator : IDisposable
     {
         httpClient.Dispose();
     }
-    
+
 
     // --- 内部辅助类用于 JSON 反序列化 ---
 
