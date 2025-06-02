@@ -14,7 +14,7 @@ public class AppSettings
 {
     public int MaximumDownloadThreads { get; set; } = 24;
     public int MaximumSha1Threads { get; set; } = 24;
-    public bool IsSha1 { get; set; } = true;
+    public bool IsSha1Enabled { get; set; } = true;
 }
 public class AppConfig
 {
@@ -27,7 +27,7 @@ public class AppConfig
     // 默认版本（固定到仪表盘）
     public aVersion DefaultVersion { get; set; }
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
-    public List<int> JavaList { get; set; } = new List<int>();
+    public List<int> AvailableJavaList { get; set; } = new List<int>();
     public AppSettings OlanSettings { get; set; } = new AppSettings();
 }
 

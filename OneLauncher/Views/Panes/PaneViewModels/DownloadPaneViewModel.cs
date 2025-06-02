@@ -60,8 +60,18 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public bool _IsVI;
     [ObservableProperty]
     public bool _IsMod;
+    partial void OnIsModChanged(bool value)
+    {
+        if (value)
+            IsVI = true;
+    }
     [ObservableProperty]
     public bool _IsNeoForge;
+    partial void OnIsNeoForgeChanged(bool value)
+    {
+        if (value)
+            IsVI = true;
+    }
     [ObservableProperty]
     public bool _IsAllowToUseBetaNeoforge = false;
     [ObservableProperty]
@@ -126,7 +136,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     AndJava: this.IsJava,
                     fS:IsDownloadFabricWithAPI,
                     nS:IsAllowToUseBetaNeoforge,
-                    IsSha1:Init.ConfigManger.config.OlanSettings.IsSha1
+                    IsSha1:Init.ConfigManger.config.OlanSettings.IsSha1Enabled
                     );
             }
             // 在配置文件中添加版本信息

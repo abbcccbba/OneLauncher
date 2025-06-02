@@ -64,9 +64,9 @@ public class Download : IDisposable
             throw;
         }
     }
-    public Download()
+    public Download(HttpClient? tc = null)
     {
-        UnityClient = new HttpClient(new HttpClientHandler
+        UnityClient = tc ?? new HttpClient(new HttpClientHandler
         {
             MaxConnectionsPerServer = 32 
         })
@@ -126,12 +126,12 @@ public class Download : IDisposable
         #endregion
         #region 下载可选信息
         // 下载Java运行时环境
-        if (AndJava && !Init.ConfigManger.config.JavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
+        if (AndJava && !Init.ConfigManger.config.AvailableJavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
         {
             await AutoJavaGetter.JavaReleaser(
                 versionInfomations.GetJavaVersion().ToString(), 
                 Path.Combine(Path.GetDirectoryName(GameRootPath), "JavaRuntimes"), OsType);
-            Init.ConfigManger.config.JavaList.Add(versionInfomations.GetJavaVersion());
+            Init.ConfigManger.config.AvailableJavaList.Add(versionInfomations.GetJavaVersion());
             Init.ConfigManger.Save();
         }//);
 

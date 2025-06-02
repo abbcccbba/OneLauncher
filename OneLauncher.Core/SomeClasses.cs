@@ -17,7 +17,7 @@ public static class Tools
     public static string IsUseOlansJreOrOssJdk(int javaVersion,string basePath)
     {
         var t = Path.Combine(basePath,"JavaRuntimes", javaVersion.ToString());
-        if (Init.ConfigManger.config.JavaList.Contains(javaVersion))
+        if (Init.ConfigManger.config.AvailableJavaList.Contains(javaVersion))
             return Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
         return "java"; // 否则默认使用系统Java 
     }

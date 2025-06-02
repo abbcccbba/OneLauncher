@@ -6,20 +6,27 @@
              x:Class="OneLauncher.Views.settings">
   <ScrollViewer>
 	  <Panel Margin="64">
-		  <!-- 边框颜色选择器 -->
-		  <StackPanel Spacing="8">
-			  <TextBlock FontWeight="Bold" FontSize="18" Text="边框颜色自定义"/>
-			  <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
-				  <Button Click="Button_Click" Height="36" Width="36" Grid.Row="0" Grid.Column="0" BorderThickness="0.01">
-					  <Grid ColumnDefinitions="*,*">
-						  <Rectangle Fill="White" Grid.Column="0"/>
-						  <Rectangle Fill="Black" Grid.Column="1" />
-					  </Grid>
-				  </Button>
-				  <Button Click="Button_Click_1" Height="36" Width="36" Grid.Row="0" Grid.Column="1" BorderThickness="0.01">
-					  <Rectangle Fill="LightBlue"/>
-				  </Button>
-			  </Grid>
+		  <!-- 下载选项 -->
+		  <StackPanel Spacing="8" HorizontalAlignment="Left">
+			  <TextBlock FontSize="24" FontWeight="Bold" Text="下载选项"/>
+			  <Separator Margin="-4,0,0,0"/>
+			  <StackPanel Margin="0,6,0,0">
+				  <TextBlock Text="最大下载线程："/>
+				  <NumericUpDown Value="{Binding MaxDownloadThreadsValue}" Minimum="1" Maximum="128" Width="150"/>
+			  </StackPanel>
+			  <StackPanel Margin="0,16,0,0">
+				  <TextBlock Text="最大Sha1校验线程："/>
+				  <NumericUpDown Value="{Binding MaxSha1ThreadsValue}" Minimum="1" Maximum="128" Width="150"/>
+				  <TextBlock Text="是否校验Sha1" Margin="0,8,0,0"/>
+				  <ToggleSwitch IsChecked="{Binding IsSha1Enabled}">
+					  <ToggleSwitch.OnContent>
+						  <TextBlock Text="校验Sha1"/>
+					  </ToggleSwitch.OnContent>
+					  <ToggleSwitch.OffContent>
+						  <TextBlock Text="不再校验Sha1"/>
+					  </ToggleSwitch.OffContent>
+				  </ToggleSwitch>
+			  </StackPanel>
 		  </StackPanel>
 	  </Panel>
   </ScrollViewer>

@@ -74,7 +74,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
                         ((SelectedItem.IsVersionIsolation)
                         ? Path.Combine(Init.GameRootPath, "versions", SelectedItem.VersionID, "mods")
                         : Path.Combine(Init.GameRootPath, "mods")),
-                        SelectedItem.VersionID, IsIncludeDependencies: IsICS);
+                        SelectedItem.VersionID, IsIncludeDependencies: IsICS, IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
                 return;
             }
         await MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应版本", true);

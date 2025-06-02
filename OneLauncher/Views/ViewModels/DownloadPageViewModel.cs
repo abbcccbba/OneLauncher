@@ -26,8 +26,7 @@ internal partial class DownloadPageViewModel : BaseViewModel
     /// </summary>
     public DownloadPageViewModel()
     {
-        IsAllowDownloading = false;
-        MainWindow.mainwindow.ShowFlyout("出现错误：无法下载版本清单",true);
+        
     }
     public DownloadPageViewModel (List<VersionBasicInfo> ReleaseVersionList)
     {
