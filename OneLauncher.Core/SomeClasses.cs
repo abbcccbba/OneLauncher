@@ -77,32 +77,21 @@ public static class Tools
     }
 
     /// <summary>
-    /// 过滤出Minecraft的纯粹正式版版本号。
+    /// 过滤出 Minecraft 的纯粹正式版版本号（如 1.20, 1.20.6）。
     /// </summary>
-    /// <param name="versions">包含所有Minecraft版本名称的列表。</param>
+    /// <param name="versions">包含所有 Minecraft 版本名称的列表。</param>
     /// <returns>只包含纯粹正式版版本号的列表。</returns>
     public static List<string> McVsFilter(List<string> versions)
     {
-        Regex IS_SNAPSHOT_OR_DEV_VARIANT = new Regex(
-            @"^\d{2}w\d{2}.*$", // 匹配 YYwWW 后面跟着任意字符（包括空）直到字符串结束
+        // 静态编译正则表达式，匹配 1.x 或 1.x.x 格式的正式版
+        Regex OfficialVersionRegex = new Regex(
+            @"^1\.[0-9]{1,2}(?:\.[0-9]{1,2})?$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled
         );
-        Regex IS_RELEASE_WITH_SUFFIX = new Regex(
-            @"^\d+\.\d+(\.\d+)?-.*$",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled
-        );
-        Regex IS_PREFIXED_ALPHA_BETA_RC = new Regex(
-            @"^[abr]c?\d+\.\d+(\.\d+)?.*$", // 匹配 a/b/rc 后接 X.Y 或 X.Y.Z，再接任意后缀
-            RegexOptions.IgnoreCase | RegexOptions.Compiled
-        );
-        List<string> officialVersions = versions
-                .Where(version =>
-                    !IS_SNAPSHOT_OR_DEV_VARIANT.IsMatch(version) &&
-                    !IS_RELEASE_WITH_SUFFIX.IsMatch(version) &&
-                    !IS_PREFIXED_ALPHA_BETA_RC.IsMatch(version)
-                )
-                .ToList();
-        return officialVersions;
+
+        return versions
+            .Where(version => OfficialVersionRegex.IsMatch(version))
+            .ToList();
     }
 }
 
