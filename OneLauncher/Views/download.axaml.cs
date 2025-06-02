@@ -4,6 +4,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Minecraft;
 using OneLauncher.Views;
 using System;
 using System.Collections.Generic;

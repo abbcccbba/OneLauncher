@@ -3,6 +3,7 @@ using Avalonia.Data;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core;
+using OneLauncher.Core.Minecraft;
 using OneLauncher.Views;
 using OneLauncher.Views.Windows;
 using OneLauncher.Views.Windows.WindowViewModels;

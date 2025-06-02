@@ -5,12 +5,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Runtime.InteropServices;
 using System.Linq;
-using OneLauncher.Core.Models;
 using System.Text;
 using System.Reflection;
 using System.Diagnostics;
+using OneLauncher.Core.Minecraft.JsonModels;
 
-namespace OneLauncher.Core;
+namespace OneLauncher.Core.Minecraft;
 
 /// <summary>
 /// 表示Minecraft版本信息的解析器，用于解析version.json文件并提取关键信息。
@@ -18,7 +18,7 @@ namespace OneLauncher.Core;
 /// </summary>
 public class VersionInfomations
 {
-    public readonly OneLauncher.Core.Models.VersionInformation info;
+    public readonly VersionInformation info;
     public readonly string basePath;
     public readonly bool? IsVersionInsulation;
     public readonly SystemType OsType;
@@ -113,7 +113,7 @@ public class VersionInfomations
                         [OsType == SystemType.windows ? "natives-windows" : OsType == SystemType.osx ? "natives-osx" : "natives-linux"];
                 }
                 // 某些古早版本可能会针对架构
-                catch (System.Collections.Generic.KeyNotFoundException)
+                catch (KeyNotFoundException)
                 {
                     ta = lib.Downloads.Classifiers
                     [OsType == SystemType.windows ? "natives-windows-64" : OsType == SystemType.osx ? "natives-osx-64" : "natives-linux-64"];

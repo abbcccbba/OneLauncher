@@ -1,4 +1,6 @@
-﻿using OneLauncher.Core.fabric;
+﻿using OneLauncher.Core.Minecraft.JsonModels;
+using OneLauncher.Core.ModLoader.fabric;
+using OneLauncher.Core.ModLoader.neoforge;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core;
+namespace OneLauncher.Core.Minecraft;
 
 /// <summary>
 /// Minecraft 启动命令构造器，提供一个简单的方法来生成启动命令。
@@ -46,8 +48,8 @@ public class LaunchCommandBuilder
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
-        this.systemType = system;
-        this.IsVersionInsulation = VersionInsulation;
+        systemType = system;
+        IsVersionInsulation = VersionInsulation;
         this.modType = modType;
         separator = systemType == SystemType.windows ? ";" : ":";
     }
@@ -63,7 +65,7 @@ public class LaunchCommandBuilder
         );
         if (modType.IsFabric)
         {
-            fabricParser = new fabric.FabricVJParser(
+            fabricParser = new FabricVJParser(
               Path.Combine(VersionPath, $"{version}-fabric.json"), basePath);
             MainClass = fabricParser.GetMainClass();
         }
@@ -138,7 +140,7 @@ public class LaunchCommandBuilder
                             string replaced = ReplacePlaceholders(str, placeholders);
                             jvmArgs.Add(replaced);
                         }
-                        else if (item is Models.Argument arg)
+                        else if (item is Argument arg)
                         {
                             if (EvaluateRules(arg.Rules, osName, arch))
                             {
@@ -211,7 +213,7 @@ public class LaunchCommandBuilder
         string GameArgs = 
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
-            $"--gameDir \"{((IsVersionInsulation) ? Path.Combine(basePath, "versions",version) : basePath)}\" " +
+            $"--gameDir \"{(IsVersionInsulation ? Path.Combine(basePath, "versions",version) : basePath)}\" " +
             $"--assetsDir \"{Path.Combine(basePath, "assets")}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?
@@ -224,11 +226,11 @@ public class LaunchCommandBuilder
             // 针对旧版用户验证机制
             : $"--session \"{userModel.accessToken}\" ");
         if (modType.IsNeoForge)
-            GameArgs += (
-                string.Join(" ",neoForgeParser.info.Arguments.Game));
+            GameArgs += 
+                string.Join(" ",neoForgeParser.info.Arguments.Game);
         return GameArgs;
     }
-    private bool EvaluateRules(List<Models.Rule> rules, string osName, string arch)
+    private bool EvaluateRules(List<Rule> rules, string osName, string arch)
     {
         if (rules == null || rules.Count == 0) return true;
         bool allowed = false;

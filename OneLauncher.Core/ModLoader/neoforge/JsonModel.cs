@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.neoforge;
+namespace OneLauncher.Core.ModLoader.neoforge.JsonModels;
 public class NeoForgeVersionJson
 {
     [JsonPropertyName("mainClass")]

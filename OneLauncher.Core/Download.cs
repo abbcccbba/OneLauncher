@@ -1,5 +1,7 @@
-﻿using OneLauncher.Core.Modrinth;
-using OneLauncher.Core.neoforge;
+﻿using OneLauncher.Core.Minecraft;
+using OneLauncher.Core.ModLoader.neoforge;
+using OneLauncher.Core.ModLoader.neoforge.JsonModels;
+using OneLauncher.Core.Modrinth;
 using OneLauncher.Core.Net.java;
 using System.Diagnostics;
 using System.IO.Compression;
@@ -183,7 +185,7 @@ public class Download : IDisposable
         if (modType.IsFabric)
         {
             // 获取 Fabric 加载器下载信息
-            modLibs = CheckFilesExists(new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries());
+            modLibs = CheckFilesExists(new ModLoader.fabric.FabricVJParser(modpath, GameRootPath).GetLibraries());
             // 获取Fabric API下载信息
             if (fS)
             {

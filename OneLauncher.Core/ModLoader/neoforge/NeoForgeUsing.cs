@@ -1,6 +1,5 @@
 ﻿using OneLauncher.Core;
-using OneLauncher.Core.Models;
-using OneLauncher.Core.neoforge;
+using OneLauncher.Core.ModLoader.neoforge.JsonModels;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -9,7 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
+namespace OneLauncher.Core.ModLoader.neoforge;
 public class NeoForgeUsing
 {
     public NeoForgeVersionJson info;

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.fabric.JsonModel;
+namespace OneLauncher.Core.ModLoader.fabric.JsonModels;
 
 public class RootFabric
 {

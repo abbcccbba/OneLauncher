@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core;
+namespace OneLauncher.Core.Minecraft;
 
 public class VersionAssetIndex
 {

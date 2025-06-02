@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Models;
+namespace OneLauncher.Core.Minecraft.JsonModels;
 // 表示version.json的顶层结构
 public class VersionInformation
 {
