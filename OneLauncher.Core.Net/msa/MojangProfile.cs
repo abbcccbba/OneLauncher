@@ -1,11 +1,6 @@
 ﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -37,7 +32,7 @@ public class MojangProfile : IDisposable
         string url = $"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}";
         using (var response = await httpClient.GetStreamAsync(url))
         {
-            string SkinUrls =  (
+            string SkinUrls = (
                 // 解码Json并解码Base64
                 Encoding.UTF8.GetString(
                     Convert.FromBase64String(
@@ -49,7 +44,7 @@ public class MojangProfile : IDisposable
                          !.GetValue<string>()
                         )
                     )
-                ); 
+                );
             var texture = JsonSerializer.Deserialize<TextureData>(SkinUrls);
             // 不加这行代码就会报错，报错内容是null我也不知道为什么
             bool isSlimModel = texture!.Textures.Skin.Metadata?.Model == "slim";
@@ -89,7 +84,7 @@ public class MojangProfile : IDisposable
     public class Metadata
     {
         [JsonPropertyName("model")]
-        public string Model { get; set; } 
+        public string Model { get; set; }
     }
     #endregion
     public async Task SetUseLocalFile(MojangSkin skin)
@@ -99,13 +94,13 @@ public class MojangProfile : IDisposable
 
         try
         {
-            using (var formData = new MultipartFormDataContent()) 
+            using (var formData = new MultipartFormDataContent())
             {
                 // 添加模型参数
                 formData.Add(new StringContent(skin.IsSlimModel ? "slim" : "classic"), "variant");
                 var imageFilePath = skin.Skin.ToString();
                 var fileStream = System.IO.File.OpenRead(imageFilePath);
-                var streamContent = new StreamContent(fileStream); 
+                var streamContent = new StreamContent(fileStream);
                 streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
 
                 formData.Add(streamContent, "file", System.IO.Path.GetFileName(imageFilePath));
@@ -116,7 +111,7 @@ public class MojangProfile : IDisposable
                 Debug.WriteLine($"成功上传本地皮肤文件: {imageFilePath}");
                 string successResponseContent = await response.Content.ReadAsStringAsync();
                 Debug.WriteLine($"API 成功响应: {successResponseContent}");
-            } 
+            }
         }
         catch (HttpRequestException e)
         {
@@ -157,18 +152,18 @@ public class MojangProfile : IDisposable
             // 发送 POST 请求
             var response = await httpClient.PostAsync(requestUrl, content);
             // 这可能代表麻将服务器无法连接到url，这里尝试下载并手动上传
-            if(response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 try
                 {
                     var tempSavePath = Path.GetTempPath();
                     using (var downTask = new Download(httpClient))
-                        await downTask.DownloadFile(skin.Skin,tempSavePath);
+                        await downTask.DownloadFile(skin.Skin, tempSavePath);
                     await SetUseLocalFile(new MojangSkin() { Skin = tempSavePath, IsSlimModel = skin.IsSlimModel });
                 }
-                catch (HttpRequestException e) 
+                catch (HttpRequestException e)
                 {
-                    throw new OlanException("无法上传皮肤","在再次尝试后依旧捕获到网络错误",OlanExceptionAction.Error,e);
+                    throw new OlanException("无法上传皮肤", "在再次尝试后依旧捕获到网络错误", OlanExceptionAction.Error, e);
                 }
             }
             response.EnsureSuccessStatusCode();
@@ -195,7 +190,7 @@ public class MojangProfile : IDisposable
         try
         {
             skinImageBytes = await httpClient.GetByteArrayAsync(sessionUrl);
-            await File.WriteAllBytesAsync(Path.Combine( outputPath , $"{uuid}.png"), skinImageBytes);
+            await File.WriteAllBytesAsync(Path.Combine(outputPath, $"{uuid}.png"), skinImageBytes);
         }
         catch (HttpRequestException ex)
         {
@@ -242,7 +237,7 @@ public class MojangProfile : IDisposable
                         return false;
                     }
                 }
-                return true; 
+                return true;
             }
         }
         catch (Exception ex)

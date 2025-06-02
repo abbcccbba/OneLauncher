@@ -1,13 +1,8 @@
 ﻿using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.ModLoader.fabric;
 using OneLauncher.Core.ModLoader.neoforge;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Minecraft;
 
@@ -37,8 +32,8 @@ public class LaunchCommandBuilder
     /// <param name="VersionInsulation">此游戏是否启用了版本隔离</param>
     public LaunchCommandBuilder
         (
-            string basePath, 
-            string version, 
+            string basePath,
+            string version,
             UserModel userModel,
             ModType modType,
             SystemType system,
@@ -60,7 +55,7 @@ public class LaunchCommandBuilder
         string VersionPath = Path.Combine(basePath, "versions", version);
         string MainClass;
         versionInfo = new VersionInfomations(
-            await File.ReadAllTextAsync(Path.Combine(VersionPath,$"{version}.json")),
+            await File.ReadAllTextAsync(Path.Combine(VersionPath, $"{version}.json")),
             basePath, systemType, IsVersionInsulation
         );
         if (modType.IsFabric)
@@ -76,7 +71,7 @@ public class LaunchCommandBuilder
             MainClass = neoForgeParser.info.MainClass;
         }
         else MainClass = versionInfo.GetMainClass();
-            string Args = $"{OtherArgs} {BuildJvmArgs()} {MainClass} {BuildGameArgs()}";
+        string Args = $"{OtherArgs} {BuildJvmArgs()} {MainClass} {BuildGameArgs()}";
         Debug.WriteLine(Args);
         return Args;
     }
@@ -107,18 +102,18 @@ public class LaunchCommandBuilder
         {
             return
                 // 针对 1.6.x 版本不存在log4j2的情况
-                (versionInfo.GetLoggingConfigPath() != null ? 
-                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " : " ")+
+                (versionInfo.GetLoggingConfigPath() != null ?
+                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " : " ") +
                 // 处理特定平台要求的参数
                 (systemType == SystemType.windows ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump "
-                : systemType == SystemType.osx ? "-XstartOnFirstThread " : "")+
+                : systemType == SystemType.osx ? "-XstartOnFirstThread " : "") +
                 // 标准JVM参数
-                $"-Djava.library.path={placeholders["natives_directory"]} "+
-                $"-Djna.tmpdir={placeholders["natives_directory"]} "+
-                $"-Dorg.lwjgl.system.SharedLibraryExtractPath={placeholders["natives_directory"]} " + 
+                $"-Djava.library.path={placeholders["natives_directory"]} " +
+                $"-Djna.tmpdir={placeholders["natives_directory"]} " +
+                $"-Dorg.lwjgl.system.SharedLibraryExtractPath={placeholders["natives_directory"]} " +
                 $"-Dio.netty.native.workdir={placeholders["natives_directory"]} " +
-                $"-Dminecraft.launcher.brand={placeholders["launcher_name"]} "+
-                $"-Dminecraft.launcher.version={placeholders["launcher_version"]} "+
+                $"-Dminecraft.launcher.brand={placeholders["launcher_name"]} " +
+                $"-Dminecraft.launcher.version={placeholders["launcher_version"]} " +
                 $"-cp {placeholders["classpath"]} ";
         }
         else
@@ -130,36 +125,36 @@ public class LaunchCommandBuilder
                 {
                     string replaced = ReplacePlaceholders(item, placeholders);
                     jvmArgs.Add(replaced);
-                } 
+                }
             }
             foreach (var item in versionInfo.info.Arguments.Jvm)
+            {
+                // 判断是规则套字符串还是简单字符串
+                if (item is string str)
+                {
+                    string replaced = ReplacePlaceholders(str, placeholders);
+                    jvmArgs.Add(replaced);
+                }
+                else if (item is Argument arg)
+                {
+                    if (EvaluateRules(arg.Rules, osName, arch))
                     {
-                        // 判断是规则套字符串还是简单字符串
-                        if (item is string str)
+                        if (arg.Value is string valStr)
                         {
-                            string replaced = ReplacePlaceholders(str, placeholders);
+                            string replaced = ReplacePlaceholders(valStr, placeholders);
                             jvmArgs.Add(replaced);
                         }
-                        else if (item is Argument arg)
+                        else if (arg.Value is List<string> valList)
                         {
-                            if (EvaluateRules(arg.Rules, osName, arch))
+                            foreach (var val in valList)
                             {
-                                if (arg.Value is string valStr)
-                                {
-                                    string replaced = ReplacePlaceholders(valStr, placeholders);
-                                    jvmArgs.Add(replaced);
-                                }
-                                else if (arg.Value is List<string> valList)
-                                {
-                                    foreach (var val in valList)
-                                    {
-                                        string replaced = ReplacePlaceholders(val, placeholders);
-                                        jvmArgs.Add(replaced);
-                                    }
-                                }
+                                string replaced = ReplacePlaceholders(val, placeholders);
+                                jvmArgs.Add(replaced);
                             }
                         }
                     }
+                }
+            }
 
             return $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " +
               // 打上空格和双引号
@@ -210,10 +205,10 @@ public class LaunchCommandBuilder
     }
     private string BuildGameArgs()
     {
-        string GameArgs = 
+        string GameArgs =
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
-            $"--gameDir \"{(IsVersionInsulation ? Path.Combine(basePath, "versions",version) : basePath)}\" " +
+            $"--gameDir \"{(IsVersionInsulation ? Path.Combine(basePath, "versions", version) : basePath)}\" " +
             $"--assetsDir \"{Path.Combine(basePath, "assets")}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?
@@ -226,8 +221,8 @@ public class LaunchCommandBuilder
             // 针对旧版用户验证机制
             : $"--session \"{userModel.accessToken}\" ");
         if (modType.IsNeoForge)
-            GameArgs += 
-                string.Join(" ",neoForgeParser.info.Arguments.Game);
+            GameArgs +=
+                string.Join(" ", neoForgeParser.info.Arguments.Game);
         return GameArgs;
     }
     private bool EvaluateRules(List<Rule> rules, string osName, string arch)

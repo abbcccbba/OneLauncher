@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 
 namespace OneLauncher.Core;
 public struct ModType
@@ -12,11 +6,11 @@ public struct ModType
     public bool IsFabric { get; set; }
     public bool IsNeoForge { get; set; }
 }
-public static class Tools 
+public static class Tools
 {
-    public static string IsUseOlansJreOrOssJdk(int javaVersion,string basePath)
+    public static string IsUseOlansJreOrOssJdk(int javaVersion, string basePath)
     {
-        var t = Path.Combine(basePath,"JavaRuntimes", javaVersion.ToString());
+        var t = Path.Combine(basePath, "JavaRuntimes", javaVersion.ToString());
         if (Init.ConfigManger.config.AvailableJavaList.Contains(javaVersion))
             return Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
         return "java"; // 否则默认使用系统Java 
@@ -24,7 +18,7 @@ public static class Tools
     /// <summary>
     /// 把各种奇奇怪怪的仓库坐标转换为标准路径
     /// </summary>
-    public static string MavenToPath(string librariesPath,string item)
+    public static string MavenToPath(string librariesPath, string item)
     {
         if (item.StartsWith("[") && item.EndsWith("]"))
         {
@@ -91,7 +85,7 @@ public static class Tools
     {
         Regex IS_SNAPSHOT_OR_DEV_VARIANT = new Regex(
             @"^\d{2}w\d{2}.*$", // 匹配 YYwWW 后面跟着任意字符（包括空）直到字符串结束
-            RegexOptions.IgnoreCase | RegexOptions.Compiled 
+            RegexOptions.IgnoreCase | RegexOptions.Compiled
         );
         Regex IS_RELEASE_WITH_SUFFIX = new Regex(
             @"^\d+\.\d+(\.\d+)?-.*$",
@@ -122,11 +116,11 @@ public struct NdDowItem
     /// <param ID="Sha1">SHA1校验码</param>
     /// <param ID="Path">保存地址（含文件名）</param>
     /// <param name="Size">文件大小（单位字节）</param>
-    public NdDowItem(string Url, string Path,int Size,string? Sha1 = null)
+    public NdDowItem(string Url, string Path, int Size, string? Sha1 = null)
     {
         this.url = Url;
         this.path = Path;
-        if(Sha1 != null)
+        if (Sha1 != null)
             this.sha1 = Sha1;
     }
     public string url;
@@ -139,7 +133,7 @@ public struct aVersion
     public string VersionID { get; set; }
     public ModType modType { get; set; }
     public bool IsVersionIsolation { get; set; }
-    public DateTime AddTime { get; set; } 
+    public DateTime AddTime { get; set; }
 }
 public class VersionBasicInfo
 {
@@ -147,7 +141,7 @@ public class VersionBasicInfo
     /// <param ID="type">版本类型</param>
     /// <param ID="url">版本文件下载地址</param>
     /// <param ID="time">版本发布时间</param>
-    public VersionBasicInfo(string ID, string type, DateTime time,string url)
+    public VersionBasicInfo(string ID, string type, DateTime time, string url)
     {
         this.ID = ID;
         this.type = type;
@@ -178,7 +172,7 @@ public struct UserModel
         }
         else
         {
-            this.IsMsaUser= true;
+            this.IsMsaUser = true;
             this.accessToken = accessToken;
             this.refreshToken = refreshToken ?? string.Empty;
         }
@@ -196,9 +190,9 @@ public struct UserModel
     public string? accessToken { get; set; }
     public bool IsMsaUser { get; set; }
 
-    
+
     public string? refreshToken { get; set; }
-    public DateTime? AuthTime { get; set; } 
+    public DateTime? AuthTime { get; set; }
 }
 public enum SystemType
 {

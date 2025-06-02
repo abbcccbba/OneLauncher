@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Minecraft;
 
@@ -41,14 +36,14 @@ public class VersionJsonInfo
     [JsonPropertyName("versions")]
     public List<AllVersionInfomations> AllVersions { get; set; }
 }
-public class LatestList 
+public class LatestList
 {
     [JsonPropertyName("release")]
     public string release { get; set; }
     [JsonPropertyName("snapshot")]
     public string snapshot { get; set; }
 }
-public class AllVersionInfomations 
+public class AllVersionInfomations
 {
     [JsonPropertyName("id")]
     public string Id { get; set; }

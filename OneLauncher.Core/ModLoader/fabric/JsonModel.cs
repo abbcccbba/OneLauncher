@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.ModLoader.fabric.JsonModels;
 
@@ -61,7 +56,7 @@ public class FabricLibrary
     public string Sha1 { get; set; }
 
     [JsonPropertyName("size")]
-    public int Size { get; set; } 
+    public int Size { get; set; }
 }
 
 public class MainClass

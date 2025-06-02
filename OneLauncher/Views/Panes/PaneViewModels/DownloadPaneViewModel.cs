@@ -106,28 +106,30 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 await download.StartAsync(thisVersionBasicInfo, Init.GameRootPath, Init.systemType, new Progress<(DownProgress d, int a, int b, string c)>
                     (p =>
                     {
-                        Dp = p.d switch
+                        // 每三次更新UI，减轻UI线程压力
+                        if (i % 3 == 1)
                         {
-                            DownProgress.DownAndInstModFiles => "正在下载Mod相关文件...",
-                            DownProgress.DownLog4j2 => "正在下载日志配置文件",
-                            DownProgress.DownLibs => "正在下载库文件...",
-                            DownProgress.DownAssets => "正在下载资源文件...",
-                            DownProgress.DownMain => "正在下载主文件",
-                            DownProgress.Verify => "正在校验，请稍后...",
-                            DownProgress.Done => "已下载完毕",
-                        };
-                        /*
-                        Dp = (p.d == DownProgress.DownMod) ? "正在下载Mod（Fabric）相关文件..."
-                        : (p.d == DownProgress.DownLog4j2) ? "正在下载日志配置文件"
-                        : (p.d == DownProgress.DownLibs) ? "正在下载库文件..." 
-                        : (p.d == DownProgress.DownAssets) ? "正在下载资源文件..." 
-                        : (p.d == DownProgress.DownMain) ? "正在下载主文件"
-                        : (p.d == DownProgress.Verify) ? "正在校验，请稍后..."
-                        : (p.d == DownProgress.Done) ? "已下载完毕" : string.Empty;
-                        */
-                        Fs = $"{p.b}/{p.a}";
-                        CurrentProgress = (double)p.b / p.a * 100;
-                        FileName = p.c;
+                            Dp = p.d switch
+                            {
+                                DownProgress.DownAndInstModFiles => "正在下载Mod相关文件...",
+                                DownProgress.DownLog4j2 => "正在下载日志配置文件",
+                                DownProgress.DownLibs => "正在下载库文件...",
+                                DownProgress.DownAssets => "正在下载资源文件...",
+                                DownProgress.DownMain => "正在下载主文件",
+                                DownProgress.Verify => "正在校验，请稍后..."
+                            };
+                            Fs = $"{p.b}/{p.a}";
+                            CurrentProgress = (double)p.b / p.a * 100;
+                            FileName = p.c;
+                        }
+                        if(p.d == DownProgress.Done)
+                        {
+                            Dp = "已下载完毕";
+                            Fs = $"{p.b}/{p.a}";
+                            CurrentProgress = (double)p.b / p.a * 100;
+                            FileName = p.c;
+                        }
+                        i++;
                     }), 
                     IsVersionIsolation: IsVI, 
                     maxConcurrentDownloads:Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,

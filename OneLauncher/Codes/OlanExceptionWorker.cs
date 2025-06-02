@@ -29,4 +29,11 @@ internal class OlanExceptionWorker
             }
         });
     }
+    public static Task ForUnknowException(Exception exception, Action TryAgainFunction = null)
+    {
+        return Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            await new ExceptionTip(new OlanException("出现未知错误",exception.Message,OlanExceptionAction.Error)).ShowDialog(MainWindow.mainwindow);
+        });
+    }
 }

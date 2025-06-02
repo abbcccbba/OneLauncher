@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -11,9 +8,9 @@ namespace OneLauncher.Core.Net.java;
 public class AutoJavaGetter
 {
     // https://api.adoptium.net/v3/assets/feature_releases/21/ga?architecture=x64&os=mac&image_type=jre
-    public static async Task JavaReleaser(string javaVersion,string savePath,SystemType OsType) //=> Task.Run( async () =>
+    public static async Task JavaReleaser(string javaVersion, string savePath, SystemType OsType) //=> Task.Run( async () =>
     {
-        var javaZipPath = Path.Combine(savePath,javaVersion, $"{javaVersion}.zip");
+        var javaZipPath = Path.Combine(savePath, javaVersion, $"{javaVersion}.zip");
         var os = OsType switch
         {
             SystemType.windows => "windows",
@@ -32,10 +29,10 @@ public class AutoJavaGetter
                     $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={arch}&os={os}&image_type=jre"
                     , a.UnityClient), javaZipPath);
         }
-        
-        Download.ExtractFile(javaZipPath, Path.Combine(savePath,javaVersion));
+
+        Download.ExtractFile(javaZipPath, Path.Combine(savePath, javaVersion));
         File.Delete(javaZipPath);
-        
+
     }//);
 
     public static async Task<string> GetBinaryPackageLinkAsync(string apiUrl, HttpClient client)
@@ -56,7 +53,7 @@ public class AutoJavaGetter
                                 ["package"]?        // 访问名为 "package" 的属性
                                 ["link"]?           // 访问名为 "link" 的属性
                                 .GetValue<string>(); // 获取其字符串值
-                
+
                 // 我造密码的编译器报错了就是返回null
                 return link ?? null;
             }

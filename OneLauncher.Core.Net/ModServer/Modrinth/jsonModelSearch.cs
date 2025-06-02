@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.Modrinth.JsonModelSearch;
 public class ModrinthSearch
@@ -37,5 +29,5 @@ public class ModrinthProjectHit
     [JsonPropertyName("date_created")]
     public DateTime DateCreated { get; set; }
     [JsonPropertyName("display_categories")]
-    public List<string> Categories {  get; set; }
+    public List<string> Categories { get; set; }
 }

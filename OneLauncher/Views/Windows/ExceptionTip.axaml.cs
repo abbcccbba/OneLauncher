@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using OneLauncher.Core;
 using OneLauncher.Views.Windows.WindowViewModels;
 using System;
+using System.Threading.Tasks;
 
 namespace OneLauncher.Views.Windows;
 public partial class ExceptionTip : Window
