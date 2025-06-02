@@ -1,6 +1,4 @@
-﻿using OneLauncher.Core.fabric.JsonModel;
-using OneLauncher.Core.neoforge;
-using SixLabors.ImageSharp.Metadata.Profiles.Icc;
+﻿using SixLabors.ImageSharp.Metadata.Profiles.Icc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +11,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.neoforge;
+namespace OneLauncher.Core.ModLoader.neoforge.JsonModels;
 public delegate void ProcessorsOut(int all,int done,string message);
 /// <summary>
 /// 接管NeoForge几乎所有安装操作

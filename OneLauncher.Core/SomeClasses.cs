@@ -31,23 +31,6 @@ public static class Tools
             item = item.Substring(1, item.Length - 2);
         }
         string[] parts = item.Split(':');
-
-        for (int i = 0; i < parts.Length; i++)
-        {
-            foreach (char c in parts[i])
-            {
-            }
-        }
-
-        if (parts.Length < 3)
-        {
-            // 这里可以抛出异常、返回空字符串、记录日志或根据您的业务逻辑处理
-            // 例如，抛出更具体的异常：
-            throw new ArgumentException($"Invalid Maven coordinate format: '{item}'. Expected at least 'groupId:artifactId:version'.");
-            // 或者返回空字符串表示无法解析：
-            // return string.Empty;
-        }
-
         // 包
         string groupId = parts[0];
         // 名

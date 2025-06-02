@@ -1,4 +1,4 @@
-﻿using OneLauncher.Core.fabric.JsonModel;
+﻿using OneLauncher.Core.ModLoader.fabric.JsonModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-namespace OneLauncher.Core.fabric;
+namespace OneLauncher.Core.ModLoader.fabric;
 
 public class FabricVJParser
 {
@@ -16,7 +16,7 @@ public class FabricVJParser
 
     public FabricVJParser(string jsonPath, string BasePath)
     {
-        this.basePath = BasePath;
+        basePath = BasePath;
 
         using (FileStream stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
         using (JsonDocument document = JsonDocument.Parse(stream))
@@ -58,7 +58,7 @@ public class FabricVJParser
             // 版本
             string version = parts[2];
             // 后缀
-            string? suffix = (parts.Length > 3) ? parts[3] : null;
+            string? suffix = parts.Length > 3 ? parts[3] : null;
 
             // 构造 Url
             // org.ow2.asm:asm:9.8 -> org/ow2/asm/asm/9.8/asm-9.8.jar

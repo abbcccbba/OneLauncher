@@ -1,5 +1,4 @@
-﻿using OneLauncher.Core.fabric.JsonModel;
-using OneLauncher.Core.Modrinth.JsonModelGet;
+﻿using OneLauncher.Core.Modrinth.JsonModelGet;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
