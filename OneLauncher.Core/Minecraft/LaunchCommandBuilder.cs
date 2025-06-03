@@ -88,7 +88,7 @@ public class LaunchCommandBuilder
             // 创建占位符映射表 
             // 参考1.21.5.json
             // 手动加上引号
-            { "natives_directory", Path.Combine(basePath,".minecraft","versions",version,"natives") },
+            { "natives_directory", Path.Combine(basePath,"versions",version,"natives") },
             { "launcher_name", "OneLauncher" },
             { "launcher_version", Init.OneLauncherVersoin },
             { "classpath",BuildClassPath() },

@@ -23,7 +23,9 @@ public static class Tools
     {
         var t = Path.Combine(basePath, "JavaRuntimes", javaVersion.ToString());
         if (Init.ConfigManger.config.AvailableJavaList.Contains(javaVersion))
-            return Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
+            return (Init.systemType == SystemType.osx)
+                ? Path.Combine(t, Directory.GetDirectories(t)[0], "Contents","Home","bin","java")
+                : Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
         return "java"; // 否则默认使用系统Java 
     }
     /// <summary>

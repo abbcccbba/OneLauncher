@@ -1,5 +1,7 @@
 ﻿using OneLauncher.Core.Downloader;
 using System.Diagnostics;
+using System.Formats.Tar;
+using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -11,7 +13,7 @@ public class AutoJavaGetter
     // https://api.adoptium.net/v3/assets/feature_releases/21/ga?architecture=x64&os=mac&image_type=jre
     public static async Task JavaReleaser(string javaVersion, string savePath, SystemType OsType) //=> Task.Run( async () =>
     {
-        var javaZipPath = Path.Combine(savePath, javaVersion, $"{javaVersion}.zip");
+        var javaDownloadPath = Path.Combine(savePath, javaVersion, $"{javaVersion}.zip");
         var os = OsType switch
         {
             SystemType.windows => "windows",
@@ -28,13 +30,36 @@ public class AutoJavaGetter
             await a.DownloadFile(
                 await GetBinaryPackageLinkAsync(
                     $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={arch}&os={os}&image_type=jre"
-                    , a.UnityClient), javaZipPath);
+                    , a.UnityClient), javaDownloadPath);
         }
+        // 对于windows，api返回的是zip，对于mac或者linux，api返回的是tag.gz
+        if(OsType == SystemType.windows)
+            Download.ExtractFile(javaDownloadPath, Path.Combine(savePath, javaVersion));
+        else if (OsType == SystemType.osx || OsType == SystemType.linux)
+        {
+            var tempTarPath = Path.Combine(savePath, javaVersion, $"{javaVersion}.tar");
 
-        Download.ExtractFile(javaZipPath, Path.Combine(savePath, javaVersion));
-        File.Delete(javaZipPath);
+            using (FileStream sourceFileStream = new FileStream(javaDownloadPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                using (GZipStream gzipStream = new GZipStream(sourceFileStream, CompressionMode.Decompress))
+                {
+                    using (FileStream tempTarFileStream = new FileStream(tempTarPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        await gzipStream.CopyToAsync(tempTarFileStream);
+                    }
+                }
+            }
 
-    }//);
+            // 步骤 2: 异步解压临时 .tar 文件到目标目录
+            using (FileStream tarFileStream = new FileStream(tempTarPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                // TarFile.ExtractToDirectoryAsync 接受一个 Stream 参数
+                await TarFile.ExtractToDirectoryAsync(tarFileStream, Path.Combine(savePath, javaVersion), overwriteFiles: true);
+            }
+            File.Delete(tempTarPath);
+        }
+        File.Delete(javaDownloadPath);
+    }
 
     public static async Task<string> GetBinaryPackageLinkAsync(string apiUrl, HttpClient client)
     {

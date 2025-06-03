@@ -229,7 +229,8 @@ public class NeoForgeInstallTasker
                 // 经过排除估计这些神奇的现象是由这行代码导致的
                 // Gemini说没有异步可能导致系统资源严重死锁
                 // 改成 await ProItem.WaitForExitAsync(); 后问题减轻
-                ProItem.WaitForExit();
+                // 这里原来是// 改成ProItem.WaitForExit(); 
+                await ProItem.WaitForExitAsync();
                 if (ProItem.ExitCode != 0)
                     ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}执行时出错");
             }

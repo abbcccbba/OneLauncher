@@ -86,17 +86,17 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public async Task ToDownload()
     {
-        try
+        IsAllowDownloading = false;
+        var VersionModType = new ModType()
         {
-            IsAllowDownloading = false;
-            var VersionModType = new ModType()
-            {
-                IsFabric = IsMod,
-                IsNeoForge = IsNeoForge,
-            };
-            DateTime _lastUpdateTime = DateTime.MinValue;
-            TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
-            _ = Task.Run(async () => // 避免实际下载任务在UI线程执行导致线程卡死，别改这个，因为真的会卡死
+            IsFabric = IsMod,
+            IsNeoForge = IsNeoForge,
+        };
+        DateTime _lastUpdateTime = DateTime.MinValue;
+        TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
+        _ = Task.Run(async () => // 避免实际下载任务在UI线程执行导致线程卡死，别改这个，因为真的会卡死
+        {
+            try
             {
                 using (Download download = new Download()) // 在后台任务内部创建和管理Download对象
                 {
@@ -148,30 +148,30 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled
                     );
                 } // 当 Task.Run 中的这个 using 块结束时，download.Dispose() 才会被调用，此时 StartAsync 已完成。
-            });
-            // 在配置文件中添加版本信息
-            Init.ConfigManger.config.VersionList.Add(new UserVersion
+            }
+            catch (OlanException ex)
             {
-                VersionID = VersionName,
-                modType = VersionModType,
-                AddTime = DateTime.Now,
-                IsVersionIsolation = IsVI,
-                preferencesLaunchMode = new PreferencesLaunchMode()
-                {
-                    LaunchModType = (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : ModEnum.none,
-                    IsUseDebugModeLaunch = false
-                }
-            });
-            Init.ConfigManger.Save();
-        }
-        catch (OlanException ex)
+                await OlanExceptionWorker.ForOlanException(ex);
+            }
+            catch (Exception ex)
+            {
+                await OlanExceptionWorker.ForUnknowException(ex);
+            }
+        });
+        // 在配置文件中添加版本信息
+        Init.ConfigManger.config.VersionList.Add(new UserVersion
         {
-            await OlanExceptionWorker.ForOlanException(ex);
-        }
-        catch (Exception ex) 
-        {
-            await OlanExceptionWorker.ForUnknowException(ex);
-        }
+            VersionID = VersionName,
+            modType = VersionModType,
+            AddTime = DateTime.Now,
+            IsVersionIsolation = IsVI,
+            preferencesLaunchMode = new PreferencesLaunchMode()
+            {
+                LaunchModType = (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : ModEnum.none,
+                IsUseDebugModeLaunch = false
+            }
+        });
+        Init.ConfigManger.Save();
     }
     [RelayCommand]
     public void ClosePane()
