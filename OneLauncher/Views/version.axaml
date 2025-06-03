@@ -25,46 +25,27 @@
 			<ListBox.ItemTemplate>
 				<DataTemplate>
 					<Border CornerRadius="5">
-						<Grid RowDefinitions="*,*" ColumnDefinitions="Auto,*" >
-							<StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="4">
-								<TextBlock FontSize="24" Text="{Binding V.VersionID}" FontWeight="Bold"/>
+						<Grid RowDefinitions="*,*" ColumnDefinitions="64,Auto,*" >
+							<Image Source="{Binding VersionIcon}" Grid.Column="0" Grid.RowSpan="2" Width="52" Height="52"/>
+							<StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+								<TextBlock FontSize="24" Text="{Binding versionExp.VersionID}" FontWeight="Bold"/>
 							</StackPanel>
-							<TextBlock Margin="0,8,0,0" Grid.Row="1" Grid.Column="0"  Text="{Binding V.AddTime}"/>
-							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" >
-								<!-- Fabric -->
-								<SplitButton IsVisible="{Binding V.modType.IsFabric}" Command="{Binding LaunchGameWithFabricCommand}" CommandParameter="{Binding V}">
+							<TextBlock Margin="0,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding versionExp.AddTime}"/>
+							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" >
+								<SplitButton Command="{Binding LaunchGameCommand}" CommandParameter="{Binding versionExp}">
 									<StackPanel Orientation="Horizontal" Spacing="2">
 										<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
-										<TextBlock Text="Fabric 启动"/>
+										<TextBlock Text="启动游戏"/>
 									</StackPanel>
 									<SplitButton.Flyout>
-										<MenuFlyout>
-											<MenuItem Command="{Binding LaunchGameDebugCommand}" CommandParameter="{Binding V}" Header="以调试模式启动" />
-										</MenuFlyout>
-									</SplitButton.Flyout>
-								</SplitButton>
-								<!-- NeoForge -->
-								<SplitButton IsVisible="{Binding V.modType.IsNeoForge}" Command="{Binding LaunchGameWithNeoforgeCommand}" CommandParameter="{Binding V}">
-									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
-										<TextBlock Text="NeoForge 启动"/>
-									</StackPanel>
-									<SplitButton.Flyout>
-										<MenuFlyout>
-											<MenuItem Command="{Binding LaunchGameDebugCommand}" CommandParameter="{Binding V}" Header="以调试模式启动" />
-										</MenuFlyout>
-									</SplitButton.Flyout>
-								</SplitButton>
-								<!-- 每个版本都有的原版启动，不设置隐藏 -->
-								<SplitButton Command="{Binding LaunchGameOriginalCommand}" CommandParameter="{Binding V}">
-									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
-										<TextBlock Text="原版启动"/>
-									</StackPanel>
-									<SplitButton.Flyout>
-										<MenuFlyout>
-											<MenuItem Command="{Binding LaunchGameDebugCommand}" CommandParameter="{Binding V}" Header="以调试模式启动" />
-										</MenuFlyout>
+										<Flyout>
+											<StackPanel>	
+												<RadioButton IsChecked="{Binding IsNeoforgeLaunchMode}" GroupName="LaunchModType" Content="NeoForge启动"/>
+												<RadioButton IsChecked="{Binding IsFabricLaunchMode}" GroupName="LaunchModType" Content="Fabric启动"/>
+												<RadioButton IsChecked="{Binding IsOriginalLaunchMode}" GroupName="LaunchModType" Content="原版启动"/>
+												<CheckBox IsChecked="{Binding IsUseDebugModLaunch}" Content="调试模式启动"/>
+											</StackPanel>
+										</Flyout>
 									</SplitButton.Flyout>
 								</SplitButton>
 								<Button>
@@ -81,10 +62,10 @@
 														<TextBlock Text="固定..."/>
 													</StackPanel>
 												</MenuItem.Header>
-												<MenuItem Command="{Binding PinInDashboardCommand}" CommandParameter="{Binding V}" Header="固定到仪表盘"/>
-												<MenuItem Command="{Binding PinToDesktopCommand}" CommandParameter="{Binding V}" Header="固定到桌面" />
+												<MenuItem Command="{Binding PinInDashboardCommand}" CommandParameter="{Binding versionExp}" Header="固定到仪表盘"/>
+												<MenuItem Command="{Binding PinToDesktopCommand}" CommandParameter="{Binding versionExp}" Header="固定到桌面" />
 											</MenuItem>
-											<MenuItem Command="{Binding $parent[ListBox].DataContext.DownloadGameAgainCommand}" CommandParameter="{Binding V}">
+											<MenuItem Command="{Binding $parent[ListBox].DataContext.DownloadGameAgainCommand}" CommandParameter="{Binding versionExp}">
 												<MenuItem.Header>
 													<StackPanel Orientation="Horizontal">
 														<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
@@ -92,7 +73,7 @@
 													</StackPanel>
 												</MenuItem.Header>
 											</MenuItem>
-											<MenuItem IsVisible="{Binding IsMod}" Command="{Binding OpenModsFolderCommand}" CommandParameter="{Binding V}">
+											<MenuItem IsVisible="{Binding IsMod}" Command="{Binding OpenModsFolderCommand}" CommandParameter="{Binding versionExp}">
 												<MenuItem.Header>
 													<StackPanel Orientation="Horizontal">
 														

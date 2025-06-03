@@ -6,6 +6,17 @@ public struct ModType
     public bool IsFabric { get; set; }
     public bool IsNeoForge { get; set; }
 }
+public enum ModEnum
+{
+    none,
+    fabric,
+    neoforge
+}
+public class PreferencesLaunchMode
+{
+    public ModEnum LaunchModType { get; set; }
+    public bool IsUseDebugModeLaunch { get; set; }
+}
 public static class Tools
 {
     public static string IsUseOlansJreOrOssJdk(int javaVersion, string basePath)
@@ -117,12 +128,17 @@ public struct NdDowItem
     public int size;
     public string? sha1;
 }
-public struct aVersion
+public class UserVersion
 {
     public string VersionID { get; set; }
     public ModType modType { get; set; }
     public bool IsVersionIsolation { get; set; }
     public DateTime AddTime { get; set; }
+    public PreferencesLaunchMode preferencesLaunchMode { get; set; }
+    public override string ToString()
+    {
+        return VersionID;
+    }
 }
 public class VersionBasicInfo
 {

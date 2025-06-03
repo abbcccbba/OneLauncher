@@ -4,8 +4,10 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views;
+using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -68,6 +70,8 @@ public partial class download : UserControl
         // 提前缓存避免UI线程循环卡顿
         List<VersionBasicInfo> releaseVersions = vl.GetReleaseVersionList();
         await Dispatcher.UIThread.InvokeAsync(() =>
-        this.DataContext = new Views.ViewModels.DownloadPageViewModel(releaseVersions));
+        viewmodel = new Views.ViewModels.DownloadPageViewModel(releaseVersions));
+        this.DataContext = viewmodel;
     }
+    internal DownloadPageViewModel viewmodel;
 }

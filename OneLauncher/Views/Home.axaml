@@ -3,15 +3,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:material="using:Material.Icons.Avalonia"
-             mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
+             mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Home">
-	<Grid>
-		<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-			<TextBlock FontSize="52" Text="欢迎回来！ 🖐️" />
-			<StackPanel Orientation="Horizontal" Spacing="12">
-				<TextBlock FontSize="18" Text="What you want to play? Boss"/>
-				<Button Margin="30,0,0,0" Click="Button_Click" Content="快速游戏"/>
+	<Grid ColumnDefinitions="2*,*">
+		<Panel Grid.Column="1" Background="Red">
+			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+				<TextBlock Text="{Binding UserName}"/>
+				<TextBlock Text="{Binding VersionName}"/>
+				<Button Content="启动游戏" Command="{Binding ToPlayCommand}"/>
 			</StackPanel>
-		</StackPanel>
+		</Panel>
 	</Grid>
 </UserControl>
