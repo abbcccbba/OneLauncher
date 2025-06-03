@@ -18,7 +18,8 @@ public partial class account : UserControl
     public account()
     {
         InitializeComponent();
-        this.DataContext = new AccountPageViewModel();
+        viewmodel = new AccountPageViewModel();
+        this.DataContext = viewmodel;
         // 刷新用户令牌
         Task.Run(async () =>
         {
@@ -59,4 +60,5 @@ public partial class account : UserControl
             }
         });
     }
+    internal AccountPageViewModel viewmodel;
 }

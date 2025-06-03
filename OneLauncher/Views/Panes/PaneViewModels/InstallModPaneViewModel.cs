@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Modrinth;
 using OneLauncher.Views.ViewModels;
 using System;
@@ -44,9 +45,9 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     [ObservableProperty]
     public List<string> _SupportVersions;
     [ObservableProperty]
-    public List<aVersion> _OwnedVersoins;
+    public List<UserVersion> _OwnedVersoins;
     [ObservableProperty]
-    public aVersion _SelectedItem;
+    public UserVersion _SelectedItem;
     [RelayCommand]
     public async Task ToInstall()
     {
@@ -91,6 +92,6 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     [RelayCommand]
     public void ClosePane()
     {
-
+        MainWindow.mainwindow.modsBrowserPage.viewmodel.IsPaneShow = false;
     }
 }

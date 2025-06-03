@@ -10,6 +10,7 @@ public partial class ModsBrowser : UserControl
     public ModsBrowser()
     {
         InitializeComponent();
-        this.DataContext = new ModsBrowserViewModel();
+        this.DataContext = viewmodel = new ModsBrowserViewModel();
     }
+    internal ModsBrowserViewModel viewmodel;
 }

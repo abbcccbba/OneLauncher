@@ -16,12 +16,13 @@ public partial class Home : UserControl
     public Home()
     {
         InitializeComponent();
+        this.DataContext = new HomePageViewModel();
     }
     
     private void Button_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         /*
-        aVersion? NdSG = Init.ConfigManger.config.DefaultVersion;
+        UserVersion? NdSG = Init.ConfigManger.config.DefaultVersion;
        
         if (NdSG.HasValue)
         {
@@ -30,7 +31,7 @@ public partial class Home : UserControl
             game.GameStartedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("游戏已启动！"));
             game.GameClosedEvent += async () => await Dispatcher.UIThread.InvokeAsync(() => MainWindow.mainwindow.ShowFlyout("游戏已关闭！"));
 
-            Task.Run(() => game.LaunchGame(((aVersion)NdSG).VersionID, Init.ConfigManger.config.DefaultUserModel, ((aVersion)NdSG).IsVersionIsolation,((aVersion)NdSG).IsMod));
+            Task.Run(() => game.LaunchGame(((UserVersion)NdSG).VersionID, Init.ConfigManger.config.DefaultUserModel, ((UserVersion)NdSG).IsVersionIsolation,((UserVersion)NdSG).IsMod));
         }
         else
             MainWindow.mainwindow.ShowFlyout("还没有指定默认版本！", true);

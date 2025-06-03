@@ -8,18 +8,9 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
-namespace OneLauncher.Core;
-public enum DownProgress
-{
-    DownMain,  
-    DownLibs,
-    DownAndInstModFiles,
-    DownAssets,
-    DownLog4j2,
-    Verify,
-    Done
-}
-public class Download : IDisposable
+namespace OneLauncher.Core.Downloader;
+
+public partial class Download : IDisposable
 {
     /// <summary>
     /// 解压 ZIP 结构文件到指定目录
@@ -112,16 +103,16 @@ public class Download : IDisposable
             // 下载 version.json
             var versionjsonpath =
                 Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
-            if (!System.IO.File.Exists(versionjsonpath))
+            if (!File.Exists(versionjsonpath))
                 await DownloadFile(DownloadVersion.Url, versionjsonpath);
 
             // 实例化版本信息解析器
             versionInfomations = new VersionInfomations
-                (await System.IO.File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType, IsVersionIsolation);
+                (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType, IsVersionIsolation);
 
             // 下载资源文件索引
             var assetsIndex = versionInfomations.GetAssets();
-            if (!System.IO.File.Exists(assetsIndex.path))
+            if (!File.Exists(assetsIndex.path))
                 await DownloadFile(assetsIndex.url, assetsIndex.path);
         }
         #endregion
@@ -190,17 +181,17 @@ public class Download : IDisposable
             // 获取Fabric API下载信息
             if (fS)
             {
-                var a = new Modrinth.GetModrinth(
+                var a = new GetModrinth(
                    "fabric-api", DownloadVersion.ID.ToString(),
-                    ((!IsVersionIsolation)
+                    !IsVersionIsolation
                     ? Path.Combine(GameRootPath, "mods")
-                    : Path.Combine(VersionPath, "mods")));
+                    : Path.Combine(VersionPath, "mods"));
                 await a.Init();
                 modApi = (NdDowItem)a!.GetDownloadInfos();
                 AllNd.Add(modApi);
                 Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, ((NdDowItem)modApi).path));
-                await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
+                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, modApi.path));
+                await DownloadFile(modApi.url, modApi.path);
             }
 
             AllNd.AddRange(modLibs);
@@ -247,7 +238,7 @@ public class Download : IDisposable
 
             #endregion
             // 执行NeoForge处理器
-            installTasker.ProcessorsOutEvent += (int a, int b, string c) =>
+            installTasker.ProcessorsOutEvent += (a, b, c) =>
             {
                 if (a == -1 && b == -1)
                     throw new OlanException("NeoForge安装失败",$"执行处理器时报错。信息：{c}",OlanExceptionAction.Error);

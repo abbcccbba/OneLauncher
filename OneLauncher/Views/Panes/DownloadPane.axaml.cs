@@ -18,9 +18,9 @@ internal partial class DownloadPane : UserControl
     public DownloadPane(VersionBasicInfo Version, DownloadPageViewModel downloadPage)
     {
         InitializeComponent();
-        this.DataContext = new PaneViewModels.DownloadPaneViewModel(Version,downloadPage);
+        this.DataContext = new PaneViewModels.DownloadPaneViewModel(Version);
     }
-    public DownloadPane(aVersion Version)
+    public DownloadPane(UserVersion Version)
     {
         InitializeComponent();
         // 找到VersionBasicInfo实例

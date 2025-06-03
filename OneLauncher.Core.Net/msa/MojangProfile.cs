@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using OneLauncher.Core.Downloader;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
 using System.Text;

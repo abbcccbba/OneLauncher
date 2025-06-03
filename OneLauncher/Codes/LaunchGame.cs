@@ -4,17 +4,11 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core;
 using OneLauncher.Core.Minecraft;
-using OneLauncher.Views;
 using OneLauncher.Views.Windows;
 using OneLauncher.Views.Windows.WindowViewModels;
 using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Codes;
@@ -31,7 +25,7 @@ internal class Game
     public async Task LaunchGame(
         string GameVersion, 
         UserModel loginUserModel, 
-        ModType modType,
+        ModEnum modType,
         bool IsVersionInsulation = false,
         bool UseGameTasker = false)
     {

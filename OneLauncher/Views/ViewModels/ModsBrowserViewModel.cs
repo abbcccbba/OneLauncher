@@ -71,12 +71,17 @@ internal partial class ModItem : BaseViewModel
 
 internal partial class ModsBrowserViewModel : BaseViewModel
 {
+    public ModsBrowserViewModel()
+    {
+        // 初始搜索显示热门结果
+        ToSearch();
+    }
     [ObservableProperty]
     public bool _IsPaneShow = false;
     [ObservableProperty]
     public UserControl _InstallModPaneContent = new UserControl();
     [ObservableProperty]
-    public string _SearchContent;
+    public string _SearchContent = string.Empty;
     [ObservableProperty]
     public List<ModItem> _SearchItems;
     [RelayCommand]

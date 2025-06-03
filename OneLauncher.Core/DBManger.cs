@@ -10,13 +10,13 @@ public class AppSettings
 public class AppConfig
 {
     // 当前启动器已安装的所有版本列表，默认初始化为空列表
-    public List<aVersion> VersionList { get; set; } = new List<aVersion>();
+    public List<UserVersion> VersionList { get; set; } = new List<UserVersion>();
     // 当前启动器有的所有用户登入模型，默认初始化为空列表
     public List<UserModel> UserModelList { get; set; } = new List<UserModel>();
     // 默认用户模型，未指定下默认为 Zhi Wei
     public UserModel DefaultUserModel { get; set; } = new UserModel();
     // 默认版本（固定到仪表盘）
-    public aVersion DefaultVersion { get; set; }
+    public UserVersion DefaultVersion { get; set; }
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
     public List<int> AvailableJavaList { get; set; } = new List<int>();
     public AppSettings OlanSettings { get; set; } = new AppSettings();
@@ -37,34 +37,17 @@ public class DBManger
         }
         else
         {
-            Write(FirstConfig);
+            Write(FirstConfig).Wait();
         }
     }
 
-    public void Write(AppConfig config)
+    public Task Write(AppConfig config)
     {
-        try
-        {
-            this.config = config;
-            Directory.CreateDirectory(BasePath);
-            File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(config));
-        }
-        catch (Exception ex)
-        {
-            throw new IOException($"配置文件写入错误： {ex.Message}", ex);
-        }
+        this.config = config;
+        Directory.CreateDirectory(BasePath);
+        return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config));
     }
-    public void Save()
-    {
-        try
-        {
-            Write(this.config);
-        }
-        catch (Exception ex)
-        {
-            throw new IOException($"配置文件写入错误： {ex.Message}", ex);
-        }
-    }
+    public Task Save() => Write(this.config);
 
     public AppConfig Read(AppConfig Bk)
     {

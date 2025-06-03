@@ -17,7 +17,7 @@ public class LaunchCommandBuilder
     private readonly string basePath;
     private readonly SystemType systemType;
     private readonly bool IsVersionInsulation;
-    private readonly ModType modType;
+    private readonly ModEnum modType;
     private FabricVJParser fabricParser;
     private NeoForgeUsing neoForgeParser;
     private readonly string separator;
@@ -35,7 +35,7 @@ public class LaunchCommandBuilder
             string basePath,
             string version,
             UserModel userModel,
-            ModType modType,
+            ModEnum modType,
             SystemType system,
             bool VersionInsulation = false
         )
@@ -58,13 +58,13 @@ public class LaunchCommandBuilder
             await File.ReadAllTextAsync(Path.Combine(VersionPath, $"{version}.json")),
             basePath, systemType, IsVersionInsulation
         );
-        if (modType.IsFabric)
+        if (modType == ModEnum.fabric)
         {
             fabricParser = new FabricVJParser(
               Path.Combine(VersionPath, $"{version}-fabric.json"), basePath);
             MainClass = fabricParser.GetMainClass();
         }
-        else if (modType.IsNeoForge)
+        else if (modType == ModEnum.neoforge)
         {
             neoForgeParser = new NeoForgeUsing();
             await neoForgeParser.Init(basePath, version);
@@ -90,8 +90,8 @@ public class LaunchCommandBuilder
             // 手动加上引号
             { "natives_directory", Path.Combine(basePath,".minecraft","versions",version,"natives") },
             { "launcher_name", "OneLauncher" },
-            { "launcher_version", "1.0.0" },
-            {"classpath",BuildClassPath() },
+            { "launcher_version", Init.OneLauncherVersoin },
+            { "classpath",BuildClassPath() },
             // 一些仅限NeoForge的
             { "version_name" , version},
             { "library_directory" ,"\""+Path.Combine(basePath, "libraries")+"\""},
@@ -119,7 +119,7 @@ public class LaunchCommandBuilder
         else
         {
             var jvmArgs = new List<string>();
-            if (modType.IsNeoForge)
+            if (modType == ModEnum.neoforge)
             {
                 foreach (var item in neoForgeParser.info.Arguments.Jvm)
                 {
@@ -173,12 +173,12 @@ public class LaunchCommandBuilder
         allLibPaths.AddRange(versionInfo.GetLibrarys().Select(x => x.path));
 
         // 2. 添加所有 NeoForge 库 (来自 neoForgeParser)
-        if (modType.IsNeoForge)
+        if (modType == ModEnum.neoforge)
         {
             allLibPaths.AddRange(neoForgeParser.GetLibrariesForLaunch(basePath));
         }
         // (如果需要支持 Fabric, 在这里添加 fabricParser 的库)
-        else if (modType.IsFabric)
+        else if (modType == ModEnum.fabric)
         {
             allLibPaths.AddRange(fabricParser.GetLibraries().Select(x => x.path));
         }
@@ -220,7 +220,7 @@ public class LaunchCommandBuilder
             "--userProperties {} "
             // 针对旧版用户验证机制
             : $"--session \"{userModel.accessToken}\" ");
-        if (modType.IsNeoForge)
+        if (modType == ModEnum.neoforge)
             GameArgs +=
                 string.Join(" ", neoForgeParser.info.Arguments.Game);
         return GameArgs;

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using OneLauncher.Core.Downloader;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
@@ -17,7 +18,7 @@ public class NeoForgeInstallTasker
     public readonly string gamePath;
     public readonly string gameVersion;
     public NeoForgeInstallTasker(
-        Download downloadTask,
+        Downloader.Download downloadTask,
         string librariesPath,
         string gamePath,
         string gameVersion)
@@ -225,7 +226,10 @@ public class NeoForgeInstallTasker
                 ProItem.Start();
                 ProItem.BeginOutputReadLine();
                 ProItem.BeginErrorReadLine();
-                await ProItem.WaitForExitAsync();
+                // 经过排除估计这些神奇的现象是由这行代码导致的
+                // Gemini说没有异步可能导致系统资源严重死锁
+                // 改成 await ProItem.WaitForExitAsync(); 后问题减轻
+                ProItem.WaitForExit();
                 if (ProItem.ExitCode != 0)
                     ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}执行时出错");
             }
