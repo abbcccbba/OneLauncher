@@ -82,6 +82,18 @@
 										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
 							</StackPanel>
 						</ListBoxItem>
+						<!--
+						<ListBoxItem Tag="Server">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Image Source="/Assets/icos/server.png" Width="32" Height="32"/>
+								<TextBlock x:Name="ServerText"
+										   Text="一键开服"
+										   VerticalAlignment="Center"
+										   FontSize="16"
+										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
+							</StackPanel>
+						</ListBoxItem>
+						-->
 						<ListBoxItem Tag="Settings">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/settings1.png" Width="32" Height="32"/>

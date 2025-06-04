@@ -4,6 +4,7 @@ using OneLauncher.Core.ModLoader.neoforge.JsonModels;
 using OneLauncher.Core.Modrinth;
 using OneLauncher.Core.Net.java;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -387,7 +388,7 @@ public partial class Download : IDisposable
                     // 执行下载操作
                     await DownloadFile(item.url,item.path); 
                 }
-                catch (Exception ex)
+                catch (HttpRequestException ex)
                 {
                     for (int attempt = 0; attempt < 3; attempt++)
                     {
@@ -397,7 +398,7 @@ public partial class Download : IDisposable
                             await DownloadFile(item.url, item.path);
                             break;
                         }
-                        catch (Exception ex2)
+                        catch (HttpRequestException ex2)
                         {
                             Debug.WriteLine($"重试下载失败: {ex2.Message}, URL: {item.url}");
                             continue;
@@ -429,30 +430,52 @@ public partial class Download : IDisposable
     }
     public async Task DownloadFile(string url,string savepath)
     {
-        try
-        {
-            using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
-            {
-                response.EnsureSuccessStatusCode();
-                using (var httpStream = await response.Content.ReadAsStreamAsync())
-                {
-                    var directory = Path.GetDirectoryName(savepath);
-                    if (!string.IsNullOrEmpty(directory))
-                        Directory.CreateDirectory(directory);
-                    using (var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
-                    {
-                        await httpStream.CopyToAsync(fileStream, 8192);
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"下载失败: {ex.Message}, URL: {url}");
-            throw;
-        }
-    }
-    public async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1)
+        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+        {
+            response.EnsureSuccessStatusCode();
+            using (var httpStream = await response.Content.ReadAsStreamAsync())
+            {
+                var directory = Path.GetDirectoryName(savepath);
+                if (!string.IsNullOrEmpty(directory))
+                    Directory.CreateDirectory(directory);
+                using (var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
+                {
+                    await httpStream.CopyToAsync(fileStream, 8192);
+                }
+            }
+        }
+    }
+    public async Task DownloadFileAndSha1(string url, string savepath,string sha1)
+    {
+        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+        {
+            response.EnsureSuccessStatusCode();
+            using (var httpStream = await response.Content.ReadAsStreamAsync())
+            {
+                var directory = Path.GetDirectoryName(savepath);
+                if (!string.IsNullOrEmpty(directory))
+                    Directory.CreateDirectory(directory);
+                using (var fileStream = new FileStream(savepath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize: 8192, useAsync: true))
+                {
+                    await httpStream.CopyToAsync(fileStream, 8192);
+                    fileStream.Position = 0;
+                    using (var sha1Hash = SHA1.Create())
+                    {
+                        byte[] hash = await sha1Hash.ComputeHashAsync(fileStream);
+                        string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                        if (!string.Equals(calculatedSha1, sha1, StringComparison.OrdinalIgnoreCase))
+                        {
+                            throw new OlanException(
+                                "下载失败",
+                                $"无法校验文件({savepath})Sha1，实际：{calculatedSha1}预期：{sha1}",
+                                OlanExceptionAction.Warning);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1)
     {
         var semaphore = new SemaphoreSlim(maxConcurrentSha1);
         var sha1Tasks = new List<Task>(FDI.Count);
