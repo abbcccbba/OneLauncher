@@ -6,8 +6,15 @@
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Platforms>AnyCPU;x64</Platforms>
-				
 	</PropertyGroup>
+	<PropertyGroup>
+		<PublishAot>true</PublishAot>
+		<BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+		<TrimMode>link</TrimMode>
+	</PropertyGroup>
+	<ItemGroup>
+		<TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
 	</ItemGroup>

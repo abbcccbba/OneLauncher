@@ -1,17 +1,19 @@
-﻿using System.Text.Json;
+﻿using OneLauncher.Core.Minecraft.JsonModels;
+using OneLauncher.Core.Serialization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.Minecraft;
 
 public class VersionsList
 {
-    VersionJsonInfo a;
+    MinecraftVersionList a;
     public VersionsList(string Json)
     {
         try
         {
             // 使用带有选项的源生成器反序列化
-            a = JsonSerializer.Deserialize<VersionJsonInfo>(Json);
+            a = JsonSerializer.Deserialize<MinecraftVersionList>(Json,OneLauncherJsonContext.Default.MinecraftVersionList);
         }
         catch (Exception ex)
         {
@@ -29,29 +31,4 @@ public class VersionsList
         return a;
     }
 }
-public class VersionJsonInfo
-{
-    [JsonPropertyName("latest")]
-    public LatestList latest { get; set; }
-    [JsonPropertyName("versions")]
-    public List<AllVersionInfomations> AllVersions { get; set; }
-}
-public class LatestList
-{
-    [JsonPropertyName("release")]
-    public string release { get; set; }
-    [JsonPropertyName("snapshot")]
-    public string snapshot { get; set; }
-}
-public class AllVersionInfomations
-{
-    [JsonPropertyName("id")]
-    public string Id { get; set; }
-    [JsonPropertyName("type")]
-    public string Type { get; set; }
-    [JsonPropertyName("url")]
-    public string Url { get; set; }
-    [JsonPropertyName("releaseTime")]
-    public DateTime Time { get; set; }
 
-}

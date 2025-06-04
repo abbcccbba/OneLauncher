@@ -153,10 +153,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             {
                 await OlanExceptionWorker.ForOlanException(ex);
             }
-            catch (Exception ex)
-            {
-                await OlanExceptionWorker.ForUnknowException(ex);
-            }
+            //catch (Exception ex)
+            //{
+            //    await OlanExceptionWorker.ForUnknowException(ex);
+            //}
         });
         // 在配置文件中添加版本信息
         Init.ConfigManger.config.VersionList.Add(new UserVersion

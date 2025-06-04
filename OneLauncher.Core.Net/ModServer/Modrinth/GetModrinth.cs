@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Modrinth.JsonModelGet;
+using OneLauncher.Core.Serialization;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -31,7 +32,7 @@ public class GetModrinth
                 using (JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync()))
                 {
                     JsonElement firstElement = document.RootElement[0];
-                    info = JsonSerializer.Deserialize<ModrinthProjects>(firstElement.GetRawText());
+                    info = JsonSerializer.Deserialize<ModrinthProjects>(firstElement.GetRawText(),OneLauncherJsonContext.Default.ModrinthProjects);
                 }
             }
             catch (Exception ex)

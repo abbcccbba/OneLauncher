@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Minecraft.JsonModels;
+using OneLauncher.Core.Serialization;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -10,7 +11,7 @@ namespace OneLauncher.Core.Minecraft;
 /// </summary>
 public class VersionInfomations
 {
-    public readonly VersionInformation info;
+    public readonly MinecraftVersionInfo info;
     public readonly string basePath;
     public readonly bool? IsVersionInsulation;
     public readonly SystemType OsType;
@@ -28,17 +29,9 @@ public class VersionInfomations
     {
         this.basePath = basePath;
         this.OsType = OsType;
-        try
-        {
-            // 使用带有选项的源生成器反序列化
-            info = JsonSerializer.Deserialize<VersionInformation>(json)
-                ?? throw new InvalidOperationException("解析版本JSON失败");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.Message);
-            throw new InvalidOperationException("解析版本JSON时出错", ex);
-        }
+
+        info = JsonSerializer.Deserialize<MinecraftVersionInfo>(json, OneLauncherJsonContext.Default.MinecraftVersionInfo);
+
 
         this.IsVersionInsulation = IsVersionInsulation;
     }
@@ -98,7 +91,7 @@ public class VersionInfomations
             // natives库文件
             if (lib.Downloads?.Classifiers != null)
             {
-                LibraryArtifact ta;
+                MInecraftLibraryArtifact ta;
                 try
                 {
                     ta = lib.Downloads.Classifiers
