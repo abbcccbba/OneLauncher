@@ -40,8 +40,8 @@
 									<SplitButton.Flyout>
 										<Flyout>
 											<StackPanel>	
-												<RadioButton IsChecked="{Binding IsNeoforgeLaunchMode}" GroupName="LaunchModType" Content="NeoForge启动"/>
-												<RadioButton IsChecked="{Binding IsFabricLaunchMode}" GroupName="LaunchModType" Content="Fabric启动"/>
+												<RadioButton IsVisible="{Binding HasNeoforge}" IsChecked="{Binding IsNeoforgeLaunchMode}" GroupName="LaunchModType" Content="NeoForge启动"/>
+												<RadioButton IsVisible="{Binding HasFabric}" IsChecked="{Binding IsFabricLaunchMode}" GroupName="LaunchModType" Content="Fabric启动"/>
 												<RadioButton IsChecked="{Binding IsOriginalLaunchMode}" GroupName="LaunchModType" Content="原版启动"/>
 												<CheckBox IsChecked="{Binding IsUseDebugModLaunch}" Content="调试模式启动"/>
 											</StackPanel>
@@ -62,10 +62,10 @@
 														<TextBlock Text="固定..."/>
 													</StackPanel>
 												</MenuItem.Header>
-												<MenuItem Command="{Binding PinInDashboardCommand}" CommandParameter="{Binding versionExp}" Header="固定到仪表盘"/>
-												<MenuItem Command="{Binding PinToDesktopCommand}" CommandParameter="{Binding versionExp}" Header="固定到桌面" />
+												<MenuItem Command="{Binding PinInDashboardCommand}" Header="固定到仪表盘"/>
+												<MenuItem Command="{Binding PinToDesktopCommand}" Header="固定到桌面" />
 											</MenuItem>
-											<MenuItem Command="{Binding $parent[ListBox].DataContext.DownloadGameAgainCommand}" CommandParameter="{Binding versionExp}">
+											<MenuItem Command="{Binding $parent[ListBox].DataContext.DownloadGameAgainCommand}" >
 												<MenuItem.Header>
 													<StackPanel Orientation="Horizontal">
 														<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
@@ -73,13 +73,37 @@
 													</StackPanel>
 												</MenuItem.Header>
 											</MenuItem>
-											<MenuItem IsVisible="{Binding IsMod}" Command="{Binding OpenModsFolderCommand}" CommandParameter="{Binding versionExp}">
+											<MenuItem IsVisible="{Binding IsMod}" Command="{Binding OpenModsFolderCommand}">
 												<MenuItem.Header>
 													<StackPanel Orientation="Horizontal">
-														
+														<Image Source="/Assets/icos/browser.png" Width="20" Height="20"/>
 														<TextBlock Text="打开Mods文件夹"/>
 													</StackPanel>
 												</MenuItem.Header>
+											</MenuItem>
+											<MenuItem>
+												<MenuItem.Header>
+													<StackPanel Orientation="Horizontal">
+														<Image Source="/Assets/icos/server.png" Width="20" Height="20"/>
+														<TextBlock Text="服务端..." />
+													</StackPanel>
+												</MenuItem.Header>
+												<MenuItem Command="{Binding $parent[ListBox].DataContext.OpenServerCommand}" CommandParameter="{Binding versionExp}">
+													<MenuItem.Header>
+														<StackPanel Orientation="Horizontal">
+															<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
+															<TextBlock Text="一键开服"/>
+														</StackPanel>
+													</MenuItem.Header>
+												</MenuItem>
+												<MenuItem Command="{Binding OpenServerFolderCommand}">
+													<MenuItem.Header>
+														<StackPanel Orientation="Horizontal">
+															<Image Source="/Assets/icos/browser.png" Width="20" Height="20"/>
+															<TextBlock Text="打开服务端文件夹"/>
+														</StackPanel>
+													</MenuItem.Header>
+												</MenuItem>
 											</MenuItem>
 										</MenuFlyout>
 									</Button.Flyout>

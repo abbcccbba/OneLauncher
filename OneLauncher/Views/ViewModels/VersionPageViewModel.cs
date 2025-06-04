@@ -7,6 +7,8 @@ using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Core.Minecraft;
+using OneLauncher.Core.Minecraft.JsonModels;
+using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
@@ -26,7 +29,15 @@ internal partial class VersionItem : BaseViewModel
     {
         versionExp = a;
         index = IndexInInit;
-        switch(a.preferencesLaunchMode.LaunchModType)
+        if (a.modType.IsNeoForge || a.modType.IsFabric)
+        {
+            IsMod = true;
+            if(a.modType.IsNeoForge)
+                HasNeoforge = true;
+            if (a.modType.IsFabric)
+                HasFabric = true;
+        }
+        switch (a.preferencesLaunchMode.LaunchModType)
         {
             case ModEnum.none:
                 IsOriginalLaunchMode = true;
@@ -43,6 +54,9 @@ internal partial class VersionItem : BaseViewModel
         }
     }
     int index;
+    public bool IsMod {  get; set; } = false;
+    public bool HasFabric { get; set; } = false;
+    public bool HasNeoforge { get; set; } = false;
     [ObservableProperty]
     public Bitmap versionIcon;
     public UserVersion versionExp { get; set; }
@@ -125,38 +139,25 @@ internal partial class VersionItem : BaseViewModel
         string path = ((versionExp.IsVersionIsolation)
                 ? Path.Combine(Init.GameRootPath, "versions", versionExp.VersionID, "mods")
                 : Path.Combine(Init.GameRootPath, "mods"));
-        var processOpenInfo = new ProcessStartInfo() 
-        {
-            Arguments = $"\"{path}\"",
-            UseShellExecute = true
-        };
-        Directory.CreateDirectory(path);
         try
         {
-            switch (Init.systemType) 
-            {
-                case SystemType.windows:
-                    processOpenInfo.FileName = "explorer.exe";
-                    break;
-                case SystemType.osx:
-                    processOpenInfo.FileName = "open";
-                    break;
-                case SystemType.linux:
-                    processOpenInfo.FileName = "xdg-open";
-                    break;
-            }
-            Process.Start(processOpenInfo);
+            Tools.OpenFolder(path);
         }
-        catch (Exception ex)
+        catch (OlanException ex)
         {
-            OlanExceptionWorker.ForOlanException(
-                new OlanException(
-                    "无法打开Mods文件夹",
-                    "无法执行启动操作",
-                    OlanExceptionAction.Error),
-                    () => OpenModsFolder()
-                );  
+            OlanExceptionWorker.ForOlanException(ex,
+                () => OpenModsFolder());  
         }
+    }
+    [RelayCommand]
+    public void OpenServerFolder()
+    {
+        string path = Path.Combine(Init.GameRootPath,"versions",versionExp.VersionID,"servers");
+        if (!Directory.Exists(path))
+            OlanExceptionWorker.ForOlanException(
+                new OlanException("无法打开服务端文件夹","服务端尚未初始化",OlanExceptionAction.Error));
+        else
+            Tools.OpenFolder(path);
     }
 }
 internal partial class VersionPageViewModel : BaseViewModel
@@ -207,6 +208,39 @@ internal partial class VersionPageViewModel : BaseViewModel
     {
         IsPaneShow = true;
         RefDownPane = new DownloadPane(version);
+    }
+    [RelayCommand]
+    public async Task OpenServer(UserVersion versionExp)
+    {
+        try
+        {
+            // 去尝试读取，判断这个服务端版本是否启用了版本隔离
+            bool IsVI;
+            if (Directory.Exists(Path.Combine(Init.GameRootPath, "versoins", versionExp.VersionID, "servers")))
+                IsVI = true;
+            else if (Directory.Exists(Path.Combine(Init.GameRootPath, "servers")))
+                IsVI = false;
+            else
+                throw new OlanException("无法启动服务端","服务端似乎没有被正确安装。无法找到servers文件夹。",OlanExceptionAction.Error);
+            string versionPath = Path.Combine(Init.GameRootPath, "versions", versionExp.VersionID);
+            // 判断服务端是否已经完成初始化
+            if (!File.Exists(Path.Combine(versionPath, "server.jar")))
+            {
+                IsPaneShow = true;
+                RefDownPane = new InitServerPane(versionExp.VersionID);
+            }
+            else
+                MinecraftServerManger.Run(versionPath, "",
+                    // 读取源文件获取Java版本
+                    ((VersionInformation)await JsonSerializer.DeserializeAsync<VersionInformation>(
+                        File.OpenRead(
+                            Path.Combine(versionPath, $"{versionExp.VersionID}.json"))
+                    )).JavaVersion.MajorVersion, IsVI);
+        }
+        catch (OlanException ex)
+        {
+            await OlanExceptionWorker.ForOlanException(ex);
+        }
     }
 }
 

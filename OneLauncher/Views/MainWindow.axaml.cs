@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     public readonly settings settingsPage;
     public readonly account accountPage;
     public readonly ModsBrowser modsBrowserPage;
+    //public readonly server serverPage;
     public static MainWindow mainwindow;
     public MainWindow()
     {
@@ -31,11 +32,12 @@ public partial class MainWindow : Window
         modsBrowserPage = new ModsBrowser();
         downloadPage = new download();
         settingsPage = new settings();
+        //serverPage = new server();
         PageContent.Content = HomePage;
     }
     public enum MainPage
     {
-        HomePage,VersionPage,AccountPage,DownloadPage,SettingsPage, ModsBrowserPage
+        HomePage,VersionPage,AccountPage,DownloadPage,SettingsPage, ModsBrowserPage//, ServerPage
     }
     /// <summary>
     /// 手动管理页面切换
@@ -60,6 +62,9 @@ public partial class MainWindow : Window
             case MainPage.DownloadPage:
                 PageContent.Content = downloadPage;
                 break;
+            //case MainPage.ServerPage:
+            //    PageContent.Content = serverPage;
+            //    break;
             case MainPage.SettingsPage:
                 PageContent.Content = settingsPage;
                 break;
@@ -108,6 +113,9 @@ public partial class MainWindow : Window
             case "Download":
                 PageContent.Content = downloadPage;
                 break;
+            //case "Server":
+            //    PageContent.Content = serverPage;
+            //    break;
             case "Settings":
                 PageContent.Content = settingsPage;
                 break;
@@ -122,6 +130,7 @@ public partial class MainWindow : Window
         AccountText.IsVisible = IsOpen;
         DownloadText.IsVisible = IsOpen;
         SettingsText.IsVisible = IsOpen;
+        //ServerText.IsVisible = IsOpen;
         ModsBrowserText.IsVisible = IsOpen;
         SidebarSplitView.IsPaneOpen = IsOpen;
     }

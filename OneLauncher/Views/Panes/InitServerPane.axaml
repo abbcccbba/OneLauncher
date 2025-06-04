@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="620"
+             x:Class="OneLauncher.Views.Panes.InitServerPane">
+	<Grid RowDefinitions="80,*">
+		<Panel Grid.Row="0">
+			<StackPanel Orientation="Horizontal"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24" Spacing="4">
+				<Button>
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/back.png" Width="20" Height="20"/>
+						<TextBlock Text="返回" />
+					</StackPanel>
+				</Button>
+				<Button Command="{Binding ToInstallServerCommand}">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/downloadnow.png" Width="20" Height="20"/>
+						<TextBlock Text="继续" />
+					</StackPanel>
+				</Button>
+			</StackPanel>
+			<TextBlock FontSize="36" Margin="0,-6,0,0" Text="服务器初始化向导" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		</Panel>
+		<StackPanel Grid.Row="1" VerticalAlignment="Top" Margin="24" Spacing="36">
+			<StackPanel>
+				<TextBlock FontSize="24" Text="安装选项"/>
+				<CheckBox IsChecked="{Binding IsVI}" Margin="0,12,0,0">启用服务端版本隔离</CheckBox>
+			</StackPanel>
+			<StackPanel>
+				<TextBlock FontSize="24" Text="协议"/>
+				<CheckBox IsChecked="{Binding IsAgreeMinecraftEULA,Mode=TwoWay}" Margin="0,12,0,0">我同意Minecraft最终用户许可协议</CheckBox>
+				<Button Command="{Binding ReadMinecraftEULACommand}" Content="查看协议内容"/>
+			</StackPanel>
+		</StackPanel>
+	</Grid>
+</UserControl>

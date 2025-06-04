@@ -48,24 +48,16 @@ public class DBManger
         return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config));
     }
     public Task Save() => Write(this.config);
-
     public AppConfig Read(AppConfig Bk)
     {
-        try
+        string jsonString = File.ReadAllText(ConfigFilePath);
+        if (string.IsNullOrEmpty(jsonString))
         {
-            string jsonString = File.ReadAllText(ConfigFilePath);
-            if (string.IsNullOrEmpty(jsonString))
-            {
-                Write(Bk);
-                return config;
-            }
-            AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString);
-            this.config = readConfig;
-            return readConfig;
+            Write(Bk);
+            return config;
         }
-        catch (Exception ex)
-        {
-            throw new IOException($"配置文件读取错误： {ex.Message}", ex);
-        }
+        AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString);
+        this.config = readConfig;
+        return readConfig;
     }
 }

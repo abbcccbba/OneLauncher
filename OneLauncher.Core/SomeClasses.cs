@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace OneLauncher.Core;
 public struct ModType
@@ -19,6 +21,38 @@ public class PreferencesLaunchMode
 }
 public static class Tools
 {
+    public static void OpenFolder(string folderPath)
+    {
+        var processOpenInfo = new ProcessStartInfo()
+        {
+            Arguments = $"\"{folderPath}\"",
+            UseShellExecute = true
+        };
+        Directory.CreateDirectory(folderPath);
+        try
+        {
+            switch (Init.systemType)
+            {
+                case SystemType.windows:
+                    processOpenInfo.FileName = "explorer.exe";
+                    break;
+                case SystemType.osx:
+                    processOpenInfo.FileName = "open";
+                    break;
+                case SystemType.linux:
+                    processOpenInfo.FileName = "xdg-open";
+                    break;
+            }
+            Process.Start(processOpenInfo);
+        }
+        catch (Exception ex)
+        {
+            throw new OlanException(
+                "无法打开文件夹",
+                "无法执行启动操作",
+                OlanExceptionAction.Error);
+        }
+    }
     public static string IsUseOlansJreOrOssJdk(int javaVersion, string basePath)
     {
         var t = Path.Combine(basePath, "JavaRuntimes", javaVersion.ToString());

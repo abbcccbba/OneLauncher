@@ -56,7 +56,9 @@ public class AssetIndex
 public class Downloads
 {
     [JsonPropertyName("client")]
-    public DownloadUrl? Client { get; set; } // 可以为空
+    public DownloadUrl? Client { get; set; }
+    [JsonPropertyName("server")]
+    public DownloadUrl? Server { get; set; }
 }
 
 // 表示主文件的下载信息和地址
