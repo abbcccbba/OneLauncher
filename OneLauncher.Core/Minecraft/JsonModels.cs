@@ -3,25 +3,25 @@ using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.Minecraft.JsonModels;
 // 表示version.json的顶层结构
-public class VersionInformation
+public class MinecraftVersionInfo
 {
     [JsonPropertyName("assetIndex")]
-    public AssetIndex? AssetIndex { get; set; }
+    public MinecraftAssetIndex? AssetIndex { get; set; }
 
     [JsonPropertyName("downloads")]
-    public Downloads? Downloads { get; set; }
+    public MinecraftDownloads? Downloads { get; set; }
 
     [JsonPropertyName("libraries")]
-    public List<Library>? Libraries { get; set; }
+    public List<MinecraftLibrary>? Libraries { get; set; }
 
     [JsonPropertyName("arguments")]
-    public Arguments? Arguments { get; set; }
+    public MinecraftArguments? Arguments { get; set; }
 
     [JsonPropertyName("mainClass")]
     public string? MainClass { get; set; }
 
     [JsonPropertyName("logging")]
-    public Logging? Logging { get; set; }
+    public MinecraftLogging? Logging { get; set; }
 
     [JsonPropertyName("javaVersion")]
     public JavaVersion? JavaVersion { get; set; }
@@ -37,7 +37,7 @@ public class JavaVersion
 }
 
 // 表示资源索引文件下载
-public class AssetIndex
+public class MinecraftAssetIndex
 {
     [JsonPropertyName("id")]
     public string? Id { get; set; } // 可以为空
@@ -53,16 +53,16 @@ public class AssetIndex
 }
 
 // 表示主文件下载信息
-public class Downloads
+public class MinecraftDownloads
 {
     [JsonPropertyName("client")]
-    public DownloadUrl? Client { get; set; }
+    public MinecraftDownloadUrl? Client { get; set; }
     [JsonPropertyName("server")]
-    public DownloadUrl? Server { get; set; }
+    public MinecraftDownloadUrl? Server { get; set; }
 }
 
 // 表示主文件的下载信息和地址
-public class DownloadUrl
+public class MinecraftDownloadUrl
 {
     [JsonPropertyName("sha1")]
     public string? Sha1 { get; set; }
@@ -74,28 +74,28 @@ public class DownloadUrl
 }
 
 // 表示单个库信息（顶层）
-public class Library
+public class MinecraftLibrary
 {
     [JsonPropertyName("downloads")]
-    public LibraryDownloads? Downloads { get; set; } // 可以为空
+    public MinecraftLibraryDownloads? Downloads { get; set; } // 可以为空
 
     [JsonPropertyName("rules")]
-    public List<Rule>? Rules { get; set; } // 可以为空
+    public List<MinecraftRule>? Rules { get; set; } // 可以为空
 }
 
 // 表示库的下载信息
-public class LibraryDownloads
+public class MinecraftLibraryDownloads
 {
     // 普通库文件
     [JsonPropertyName("artifact")]
-    public LibraryArtifact? Artifact { get; set; }
+    public MInecraftLibraryArtifact? Artifact { get; set; }
 
     [JsonPropertyName("classifiers")]
-    public Dictionary<string, LibraryArtifact>? Classifiers { get; set; }
+    public Dictionary<string, MInecraftLibraryArtifact>? Classifiers { get; set; }
 }
 
 // 表示普通库文件的具体下载信息
-public class LibraryArtifact
+public class MInecraftLibraryArtifact
 {
     [JsonPropertyName("path")]
     public string? Path { get; set; }
@@ -109,14 +109,14 @@ public class LibraryArtifact
     public int? Size { get; set; }
 }
 // 表示启动参数（jvm和game）
-public class Arguments
+public class MinecraftArguments
 {
     [JsonPropertyName("jvm")]
     [JsonConverter(typeof(JvmArgumentConverter))] // 使用自定义转换器处理混合类型
-    public List<object>? Jvm { get; set; } // object 可以是 string 或 Argument
+    public List<object>? Jvm { get; set; } // object 可以是 string 或 MinecraftArgument
 }
 
-// JVM 参数列表的自定义 JSON 转换器，处理 string 和 Argument 对象
+// JVM 参数列表的自定义 JSON 转换器，处理 string 和 MinecraftArgument 对象
 public class JvmArgumentConverter : JsonConverter<List<object>>
 {
     public override List<object> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -133,8 +133,8 @@ public class JvmArgumentConverter : JsonConverter<List<object>>
             }
             else if (reader.TokenType == JsonTokenType.StartObject)
             {
-                // 反序列化为 Argument 对象
-                var arg = JsonSerializer.Deserialize<Argument>(ref reader, options);
+                // 反序列化为 MinecraftArgument 对象
+                var arg = JsonSerializer.Deserialize<MinecraftArgument>(ref reader, options);
                 if (arg != null) list.Add(arg);
             }
             else
@@ -152,8 +152,8 @@ public class JvmArgumentConverter : JsonConverter<List<object>>
         {
             if (item is string str)
                 writer.WriteStringValue(str);
-            else if (item is Argument arg)
-                JsonSerializer.Serialize(writer, arg, options); // 序列化为 Argument
+            else if (item is MinecraftArgument arg)
+                JsonSerializer.Serialize(writer, arg, options); // 序列化为 MinecraftArgument
             else
                 // 处理其他类型或抛出异常
                 throw new JsonException($"JVM 参数中遇到未知对象类型: {item?.GetType().Name}");
@@ -162,17 +162,17 @@ public class JvmArgumentConverter : JsonConverter<List<object>>
     }
 }
 // 表示单个启动参数，可能包含 rules
-public class Argument
+public class MinecraftArgument
 {
     [JsonPropertyName("rules")]
-    public List<Rule>? Rules { get; set; } // 可以为空
+    public List<MinecraftRule>? Rules { get; set; } // 可以为空
 
     [JsonPropertyName("value")]
     [JsonConverter(typeof(ArgumentValueConverter))] // 使用自定义转换器处理 string 或 List<string>
     public object? Value { get; set; } // 值可以是 string 或 List<string>，可以为空
 }
 // 表示规则
-public class Rule
+public class MinecraftRule
 {
     [JsonPropertyName("action")]
     public string? Action { get; set; } // action 可以是 "allow" 或 "disallow"，可以为空
@@ -189,7 +189,7 @@ public class Os
 }
 
 // 表示natives库的操作系统映射
-public class Natives
+public class MinecraftNatives
 {
     [JsonPropertyName("linux")]
     public string? Linux { get; set; } // Linux 原生库分类器键，可以为空
@@ -202,24 +202,24 @@ public class Natives
 }
 
 // 表示日志配置信息
-public class Logging
+public class MinecraftLogging
 {
     [JsonPropertyName("client")]
-    public LoggingClient? Client { get; set; } // 客户端日志配置，可以为空
+    public MinecraftLoggingClient? Client { get; set; } // 客户端日志配置，可以为空
 }
 
 // 表示客户端日志配置
-public class LoggingClient
+public class MinecraftLoggingClient
 {
     [JsonPropertyName("argument")]
     public string? Argument { get; set; } // 日志参数字符串，可以为空
 
     [JsonPropertyName("file")]
-    public LoggingFile? File { get; set; } // 日志配置文件信息，可以为空
+    public MinecraftLoggingFile? File { get; set; } // 日志配置文件信息，可以为空
 }
 
 // 表示日志配置文件下载地址
-public class LoggingFile
+public class MinecraftLoggingFile
 {
     [JsonPropertyName("id")]
     public string? Id { get; set; } // 文件 ID，可以为空
@@ -278,4 +278,35 @@ public class ArgumentValueConverter : JsonConverter<object>
             throw new JsonException($"无效的参数值对象类型: {value?.GetType().Name}");
         }
     }
+}
+
+
+
+
+
+public class MinecraftVersionList
+{
+    [JsonPropertyName("latest")]
+    public MinecraftLatestList latest { get; set; }
+    [JsonPropertyName("versions")]
+    public List<MinecraftAllVersionInfomations> AllVersions { get; set; }
+}
+public class MinecraftLatestList
+{
+    [JsonPropertyName("release")]
+    public string release { get; set; }
+    [JsonPropertyName("snapshot")]
+    public string snapshot { get; set; }
+}
+public class MinecraftAllVersionInfomations
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; }
+    [JsonPropertyName("type")]
+    public string Type { get; set; }
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
+    [JsonPropertyName("releaseTime")]
+    public DateTime Time { get; set; }
+
 }

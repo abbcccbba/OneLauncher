@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using OneLauncher.Core.Serialization;
+using System.Text.Json;
 
 namespace OneLauncher.Core;
 public class AppSettings
@@ -45,7 +46,7 @@ public class DBManger
     {
         this.config = config;
         Directory.CreateDirectory(BasePath);
-        return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config));
+        return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config,OneLauncherJsonContext.Default.AppConfig));
     }
     public Task Save() => Write(this.config);
     public AppConfig Read(AppConfig Bk)
@@ -56,7 +57,7 @@ public class DBManger
             Write(Bk);
             return config;
         }
-        AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString);
+        AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, OneLauncherJsonContext.Default.AppConfig);
         this.config = readConfig;
         return readConfig;
     }

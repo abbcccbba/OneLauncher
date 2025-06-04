@@ -221,7 +221,14 @@ internal partial class VersionPageViewModel : BaseViewModel
             else if (Directory.Exists(Path.Combine(Init.GameRootPath, "servers")))
                 IsVI = false;
             else
-                throw new OlanException("无法启动服务端","服务端似乎没有被正确安装。无法找到servers文件夹。",OlanExceptionAction.Error);
+                throw new OlanException("无法启动服务端","服务端似乎没有被正确安装。无法找到servers文件夹。",
+                    OlanExceptionAction.Error,null,
+                    () => 
+                    {
+                        Directory.Delete(Path.Combine(Init.GameRootPath, "servers"));
+                        IsPaneShow = true;
+                        RefDownPane = new InitServerPane(versionExp.VersionID);
+                    });
             string versionPath = Path.Combine(Init.GameRootPath, "versions", versionExp.VersionID);
             // 判断服务端是否已经完成初始化
             if (!File.Exists(Path.Combine(versionPath, "server.jar")))
@@ -232,7 +239,7 @@ internal partial class VersionPageViewModel : BaseViewModel
             else
                 MinecraftServerManger.Run(versionPath, "",
                     // 读取源文件获取Java版本
-                    ((VersionInformation)await JsonSerializer.DeserializeAsync<VersionInformation>(
+                    ((MinecraftVersionInfo)await JsonSerializer.DeserializeAsync<MinecraftVersionInfo>(
                         File.OpenRead(
                             Path.Combine(versionPath, $"{versionExp.VersionID}.json"))
                     )).JavaVersion.MajorVersion, IsVI);

@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using OneLauncher.Core.Net.msa.JsonModels;
+using OneLauncher.Core.Serialization;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -37,7 +39,7 @@ public class MicrosoftAuthenticator : IDisposable
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json);
+            var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json,OneLauncherJsonContext.Default.TokenResponse);
 
             if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.access_token) || string.IsNullOrEmpty(tokenResponse.refresh_token))
             {
@@ -140,7 +142,7 @@ public class MicrosoftAuthenticator : IDisposable
                 Encoding.UTF8, "application/x-www-form-urlencoded"));
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<DeviceCodeResponse>(json);
+        return JsonSerializer.Deserialize<DeviceCodeResponse>(json, OneLauncherJsonContext.Default.DeviceCodeResponse);
     }
 
     /// <summary>
@@ -162,10 +164,10 @@ public class MicrosoftAuthenticator : IDisposable
             var json = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
-                return JsonSerializer.Deserialize<TokenResponse>(json);
+                return JsonSerializer.Deserialize<TokenResponse>(json,OneLauncherJsonContext.Default.TokenResponse);
             else
             {
-                var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(json);
+                var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(json, OneLauncherJsonContext.Default.ErrorResponse);
                 switch (errorResponse?.error)
                 {
                     case "authorization_pending":
@@ -210,7 +212,7 @@ public class MicrosoftAuthenticator : IDisposable
         var response = await httpClient.PostAsync("https://user.auth.xboxlive.com/user/authenticate", content);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<XboxLiveAuthResponse>(json);
+        return JsonSerializer.Deserialize<XboxLiveAuthResponse>(json, OneLauncherJsonContext.Default.XboxLiveAuthResponse);
     }
 
     /// <summary>
@@ -234,7 +236,7 @@ public class MicrosoftAuthenticator : IDisposable
 
         if (!response.IsSuccessStatusCode)
         {
-            var errorResponse = JsonSerializer.Deserialize<XSTSErrorResponse>(json);
+            var errorResponse = JsonSerializer.Deserialize<XSTSErrorResponse>(json, OneLauncherJsonContext.Default.XSTSErrorResponse);
             if (errorResponse?.XErr == "214891605")
             {
                 Console.WriteLine("XSTS 认证失败: 该 Xbox Live 账号需要完成资料设置或家长同意。");
@@ -250,7 +252,7 @@ public class MicrosoftAuthenticator : IDisposable
             return null;
         }
 
-        return JsonSerializer.Deserialize<XSTSAuthResponse>(json);
+        return JsonSerializer.Deserialize<XSTSAuthResponse>(json, OneLauncherJsonContext.Default.XSTSAuthResponse);
     }
 
     /// <summary>
@@ -266,7 +268,7 @@ public class MicrosoftAuthenticator : IDisposable
         var response = await httpClient.PostAsync("https://api.minecraftservices.com/authentication/login_with_xbox", content);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<MinecraftLoginResponse>(json);
+        return JsonSerializer.Deserialize<MinecraftLoginResponse>(json, OneLauncherJsonContext.Default.MinecraftLoginResponse);
     }
 
     /// <summary>
@@ -278,7 +280,7 @@ public class MicrosoftAuthenticator : IDisposable
         var response = await httpClient.GetAsync("https://api.minecraftservices.com/entitlements/mcstore");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<EntitlementsResponse>(json);
+        return JsonSerializer.Deserialize<EntitlementsResponse>(json, OneLauncherJsonContext.Default.EntitlementsResponse);
     }
 
     /// <summary>
@@ -295,7 +297,7 @@ public class MicrosoftAuthenticator : IDisposable
             Debug.WriteLine("获取 Minecraft 档案失败。可能此账号没有设置 Minecraft 档案（例如首次启动游戏时）。");
             return null;
         }
-        return JsonSerializer.Deserialize<MinecraftProfileResponse>(json);
+        return JsonSerializer.Deserialize<MinecraftProfileResponse>(json, OneLauncherJsonContext.Default.MinecraftProfileResponse);
     }
 
     public void Dispose()
@@ -303,82 +305,6 @@ public class MicrosoftAuthenticator : IDisposable
         httpClient.Dispose();
     }
 
-
-    // --- 内部辅助类用于 JSON 反序列化 ---
-
-    private class DeviceCodeResponse
-    {
-        // 设备代码
-        public string device_code { get; set; } = string.Empty;
-        // 给用户的代码
-        public string user_code { get; set; } = string.Empty;
-        // 验证地址
-        public string verification_uri { get; set; } = string.Empty;
-        // 失效时间（秒）
-        public int expires_in { get; set; }
-        // 最小轮询间隔（秒）
-        public int interval { get; set; }
-    }
-
-    private class TokenResponse
-    {
-        public string token_type { get; set; } = string.Empty;
-        public string scope { get; set; } = string.Empty;
-        public int expires_in { get; set; }
-        public string access_token { get; set; } = string.Empty;
-        public string refresh_token { get; set; } = string.Empty;
-        public string? id_token { get; set; }
-    }
-
-    private class ErrorResponse
-    {
-        public string error { get; set; } = string.Empty;
-        public string error_description { get; set; } = string.Empty;
-    }
-
-    private class XboxLiveAuthResponse
-    {
-        public string Token { get; set; } = string.Empty;
-        public XUIDisplayClaims DisplayClaims { get; set; } = new XUIDisplayClaims();
-    }
-    private class XUIDisplayClaims
-    {
-        public XUI[] xui { get; set; } = Array.Empty<XUI>();
-    }
-    private class XUI
-    {
-        public string uhs { get; set; } = string.Empty;
-    }
-
-
-    private class XSTSAuthResponse
-    {
-        public string Token { get; set; } = string.Empty;
-        public XUIDisplayClaims DisplayClaims { get; set; } = new XUIDisplayClaims();
-    }
-    private class XSTSErrorResponse
-    {
-        public string? XErr { get; set; } // 类型是 string 还是 int 取决于 API 返回的具体格式，这里以 string 为例
-        public string? Message { get; set; }
-    }
-
-
-    private class MinecraftLoginResponse
-    {
-        public string access_token { get; set; } = string.Empty;
-    }
-
-    private class EntitlementsResponse
-    {
-        public EntitlementItem[] items { get; set; } = Array.Empty<EntitlementItem>();
-    }
-
-    private class EntitlementItem { }
-    private class MinecraftProfileResponse
-    {
-        public string id { get; set; } = string.Empty; // 玩家的真实 UUID
-        public string name { get; set; } = string.Empty; // 玩家的 Minecraft 用户名
-    }
 
 }
 

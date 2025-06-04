@@ -135,7 +135,7 @@ public class LaunchCommandBuilder
                     string replaced = ReplacePlaceholders(str, placeholders);
                     jvmArgs.Add(replaced);
                 }
-                else if (item is Argument arg)
+                else if (item is MinecraftArgument arg)
                 {
                     if (EvaluateRules(arg.Rules, osName, arch))
                     {
@@ -225,7 +225,7 @@ public class LaunchCommandBuilder
                 string.Join(" ", neoForgeParser.info.Arguments.Game);
         return GameArgs;
     }
-    private bool EvaluateRules(List<Rule> rules, string osName, string arch)
+    private bool EvaluateRules(List<MinecraftRule> rules, string osName, string arch)
     {
         if (rules == null || rules.Count == 0) return true;
         bool allowed = false;

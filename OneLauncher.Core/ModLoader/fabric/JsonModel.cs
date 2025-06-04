@@ -2,17 +2,17 @@
 
 namespace OneLauncher.Core.ModLoader.fabric.JsonModels;
 
-public class RootFabric
+public class FabricRoot
 {
     [JsonPropertyName("loader")]
-    public Loader Loader { get; set; }
+    public FabricLoader Loader { get; set; }
 
     [JsonPropertyName("intermediary")]
-    public Intermediary Intermediary { get; set; }
+    public FabricIntermediary Intermediary { get; set; }
     [JsonPropertyName("launcherMeta")]
-    public LauncherMeta LauncherMeta { get; set; }
+    public FabricLauncherMeta LauncherMeta { get; set; }
 }
-public class Loader
+public class FabricLoader
 {
     [JsonPropertyName("maven")]
     public string DownName { get; set; }
@@ -21,7 +21,7 @@ public class Loader
     public string Version { get; set; }
 }
 
-public class Intermediary
+public class FabricIntermediary
 {
     [JsonPropertyName("maven")]
     public string DownName { get; set; }
@@ -29,19 +29,19 @@ public class Intermediary
     [JsonPropertyName("version")]
     public string Version { get; set; }
 }
-public class LauncherMeta
+public class FabricLauncherMeta
 {
     [JsonPropertyName("min_java_version")]
     public int MinJavaVersion { get; set; }
 
     [JsonPropertyName("libraries")]
-    public Libraries Libraries { get; set; }
+    public FabricLibraries Libraries { get; set; }
 
     [JsonPropertyName("mainClass")]
-    public MainClass MainClass { get; set; }
+    public FabricMainClass MainClass { get; set; }
 }
 
-public class Libraries
+public class FabricLibraries
 {
     [JsonPropertyName("common")]
     public List<FabricLibrary> Common { get; set; }
@@ -59,7 +59,7 @@ public class FabricLibrary
     public int Size { get; set; }
 }
 
-public class MainClass
+public class FabricMainClass
 {
     [JsonPropertyName("client")]
     public string Client { get; set; }

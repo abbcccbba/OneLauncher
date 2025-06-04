@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ModServer\Modrinth\jsonModelSearch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModServer\Modrinth\SearchModrinth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModServer\Modrinth\ShareModrinth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)msa\JsonModels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)msa\MojangProfile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)msa\msa.cs" />
   </ItemGroup>

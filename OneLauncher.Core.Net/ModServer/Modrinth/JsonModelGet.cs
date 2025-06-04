@@ -12,19 +12,19 @@ public class ModrinthProjects
     public string VersionType { get; set; }
 
     [JsonPropertyName("files")]
-    public List<JarDownload> Files { get; set; }
+    public List<ModJarDownload> Files { get; set; }
     [JsonPropertyName("dependencies")]
-    public List<Dependency> Dependencies { get; set; }
+    public List<ModrinthDependency> Dependencies { get; set; }
 }
-public class Dependency
+public class ModrinthDependency
 {
     [JsonPropertyName("project_id")]
     public string ProjectId { get; set; }
 }
-public class JarDownload
+public class ModJarDownload
 {
     [JsonPropertyName("hashes")]
-    public Hashes Hashes { get; set; }
+    public ModJarHashes Hashes { get; set; }
 
     [JsonPropertyName("url")]
     public string Url { get; set; }
@@ -36,7 +36,7 @@ public class JarDownload
     public int Size { get; set; }
 }
 
-public class Hashes
+public class ModJarHashes
 {
     [JsonPropertyName("sha1")]
     public string Sha1 { get; set; }

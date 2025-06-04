@@ -7,12 +7,12 @@ public class NeoForgeVersionJson
     public string MainClass { get; set; }
 
     [JsonPropertyName("arguments")]
-    public Arguments Arguments { get; set; }
+    public NeoforgeArguments Arguments { get; set; }
 
     [JsonPropertyName("libraries")]
-    public List<Library> Libraries { get; set; }
+    public List<NeoforgeLibrary> Libraries { get; set; }
 }
-public class Arguments
+public class NeoforgeArguments
 {
     [JsonPropertyName("game")]
     public List<string> Game { get; set; }
@@ -20,17 +20,17 @@ public class Arguments
     [JsonPropertyName("jvm")]
     public List<string> Jvm { get; set; }
 }
-public class Library
+public class NeoforgeLibrary
 {
     [JsonPropertyName("downloads")]
-    public Downloads Downloads { get; set; }
+    public NeoforgeDownloads Downloads { get; set; }
 }
-public class Downloads
+public class NeoforgeDownloads
 {
     [JsonPropertyName("artifact")]
-    public Artifact Artifact { get; set; }
+    public NeoforgeArtifact Artifact { get; set; }
 }
-public class Artifact
+public class NeoforgeArtifact
 {
     [JsonPropertyName("sha1")]
     public string Sha1 { get; set; }
@@ -45,44 +45,44 @@ public class Artifact
     public string Path { get; set; }
 }
 // 下面是安装文件部分
-public class SideEntry
+public class NeoforgeSideEntry
 {
     [JsonPropertyName("client")]
     public string Client { get; set; }
 }
-public class Data
+public class NeoforgeData
 {
     [JsonPropertyName("MC_SLIM")]
-    public SideEntry MCSlim { get; set; }
+    public NeoforgeSideEntry MCSlim { get; set; }
 
     [JsonPropertyName("MC_UNPACKED")]
-    public SideEntry MCUnpacked { get; set; }
+    public NeoforgeSideEntry MCUnpacked { get; set; }
 
     [JsonPropertyName("MERGED_MAPPINGS")]
-    public SideEntry MergedMappings { get; set; }
+    public NeoforgeSideEntry MergedMappings { get; set; }
 
     [JsonPropertyName("BINPATCH")]
-    public SideEntry Binpatch { get; set; }
+    public NeoforgeSideEntry Binpatch { get; set; }
 
     [JsonPropertyName("MCP_VERSION")]
-    public SideEntry MCPVersion { get; set; }
+    public NeoforgeSideEntry MCPVersion { get; set; }
 
     [JsonPropertyName("MAPPINGS")]
-    public SideEntry Mappings { get; set; }
+    public NeoforgeSideEntry Mappings { get; set; }
 
     [JsonPropertyName("MC_EXTRA")]
-    public SideEntry MCExtra { get; set; }
+    public NeoforgeSideEntry MCExtra { get; set; }
 
     [JsonPropertyName("MOJMAPS")]
-    public SideEntry Mojmaps { get; set; }
+    public NeoforgeSideEntry Mojmaps { get; set; }
 
     [JsonPropertyName("PATCHED")]
-    public SideEntry Patched { get; set; }
+    public NeoforgeSideEntry Patched { get; set; }
 
     [JsonPropertyName("MC_SRG")]
-    public SideEntry MCSRG { get; set; }
+    public NeoforgeSideEntry MCSRG { get; set; }
 }
-public class Processor
+public class NeoforgeProcessor
 {
     [JsonPropertyName("sides")]
     public List<string> Sides { get; set; }
@@ -97,14 +97,14 @@ public class Processor
     public List<string> Args { get; set; }
 }
 // 定义整个 JSON 结构的根类
-public class Root
+public class NeoforgeRoot
 {
     [JsonPropertyName("data")]
-    public Data Data { get; set; }
+    public NeoforgeData Data { get; set; }
 
     [JsonPropertyName("processors")]
-    public List<Processor> Processors { get; set; }
+    public List<NeoforgeProcessor> Processors { get; set; }
 
     [JsonPropertyName("libraries")]
-    public List<Library> Libraries { get; set; }
+    public List<NeoforgeLibrary> Libraries { get; set; }
 }

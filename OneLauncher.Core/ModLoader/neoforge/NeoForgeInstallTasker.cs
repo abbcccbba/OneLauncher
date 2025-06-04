@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Serialization;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
@@ -13,7 +14,7 @@ public class NeoForgeInstallTasker
 {
     public readonly Download downloadTask;
     //public List<string> InstallToolsPath;
-    public Root installProfileExample;
+    public NeoforgeRoot installProfileExample;
     public readonly string librariesPath;
     public readonly string gamePath;
     public readonly string gameVersion;
@@ -62,8 +63,8 @@ public class NeoForgeInstallTasker
         using Stream versionJsonStream = versionJson.Open();
         using Stream installProfileStream = installProfile.Open();
         using Stream DataClientLazmStream = DataClientLazm.Open();
-        NeoForgeVersionJson? versioninfo = await JsonSerializer.DeserializeAsync<NeoForgeVersionJson>(versionJsonStream);
-        Root? installinfo = await JsonSerializer.DeserializeAsync<Root>(installProfileStream);
+        NeoForgeVersionJson? versioninfo = await JsonSerializer.DeserializeAsync<NeoForgeVersionJson>(versionJsonStream,OneLauncherJsonContext.Default.NeoForgeVersionJson);
+        NeoforgeRoot? installinfo = await JsonSerializer.DeserializeAsync<NeoforgeRoot>(installProfileStream, OneLauncherJsonContext.Default.NeoforgeRoot);
         installProfileExample = installinfo;
         #endregion
         #region 下载游戏和安装工具的依赖库
