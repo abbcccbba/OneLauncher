@@ -1,6 +1,16 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.ModLoader.neoforge.JsonModels;
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoForgeVersionJson))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeArguments))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeLibrary))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeDownloads))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeArtifact))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeSideEntry))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeData))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeProcessor))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.neoforge.JsonModels.NeoforgeRoot))]
+public partial class NeoforgeJsonContext : JsonSerializerContext { }
 public class NeoForgeVersionJson
 {
     [JsonPropertyName("mainClass")]

@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Net.msa.JsonModels;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
@@ -46,7 +47,7 @@ public class MojangProfile : IDisposable
                         )
                     )
                 );
-            var texture = JsonSerializer.Deserialize<TextureData>(SkinUrls);
+            var texture = JsonSerializer.Deserialize<TextureData>(SkinUrls,MojangProfileJsonContext.Default.TextureData);
             // 不加这行代码就会报错，报错内容是null我也不知道为什么
             bool isSlimModel = texture!.Textures.Skin.Metadata?.Model == "slim";
             return new MojangSkin
@@ -56,38 +57,6 @@ public class MojangProfile : IDisposable
             };
         }
     }
-    #region 获取皮肤的反序列化类
-    public class TextureData
-    {
-        [JsonPropertyName("profileName")]
-        public string ProfileName { get; set; }
-
-        [JsonPropertyName("textures")]
-        public Textures Textures { get; set; }
-    }
-
-    public class Textures
-    {
-        [JsonPropertyName("SKIN")]
-        public TextureInfo Skin { get; set; }
-
-        [JsonPropertyName("CAPE")]
-        public TextureInfo Cape { get; set; }
-    }
-
-    public class TextureInfo
-    {
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
-        [JsonPropertyName("metadata")]
-        public Metadata Metadata { get; set; }
-    }
-    public class Metadata
-    {
-        [JsonPropertyName("model")]
-        public string Model { get; set; }
-    }
-    #endregion
     public async Task SetUseLocalFile(MojangSkin skin)
     {
         const string requestUrl = "https://api.minecraftservices.com/minecraft/profile/skins";
@@ -142,12 +111,15 @@ public class MojangProfile : IDisposable
         const string requestUrl = "https://api.minecraftservices.com/minecraft/profile/skins";
         try
         {
+            /*
             var payload = new
             {
                 url = skin.Skin.ToString(),
                 variant = skin.IsSlimModel ? "slim" : "classic"
             };
             string jsonPayload = JsonSerializer.Serialize(payload);
+            */
+            string jsonPayload = "{"+$"\"url\":\"{skin.Skin.ToString()}\",\"variant\":\"{(skin.IsSlimModel ? "slim" : "classic")}\""+"}";
             var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
             // 发送 POST 请求

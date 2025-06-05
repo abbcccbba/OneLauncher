@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.ViewModels;
@@ -35,11 +36,11 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             MainWindow.mainwindow.ShowFlyout("用户名包含非法字符！", true);
             return;
         }
-        Init.ConfigManger.config.UserModelList.Add(new UserModel()
-        {
-            Name = UserName,
-            uuid = Guid.NewGuid()
-        });
+        Init.ConfigManger.config.UserModelList.Add(new UserModel(
+        
+            Name : UserName,
+            uuid : Guid.NewGuid()
+        ));
         Init.ConfigManger.Save();
         accountPageViewModel.RefList();
         accountPageViewModel.IsPaneShow = false;
@@ -99,12 +100,11 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
                 Init.ConfigManger.Save();
                 accountPageViewModel.RefList();
             }
-            catch (MsaException ex)
+            catch (OlanException ex)
             {
-                await MainWindow.mainwindow.ShowFlyout(ex.Message, true);
+                await OlanExceptionWorker.ForOlanException(ex);
                 return;
             }
-
         }
     }
 }

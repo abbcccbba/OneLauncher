@@ -1,5 +1,4 @@
 ﻿using OneLauncher.Core.ModLoader.fabric.JsonModels;
-using OneLauncher.Core.Serialization;
 using System.Text.Json;
 namespace OneLauncher.Core.ModLoader.fabric;
 
@@ -21,7 +20,7 @@ public class FabricVJParser
                 if (document.RootElement.GetArrayLength() > 0)
                 {
                     JsonElement firstElement = document.RootElement[0];
-                    info = JsonSerializer.Deserialize<FabricRoot>(firstElement.GetRawText(),OneLauncherJsonContext.Default.FabricRoot)
+                    info = JsonSerializer.Deserialize<FabricRoot>(firstElement.GetRawText(),FabricJsonContext.Default.FabricRoot)
                         ?? throw new InvalidOperationException("解析 Fabric JSON 的第一个对象失败。");
                 }
                 else

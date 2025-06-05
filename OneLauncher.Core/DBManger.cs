@@ -1,7 +1,15 @@
-﻿using OneLauncher.Core.Serialization;
-using System.Text.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core;
+[JsonSerializable(typeof(OneLauncher.Core.AppSettings))]
+[JsonSerializable(typeof(OneLauncher.Core.AppConfig))]
+[JsonSerializable(typeof(OneLauncher.Core.UserModel))]
+[JsonSerializable(typeof(OneLauncher.Core.UserVersion))]
+[JsonSerializable(typeof(OneLauncher.Core.ModType))]
+[JsonSerializable(typeof(OneLauncher.Core.PreferencesLaunchMode))]
+[JsonSerializable(typeof(OneLauncher.Core.ModEnum))]
+public partial class OneLauncherAppConfigsJsonContext : JsonSerializerContext { }
 public class AppSettings
 {
     public int MaximumDownloadThreads { get; set; } = 24;
@@ -46,7 +54,7 @@ public class DBManger
     {
         this.config = config;
         Directory.CreateDirectory(BasePath);
-        return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config,OneLauncherJsonContext.Default.AppConfig));
+        return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config,OneLauncherAppConfigsJsonContext.Default.AppConfig));
     }
     public Task Save() => Write(this.config);
     public AppConfig Read(AppConfig Bk)
@@ -57,7 +65,7 @@ public class DBManger
             Write(Bk);
             return config;
         }
-        AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, OneLauncherJsonContext.Default.AppConfig);
+        AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, OneLauncherAppConfigsJsonContext.Default.AppConfig);
         this.config = readConfig;
         return readConfig;
     }

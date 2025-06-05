@@ -1,5 +1,4 @@
 ﻿using OneLauncher.Core.Modrinth.JsonModelSearch;
-using OneLauncher.Core.Serialization;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -24,7 +23,7 @@ public class SearchModrinth : IDisposable
         string jsonResponse = await response.Content.ReadAsStringAsync();
 
         // 使用带有选项的源生成器反序列化
-        info = JsonSerializer.Deserialize<ModrinthSearch>(jsonResponse,OneLauncherJsonContext.Default.ModrinthSearch);
+        info = JsonSerializer.Deserialize<ModrinthSearch>(jsonResponse,ModrinthSearchJsonContext.Default.ModrinthSearch);
 
         return info;
     }

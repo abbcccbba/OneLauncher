@@ -1,5 +1,4 @@
 ﻿using OneLauncher.Core.Minecraft.JsonModels;
-using OneLauncher.Core.Serialization;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -30,7 +29,7 @@ public class VersionInfomations
         this.basePath = basePath;
         this.OsType = OsType;
 
-        info = JsonSerializer.Deserialize<MinecraftVersionInfo>(json, OneLauncherJsonContext.Default.MinecraftVersionInfo);
+        info = JsonSerializer.Deserialize<MinecraftVersionInfo>(json, MinecraftJsonContext.Default.MinecraftVersionInfo);
 
 
         this.IsVersionInsulation = IsVersionInsulation;

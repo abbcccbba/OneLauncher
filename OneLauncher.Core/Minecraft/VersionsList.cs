@@ -1,5 +1,4 @@
 ﻿using OneLauncher.Core.Minecraft.JsonModels;
-using OneLauncher.Core.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -13,7 +12,7 @@ public class VersionsList
         try
         {
             // 使用带有选项的源生成器反序列化
-            a = JsonSerializer.Deserialize<MinecraftVersionList>(Json,OneLauncherJsonContext.Default.MinecraftVersionList);
+            a = JsonSerializer.Deserialize<MinecraftVersionList>(Json,MinecraftJsonContext.Default.MinecraftVersionList);
         }
         catch (Exception ex)
         {

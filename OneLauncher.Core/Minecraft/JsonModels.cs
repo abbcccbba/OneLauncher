@@ -2,6 +2,31 @@
 using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.Minecraft.JsonModels;
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftVersionInfo))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftAssetIndex))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftDownloads))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftDownloadUrl))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLibrary))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLibraryDownloads))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MInecraftLibraryArtifact))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftArguments))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftArgument))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftRule))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.Os))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftNatives))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLogging))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLoggingClient))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLoggingFile))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.JavaVersion))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftVersionList))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLatestList))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftAllVersionInfomations))]
+[JsonSerializable(typeof(System.Collections.Generic.List<OneLauncher.Core.Minecraft.JsonModels.MinecraftLibrary>))]
+[JsonSerializable(typeof(System.Collections.Generic.List<OneLauncher.Core.Minecraft.JsonModels.MinecraftRule>))]
+[JsonSerializable(typeof(System.Collections.Generic.List<object>))]
+[JsonSerializable(typeof(System.Collections.Generic.List<string>))]
+[JsonSerializable(typeof(System.Collections.Generic.Dictionary<string, OneLauncher.Core.Minecraft.JsonModels.MInecraftLibraryArtifact>))]
+public partial class MinecraftJsonContext : JsonSerializerContext { }
 // 表示version.json的顶层结构
 public class MinecraftVersionInfo
 {

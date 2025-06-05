@@ -41,4 +41,3 @@ public class OlanException : Exception
         TryAgainFunction = taf;
     }
 }
-public class OlanCancelToken : Exception { }

@@ -328,7 +328,8 @@ public partial class Download : IDisposable
         if (IsIncludeDependencies)
         {
             List<NdDowItem> dependencies = GetTask.GetDependenciesInfos();
-            filesToProcess.AddRange(dependencies);
+            if(dependencies != null)
+                filesToProcess.AddRange(dependencies);
         }
 
         // 过滤掉已经存在的文件

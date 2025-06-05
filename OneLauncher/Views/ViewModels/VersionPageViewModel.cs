@@ -215,20 +215,11 @@ internal partial class VersionPageViewModel : BaseViewModel
         try
         {
             // 去尝试读取，判断这个服务端版本是否启用了版本隔离
-            bool IsVI;
+            bool IsVI = true;
             if (Directory.Exists(Path.Combine(Init.GameRootPath, "versoins", versionExp.VersionID, "servers")))
                 IsVI = true;
             else if (Directory.Exists(Path.Combine(Init.GameRootPath, "servers")))
                 IsVI = false;
-            else
-                throw new OlanException("无法启动服务端","服务端似乎没有被正确安装。无法找到servers文件夹。",
-                    OlanExceptionAction.Error,null,
-                    () => 
-                    {
-                        Directory.Delete(Path.Combine(Init.GameRootPath, "servers"));
-                        IsPaneShow = true;
-                        RefDownPane = new InitServerPane(versionExp.VersionID);
-                    });
             string versionPath = Path.Combine(Init.GameRootPath, "versions", versionExp.VersionID);
             // 判断服务端是否已经完成初始化
             if (!File.Exists(Path.Combine(versionPath, "server.jar")))

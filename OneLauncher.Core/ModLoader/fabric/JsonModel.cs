@@ -1,7 +1,14 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.ModLoader.fabric.JsonModels;
-
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricRoot))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricLoader))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricIntermediary))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricLauncherMeta))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricLibraries))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricLibrary))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricMainClass))]
+public partial class FabricJsonContext : JsonSerializerContext { }
 public class FabricRoot
 {
     [JsonPropertyName("loader")]
@@ -20,7 +27,6 @@ public class FabricLoader
     [JsonPropertyName("version")]
     public string Version { get; set; }
 }
-
 public class FabricIntermediary
 {
     [JsonPropertyName("maven")]
@@ -40,13 +46,11 @@ public class FabricLauncherMeta
     [JsonPropertyName("mainClass")]
     public FabricMainClass MainClass { get; set; }
 }
-
 public class FabricLibraries
 {
     [JsonPropertyName("common")]
     public List<FabricLibrary> Common { get; set; }
 }
-
 public class FabricLibrary
 {
     [JsonPropertyName("name")]
@@ -58,7 +62,6 @@ public class FabricLibrary
     [JsonPropertyName("size")]
     public int Size { get; set; }
 }
-
 public class FabricMainClass
 {
     [JsonPropertyName("client")]
