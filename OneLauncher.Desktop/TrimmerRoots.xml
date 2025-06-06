@@ -3,4 +3,7 @@
 	<assembly fullname="OneLauncher">
 		<type fullname="OneLauncher.Views.*" preserve="all"/>
 	</assembly>
+	<assembly fullname="OneLauncher.Core">
+		<type fullname="OneLauncher.Core.*" preserve="all"/>
+	</assembly>
 </linker>

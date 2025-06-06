@@ -8,19 +8,22 @@
 		<Platforms>AnyCPU;x64</Platforms>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
+	
+	<PropertyGroup>
+		<PublishAot>true</PublishAot>
+		<BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+		<TrimMode>link</TrimMode>
+	</PropertyGroup>
 	<ItemGroup Label="ImportLib">
 		<DirectPInvoke Include="libHarfBuzzSharp"/>
 		<NativeLibrary Include="libs\libHarfBuzzSharp.lib"/>
 		<DirectPInvoke Include="libSkiaSharp"/>
 		<NativeLibrary Include="libs\libSkiaSharp.lib"/>
-		<!-- 这个是让在windows上走D3D11渲染的，不然CPU硬解贼jb慢 -->
 		<DirectPInvoke Include="av_libglesv2"/>
 		<NativeLibrary Include="libs\av_libglesv2.lib"/>
-	</ItemGroup>
+	</ItemGroup> 
 	<ItemGroup>
 		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />
-	</ItemGroup>
-	<ItemGroup>
 		<TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
 		<TrimmerRootAssembly Include="Avalonia.Controls" />
 	</ItemGroup>
