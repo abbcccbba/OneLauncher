@@ -185,15 +185,32 @@ internal partial class VersionPageViewModel : BaseViewModel
         else
 #endif
         {
-            var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
-            for(int i = 0;i < tempVersoinList.Count;i++)
+            try
             {
-                tempVersoinList.Add(new VersionItem(
-                    Init.ConfigManger.config.VersionList[i],
-                    i
-                    ));
+                var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
+                for (int i = 0; i < tempVersoinList.Count; i++)
+                {
+                    tempVersoinList.Add(new VersionItem(
+                        Init.ConfigManger.config.VersionList[i],
+                        i
+                        ));
+                }
+                VersionList = tempVersoinList;
             }
-            VersionList = tempVersoinList;
+            catch (NullReferenceException ex)
+            {
+                throw new OlanException(
+                    "内部异常",
+                    "配置文件特定部分版本部分为空，这可能是新版和旧版配置文件不兼容导致的",
+                    OlanExceptionAction.FatalError,
+                    ex,
+                   () =>
+                   {
+                       File.Delete(Path.Combine(Init.BasePath, "config.json"));
+                       Init.Initialize();
+                   }
+                    );
+            }
         } 
     }
     [ObservableProperty]

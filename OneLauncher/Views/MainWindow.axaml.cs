@@ -22,18 +22,30 @@ public partial class MainWindow : Window
     public readonly ModsBrowser modsBrowserPage;
     //public readonly server serverPage;
     public static MainWindow mainwindow;
-    public MainWindow()
+    public MainWindow(OlanException oex)
     {
         InitializeComponent();
+
         mainwindow = this;
-        HomePage = new Home();
-        versionPage = new version();
-        accountPage = new account();
-        modsBrowserPage = new ModsBrowser();
-        downloadPage = new download();
-        settingsPage = new settings();
-        //serverPage = new server();
-        PageContent.Content = HomePage;
+        if (oex != null)
+            OlanExceptionWorker.ForOlanException(oex);
+        else
+        {
+            try
+            {
+                HomePage = new Home();
+                versionPage = new version();
+                accountPage = new account();
+                modsBrowserPage = new ModsBrowser();
+                downloadPage = new download();
+                settingsPage = new settings();
+            }
+            catch (OlanException ex)
+            {
+                OlanExceptionWorker.ForOlanException(ex);
+            }
+            PageContent.Content = HomePage;
+        }
     }
     public enum MainPage
     {

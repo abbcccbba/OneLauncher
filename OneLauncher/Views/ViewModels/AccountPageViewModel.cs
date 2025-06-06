@@ -83,7 +83,24 @@ internal partial class AccountPageViewModel : BaseViewModel
         else
 #endif
         {
-            RefList();
+            try
+            {
+                RefList();
+            }
+            catch (NullReferenceException ex)
+            {
+                throw new OlanException(
+                    "内部异常",
+                    "配置文件特定部分账户部分为空，这可能是新版和旧版配置文件不兼容导致的",
+                    OlanExceptionAction.FatalError,
+                    ex,
+                   () =>
+                   {
+                       File.Delete(Path.Combine(Init.BasePath, "config.json"));
+                       Init.Initialize();
+                   }
+                    );
+            }
         }
     }
     [ObservableProperty]

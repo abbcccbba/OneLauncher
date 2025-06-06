@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using OneLauncher.Core;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,21 +88,38 @@ internal partial class SettingsPageViewModel : BaseViewModel
         else
 #endif
         {
-            switch (Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.mode)
+            try
             {
-                case OptimizationMode.Conservative:
-                    IsM1 = true;
-                    break;
-                case OptimizationMode.Standard:
-                    IsM2 = true;
-                    break;
-                case OptimizationMode.Aggressive:
-                    IsM3 = true;
-                    break;
+                switch (Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.mode)
+                {
+                    case OptimizationMode.Conservative:
+                        IsM1 = true;
+                        break;
+                    case OptimizationMode.Standard:
+                        IsM2 = true;
+                        break;
+                    case OptimizationMode.Aggressive:
+                        IsM3 = true;
+                        break;
+                }
+                MaxDownloadThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads;
+                MaxSha1ThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumSha1Threads;
+                IsSha1Enabled = Init.ConfigManger.config.OlanSettings.IsSha1Enabled;
             }
-            MaxDownloadThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads;
-            MaxSha1ThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumSha1Threads;
-            IsSha1Enabled = Init.ConfigManger.config.OlanSettings.IsSha1Enabled;
+            catch(NullReferenceException ex)
+            {
+                throw new OlanException(
+                    "内部异常",
+                    "配置文件特定部分设置部分为空，这可能是新版和旧版配置文件不兼容导致的",
+                    OlanExceptionAction.FatalError,
+                    ex,
+                   () =>
+                    {
+                        File.Delete(Path.Combine(Init.BasePath, "config.json"));
+                        Init.Initialize();
+                    }
+                    );
+            }
         }
     }
 }
