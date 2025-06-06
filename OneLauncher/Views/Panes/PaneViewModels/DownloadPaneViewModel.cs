@@ -32,16 +32,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         IsAllowFabric = new System.Version(Version.ID) < new System.Version("1.14") ? false : true;
         IsAllowNeoforge = new System.Version(Version.ID) < new System.Version("1.20.2") ? false : true;
     }
-    public DownloadPaneViewModel(VersionBasicInfo Version,UserVersion userVersion)
-    {
-        VersionName = Version.ID.ToString();
-        thisVersionBasicInfo = Version;
-        IsVI = userVersion.IsVersionIsolation;
-        IsMod = userVersion.modType.IsFabric;
-        IsNeoForge = userVersion.modType.IsNeoForge;
-        IsJava = true;
-        ToDownload();
-    }
     #region 数据绑定区
     [ObservableProperty]
     public bool isLaunchGameAfterDone;

@@ -58,7 +58,7 @@ public class GetModrinth
                     using (JsonDocument dDocument = JsonDocument.Parse(await Dresponse.Content.ReadAsStringAsync()))
                     {
                         JsonElement firstDependencyElement = dDocument.RootElement[0];
-                        ModrinthProjects dependencyProject = JsonSerializer.Deserialize<ModrinthProjects>(firstDependencyElement.GetRawText())
+                        ModrinthProjects dependencyProject = JsonSerializer.Deserialize<ModrinthProjects>(firstDependencyElement.GetRawText(),ModrinthGetJsonContext.Default.ModrinthProjects)
                             ?? throw new InvalidOperationException("解析 Modrinth 依赖模组第一个版本失败。");
                         this.dependencies.Add(dependencyProject);
                     }

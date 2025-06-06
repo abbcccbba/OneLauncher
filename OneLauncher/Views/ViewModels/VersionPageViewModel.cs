@@ -29,6 +29,8 @@ internal partial class VersionItem : BaseViewModel
     {
         versionExp = a;
         index = IndexInInit;
+        if (a.modType.IsNeoForge || a.modType.IsFabric)
+            IsMod = true;
         switch (a.preferencesLaunchMode.LaunchModType)
         {
             case ModEnum.none:
@@ -206,12 +208,6 @@ internal partial class VersionPageViewModel : BaseViewModel
         MainWindow.mainwindow.MainPageControl(MainWindow.MainPage.DownloadPage);
     }
     [RelayCommand]
-    public void DownloadGameAgain(UserVersion version)
-    {
-        IsPaneShow = true;
-        RefDownPane = new DownloadPane(version);
-    }
-    [RelayCommand]
     public async Task OpenServer(UserVersion versionExp)
     {
         try
@@ -234,7 +230,8 @@ internal partial class VersionPageViewModel : BaseViewModel
                     // 读取源文件获取Java版本
                     ((MinecraftVersionInfo)await JsonSerializer.DeserializeAsync<MinecraftVersionInfo>(
                         File.OpenRead(
-                            Path.Combine(versionPath, $"{versionExp.VersionID}.json"))
+                            Path.Combine(versionPath, $"{versionExp.VersionID}.json")),
+                        MinecraftJsonContext.Default.MinecraftVersionInfo
                     )).JavaVersion.MajorVersion, IsVI);
         }
         catch (OlanException ex)

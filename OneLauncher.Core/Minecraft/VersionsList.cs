@@ -16,7 +16,7 @@ public class VersionsList
         }
         catch (Exception ex)
         {
-            throw new InvalidOperationException($"解析版本列表Json时出错: {ex.Message}", ex); // 记录原始异常
+            throw new OlanException("意外错误","解析版本列表时遇到意外错误导致无法解析",OlanExceptionAction.Error);
         }
     }
     public List<VersionBasicInfo> GetReleaseVersionList()

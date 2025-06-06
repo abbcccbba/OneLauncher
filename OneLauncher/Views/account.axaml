@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Views.account"
+			 xmlns:vm="using:OneLauncher.Views.ViewModels"
 			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
                DisplayMode="Overlay"
@@ -31,7 +32,7 @@
 		<TextBlock Margin="16,0,0,0" Text="*由于第三方API限制正版皮肤显示可能有延迟" FontStyle="Italic" Grid.Row="1"/>
 		<ListBox x:Name="navVL" Grid.Row="2" ItemsSource="{Binding UserModelList}" Background="Transparent" SelectionMode="Multiple">
 			<ListBox.ItemTemplate>
-				<DataTemplate>
+				<DataTemplate x:DataType="vm:UserItem">
 					<Border CornerRadius="5">
 						<Grid ColumnDefinitions="65,Auto,*" Margin="6">
 							<Border Grid.Column="0" Grid.RowSpan="2">

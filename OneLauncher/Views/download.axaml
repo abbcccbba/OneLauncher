@@ -3,7 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
-             x:Class="OneLauncher.Views.download">
+             x:Class="OneLauncher.Views.download"
+			 xmlns:vm="using:OneLauncher.Views.ViewModels"
+			 xmlns:models="using:OneLauncher.Core"
+			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
                DisplayMode="Overlay"
                OpenPaneLength="650"
@@ -36,7 +39,7 @@
 				</AutoCompleteBox>
 				<ListBox ItemsSource="{Binding ReleaseItems}" MaxHeight="350" >
 					<ListBox.ItemTemplate>
-						<DataTemplate>
+						<DataTemplate x:DataType="models:VersionBasicInfo">
 							<Grid ColumnDefinitions="*,Auto" >
 								<TextBlock Text="{Binding ID}" Grid.Column="0"/>
 								<Button Grid.Column="1" Margin="8,0,8,0" HorizontalAlignment="Right" Content="下载" Command="{Binding $parent[ListBox].DataContext.ToDownloadCommand}" CommandParameter="{Binding}"/>

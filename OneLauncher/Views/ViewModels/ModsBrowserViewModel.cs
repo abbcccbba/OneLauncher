@@ -83,7 +83,7 @@ internal partial class ModsBrowserViewModel : BaseViewModel
     [ObservableProperty]
     public string _SearchContent = string.Empty;
     [ObservableProperty]
-    public List<ModItem> _SearchItems;
+    public List<ModItem> searchItems;
     [RelayCommand]
     public async Task ToSearch()
     {

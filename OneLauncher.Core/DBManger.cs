@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core;
+[JsonSerializable(typeof(OneLauncher.Core.JvmArguments))]
 [JsonSerializable(typeof(OneLauncher.Core.AppSettings))]
 [JsonSerializable(typeof(OneLauncher.Core.AppConfig))]
 [JsonSerializable(typeof(OneLauncher.Core.UserModel))]
