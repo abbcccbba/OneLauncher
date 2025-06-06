@@ -10,7 +10,7 @@
                OpenPaneLength="650"
                PanePlacement="Right">
 		<SplitView.Pane>
-			<TransitioningContentControl Content="{Binding AccountPane}"/>
+			<TransitioningContentControl Background="{DynamicResource PaneBackgound}" Content="{Binding AccountPane}"/>
 		</SplitView.Pane>
 		<Grid RowDefinitions="52,Auto,*" Margin="24">
 		<StackPanel Margin="16,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >

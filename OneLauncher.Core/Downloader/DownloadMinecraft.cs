@@ -32,7 +32,7 @@ internal class DownloadMinecraft
     public readonly IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress;
 
     public List<string> AllSha1;
-    public List<NdDowItem> NdMCLibl;
+    public List<NdDowItem> NdMCLibs;
     public List<NdDowItem> NdMCAssets;
 
     /// <param name="downloadTool">Download实例，用于下载</param>
@@ -52,7 +52,7 @@ internal class DownloadMinecraft
         )
     {
         this.cancelToken = cancelToken ?? CancellationToken.None;
-        
+
     }
     public async Task MinecraftBasic()
     {
@@ -62,7 +62,7 @@ internal class DownloadMinecraft
         #region 统计所有需要下载的文件列表
         List<string> AllNdListSha1 = new List<string>();
         List<NdDowItem> LibNds = downloadTool.CheckFilesExists(mations.GetLibrarys());
-        List<NdDowItem> AssetsNds = downloadTool.CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(assets.path),GameRootPath));
+        List<NdDowItem> AssetsNds = downloadTool.CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(assets.path), GameRootPath));
         #endregion
     }
 }

@@ -12,12 +12,11 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Codes;
-public delegate void GameStarted();
-public delegate void GameClosed();
+public delegate void GameEvents();
 internal class Game
 {
-    public event GameStarted GameStartedEvent;
-    public event GameClosed GameClosedEvent;
+    public event GameEvents GameStartedEvent;
+    public event GameEvents GameClosedEvent;
     /// <param name="GameVersion">游戏版本</param>
     /// <param name="loginUserModel">登入用户模型</param>
     /// <param name="IsVersionInsulation">版本是否启用了版本隔离</param>
@@ -39,20 +38,6 @@ internal class Game
                             Init.systemType,
                             IsVersionInsulation     
                         );
-        var OtherArgs = string.Join
-                            (
-                                " ",
-                                "-XX:+UseG1GC",
-                                "-XX:G1ReservePercent=20",
-                                "-XX:MaxGCPauseMillis=50",
-                                "-XX:G1HeapRegionSize=32M",
-                                "-XX:+UnlockExperimentalVMOptions",
-                                "-XX:-OmitStackTraceInFastThrow",
-                                "-Djdk.lang.Process.allowAmbiguousCommands=true",
-                                "-Dlog4j2.formatMsgNoLookups=true",
-                                "-Dfml.ignoreInvalidMinecraftCertificates=True",
-                                "-Dfml.ignorePatchDiscrepancies=True"
-                            );
         #endregion
         
         #region 初次启动时帮用户设置语言和在调试模式下打开调试窗口
@@ -76,7 +61,8 @@ internal class Game
         {
             using (Process process = new Process())
             {
-                process.StartInfo.Arguments = await Builder.BuildCommand(OtherArgs);
+                process.StartInfo.Arguments = await Builder.BuildCommand(
+                    Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()));
                 process.StartInfo.FileName = Builder.GetJavaPath();
                 process.StartInfo.WorkingDirectory =
                     (IsVersionInsulation)

@@ -12,6 +12,8 @@ namespace OneLauncher.Core;
 public partial class OneLauncherAppConfigsJsonContext : JsonSerializerContext { }
 public class AppSettings
 {
+    public JvmArguments MinecraftJvmArguments { get; set; }
+    // 下载
     public int MaximumDownloadThreads { get; set; } = 24;
     public int MaximumSha1Threads { get; set; } = 24;
     public bool IsSha1Enabled { get; set; } = true;

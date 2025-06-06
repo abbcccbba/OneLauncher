@@ -3,7 +3,7 @@
 namespace OneLauncher.Core;
 public static class Init
 {
-    public const string OneLauncherVersoin = "1.0.1";
+    public const string OneLauncherVersoin = "1.2.0";
     public const string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static string BasePath { get; private set; }
     public static string GameRootPath { get; private set; }
@@ -20,11 +20,17 @@ public static class Init
         {
             DefaultUserModel =
             // 默认用户模型
-            new UserModel("ZhiWei", Guid.NewGuid())
+            new UserModel("ZhiWei", Guid.NewGuid()),
+            // 应用设置
+            OlanSettings = new AppSettings() 
+            { 
+                // 使用标准参数
+                MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Standard)
+            }
         }, BasePath);
         // 初始化系统信息
         systemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
-                           RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
-                           RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
+                     RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
+                     RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
     }
 }

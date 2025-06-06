@@ -44,6 +44,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     }
     #region 数据绑定区
     [ObservableProperty]
+    public bool isLaunchGameAfterDone;
+    [ObservableProperty]
     public bool _IsAllowFabric;
     [ObservableProperty]
     public bool _IsAllowNeoforge;
@@ -51,21 +53,11 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [ObservableProperty]
     public string _VersionName;
     [ObservableProperty]
-    public bool _IsVI;
+    public bool _IsVI = true;
     [ObservableProperty]
     public bool _IsMod;
-    partial void OnIsModChanged(bool value)
-    {
-        if (value)
-            IsVI = true;
-    }
     [ObservableProperty]
     public bool _IsNeoForge;
-    partial void OnIsNeoForgeChanged(bool value)
-    {
-        if (value)
-            IsVI = true;
-    }
     [ObservableProperty]
     public bool _IsAllowToUseBetaNeoforge = false;
     [ObservableProperty]
@@ -101,7 +93,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 using (Download download = new Download()) // 在后台任务内部创建和管理Download对象
                 {
                     var progressReporter = new Progress<(DownProgress d, int a, int b, string c)>(p =>
-                    {
                         Dispatcher.UIThread.InvokeAsync(() =>
                         {
                             double progressPercentage = (p.a == 0) ? 0 : (double)p.b / p.a * 100;
@@ -132,8 +123,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                                 FileName = p.c; // 确保文件名也更新
                                 _lastUpdateTime = DateTime.UtcNow;
                             }
-                        });
-                    });
+                        }));
 
                     // 现在可以安全地 await StartAsync
                     await download.StartAsync(thisVersionBasicInfo, Init.GameRootPath, Init.systemType,
@@ -146,32 +136,39 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         fS: IsDownloadFabricWithAPI,
                         nS: IsAllowToUseBetaNeoforge,
                         IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled
+                    );  
+                }
+                var newUserVersion = new UserVersion
+                {
+                    VersionID = VersionName,
+                    modType = VersionModType,
+                    AddTime = DateTime.Now,
+                    IsVersionIsolation = IsVI,
+                    preferencesLaunchMode = new PreferencesLaunchMode()
+                    {
+                        LaunchModType = (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : ModEnum.none,
+                        IsUseDebugModeLaunch = false
+                    }
+                };
+                if (IsLaunchGameAfterDone)
+                    _ = version.EasyGameLauncher
+                    (
+                        newUserVersion, false,Init.ConfigManger.config.DefaultUserModel
                     );
-                } // 当 Task.Run 中的这个 using 块结束时，download.Dispose() 才会被调用，此时 StartAsync 已完成。
+
+                // 在配置文件中添加版本信息
+                Init.ConfigManger.config.VersionList.Add(newUserVersion);
+                await Init.ConfigManger.Save();
             }
             catch (OlanException ex)
             {
                 await OlanExceptionWorker.ForOlanException(ex);
             }
-            //catch (Exception ex)
-            //{
-            //    await OlanExceptionWorker.ForUnknowException(ex);
-            //}
-        });
-        // 在配置文件中添加版本信息
-        Init.ConfigManger.config.VersionList.Add(new UserVersion
-        {
-            VersionID = VersionName,
-            modType = VersionModType,
-            AddTime = DateTime.Now,
-            IsVersionIsolation = IsVI,
-            preferencesLaunchMode = new PreferencesLaunchMode()
+            catch (Exception ex)
             {
-                LaunchModType = (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : ModEnum.none,
-                IsUseDebugModeLaunch = false
+                await OlanExceptionWorker.ForUnknowException(ex);
             }
         });
-        Init.ConfigManger.Save();
     }
     [RelayCommand]
     public void ClosePane()

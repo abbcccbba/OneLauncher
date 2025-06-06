@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using OneLauncher.Core;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,43 @@ namespace OneLauncher.Views.ViewModels;
 internal partial class SettingsPageViewModel : BaseViewModel
 {
     [ObservableProperty]
+    public bool isM1, isM2, isM3;
+    partial void OnIsM1Changed(bool value)
+    {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
+        Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Conservative);
+        Init.ConfigManger.Save();
+    }
+    partial void OnIsM2Changed(bool value)
+    {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
+        Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Standard);
+        Init.ConfigManger.Save();
+    }
+    partial void OnIsM3Changed(bool value)
+    {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
+        Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Aggressive);
+        Init.ConfigManger.Save();
+    }
+    #region 下载选项
+    [ObservableProperty]
     public int _MaxDownloadThreadsValue;
     partial void OnMaxDownloadThreadsValueChanged(int value)
     {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
         Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads = value;
         Init.ConfigManger.Save();
     }
@@ -21,6 +56,10 @@ internal partial class SettingsPageViewModel : BaseViewModel
     public int _MaxSha1ThreadsValue;
     partial void OnMaxSha1ThreadsValueChanged(int value)
     {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
         Init.ConfigManger.config.OlanSettings.MaximumSha1Threads = value;
         Init.ConfigManger.Save();
     }
@@ -28,13 +67,41 @@ internal partial class SettingsPageViewModel : BaseViewModel
     public bool _IsSha1Enabled;
     partial void OnIsSha1EnabledChanged(bool value)
     {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
         Init.ConfigManger.config.OlanSettings.IsSha1Enabled = value;
         Init.ConfigManger.Save();
     }
+    #endregion
     public SettingsPageViewModel()
-    { 
-        MaxDownloadThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads;
-        MaxSha1ThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumSha1Threads;
-        IsSha1Enabled = Init.ConfigManger.config.OlanSettings.IsSha1Enabled;
+    {
+#if DEBUG
+        if (Design.IsDesignMode)
+        {
+            MaxDownloadThreadsValue = 24;
+            MaxSha1ThreadsValue = 24;
+            IsSha1Enabled = true;
+        }
+        else
+#endif
+        {
+            switch (Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.mode)
+            {
+                case OptimizationMode.Conservative:
+                    IsM1 = true;
+                    break;
+                case OptimizationMode.Standard:
+                    IsM2 = true;
+                    break;
+                case OptimizationMode.Aggressive:
+                    IsM3 = true;
+                    break;
+            }
+            MaxDownloadThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads;
+            MaxSha1ThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumSha1Threads;
+            IsSha1Enabled = Init.ConfigManger.config.OlanSettings.IsSha1Enabled;
+        }
     }
 }

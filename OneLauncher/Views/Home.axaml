@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Home">
 	<Grid ColumnDefinitions="2*,*">
-		<Panel Grid.Column="1" Background="Red">
+		<Panel Grid.Column="1" Background="{DynamicResource PaneBackgound}">
 			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 				<TextBlock Text="{Binding UserName}"/>
 				<TextBlock Text="{Binding VersionName}"/>

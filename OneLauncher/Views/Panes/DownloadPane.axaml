@@ -58,6 +58,7 @@
 				<!-- 额外设置 -->
 				<CheckBox IsChecked="{Binding IsVI}">是否启用版本隔离</CheckBox>
 				<CheckBox IsChecked="{Binding IsJava}">是否安装合适Java</CheckBox>
+				<CheckBox IsChecked="{Binding IsLaunchGameAfterDone}">下载完毕后启动游戏</CheckBox>
 				<StackPanel Margin="0,12,0,0" Orientation="Horizontal" Spacing="8">
 					<TextBlock Text="{Binding Dp}"/>
 					<TextBlock Text="{Binding Fs}"/>

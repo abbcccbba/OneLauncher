@@ -29,14 +29,6 @@ internal partial class VersionItem : BaseViewModel
     {
         versionExp = a;
         index = IndexInInit;
-        if (a.modType.IsNeoForge || a.modType.IsFabric)
-        {
-            IsMod = true;
-            if(a.modType.IsNeoForge)
-                HasNeoforge = true;
-            if (a.modType.IsFabric)
-                HasFabric = true;
-        }
         switch (a.preferencesLaunchMode.LaunchModType)
         {
             case ModEnum.none:
@@ -55,8 +47,6 @@ internal partial class VersionItem : BaseViewModel
     }
     int index;
     public bool IsMod {  get; set; } = false;
-    public bool HasFabric { get; set; } = false;
-    public bool HasNeoforge { get; set; } = false;
     [ObservableProperty]
     public Bitmap versionIcon;
     public UserVersion versionExp { get; set; }
@@ -68,7 +58,11 @@ internal partial class VersionItem : BaseViewModel
         if (Design.IsDesignMode)
             return;
 #endif
-        Init.ConfigManger.config.VersionList[index].preferencesLaunchMode.LaunchModType = ModEnum.none;
+        var version = Init.ConfigManger.config.VersionList[index];
+        var prefs = version.preferencesLaunchMode;
+        prefs.LaunchModType = ModEnum.none;
+        version.preferencesLaunchMode = prefs;
+        Init.ConfigManger.config.VersionList[index] = version;
         Init.ConfigManger.Save();
         VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/basic.png")));
     }
@@ -80,7 +74,11 @@ internal partial class VersionItem : BaseViewModel
         if (Design.IsDesignMode)
             return;
 #endif
-        Init.ConfigManger.config.VersionList[index].preferencesLaunchMode.LaunchModType = ModEnum.fabric;
+        var version = Init.ConfigManger.config.VersionList[index];
+        var prefs = version.preferencesLaunchMode;
+        prefs.LaunchModType = ModEnum.fabric;
+        version.preferencesLaunchMode = prefs;
+        Init.ConfigManger.config.VersionList[index] = version;
         Init.ConfigManger.Save();
         VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/fabric.png")));
     }
@@ -92,7 +90,11 @@ internal partial class VersionItem : BaseViewModel
         if (Design.IsDesignMode)
             return;
 #endif
-        Init.ConfigManger.config.VersionList[index].preferencesLaunchMode.LaunchModType = ModEnum.neoforge;
+        var version = Init.ConfigManger.config.VersionList[index];
+        var prefs = version.preferencesLaunchMode; 
+        prefs.LaunchModType = ModEnum.neoforge; 
+        version.preferencesLaunchMode = prefs; 
+        Init.ConfigManger.config.VersionList[index] = version; 
         Init.ConfigManger.Save();
         VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/neoforge.png")));
     }

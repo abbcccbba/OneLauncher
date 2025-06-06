@@ -14,13 +14,14 @@
 				  <SolidColorBrush x:Key="MainWindowBackground" Color="#99FFFFFF"/>
 				  <SolidColorBrush x:Key="PageBackground" Color="#FFFFFF"/>
 				  <SolidColorBrush x:Key="ListBoxItemBackgound" Color="#F4F4F5" />
+				  <SolidColorBrush x:Key="PaneBackgound" Color="#EAEAEA" />
 			  </ResourceDictionary>
 			  <!-- 深色模式 -->
 			  <ResourceDictionary x:Key="Dark">
 				  <SolidColorBrush x:Key="MainWindowBackground" Color="#99181820"/>
 				  <SolidColorBrush x:Key="PageBackground" Color="#212121"/>
 				  <SolidColorBrush x:Key="ListBoxItemBackgound" Color="#24252A" />
-				  
+				  <SolidColorBrush x:Key="PaneBackgound" Color="#171717" />
 			  </ResourceDictionary>
 		  </ResourceDictionary.ThemeDictionaries>
 	  </ResourceDictionary>

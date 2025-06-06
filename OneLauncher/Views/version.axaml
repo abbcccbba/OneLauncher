@@ -9,7 +9,7 @@
                OpenPaneLength="650"
                PanePlacement="Right">
 		<SplitView.Pane>
-			<TransitioningContentControl Content="{Binding RefDownPane}"/>
+			<TransitioningContentControl Background="{DynamicResource PaneBackgound}" Content="{Binding RefDownPane}"/>
 		</SplitView.Pane>
 		<Grid RowDefinitions="52,*" Margin="24">
 		<StackPanel Margin="9,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
@@ -40,8 +40,8 @@
 									<SplitButton.Flyout>
 										<Flyout>
 											<StackPanel>	
-												<RadioButton IsVisible="{Binding HasNeoforge}" IsChecked="{Binding IsNeoforgeLaunchMode}" GroupName="LaunchModType" Content="NeoForge启动"/>
-												<RadioButton IsVisible="{Binding HasFabric}" IsChecked="{Binding IsFabricLaunchMode}" GroupName="LaunchModType" Content="Fabric启动"/>
+												<RadioButton IsVisible="{Binding versionExp.modType.IsNeoForge}" IsChecked="{Binding IsNeoforgeLaunchMode}" GroupName="LaunchModType" Content="NeoForge启动"/>
+												<RadioButton IsVisible="{Binding versionExp.modType.IsFabric}" IsChecked="{Binding IsFabricLaunchMode}" GroupName="LaunchModType" Content="Fabric启动"/>
 												<RadioButton IsChecked="{Binding IsOriginalLaunchMode}" GroupName="LaunchModType" Content="原版启动"/>
 												<CheckBox IsChecked="{Binding IsUseDebugModLaunch}" Content="调试模式启动"/>
 											</StackPanel>

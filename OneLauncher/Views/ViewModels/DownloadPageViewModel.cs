@@ -36,16 +36,11 @@ internal partial class DownloadPageViewModel : BaseViewModel
     }
     
     public static ObservableCollection<VersionBasicInfo> ReleaseItems { get; set; }
-    private VersionBasicInfo selectedItem;
-    public VersionBasicInfo SelectedItem 
+    [ObservableProperty]
+    public VersionBasicInfo selectedItem;
+    partial void OnSelectedItemChanged(VersionBasicInfo value)
     {
-        set 
-        { 
-            selectedItem = value;
-            if(value != null)
-                ToDownload(value);
-        }
-        get { return selectedItem; }
+        ToDownload(value);
     }
     [ObservableProperty]
     public UserControl _DownloadPaneContent;

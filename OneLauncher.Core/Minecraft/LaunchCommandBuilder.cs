@@ -11,7 +11,7 @@ namespace OneLauncher.Core.Minecraft;
 /// </summary>
 public class LaunchCommandBuilder
 {
-    private VersionInfomations versionInfo;
+    public VersionInfomations versionInfo;
     private readonly string version;
     private readonly UserModel userModel;
     private readonly string basePath;
@@ -21,6 +21,7 @@ public class LaunchCommandBuilder
     private FabricVJParser fabricParser;
     private NeoForgeUsing neoForgeParser;
     private readonly string separator;
+    private readonly string VersionPath;
     /// <summary>
     /// 
     /// </summary>
@@ -43,21 +44,21 @@ public class LaunchCommandBuilder
         this.basePath = basePath;
         this.version = version;
         this.userModel = userModel;
+        this.VersionPath = Path.Combine(basePath, "versions", version);
         systemType = system;
         IsVersionInsulation = VersionInsulation;
         this.modType = modType;
         separator = systemType == SystemType.windows ? ";" : ":";
+        versionInfo = new VersionInfomations(
+            File.ReadAllText(Path.Combine(VersionPath, $"{version}.json")),
+            basePath, systemType, IsVersionInsulation
+        );
     }
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion(), Path.GetDirectoryName(basePath));
     public async Task<string> BuildCommand(string OtherArgs = "")
     {
-        string VersionPath = Path.Combine(basePath, "versions", version);
         string MainClass;
-        versionInfo = new VersionInfomations(
-            await File.ReadAllTextAsync(Path.Combine(VersionPath, $"{version}.json")),
-            basePath, systemType, IsVersionInsulation
-        );
         if (modType == ModEnum.fabric)
         {
             fabricParser = new FabricVJParser(
@@ -169,38 +170,21 @@ public class LaunchCommandBuilder
         // 使用 List<string> 来收集所有库路径
         var allLibPaths = new List<string>();
 
-        // 1. 添加所有原版库 (来自 versionInfo)
         allLibPaths.AddRange(versionInfo.GetLibrarys().Select(x => x.path));
-
-        // 2. 添加所有 NeoForge 库 (来自 neoForgeParser)
         if (modType == ModEnum.neoforge)
         {
             allLibPaths.AddRange(neoForgeParser.GetLibrariesForLaunch(basePath));
         }
-        // (如果需要支持 Fabric, 在这里添加 fabricParser 的库)
         else if (modType == ModEnum.fabric)
         {
             allLibPaths.AddRange(fabricParser.GetLibraries().Select(x => x.path));
         }
 
-        // 3. 添加主游戏 JAR 文件
         allLibPaths.Add(versionInfo.GetMainFile().path);
-
-        // 4. 使用 Distinct() 去除可能存在的重复项，并过滤掉空路径，然后用分隔符连接
         string AllClassArgs = string.Join(separator,
                                           allLibPaths.Where(p => !string.IsNullOrEmpty(p))
                                                      .Distinct());
 
-        // 5. 确保你的 -cp 参数正确地使用了这个字符串。
-        //    你需要确保你的 BuildJvmArgs() 方法最终会生成类似 "-cp <AllClassArgs>" 的参数。
-        //    如果原版 JSON 已经包含了 -cp ${classpath}，你需要确保 ${classpath} 被正确替换。
-        //    从你的输出看，你似乎是手动构建了 -cp ;... 这意味着你需要在 BuildJvmArgs 中确保
-        //    最终的 JVM 参数里包含 "-cp" 和这个构建好的路径字符串。
-        //    如果你的 BuildJvmArgs 依赖于 ${classpath}，那么你需要确保你的 placeholders 字典里
-        //    的 "classpath" 键值是这个 AllClassArgs。
-        //    看你的原始命令，似乎 -cp 后面直接跟了分号和路径，所以你可能需要返回 $";{AllClassArgs}"
-        //    或者在 BuildJvmArgs 里拼接时加上分号。
-        //    最稳妥的方式是直接返回路径，在 BuildJvmArgs 拼接时处理 -cp 和分号。
         return AllClassArgs;
     }
     private string BuildGameArgs()

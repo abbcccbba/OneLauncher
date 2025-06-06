@@ -5,7 +5,20 @@
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Views.settings">
   <ScrollViewer>
-	  <Panel Margin="64">
+	  <StackPanel Margin="64" Spacing="36">
+		  <!-- 游戏启动选项 -->
+		  <StackPanel Spacing="8" HorizontalAlignment="Left">
+			  <TextBlock FontSize="24" FontWeight="Bold" Text="游戏启动选项"/>
+			  <Separator Margin="-4,0,0,0"/>
+			  <StackPanel Margin="0,6,0,0">
+				  <TextBlock Text="Jvm参数优化选项"/>
+				  
+				  <RadioButton IsChecked="{Binding IsM1}" Margin="0,4,0,0" GroupName="JvmMode" Content="保守模式"/>
+				  <RadioButton IsChecked="{Binding IsM2}" GroupName="JvmMode" Content="标准模式" />
+				  <RadioButton IsChecked="{Binding IsM3}" GroupName="JvmMode" Content="激进模式" />
+				  
+			  </StackPanel>
+		  </StackPanel>
 		  <!-- 下载选项 -->
 		  <StackPanel Spacing="8" HorizontalAlignment="Left">
 			  <TextBlock FontSize="24" FontWeight="Bold" Text="下载选项"/>
@@ -28,6 +41,6 @@
 				  </ToggleSwitch>
 			  </StackPanel>
 		  </StackPanel>
-	  </Panel>
+	  </StackPanel>
   </ScrollViewer>
 </UserControl>
