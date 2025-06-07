@@ -436,13 +436,14 @@ public enum SystemType
 }
 public struct UserModel
 {
+    public const string nullToken = "00000000-0000-0000-0000-000000000000";
     /// <param name="accessToken">访问令牌</param>
     /// <param name="refreshToken">刷新令牌</param>
     public UserModel(string Name, Guid uuid, string? accessToken = null, string? refreshTokenID = null)
     {
         if (accessToken == null)
         {
-            this.accessToken = "00000000-0000-0000-0000-000000000000";
+            this.accessToken = nullToken;
             this.IsMsaUser = false;
         }
         else

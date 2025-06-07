@@ -19,13 +19,13 @@ public class SystemEC
     public string GetRefreshToken(string tokenID)
     {
         if (tokenID == null)
-            return "00000000-0000-0000-0000-000000000000";
+            return UserModel.nullToken;
         return storage.Get(tokenID);
     }
     public string SetRefreshToken(string refreshToken,string oldID = null)
     {
         if (refreshToken == null)
-            return "00000000-0000-0000-0000-000000000000";
+            return UserModel.nullToken;
         if (!string.IsNullOrEmpty(oldID))
         {
             storage.Set(oldID, refreshToken);
