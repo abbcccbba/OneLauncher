@@ -26,8 +26,8 @@ public class MojangProfile : IDisposable
         httpClient = new HttpClient();
         // 设置一些请求头
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-        //httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
-        //httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
+        httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
     }
     public async Task<MojangSkin> Get()
     {

@@ -1,10 +1,11 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.ModLoader.neoforge.JsonModels;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
-namespace OneLauncher.Core.ModLoader.neoforge.JsonModels;
+namespace OneLauncher.Core.ModLoader.neoforge;
 public delegate void ProcessorsOut(int all, int done, string message);
 /// <summary>
 /// 接管NeoForge几乎所有安装操作

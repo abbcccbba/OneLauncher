@@ -8,7 +8,7 @@
 		<Platforms>AnyCPU;x64</Platforms>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
-	<!--
+	
 	<PropertyGroup>
 		<PublishAot>true</PublishAot>
 	</PropertyGroup>
@@ -20,7 +20,7 @@
 		<DirectPInvoke Include="av_libglesv2" />
 		<NativeLibrary Include="libs\av_libglesv2.lib" />
 	</ItemGroup>  
-	-->
+	
 	<ItemGroup>
 		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />
 		<TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
