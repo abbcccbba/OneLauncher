@@ -19,13 +19,26 @@ public class SystemEC
     public string GetRefreshToken(string tokenID)
     {
         if (tokenID == null)
-            return "0000-0000-0000-0000";
+            return "00000000-0000-0000-0000-000000000000";
         return storage.Get(tokenID);
     }
-    public string SetRefreshToken(string refreshToken)
+    public string SetRefreshToken(string refreshToken,string oldID = null)
     {
+        if (refreshToken == null)
+            return "00000000-0000-0000-0000-000000000000";
+        if (!string.IsNullOrEmpty(oldID))
+        {
+            storage.Set(oldID, refreshToken);
+            return oldID;
+        }
         string ID = Guid.NewGuid().ToString();
         storage.Set(ID, refreshToken);
         return ID;
+    }
+    public void Del(string ID)
+    {
+        if (ID == null)
+            return;
+        storage.Remove(ID);
     }
 }

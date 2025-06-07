@@ -442,7 +442,7 @@ public struct UserModel
     {
         if (accessToken == null)
         {
-            this.accessToken = "0000-0000-0000-0000";
+            this.accessToken = "00000000-0000-0000-0000-000000000000";
             this.IsMsaUser = false;
         }
         else

@@ -133,6 +133,8 @@ internal partial class AccountPageViewModel : BaseViewModel
     [RelayCommand]
     public void DeleteUser(UserModel user)
     {
+        if(user.IsMsaUser) 
+            Init.systemEC.Del(user.refreshTokenID);
         Init.ConfigManger.config.UserModelList.Remove(user);
         Init.ConfigManger.Save();
         RefList();

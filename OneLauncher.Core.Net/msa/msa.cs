@@ -52,7 +52,7 @@ public class MicrosoftAuthenticator : IDisposable
                 );
             }
 
-            return await ToLoandauth(tokenResponse.AccessToken, tokenResponse.RefreshToken);
+            return await ToLoandauth(tokenResponse.AccessToken, tokenResponse.RefreshToken,oldRefreshTokenID);
         }
         catch (HttpRequestException ex)
         {
@@ -91,7 +91,7 @@ public class MicrosoftAuthenticator : IDisposable
         return Math.Abs((DateTime.UtcNow - lastTime).TotalHours) > 23;
     }
 
-    private async Task<UserModel?> ToLoandauth(string microsoftAccessToken, string microsoftRefreshToken)
+    private async Task<UserModel?> ToLoandauth(string microsoftAccessToken, string microsoftRefreshToken,string oldID = null)
     {
         try
         {
@@ -148,7 +148,7 @@ public class MicrosoftAuthenticator : IDisposable
                 profileResponse.Name,
                 Guid.Parse(profileResponse.Id),
                 mcLoginResponse.AccessToken,
-                Init.systemEC.SetRefreshToken(microsoftRefreshToken)
+                Init.systemEC.SetRefreshToken(microsoftRefreshToken, oldID ?? null)
             );
         }
         catch (OlanException)

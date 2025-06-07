@@ -18,6 +18,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)msa\JsonModels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)msa\MojangProfile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)msa\msa.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)msa\SystemEC.cs" />
   </ItemGroup>
 </Project>
