@@ -32,6 +32,27 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
 3. 将[OneLauncher.Desktop](https://github.com/abbcccbba/OneLauncher/blob/master/OneLauncher.Desktop/OneLauncher.Desktop.csproj)设为启动项目
 4. 运行，便可以看到窗口。构建为可执行文件请参考[这里](https://www.google.com/)
 
+### 对于Windows AOT编译
+
+请在启动项目（即OneLauncher.Desktop）内添加以下配置
+
+``` XML
+<PropertyGroup>
+  <!-- 启用AOT编译，通用，无论Win还是Mac对于AOT都需要开启 -->
+	<PublishAot>true</PublishAot>
+</PropertyGroup>
+<ItemGroup Label="ImportLib">
+  <!-- 针对Windows的发布不生成单文件解决访问，静态链接，对于Mac可以删去，因为最终还是要打包到App包且这些静态库仅适用于Windows -->
+  <!-- 项目配置中不会包含这些静态库，请到 https://github.com/abbcccbba/OneLauncher/releases/tag/v0.1.4AOTv1.2.0/ 下载并放入libs文件夹-->
+	<DirectPInvoke Include="libHarfBuzzSharp" />
+	<NativeLibrary Include="libs\libHarfBuzzSharp.lib" />
+	<DirectPInvoke Include="libSkiaSharp" />
+	<NativeLibrary Include="libs\libSkiaSharp.lib" />
+	<DirectPInvoke Include="av_libglesv2" />
+	<NativeLibrary Include="libs\av_libglesv2.lib" />
+</ItemGroup>  
+```
+
 ## 开源与贡献
 
 此项目使用 Apache 2.0 许可证开源  
@@ -44,8 +65,9 @@ OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们�
 
 - 使用项目[.NET](https://github.com/dotnet)
 - 使用项目[Avalonia](https://github.com/AvaloniaUI/Avalonia)
-- 使用项目[AsyncImageLoader.Avalonia](https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia)
-- 使用项目[SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp)
+- 引用项目[AsyncImageLoader.Avalonia](https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia)
+- 引用项目[SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp)
+- 引用项目[SecureLocalStorage](https://github.com/bytehide/SecureLocalStorage)
 - 借鉴项目[ProjBobcat](https://github.com/Corona-Studio/ProjBobcat/)
 - 使用图标[ICONS8](https://icons8.com/icons/)
 
@@ -55,7 +77,8 @@ OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们�
 虽其是QuStellar名义上的一名成员，但此项目仅为Lnetface的个人开源项目，QuStellar仅提供为本软件提供技术支持以改善或增强功能。  
 
 无论是本软件作者（Lnetface）还是QuStellar均与Mojang（Microsoft）无从属关系。  
-此项目仅为个人学习项目，任何人、组织、公司或国家（等个体或集体）在使用本软件时导致的任何事情或发生的任何事情均与作者无关。  
+此项目仅为个人学习项目，任何人、组织、公司或国家（等个体或集体）在使用本软件时导致的任何事情或发生的任何事情均与作者无关。 
+
 **本软件提供的离线登入功能仅对中国大陆用户开放，对于国外用户请自觉登入正版账号并不使用这个功能，对于使用者的任何侵权行为均与原作者无关**
   
 ## 更多
