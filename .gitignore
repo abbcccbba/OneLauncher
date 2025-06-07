@@ -452,3 +452,6 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+/OneLauncher.Desktop/libs/av_libglesv2.lib
+/OneLauncher.Desktop/libs/libHarfBuzzSharp.lib
+/OneLauncher.Desktop/libs/libSkiaSharp.lib
