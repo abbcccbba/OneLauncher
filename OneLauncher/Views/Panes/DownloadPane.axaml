@@ -21,26 +21,29 @@
 			</Button>
 		</StackPanel>
 		<TextBlock FontSize="52" HorizontalAlignment="Center" Grid.Row="0" Text="{Binding VersionName}"/>
-		<Button 
-			Margin="0,6,0,0"
-			Grid.Row="0"
-			HorizontalAlignment="Right"
-            Padding="12"
-			Command="{Binding ToDownloadCommand}"
-			IsEnabled="{Binding IsAllowDownloading}">
-			<StackPanel Orientation="Horizontal" Spacing="8">
-				<Image Source="/Assets/icos/downloadnow.png" Width="28" Height="28"/>
-				<TextBlock x:Name="VersionText"
-						   Text="下载这个版本"
-						   VerticalAlignment="Center"
-						   FontSize="16"/>
-			</StackPanel>
-			<Button.Styles>
-				<Style Selector="Button">
-					<Setter Property="CornerRadius" Value="13"/>
-				</Style>
-			</Button.Styles>
-		</Button>
+		<StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,6,0,0" HorizontalAlignment="Right" Spacing="8">
+			<Button 
+				x:Name="ToDownloadButton"
+				Command="{Binding ToDownloadCommand}"
+				IsEnabled="{Binding IsAllowDownloading}">
+				<StackPanel Orientation="Horizontal" Spacing="8">
+					<Image Source="/Assets/icos/downloadnow.png" Width="20" Height="20"/>
+					<TextBlock 
+							   Text="下载版本"
+							   VerticalAlignment="Center"/>
+				</StackPanel>
+			</Button>
+			<Button
+				Command="{Binding ToCancellationDownloadTaskCommand}"
+				IsEnabled="{Binding !#ToDownloadButton.IsEnabled}">
+				<StackPanel Orientation="Horizontal" Spacing="8">
+					<Image Source="/Assets/icos/error.png" Width="29" Height="20"/>
+					<TextBlock 
+							   Text="取消任务"
+							   VerticalAlignment="Center"/>
+				</StackPanel>
+			</Button>
+		</StackPanel>
 		<!-- 下载按钮和进度条 -->
 		<Separator Grid.Row="1" Margin="0,24,0,52" Background="#252423"/>
 		<Grid Grid.Row="2" Margin="0,-24,0,0" >

@@ -10,7 +10,8 @@
 	</PropertyGroup>
 	
 	<PropertyGroup>
-		<PublishAot>true</PublishAot>
+		<PublishAot Condition="'$(Configuration)' == 'Release'">true</PublishAot>
+		<PublishAot Condition="'$(Configuration)' == 'Debug'">false</PublishAot>
 	</PropertyGroup>
 	<ItemGroup Label="ImportLib">
 		<DirectPInvoke Include="libHarfBuzzSharp" />

@@ -11,7 +11,7 @@ public class NeoForgeUsing
     }
     public async Task Init(string basePath, string version)
     {
-        string jsonPath = Path.Combine(basePath, "versions", version, $"{version}-neoforge.json");
+        string jsonPath = Path.Combine(basePath, "versions", version, $"version.neoforge.json");
         string jsonString = await File.ReadAllTextAsync(jsonPath, Encoding.UTF8);
         info = JsonSerializer.Deserialize<NeoForgeVersionJson>(jsonString,NeoforgeJsonContext.Default.NeoForgeVersionJson);
     }

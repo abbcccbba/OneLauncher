@@ -30,7 +30,7 @@ public class AutoJavaGetter
             await a.DownloadFile(
                 await GetBinaryPackageLinkAsync(
                     $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={arch}&os={os}&image_type=jre"
-                    , a.UnityClient), javaDownloadPath);
+                    , a.UnityClient), javaDownloadPath,CancellationToken.None);
         }
         // 对于windows，api返回的是zip，对于mac或者linux，api返回的是tag.gz
         if(OsType == SystemType.windows)

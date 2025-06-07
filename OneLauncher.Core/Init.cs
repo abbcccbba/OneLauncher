@@ -11,7 +11,7 @@ public static class Init
     public static string GameRootPath { get; private set; }
     public static DBManger ConfigManger { get; private set; }
     public static SystemType systemType { get; private set; }
-    public static SystemEC ECUsing { get; private set; }
+    public static SystemEC Security { get; private set; }
     /// <summary>
     /// 全局程序初始化方法
     /// </summary>
@@ -42,7 +42,7 @@ public static class Init
                          RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
                          RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
             // 初始化系统级加密密钥保护
-            ECUsing = new SystemEC();
+            Task.Run(() =>Security = new SystemEC());
             return null;
         }
         catch (ArgumentException ex)

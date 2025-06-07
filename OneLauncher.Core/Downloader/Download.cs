@@ -68,229 +68,6 @@ public partial class Download : IDisposable
         };
     }
     public readonly HttpClient UnityClient;
-    public VersionInfomations versionInfomations;
-    /// <summary>
-    /// 开始异步下载
-    /// </summary>
-    /// <param name="DownloadVersion">需要下载的版本</param>
-    /// <param name="GameRootPath">游戏根路径</param>
-    /// <param name="OsType">系统类型</param>
-    /// <param name="progress">进度回调</param>
-    /// <param name="modType">模组类型</param>
-    /// <param name="fS">对于Fabric，是否在此阶段一并下载Fabric API？</param>
-    /// <param name="nS">对于Neoforge，是否允许下载Beta版本？</param>
-    /// <param name="IsVersionIsolation">是否需要启用版本隔离</param>
-    /// <param name="maxConcurrentDownloads">最大下载线程</param>
-    /// <param name="maxConcurrentSha1">最大Sha1校验线程</param>
-    /// <param name="IsSha1">是否校验Sha1</param>
-    /// <param name="AndJava">下载时是否带合适java？</param>
-    public async Task StartAsync(
-        VersionBasicInfo DownloadVersion,
-        string GameRootPath,
-        SystemType OsType,
-        IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
-        ModType modType,
-        bool fS = false,
-        bool nS = false,
-        bool IsVersionIsolation = false,
-        int maxConcurrentDownloads = 16,
-        int maxConcurrentSha1 = 16,
-        bool IsSha1 = true,
-        bool AndJava = false)
-    {
-        string VersionPath = Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString());
-        #region 下载原信息
-        {
-            // 下载 version.json
-            var versionjsonpath =
-                Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
-            if (!File.Exists(versionjsonpath))
-                await DownloadFile(DownloadVersion.Url, versionjsonpath);
-
-            // 实例化版本信息解析器
-            versionInfomations = new VersionInfomations
-                (await File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType, IsVersionIsolation);
-
-            // 下载资源文件索引
-            var assetsIndex = versionInfomations.GetAssets();
-            if (!File.Exists(assetsIndex.path))
-                await DownloadFile(assetsIndex.url, assetsIndex.path);
-        }
-        #endregion
-        #region 下载可选信息
-        // 下载Java运行时环境
-        if (AndJava && !Init.ConfigManger.config.AvailableJavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
-        {
-            await AutoJavaGetter.JavaReleaser(
-                versionInfomations.GetJavaVersion().ToString(), 
-                Path.Combine(Path.GetDirectoryName(GameRootPath), "JavaRuntimes"), OsType);
-            Init.ConfigManger.config.AvailableJavaList.Add(versionInfomations.GetJavaVersion());
-            Init.ConfigManger.Save();
-        }//);
-
-        // 下载Mod相关资源索引
-        string modpath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabric.json");
-        if (modType.IsFabric)
-        {
-            // 加载器
-            if (!File.Exists(modpath))
-                await DownloadFile(
-                    $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID.ToString()}/", modpath);
-        }
-        #endregion
-        #region 声明一些信息和下载主文件
-        List<NdDowItem> AllNd = new List<NdDowItem>();
-        List<NdDowItem> NdLibs = CheckFilesExists(versionInfomations.GetLibrarys());
-        List<NdDowItem> NdAssets = CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath));
-        NdDowItem mainFile = versionInfomations.GetMainFile();
-        NdDowItem? log4j2;
-        NdDowItem modApi;
-        List<NdDowItem> modLibs;
-        
-        AllNd.AddRange(NdLibs);
-        AllNd.AddRange(NdAssets);
-        AllNd.Add(mainFile);
-        
-        int FileCount = AllNd.Count;
-        int Filed = 0;
-        
-        Interlocked.Increment(ref Filed);
-        progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
-        if (!File.Exists(mainFile.path))
-            await DownloadFile(mainFile.url, mainFile.path);
-        #endregion
-        
-        await DownloadListAsync(
-            new Progress<(int donecount, string filename)>(p =>
-            {
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownLibs, FileCount, Filed, p.filename)); 
-            }), 
-            CheckFilesExists(NdLibs),
-            maxConcurrentDownloads);
-        // 释放本地库文件
-        await Task.Run(() =>
-        {
-            foreach (var i in versionInfomations.NativesLibs)
-                ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(VersionPath, "natives"));
-        });
-        #region 下载mod相关依赖
-        if (modType.IsFabric)
-        {
-            // 获取 Fabric 加载器下载信息
-            modLibs = CheckFilesExists(new ModLoader.fabric.FabricVJParser(modpath, GameRootPath).GetLibraries());
-            // 获取Fabric API下载信息
-            if (fS)
-            {
-                var a = new GetModrinth(
-                   "fabric-api", DownloadVersion.ID.ToString(),
-                    !IsVersionIsolation
-                    ? Path.Combine(GameRootPath, "mods")
-                    : Path.Combine(VersionPath, "mods"));
-                await a.Init();
-                modApi = (NdDowItem)a!.GetDownloadInfos();
-                AllNd.Add(modApi);
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, modApi.path));
-                await DownloadFile(modApi.url, modApi.path);
-            }
-
-            AllNd.AddRange(modLibs);
-            FileCount = AllNd.Count;
-
-            await DownloadListAsync(
-            new Progress<(int donecount, string filename)>(p =>
-            {
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, p.filename));
-            }),
-            modLibs,
-            maxConcurrentDownloads); 
-        }
-        Task forNeoForgeRunProcessorsTask = null;
-        if (modType.IsNeoForge)
-        {
-            #region 下载
-            NeoForgeInstallTasker installTasker = new NeoForgeInstallTasker
-                (
-                    this,
-                    Path.Combine(GameRootPath, "libraries"),
-                    Path.Combine(GameRootPath, "versions", DownloadVersion.ID),
-                    DownloadVersion.ID
-                );
-            // 下载依赖库和工具依赖库文件
-            string neoForgeActualVersion = await new NeoForgeVersionListGetter(UnityClient)
-                // 调用Gemini写的名字贼长的方法来获取NeoForge安装程序的url
-                .GetLatestSuitableNeoForgeVersionStringAsync(DownloadVersion.ID,nS);
-            string installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neoForgeActualVersion}/neoforge-{neoForgeActualVersion}-installer.jar";
-            (List<NdDowItem> NdModLibs,List<NdDowItem> NdModToolsLibs,string BDFilePath) = await installTasker.StartReady(installerUrl);
-            AllNd.AddRange(NdModLibs);
-            AllNd.AddRange(NdModToolsLibs);
-            FileCount = AllNd.Count;
-            await DownloadListAsync(
-            new Progress<(int donecount, string filename)>(p =>
-            {
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, p.filename));
-            }),
-            CheckFilesExists(NdModLibs.Concat(NdModToolsLibs).ToList()),
-            maxConcurrentDownloads
-            );
-
-            #endregion
-            // 执行NeoForge处理器
-            installTasker.ProcessorsOutEvent += (a, b, c) =>
-            {
-                if (a == -1 && b == -1)
-                    throw new OlanException("NeoForge安装失败",$"执行处理器时报错。信息：{c}",OlanExceptionAction.Error);
-                progress.Report((DownProgress.DownAndInstModFiles,FileCount,Filed,$"[执行处理器({b}/{a})]{Environment.NewLine}{c}"));
-            };
-            // 后续等待
-            forNeoForgeRunProcessorsTask = Task.Run(async() =>
-            {
-                await installTasker.ToRunProcessors
-                (
-                    Path.Combine(GameRootPath, "versions", DownloadVersion.ID, $"{DownloadVersion.ID}.jar"),
-                    Tools.IsUseOlansJreOrOssJdk(versionInfomations.GetJavaVersion(), Path.GetDirectoryName(GameRootPath)),
-                    BDFilePath, OsType
-                );
-            });
-        }
-        #endregion
-        // 下载资源文件
-        await DownloadListAsync(
-            new Progress<(int donecount, string filename)>(p =>
-            {
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownAssets, FileCount, Filed, p.filename));
-            }),
-            CheckFilesExists(NdAssets),
-            maxConcurrentDownloads
-        );
-        // 下载日志配置文件
-        if (new Version(DownloadVersion.ID) > new Version("1.7"))
-        {
-            log4j2 = (NdDowItem)versionInfomations.GetLoggingConfig();
-            FileCount = AllNd.Count;
-            if (log4j2.HasValue)
-            {
-                AllNd.Add((NdDowItem)log4j2);
-                Interlocked.Increment(ref Filed);
-                progress.Report((DownProgress.DownLog4j2, FileCount, Filed, ((NdDowItem)log4j2).path));
-                if (!File.Exists(((NdDowItem)log4j2).path))
-                    await DownloadFile(((NdDowItem)log4j2).url, ((NdDowItem)log4j2).path);
-            }
-        }
-        if (modType.IsNeoForge)
-            await forNeoForgeRunProcessorsTask;
-        // 校验所有文件
-        if (IsSha1)
-        {
-            progress.Report((DownProgress.Verify, FileCount, Filed, "All Files"));
-            await CheckAllSha1(AllNd, maxConcurrentSha1);
-        }
-        progress.Report((DownProgress.Done,FileCount,Filed,"下载完毕"));
-    }
     /// <summary>
     /// 开始异步下载Mod（可选是否下载依赖项）
     /// </summary>
@@ -311,9 +88,12 @@ public partial class Download : IDisposable
         bool IsIncludeDependencies = true,
         int maxConcurrentDownloads = 8,
         int maxConcurrentSha1 = 4,
-        bool IsSha1 = true
+        bool IsSha1 = true,
+        CancellationToken? token = null
         )
     {
+        CancellationToken cancellationToken = token ?? CancellationToken.None;
+
         var GetTask = new GetModrinth(ModID, version, ModPath);
         await GetTask.Init();
 
@@ -333,7 +113,7 @@ public partial class Download : IDisposable
         }
 
         // 过滤掉已经存在的文件
-        filesToProcess = CheckFilesExists(filesToProcess);
+        filesToProcess = CheckFilesExists(filesToProcess,cancellationToken);
 
         // 计算总下载文件大小
         long totalBytesToDownload = filesToProcess.Sum(item => (long)item.size);
@@ -354,18 +134,22 @@ public partial class Download : IDisposable
         });
 
         progress?.Report(((int)totalBytesToDownload, 0, "开始下载Mod文件..."));
-        await DownloadListAsync(fileCompletionProgress, filesToProcess, maxConcurrentDownloads);
+        await DownloadListAsync(fileCompletionProgress, filesToProcess, maxConcurrentDownloads,cancellationToken);
 
         if (IsSha1)
         {
             progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "正在校验文件..."));
-            await CheckAllSha1(filesToProcess, maxConcurrentSha1);
+            await CheckAllSha1(filesToProcess, maxConcurrentSha1,cancellationToken);
         }
 
         progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "下载完成！"));
     }
 
-    public async Task DownloadListAsync(IProgress<(int completedFiles,string FilesName)> progress, List<NdDowItem> downloadNds,int maxConcurrentDownloads)
+    public async Task DownloadListAsync(
+        IProgress<(int completedFiles,string FilesName)> progress,
+        List<NdDowItem> downloadNds,
+        int maxConcurrentDownloads,
+        CancellationToken token)
     {
         // 初始化已完成文件数
         int completedFiles = 0;
@@ -377,7 +161,7 @@ public partial class Download : IDisposable
         // 遍历下载列表，创建并发任务
         foreach (var item in downloadNds)
         {
-            await semaphore.WaitAsync();
+            await semaphore.WaitAsync(token);
             downloadTasks.Add(Task.Run(async () =>
             {
                 try
@@ -385,18 +169,18 @@ public partial class Download : IDisposable
                     // 原子递增已完成文件数
                     Interlocked.Increment(ref completedFiles);
                     // 报告进度
-                    progress?.Report((completedFiles, item.path));
+                    progress?.Report((completedFiles, item.url));
                     // 执行下载操作
-                    await DownloadFile(item.url,item.path); 
+                    await DownloadFile(item.url,item.path,token); 
                 }
                 catch (HttpRequestException ex)
                 {
                     for (int attempt = 0; attempt < 3; attempt++)
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)),token);
                         try
                         {
-                            await DownloadFile(item.url, item.path);
+                            await DownloadFile(item.url, item.path,token);
                             break;
                         }
                         catch (HttpRequestException ex2)
@@ -418,51 +202,53 @@ public partial class Download : IDisposable
         // 等待所有任务完成
         await Task.WhenAll(downloadTasks);
     }
-    public List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI)
+    public List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI, CancellationToken token)
     {
         List<NdDowItem> filesToDownload = new List<NdDowItem>(FDI.Count);
         foreach (var item in FDI)
         {
+            token.ThrowIfCancellationRequested();
             if (File.Exists(item.path))
                 continue;
             filesToDownload.Add(item);
         }
         return filesToDownload;
     }
-    public async Task DownloadFile(string url,string savepath)
+    public async Task DownloadFile(string url,string savepath, CancellationToken? token = null)
     {
-        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+        CancellationToken cancellationToken = token ?? CancellationToken.None;
+        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead,cancellationToken))
         {
             response.EnsureSuccessStatusCode();
-            using (var httpStream = await response.Content.ReadAsStreamAsync())
+            using (var httpStream = await response.Content.ReadAsStreamAsync(cancellationToken))
             {
                 var directory = Path.GetDirectoryName(savepath);
                 if (!string.IsNullOrEmpty(directory))
                     Directory.CreateDirectory(directory);
                 using (var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                 {
-                    await httpStream.CopyToAsync(fileStream, 8192);
+                    await httpStream.CopyToAsync(fileStream, 8192,cancellationToken);
                 }
             }
         }
     }
-    public async Task DownloadFileAndSha1(string url, string savepath,string sha1)
+    public async Task DownloadFileAndSha1(string url, string savepath,string sha1, CancellationToken token)
     {
-        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
+        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token))
         {
             response.EnsureSuccessStatusCode();
-            using (var httpStream = await response.Content.ReadAsStreamAsync())
+            using (var httpStream = await response.Content.ReadAsStreamAsync(token))
             {
                 var directory = Path.GetDirectoryName(savepath);
                 if (!string.IsNullOrEmpty(directory))
                     Directory.CreateDirectory(directory);
                 using (var fileStream = new FileStream(savepath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize: 8192, useAsync: true))
                 {
-                    await httpStream.CopyToAsync(fileStream, 8192);
+                    await httpStream.CopyToAsync(fileStream, 8192, token);
                     fileStream.Position = 0;
                     using (var sha1Hash = SHA1.Create())
                     {
-                        byte[] hash = await sha1Hash.ComputeHashAsync(fileStream);
+                        byte[] hash = await sha1Hash.ComputeHashAsync(fileStream,token);
                         string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                         if (!string.Equals(calculatedSha1, sha1, StringComparison.OrdinalIgnoreCase))
                         {
@@ -476,13 +262,14 @@ public partial class Download : IDisposable
             }
         }
     }
-    public async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1)
+    public async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1,CancellationToken token)
     {
         var semaphore = new SemaphoreSlim(maxConcurrentSha1);
         var sha1Tasks = new List<Task>(FDI.Count);
         foreach (var item in FDI)
         {
-            if (item.sha1 == null)
+            token.ThrowIfCancellationRequested();
+            if (string.IsNullOrEmpty(item.sha1))
                 continue;
             await semaphore.WaitAsync();
             sha1Tasks.Add(Task.Run(async () =>
@@ -490,7 +277,7 @@ public partial class Download : IDisposable
                 using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
                 using (var sha1Hash = SHA1.Create())
                 {
-                    byte[] hash = await sha1Hash.ComputeHashAsync(stream);
+                    byte[] hash = await sha1Hash.ComputeHashAsync(stream,token);
                     string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                     if (!string.Equals(calculatedSha1, item.sha1, StringComparison.OrdinalIgnoreCase))
                     {
@@ -502,7 +289,7 @@ public partial class Download : IDisposable
                 }
                 
                 semaphore.Release();
-            }));
+            },token));
         }
         await Task.WhenAll(sha1Tasks);
     }

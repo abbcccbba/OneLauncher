@@ -29,8 +29,7 @@ public class MinecraftServerManger
             await t.DownloadFileAndSha1(
                 serverGetInfo.Downloads.Server.Url,
                 Path.Combine(versionPath,"server.jar"),
-                serverGetInfo.Downloads.Server.Sha1
-                );
+                serverGetInfo.Downloads.Server.Sha1,CancellationToken.None);
         }
         Directory.CreateDirectory(
             (IsVI)

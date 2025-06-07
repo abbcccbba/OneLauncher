@@ -50,7 +50,7 @@ public class LaunchCommandBuilder
         this.modType = modType;
         separator = systemType == SystemType.windows ? ";" : ":";
         versionInfo = new VersionInfomations(
-            File.ReadAllText(Path.Combine(VersionPath, $"{version}.json")),
+            File.ReadAllText(Path.Combine(VersionPath, $"version.json")),
             basePath, systemType, IsVersionInsulation
         );
     }
@@ -62,7 +62,7 @@ public class LaunchCommandBuilder
         if (modType == ModEnum.fabric)
         {
             fabricParser = new FabricVJParser(
-              Path.Combine(VersionPath, $"{version}-fabric.json"), basePath);
+              Path.Combine(VersionPath, $"version.fabric.json"), basePath);
             MainClass = fabricParser.GetMainClass();
         }
         else if (modType == ModEnum.neoforge)

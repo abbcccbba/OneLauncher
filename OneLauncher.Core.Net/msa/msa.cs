@@ -29,7 +29,7 @@ public class MicrosoftAuthenticator : IDisposable
     /// <returns>包含更新用户信息的 UserModel，如果刷新失败则为 null。</returns>
     public async Task<UserModel?> RefreshToken(string oldRefreshTokenID)
     {
-        string oldRefreshToken = Init.ECUsing.GetRefreshToken(oldRefreshTokenID);
+        string oldRefreshToken = Init.Security.GetRefreshToken(oldRefreshTokenID);
         try
         {
             var content = new StringContent(
@@ -148,7 +148,7 @@ public class MicrosoftAuthenticator : IDisposable
                 profileResponse.Name,
                 Guid.Parse(profileResponse.Id),
                 mcLoginResponse.AccessToken,
-                Init.ECUsing.SetRefreshToken(microsoftRefreshToken, oldID ?? null)
+                Init.Security.SetRefreshToken(microsoftRefreshToken, oldID ?? null)
             );
         }
         catch (OlanException)

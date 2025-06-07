@@ -92,7 +92,7 @@ public class NeoForgeInstallTasker
         // 重新打开文件，因为原文件流已移动到末尾，不可读取有效信息
         string ClientLzmeTempFileName = Path.GetTempFileName();
         using (var versionJsonStreamR = versionJson.Open())
-        using (var fs = new FileStream(Path.Combine(gamePath, $"{gameVersion}-neoforge.json"), FileMode.Create, FileAccess.Write))
+        using (var fs = new FileStream(Path.Combine(gamePath, $"version.neoforge.json"), FileMode.Create, FileAccess.Write))
             await versionJsonStreamR.CopyToAsync(fs);
         using (var DataClientLazmStreamR = DataClientLazm.Open())
         using (var fs = new FileStream(ClientLzmeTempFileName, FileMode.Create, FileAccess.Write))
@@ -105,7 +105,7 @@ public class NeoForgeInstallTasker
     /// 运行NeoForge处理器
     /// 注意：此方法的所有错误信息必须通过事件抛出
     /// </summary>
-    public async Task ToRunProcessors(string MainjarPath, string javaPath, string ClientLzmaFilePath, SystemType osType)
+    public async Task ToRunProcessors(string MainjarPath, string javaPath, string ClientLzmaFilePath, SystemType osType,CancellationToken token)
     {
         int alls;
         int dones = 0;
@@ -124,13 +124,16 @@ public class NeoForgeInstallTasker
             { "MC_SRG",Tools.MavenToPath(librariesPath,installProfileExample.Data.MCSRG.Client) },
             { "MINECRAFT_JAR" ,MainjarPath }
         };
+        token.ThrowIfCancellationRequested();
         // 创建文件夹
         string destFileName = ArgsExel["MC_SRG"];
         Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
         File.Copy(MainjarPath, destFileName, overwrite: true);
         List<Process> Processors = new List<Process>();
 
-        foreach (var pros in installProfileExample.Processors)
+        foreach (var pros in installProfileExample.Processors) 
+        {
+            token.ThrowIfCancellationRequested();
             if (pros?.Sides == null || pros?.Sides[0] == "client")
             {
                 // 定义参数
@@ -139,14 +142,17 @@ public class NeoForgeInstallTasker
                 string StdArgs = string.Empty;
                 // 解析cp参数
                 {
+                    token.ThrowIfCancellationRequested();
                     StringBuilder CpArgsBuilder = new StringBuilder();
                     foreach (var icp in pros.Classpath)
                         CpArgsBuilder.Append(Tools.MavenToPath(librariesPath, icp) + (osType == SystemType.windows ? ";" : ":"));
+                    
                     CpArgs =
                         $"-cp \"{CpArgsBuilder.ToString().TrimEnd()}\"";
                 }
                 // 找到主类名
                 {
+                    token.ThrowIfCancellationRequested();
                     using (FileStream MainClassFinder = new FileStream(
                         Tools.MavenToPath(librariesPath, pros.Jar), FileMode.Open, FileAccess.Read
                         ))
@@ -169,6 +175,7 @@ public class NeoForgeInstallTasker
                 }
                 // 解析标准参数
                 {
+                    token.ThrowIfCancellationRequested();
                     StringBuilder StdArgsBuilder = new StringBuilder();
                     foreach (var aArg in pros.Args)
                     {
@@ -194,6 +201,7 @@ public class NeoForgeInstallTasker
                     }
                     StdArgs = StdArgsBuilder.ToString();
                 }
+                token.ThrowIfCancellationRequested();
                 Processors.Add(new Process()
                 {
                     StartInfo = new ProcessStartInfo()
@@ -206,11 +214,12 @@ public class NeoForgeInstallTasker
                         CreateNoWindow = true
                     },
                 });
-
             }
+        }
         alls = Processors.Count;
         foreach (var ProItem in Processors)
         {
+            token.ThrowIfCancellationRequested();
             try
             {
                 dones++;
@@ -231,7 +240,7 @@ public class NeoForgeInstallTasker
                 // Gemini说没有异步可能导致系统资源严重死锁
                 // 改成 await ProItem.WaitForExitAsync(); 后问题减轻
                 // 这里原来是// 改成ProItem.WaitForExit(); 
-                await ProItem.WaitForExitAsync();
+                await ProItem.WaitForExitAsync(token);
                 if (ProItem.ExitCode != 0)
                     ProcessorsOutEvent?.Invoke(-1, -1, $"处理器{dones}执行时出错");
             }

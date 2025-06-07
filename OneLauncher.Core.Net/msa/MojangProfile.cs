@@ -131,7 +131,7 @@ public class MojangProfile : IDisposable
                 {
                     var tempSavePath = Path.GetTempPath();
                     using (var downTask = new Download(httpClient))
-                        await downTask.DownloadFile(skin.Skin, tempSavePath);
+                        await downTask.DownloadFile(skin.Skin, tempSavePath,CancellationToken.None);
                     await SetUseLocalFile(new MojangSkin() { Skin = tempSavePath, IsSlimModel = skin.IsSlimModel });
                 }
                 catch (HttpRequestException e)

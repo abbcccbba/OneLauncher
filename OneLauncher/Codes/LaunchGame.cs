@@ -95,8 +95,6 @@ internal class Game
                                 IsVersionInsulation,
                                 UseGameTasker
                             ));
-
-   
                 };
                 process.Start();
                 process.BeginOutputReadLine();
@@ -115,15 +113,20 @@ internal class Game
             }
             GameClosedEvent?.Invoke();
         }
-        catch(DirectoryNotFoundException fex)
+        catch(FileNotFoundException fex)
         {
             await OlanExceptionWorker.ForOlanException(
-                        new OlanException("启动失败", "无法找到启动所需的文件", OlanExceptionAction.Error,fex));
+                        new OlanException("启动失败", $"无法找到启动所需的文件{Environment.NewLine}{fex}", OlanExceptionAction.Error, fex));
+        }
+        catch (DirectoryNotFoundException fex)
+        {
+            await OlanExceptionWorker.ForOlanException(
+                        new OlanException("启动失败", $"无法找到启动所需的文件夹{Environment.NewLine}{fex}", OlanExceptionAction.Error,fex));
         }
         catch(Exception ex)
         {
             await OlanExceptionWorker.ForOlanException(
-                        new OlanException("启动失败", "系统未安装Java或系统错误", OlanExceptionAction.Error,ex));
+                        new OlanException("启动失败", $"系统未安装Java或系统错误{Environment.NewLine}{ex}", OlanExceptionAction.Error,ex));
         }
     }
 }

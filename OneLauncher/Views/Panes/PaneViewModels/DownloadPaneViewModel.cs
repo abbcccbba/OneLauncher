@@ -11,6 +11,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 namespace OneLauncher.Views.Panes.PaneViewModels;
 internal partial class DownloadPaneViewModel : BaseViewModel
@@ -32,6 +33,11 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         IsAllowFabric = new System.Version(Version.ID) < new System.Version("1.14") ? false : true;
         IsAllowNeoforge = new System.Version(Version.ID) < new System.Version("1.20.2") ? false : true;
     }
+    ~DownloadPaneViewModel()
+    {
+        cts.Dispose();
+    }
+    private CancellationTokenSource cts;
     #region 数据绑定区
     [ObservableProperty]
     public bool isLaunchGameAfterDone;
@@ -66,7 +72,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     public double _CurrentProgress = 0;
     #endregion
     [RelayCommand]
-    public async Task ToDownload()
+    public Task ToDownload()
     {
         IsAllowDownloading = false;
         var VersionModType = new ModType()
@@ -76,8 +82,21 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         };
         DateTime _lastUpdateTime = DateTime.MinValue;
         TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
-        _ = Task.Run(async () => // 避免实际下载任务在UI线程执行导致线程卡死，别改这个，因为真的会卡死
+        return Task.Run(async () => // 避免实际下载任务在UI线程执行导致线程卡死，别改这个，因为真的会卡死
         {
+            var newUserVersion = new UserVersion
+            {
+                VersionID = VersionName,
+                modType = VersionModType,
+                AddTime = DateTime.Now,
+                IsVersionIsolation = IsVI,
+                preferencesLaunchMode = new PreferencesLaunchMode()
+                {
+                    LaunchModType = (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : ModEnum.none,
+                    IsUseDebugModeLaunch = false
+                }
+            };
+            cts = new();
             try
             {
                 using (Download download = new Download()) // 在后台任务内部创建和管理Download对象
@@ -101,6 +120,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                             {
                                 Dp = p.d switch
                                 {
+                                    DownProgress.Meta => "下载原信息...",
                                     DownProgress.DownAndInstModFiles => "正在下载Mod相关文件...",
                                     DownProgress.DownLog4j2 => "正在下载日志配置文件...",
                                     DownProgress.DownLibs => "正在下载库文件...",
@@ -116,30 +136,18 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         }));
 
                     // 现在可以安全地 await StartAsync
-                    await download.StartAsync(thisVersionBasicInfo, Init.GameRootPath, Init.systemType,
-                        progressReporter, // 传递创建的 progressReporter
-                        IsVersionIsolation: IsVI,
-                        maxConcurrentDownloads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-                        maxConcurrentSha1: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
-                        modType: VersionModType,
-                        AndJava: this.IsJava,
-                        fS: IsDownloadFabricWithAPI,
-                        nS: IsAllowToUseBetaNeoforge,
-                        IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled
-                    );  
+                    await new DownloadMinecraft(
+                        download,newUserVersion,thisVersionBasicInfo,Init.GameRootPath,progressReporter,cts.Token
+                        )
+                    .MinecraftBasic(
+                        Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
+                        Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
+                        Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
+                        IsDownloadFabricWithAPI,
+                        IsAllowToUseBetaNeoforge,
+                        IsJava);  
                 }
-                var newUserVersion = new UserVersion
-                {
-                    VersionID = VersionName,
-                    modType = VersionModType,
-                    AddTime = DateTime.Now,
-                    IsVersionIsolation = IsVI,
-                    preferencesLaunchMode = new PreferencesLaunchMode()
-                    {
-                        LaunchModType = (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : ModEnum.none,
-                        IsUseDebugModeLaunch = false
-                    }
-                };
+                
                 if (IsLaunchGameAfterDone)
                     _ = version.EasyGameLauncher
                     (
@@ -150,15 +158,29 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 Init.ConfigManger.config.VersionList.Add(newUserVersion);
                 await Init.ConfigManger.Save();
             }
+            catch (OperationCanceledException)
+            {
+                Debug.WriteLine("下载任务被取消");
+                return;
+            }
             catch (OlanException ex)
             {
+                cts.Cancel();
                 await OlanExceptionWorker.ForOlanException(ex);
             }
+#if !DEBUG
             catch (Exception ex)
             {
+                cts.Cancel();
                 await OlanExceptionWorker.ForUnknowException(ex);
             }
+#endif
         });
+    }
+    [RelayCommand]
+    public void ToCancellationDownloadTask()
+    {
+        cts.Cancel();
     }
     [RelayCommand]
     public void ClosePane()

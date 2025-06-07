@@ -134,7 +134,7 @@ internal partial class AccountPageViewModel : BaseViewModel
     public void DeleteUser(UserModel user)
     {
         if(user.IsMsaUser) 
-            Init.ECUsing.Del(user.refreshTokenID);
+            Init.Security.Del(user.refreshTokenID);
         Init.ConfigManger.config.UserModelList.Remove(user);
         Init.ConfigManger.Save();
         RefList();
