@@ -428,23 +428,28 @@ public class VersionBasicInfo
     public DateTime time { get; set; }
     public string Url { get; set; }
 }
+public enum SystemType
+{
+    windows,
+    osx,
+    linux
+}
 public struct UserModel
 {
     /// <param name="accessToken">访问令牌</param>
     /// <param name="refreshToken">刷新令牌</param>
-    public UserModel(string Name, Guid uuid, string? accessToken = null, string? refreshToken = null)
+    public UserModel(string Name, Guid uuid, string? accessToken = null, string? refreshTokenID = null)
     {
         if (accessToken == null)
         {
             this.accessToken = "0000-0000-0000-0000";
-            this.refreshToken = "0000-0000-0000-0000";
             this.IsMsaUser = false;
         }
         else
         {
             this.IsMsaUser = true;
             this.accessToken = accessToken;
-            this.refreshToken = refreshToken ?? string.Empty;
+            this.refreshTokenID = refreshTokenID ?? string.Empty;
         }
         this.AuthTime = DateTime.UtcNow;
         this.Name = Name;
@@ -460,13 +465,6 @@ public struct UserModel
     public string? accessToken { get; set; }
     public bool IsMsaUser { get; set; }
 
-
-    public string? refreshToken { get; set; }
+    public string? refreshTokenID { get; set; }
     public DateTime? AuthTime { get; set; }
-}
-public enum SystemType
-{
-    windows,
-    osx,
-    linux
 }

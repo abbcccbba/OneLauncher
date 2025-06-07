@@ -38,7 +38,7 @@ public partial class account : UserControl
                         {
                             Debug.WriteLine($"用户 {UserModelItem.Name} 的 accessToken 已过期，正在更新...");
                             // 如果过期了，则更新
-                            var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(UserModelItem!.refreshToken);
+                            var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(UserModelItem!.refreshTokenID);
                             lock (Init.ConfigManger.config.UserModelList)
                             {
                                 // 如果是默认用户模型也更新

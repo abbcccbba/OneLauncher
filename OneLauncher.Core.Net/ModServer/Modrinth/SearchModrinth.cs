@@ -20,10 +20,10 @@ public class SearchModrinth : IDisposable
         HttpResponseMessage response = await httpClient.GetAsync(SearchUrl);
         response.EnsureSuccessStatusCode();
 
-        string jsonResponse = await response.Content.ReadAsStringAsync();
+        Stream jsonResponse = await response.Content.ReadAsStreamAsync();
 
         // 使用带有选项的源生成器反序列化
-        info = JsonSerializer.Deserialize<ModrinthSearch>(jsonResponse,ModrinthSearchJsonContext.Default.ModrinthSearch);
+        info = await JsonSerializer.DeserializeAsync<ModrinthSearch>(jsonResponse,ModrinthSearchJsonContext.Default.ModrinthSearch);
 
         return info;
     }

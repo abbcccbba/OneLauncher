@@ -27,8 +27,9 @@ public class MicrosoftAuthenticator : IDisposable
     /// </summary>
     /// <param name="oldRefreshToken">旧的刷新令牌。</param>
     /// <returns>包含更新用户信息的 UserModel，如果刷新失败则为 null。</returns>
-    public async Task<UserModel?> RefreshToken(string oldRefreshToken)
+    public async Task<UserModel?> RefreshToken(string oldRefreshTokenID)
     {
+        string oldRefreshToken = Init.systemEC.GetRefreshToken(oldRefreshTokenID);
         try
         {
             var content = new StringContent(
@@ -147,7 +148,7 @@ public class MicrosoftAuthenticator : IDisposable
                 profileResponse.Name,
                 Guid.Parse(profileResponse.Id),
                 mcLoginResponse.AccessToken,
-                microsoftRefreshToken
+                Init.systemEC.SetRefreshToken(microsoftRefreshToken)
             );
         }
         catch (OlanException)

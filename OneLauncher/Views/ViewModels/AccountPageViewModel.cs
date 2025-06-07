@@ -49,7 +49,7 @@ internal partial class AccountPageViewModel : BaseViewModel
             )
             {
                 // 更新令牌
-                var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(UserModelItem!.refreshToken);
+                var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(UserModelItem!.refreshTokenID);
                 lock (Init.ConfigManger.config.UserModelList)
                 {
                     // 如果是默认用户模型也更新

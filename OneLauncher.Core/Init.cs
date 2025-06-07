@@ -1,14 +1,17 @@
-﻿using System.Runtime.InteropServices;
+﻿using OneLauncher.Core.Net.msa;
+using System.Runtime.InteropServices;
 
 namespace OneLauncher.Core;
 public static class Init
 {
     public const string OneLauncherVersoin = "1.2.0";
+    public const string ApplicationUUID = "com.onelauncher.qustellar";
     public const string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static string BasePath { get; private set; }
     public static string GameRootPath { get; private set; }
     public static DBManger ConfigManger { get; private set; }
     public static SystemType systemType { get; private set; }
+    public static SystemEC systemEC { get; private set; }
     /// <summary>
     /// 全局程序初始化方法
     /// </summary>
@@ -38,6 +41,8 @@ public static class Init
             systemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
                          RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
                          RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
+            // 初始化系统级加密密钥保护
+            systemEC = new SystemEC();
             return null;
         }
         catch (ArgumentException ex)

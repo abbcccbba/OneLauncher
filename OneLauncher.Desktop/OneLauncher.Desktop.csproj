@@ -8,7 +8,7 @@
 		<Platforms>AnyCPU;x64</Platforms>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
-	
+	<!--
 	<PropertyGroup>
 		<PublishAot>true</PublishAot>
 		<BuiltInComInteropSupport>false</BuiltInComInteropSupport>
@@ -21,7 +21,7 @@
 		<NativeLibrary Include="libs\libSkiaSharp.lib"/>
 		<DirectPInvoke Include="av_libglesv2"/>
 		<NativeLibrary Include="libs\av_libglesv2.lib"/>
-	</ItemGroup> 
+	</ItemGroup>  -->
 	<ItemGroup>
 		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />
 		<TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
