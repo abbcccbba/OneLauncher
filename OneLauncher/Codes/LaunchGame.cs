@@ -61,14 +61,14 @@ internal class Game
         
         try
         {
-            string tempName = Path.GetTempFileName();
-            await File.WriteAllTextAsync(tempName,
-                (await Builder.BuildCommand(
-                 Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()))
-                ).Replace("\\", @"\\"));
             using (Process process = new Process())
             {
-                process.StartInfo.Arguments = "-javaagent:\"E:\\OneLauncherProject\\OneLauncher\\OneLauncher.Jvm\\OneLauncherAgent.jar\"=\"66dashun;E:\\OneLauncherProject\\OneLauncher\\OneLauncher.Jvm\\OneLauncherAgent.jar\" " + $"@{tempName}";
+                process.StartInfo.Arguments =
+                    // 如果你想自定义标题，可以从Github下载OneLauncher.Agent.jar，然后把路径输入到这里，后面的就是新标题
+                    //"-javaagent:\"F:\\OneLauncherAgent.jar\"=\"Hello World by OneLauncher\"" +
+                    (await Builder.BuildCommand(
+                     Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()))
+                    );
                 Debug.WriteLine(process.StartInfo.Arguments);
                 process.StartInfo.FileName = Builder.GetJavaPath();
                 process.StartInfo.WorkingDirectory =
