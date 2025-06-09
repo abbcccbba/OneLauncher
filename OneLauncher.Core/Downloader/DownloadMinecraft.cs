@@ -258,7 +258,7 @@ public class DownloadMinecraft
         return Task.Run(() =>
             exp.ToRunProcessors
             (
-              Path.Combine(GameRootPath, "versions", ID, $"client.jar"),
+              Path.Combine(GameRootPath, "versions", ID, $"{ID}.jar"),
               Tools.IsUseOlansJreOrOssJdk(mations.GetJavaVersion(), 
               Path.GetDirectoryName(GameRootPath)),
               tbfm,Init.systemType,cancelToken

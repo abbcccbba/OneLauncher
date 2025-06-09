@@ -7,8 +7,10 @@ using OneLauncher.Core.Minecraft;
 using OneLauncher.Views.Windows;
 using OneLauncher.Views.Windows.WindowViewModels;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Codes;
@@ -25,7 +27,7 @@ internal class Game
         string GameVersion, 
         UserModel loginUserModel, 
         ModEnum modType,
-        bool IsVersionInsulation = false,
+        bool IsVersionInsulation,
         bool UseGameTasker = false)
     {
         #region 初始化基本游戏构建类
@@ -59,10 +61,15 @@ internal class Game
         
         try
         {
+            string tempName = Path.GetTempFileName();
+            await File.WriteAllTextAsync(tempName,
+                (await Builder.BuildCommand(
+                 Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()))
+                ).Replace("\\", @"\\"));
             using (Process process = new Process())
             {
-                process.StartInfo.Arguments = await Builder.BuildCommand(
-                    Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()));
+                process.StartInfo.Arguments = "-javaagent:\"E:\\OneLauncherProject\\OneLauncher\\OneLauncher.Jvm\\OneLauncherAgent.jar\"=\"66dashun;E:\\OneLauncherProject\\OneLauncher\\OneLauncher.Jvm\\OneLauncherAgent.jar\" " + $"@{tempName}";
+                Debug.WriteLine(process.StartInfo.Arguments);
                 process.StartInfo.FileName = Builder.GetJavaPath();
                 process.StartInfo.WorkingDirectory =
                     (IsVersionInsulation)
@@ -72,9 +79,10 @@ internal class Game
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = true;
-                process.OutputDataReceived += (sender, e) =>
+                process.OutputDataReceived += async (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
+                
                     Debug.WriteLine(e.Data);
                     WeakReferenceMessenger.Default.Send(new GameMessage($"[STDOUT] {e.Data}{Environment.NewLine}"));
                     if (e.Data.Contains("Backend library: LWJGL version"))
@@ -88,7 +96,7 @@ internal class Game
                     if (e.Data.Contains("java.lang.ClassNotFoundException")) 
                         await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败","Jvm无法找到主类，请尝试重新安装游戏",OlanExceptionAction.Error),
-                        async () => await LaunchGame(
+                        () => _=LaunchGame(
                                 GameVersion,
                                 loginUserModel,
                                 modType,
@@ -99,11 +107,11 @@ internal class Game
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
-                await process.WaitForExitAsync(); 
+                await process.WaitForExitAsync();
                 if(process.ExitCode != 0)
                     await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", "未知错误，请尝试以调试模式启动游戏以查找出错原因", OlanExceptionAction.Error),
-                        async () => await LaunchGame(
+                        () => _=LaunchGame(
                                 GameVersion,
                                 loginUserModel,
                                 modType,

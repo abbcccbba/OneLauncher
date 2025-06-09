@@ -56,7 +56,7 @@ public class LaunchCommandBuilder
     }
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion(), Path.GetDirectoryName(basePath));
-    public async Task<string> BuildCommand(string OtherArgs = "")
+    public async Task<string> BuildCommand(string OtherArgs = "",bool UseTempFileToPaserClassPathToJvm = false)
     {
         string MainClass;
         if (modType == ModEnum.fabric)
@@ -72,19 +72,18 @@ public class LaunchCommandBuilder
             MainClass = neoForgeParser.info.MainClass;
         }
         else MainClass = versionInfo.GetMainClass();
-        string Args = $"{OtherArgs} {BuildJvmArgs()} {MainClass} {BuildGameArgs()}";
+        string Args = $"{OtherArgs} {BuildJvmArgs(UseTempFileToPaserClassPathToJvm)} {MainClass} {BuildGameArgs()}";
         Debug.WriteLine(Args);
         return Args;
     }
-    private string BuildJvmArgs()
+    private string BuildJvmArgs(bool IsUTFTPCPTJ)
     {
         string osName = systemType == SystemType.windows ? "windows" :
                         systemType == SystemType.linux ? "linux" :
                         systemType == SystemType.osx ? "osx" : "";
         // AI 写的，干什么用的我也不知道
         string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
-
-        var placeholders = new Dictionary<string, string>
+            var placeholders = new Dictionary<string, string>
         {
             // 创建占位符映射表 
             // 参考1.21.5.json
@@ -168,8 +167,7 @@ public class LaunchCommandBuilder
     private string BuildClassPath()
     {
         // 使用 List<string> 来收集所有库路径
-        var allLibPaths = new List<string>();
-
+        var allLibPaths = new List<string>(); 
         allLibPaths.AddRange(versionInfo.GetLibrarys().Select(x => x.path));
         if (modType == ModEnum.neoforge)
         {
@@ -181,6 +179,7 @@ public class LaunchCommandBuilder
         }
 
         allLibPaths.Add(versionInfo.GetMainFile().path);
+        allLibPaths.Add("E:\\OneLauncherProject\\OneLauncher\\OneLauncher.Jvm\\byte-buddy-1.14.15.jar");
         string AllClassArgs = string.Join(separator,
                                           allLibPaths.Where(p => !string.IsNullOrEmpty(p))
                                                      .Distinct());
@@ -193,7 +192,7 @@ public class LaunchCommandBuilder
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
             $"--gameDir \"{(IsVersionInsulation ? Path.Combine(basePath, "versions", version) : basePath)}\" " +
-            $"--assetsDir \"{Path.Combine(basePath, "assets")}\" " +
+            $"--assetsDir \"{((systemType == SystemType.windows) ? Path.Combine(basePath, "assets").Replace("\\",@"\\") : Path.Combine(basePath, "assets"))}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
