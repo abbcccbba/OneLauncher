@@ -5,6 +5,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views.ViewModels;
 using System;

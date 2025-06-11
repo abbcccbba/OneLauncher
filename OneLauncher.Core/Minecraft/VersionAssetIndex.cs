@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using OneLauncher.Core.Helper;
+using System.Text.Json;
 
 namespace OneLauncher.Core.Minecraft;
 

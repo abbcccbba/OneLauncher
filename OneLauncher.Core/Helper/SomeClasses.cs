@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace OneLauncher.Core;
+namespace OneLauncher.Core.Helper;
 public enum OptimizationMode
 {
     /// <summary>保守模式</summary>
@@ -89,7 +89,7 @@ public class JvmArguments
                     // 内存不足16GB，则使用高度优化的G1GC
                     args.UseG1GC = true;
                     args.MaxGCPauseMillis = 40;
-                    args.G1HeapRegionSize = (totalSystemMemoryGB >= 12) ? 32 : 16; // 内存稍大时，用32M的Region
+                    args.G1HeapRegionSize = totalSystemMemoryGB >= 12 ? 32 : 16; // 内存稍大时，用32M的Region
                     args.G1NewSizePercent = 40;
                     args.G1ReservePercent = 10;
                 }
@@ -99,7 +99,7 @@ public class JvmArguments
                 // --- 保守模式 ---
                 args.UseG1GC = true; // 总是使用稳定可靠的G1GC
                 args.MaxGCPauseMillis = 200; // 更宽松的停顿时间，注重吞吐
-                args.G1HeapRegionSize = (totalSystemMemoryGB < 8) ? 8 : 16; // 低内存系统使用更小的Region Size
+                args.G1HeapRegionSize = totalSystemMemoryGB < 8 ? 8 : 16; // 低内存系统使用更小的Region Size
                 args.G1NewSizePercent = 20;
                 args.G1MaxNewSizePercent = 50;
                 args.AlwaysPreTouch = false;
@@ -114,7 +114,7 @@ public class JvmArguments
                 args.MaxGCPauseMillis = 50;
 
                 // 智能调整G1 Region Size：内存大于等于12GB时，使用32M可以提升性能
-                args.G1HeapRegionSize = (totalSystemMemoryGB >= 12) ? 32 : 16;
+                args.G1HeapRegionSize = totalSystemMemoryGB >= 12 ? 32 : 16;
                 args.G1NewSizePercent = 30;
                 args.G1MaxNewSizePercent = 60;
                 args.AlwaysPreTouch = false;
@@ -132,10 +132,10 @@ public class JvmArguments
         long totalSystemMemoryMB = totalSystemMemoryBytes / 1024 / 1024;
 
         int finalMaxHeapSize;
-        if (this.MaxHeapSize > 0)
+        if (MaxHeapSize > 0)
         {
             // 用户在配置文件中强制指定了值
-            finalMaxHeapSize = this.MaxHeapSize;
+            finalMaxHeapSize = MaxHeapSize;
         }
         else
         {
@@ -152,9 +152,9 @@ public class JvmArguments
         }
 
         int finalInitialHeapSize;
-        if (this.InitialHeapSize > 0)
+        if (InitialHeapSize > 0)
         {
-            finalInitialHeapSize = this.InitialHeapSize;
+            finalInitialHeapSize = InitialHeapSize;
         }
         else
         {
@@ -285,7 +285,7 @@ public static class Tools
     {
         var t = Path.Combine(basePath, "JavaRuntimes", javaVersion.ToString());
         if (Init.ConfigManger.config.AvailableJavaList.Contains(javaVersion))
-            return (Init.systemType == SystemType.osx)
+            return Init.systemType == SystemType.osx
                 ? Path.Combine(t, Directory.GetDirectories(t)[0], "Contents","Home","bin","java")
                 : Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
         return "java"; // 否则默认使用系统Java 
@@ -382,10 +382,10 @@ public struct NdDowItem
     /// <param name="Size">文件大小（单位字节）</param>
     public NdDowItem(string Url, string Path, int Size, string? Sha1 = null)
     {
-        this.url = Url;
-        this.path = Path;
+        url = Url;
+        path = Path;
         if (Sha1 != null)
-            this.sha1 = Sha1;
+            sha1 = Sha1;
     }
     public string url;
     public string path;
@@ -416,7 +416,7 @@ public class VersionBasicInfo
         this.ID = ID;
         this.type = type;
         this.time = time;
-        this.Url = url;
+        Url = url;
     }
     // 如果不重写该方法 AutoCompleteBox 会报错
     public override string ToString()
@@ -444,21 +444,21 @@ public struct UserModel
         if (accessToken == null)
         {
             this.accessToken = nullToken;
-            this.IsMsaUser = false;
+            IsMsaUser = false;
         }
         else
         {
-            this.IsMsaUser = true;
+            IsMsaUser = true;
             this.accessToken = accessToken;
             this.refreshTokenID = refreshTokenID ?? string.Empty;
         }
-        this.AuthTime = DateTime.UtcNow;
+        AuthTime = DateTime.UtcNow;
         this.Name = Name;
         this.uuid = uuid;
     }
     public override string ToString()
     {
-        return (IsMsaUser ? "正版登入" : "离线登入");
+        return IsMsaUser ? "正版登入" : "离线登入";
     }
 
     public string Name { get; set; }

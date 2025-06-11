@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Views.version"
-			 xmlns:vm="using:OneLauncher.Views.ViewModels"
+			 xmlns:vm="clr-namespace:OneLauncher.Views.ViewModels;assembly=OneLauncher"
 			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
                DisplayMode="Overlay"
@@ -22,8 +22,32 @@
 					<TextBlock Text="转到下载版本"/>
 				</StackPanel>
 			</Button>
+			<Button Margin="-14,0,0,0">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
+					<TextBlock Text="排序"/>
+				</StackPanel>
+				<Button.Flyout>
+					<Flyout>
+						<StackPanel>
+							<Button Content="按时间排序（旧）"
+									Command="{Binding SortingCommand}"
+									CommandParameter="{x:Static vm:SortingType.AnTime_OldFront}"/>
+							<Button Content="按时间排序（新）"
+									Command="{Binding SortingCommand}"
+									CommandParameter="{x:Static vm:SortingType.AnTime_NewFront}"/>
+							<Button Content="按版本排序（旧）"
+									Command="{Binding SortingCommand}"
+									CommandParameter="{x:Static vm:SortingType.AnVersion_OldFront}"/>
+							<Button Content="按版本排序（新）"
+									Command="{Binding SortingCommand}"
+									CommandParameter="{x:Static vm:SortingType.AnVersion_NewFront}"/>
+						</StackPanel>
+					</Flyout>
+				</Button.Flyout>
+			</Button>
 		</StackPanel>
-		<ListBox x:Name="navVL" Grid.Row="1" ItemsSource="{Binding VersionList}" Background="Transparent" SelectionMode="Multiple">
+		<ListBox x:Name="navVL" Grid.Row="1" ItemsSource="{Binding VersionList,Mode=TwoWay}" Background="Transparent" SelectionMode="Multiple">
 			<ListBox.ItemTemplate>
 				<DataTemplate x:DataType="vm:VersionItem">
 					<Border CornerRadius="5">

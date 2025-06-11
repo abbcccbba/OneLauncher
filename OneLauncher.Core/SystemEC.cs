@@ -1,4 +1,5 @@
-﻿using SecureLocalStorage;
+﻿using OneLauncher.Core.Helper;
+using SecureLocalStorage;
 using System;
 using System.Collections.Generic;
 using System.Text;

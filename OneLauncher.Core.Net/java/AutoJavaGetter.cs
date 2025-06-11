@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
 using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO.Compression;

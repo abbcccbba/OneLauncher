@@ -31,8 +31,8 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Top">
 					<!-- 开始菜单按钮 -->
-					<ListBox Background="Transparent" SelectionChanged="ListBox_SelectionChanged">
-						<ListBoxItem Tag="Home">
+					<ListBox x:Name="SplitListBox" Background="Transparent" SelectionChanged="ListBox_SelectionChanged">
+						<ListBoxItem x:Name="HomeListBoxItem" Tag="Home">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/home.png" Width="32" Height="32"/>
 								<TextBlock x:Name="HomeText"
@@ -42,7 +42,7 @@
 											IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
 							</StackPanel>
 						</ListBoxItem>
-						<ListBoxItem Tag="Version">
+						<ListBoxItem x:Name="VersionListBoxItem" Tag="Version">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/version.png" Width="32" Height="32"/>
 								<TextBlock x:Name="VersionText"
@@ -52,7 +52,7 @@
 										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
 							</StackPanel>
 						</ListBoxItem>
-						<ListBoxItem Tag="Account">
+						<ListBoxItem x:Name="AccountListBoxItem" Tag="Account">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/account.png" Width="32" Height="32"/>
 								<TextBlock x:Name="AccountText"
@@ -62,7 +62,7 @@
 										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
 							</StackPanel>
 						</ListBoxItem>
-						<ListBoxItem Tag="ModsBrowser">
+						<ListBoxItem x:Name="ModsBrowserListBoxItem" Tag="ModsBrowser">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/browser.png" Width="32" Height="32"/>
 								<TextBlock x:Name="ModsBrowserText"
@@ -72,7 +72,7 @@
 										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
 							</StackPanel>
 						</ListBoxItem>
-						<ListBoxItem Tag="Download">
+						<ListBoxItem x:Name="DownloadListBoxItem" Tag="Download">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/download.png" Width="32" Height="32"/>
 								<TextBlock x:Name="DownloadText"
@@ -94,7 +94,7 @@
 							</StackPanel>
 						</ListBoxItem>
 						-->
-						<ListBoxItem Tag="Settings">
+						<ListBoxItem x:Name="SettingsListBoxItem" Tag="Settings">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/settings1.png" Width="32" Height="32"/>
 								<TextBlock x:Name="SettingsText"

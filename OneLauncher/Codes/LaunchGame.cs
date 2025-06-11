@@ -3,6 +3,7 @@ using Avalonia.Data;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views.Windows;
 using OneLauncher.Views.Windows.WindowViewModels;
@@ -49,7 +50,7 @@ internal class Game
             : Init.GameRootPath), "options.txt");
         if (!File.Exists(optionsPath))
         {
-            File.WriteAllText(optionsPath, $"lang:zh_cn");
+            File.WriteAllText(optionsPath, $"lang:zh_CN");
         }
         if (UseGameTasker)
             await Dispatcher.UIThread.InvokeAsync(() =>

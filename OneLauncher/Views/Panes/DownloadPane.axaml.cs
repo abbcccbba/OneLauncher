@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using OneLauncher.Core;
+using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
 
 namespace OneLauncher.Views.Panes;

@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.msa.JsonModels;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

@@ -1,15 +1,16 @@
-﻿using System.Text.Json;
+﻿using OneLauncher.Core.Helper;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core;
-[JsonSerializable(typeof(OneLauncher.Core.JvmArguments))]
+[JsonSerializable(typeof(JvmArguments))]
 [JsonSerializable(typeof(OneLauncher.Core.AppSettings))]
 [JsonSerializable(typeof(OneLauncher.Core.AppConfig))]
-[JsonSerializable(typeof(OneLauncher.Core.UserModel))]
-[JsonSerializable(typeof(OneLauncher.Core.UserVersion))]
-[JsonSerializable(typeof(OneLauncher.Core.ModType))]
-[JsonSerializable(typeof(OneLauncher.Core.PreferencesLaunchMode))]
-[JsonSerializable(typeof(OneLauncher.Core.ModEnum))]
+[JsonSerializable(typeof(UserModel))]
+[JsonSerializable(typeof(UserVersion))]
+[JsonSerializable(typeof(ModType))]
+[JsonSerializable(typeof(PreferencesLaunchMode))]
+[JsonSerializable(typeof(ModEnum))]
 public partial class OneLauncherAppConfigsJsonContext : JsonSerializerContext { }
 public class AppSettings
 {

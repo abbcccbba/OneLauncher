@@ -6,12 +6,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -164,6 +166,13 @@ internal partial class VersionItem : BaseViewModel
             Tools.OpenFolder(path);
     }
 }
+public enum SortingType
+{
+    AnTime_OldFront,
+    AnTime_NewFront,
+    AnVersion_OldFront,
+    AnVersion_NewFront,
+}
 internal partial class VersionPageViewModel : BaseViewModel
 {
     public VersionPageViewModel()
@@ -191,9 +200,7 @@ internal partial class VersionPageViewModel : BaseViewModel
                 for (int i = 0; i < tempVersoinList.Count; i++)
                 {
                     tempVersoinList.Add(new VersionItem(
-                        Init.ConfigManger.config.VersionList[i],
-                        i
-                        ));
+                        Init.ConfigManger.config.VersionList[i],i));
                 }
                 VersionList = tempVersoinList;
             }
@@ -204,25 +211,39 @@ internal partial class VersionPageViewModel : BaseViewModel
                     "配置文件特定部分版本部分为空，这可能是新版和旧版配置文件不兼容导致的",
                     OlanExceptionAction.FatalError,
                     ex,
-                   () =>
-                   {
+                   () => {
                        File.Delete(Path.Combine(Init.BasePath, "config.json"));
                        Init.Initialize();
-                   }
-                    );
+                   });
             }
         } 
     }
     [ObservableProperty]
-    public List<VersionItem> _VersionList;
+    public List<VersionItem> _versionList;
     [ObservableProperty]
-    public UserControl _RefDownPane;
+    public UserControl _refDownPane;
     [ObservableProperty]
-    public bool _IsPaneShow;
+    public bool _isPaneShow;
     [RelayCommand]
     public void ToDownloadGame()
     {
         MainWindow.mainwindow.MainPageControl(MainWindow.MainPage.DownloadPage);
+    }  
+    [RelayCommand]
+    public void Sorting(SortingType type)
+    {
+        List<VersionItem> orderedList = type switch
+        {
+            SortingType.AnTime_OldFront => VersionList.OrderBy(x => x.versionExp.AddTime).ToList(),
+            SortingType.AnTime_NewFront => VersionList.OrderByDescending(x => x.versionExp.AddTime).ToList(),
+            SortingType.AnVersion_OldFront => VersionList.OrderBy(x => new Version(x.versionExp.VersionID)).ToList(),
+            SortingType.AnVersion_NewFront => VersionList.OrderByDescending(x => new Version(x.versionExp.VersionID)).ToList(),
+            _ => VersionList // 默认不排序
+        };
+
+        VersionList = orderedList; 
+        Init.ConfigManger.config.VersionList = VersionList.Select(x => x.versionExp).ToList();
+        Init.ConfigManger.Save();
     }
     [RelayCommand]
     public async Task OpenServer(UserVersion versionExp)
@@ -256,5 +277,6 @@ internal partial class VersionPageViewModel : BaseViewModel
             await OlanExceptionWorker.ForOlanException(ex);
         }
     }
+
 }
 

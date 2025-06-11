@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Minecraft;
+﻿using OneLauncher.Core.Helper;
+using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.ModLoader.neoforge;
 using OneLauncher.Core.Modrinth;
 using OneLauncher.Core.Net.java;

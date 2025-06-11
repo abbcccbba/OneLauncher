@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Modrinth.JsonModelGet;
+﻿using OneLauncher.Core.Helper;
+using OneLauncher.Core.Modrinth.JsonModelGet;
 using System.Diagnostics;
 using System.Text.Json;
 

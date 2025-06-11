@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views;
 using OneLauncher.Views.ViewModels;

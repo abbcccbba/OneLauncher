@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using OneLauncher.Core;
+using OneLauncher.Core.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;

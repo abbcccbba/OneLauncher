@@ -60,25 +60,22 @@ public partial class MainWindow : Window
         switch(page)
         {
             case MainPage.HomePage:
-                PageContent.Content = HomePage;
+                SplitListBox.SelectedItem = HomeListBoxItem;
                 break;
             case MainPage.VersionPage:
-                PageContent.Content = versionPage;
+                SplitListBox.SelectedItem = VersionListBoxItem;
                 break;
             case MainPage.AccountPage:
-                PageContent.Content = accountPage;
+                SplitListBox.SelectedItem = AccountListBoxItem;
                 break;
             case MainPage.ModsBrowserPage:
-                PageContent.Content = modsBrowserPage;
+                SplitListBox.SelectedItem = ModsBrowserListBoxItem;
                 break;
             case MainPage.DownloadPage:
-                PageContent.Content = downloadPage;
+                SplitListBox.SelectedItem = DownloadListBoxItem;
                 break;
-            //case MainPage.ServerPage:
-            //    PageContent.Content = serverPage;
-            //    break;
             case MainPage.SettingsPage:
-                PageContent.Content = settingsPage;
+                SplitListBox.SelectedItem = SettingsListBoxItem;
                 break;
         }
     }

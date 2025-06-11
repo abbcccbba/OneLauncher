@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.ModLoader.neoforge.JsonModels;
 using System.Diagnostics;
 using System.IO.Compression;

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.java;
 using OneLauncher.Views.ViewModels;
 using System;
