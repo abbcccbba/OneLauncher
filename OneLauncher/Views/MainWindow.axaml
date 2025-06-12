@@ -10,7 +10,7 @@
 		TransparencyLevelHint="AcrylicBlur"
         Background="{DynamicResource MainWindowBackground}"
 		ExtendClientAreaToDecorationsHint="True"
-		Width="880"
+		Width="880" 
 		Height="560"
 		x:Name="MainWindowLabel">
 	<SplitView x:Name="SidebarSplitView"

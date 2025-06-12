@@ -19,6 +19,7 @@ public class AppSettings
     public int MaximumDownloadThreads { get; set; } = 24;
     public int MaximumSha1Threads { get; set; } = 24;
     public bool IsSha1Enabled { get; set; } = true;
+    public bool IsAllowToDownloadUseBMLCAPI { get; set; } = false;
 }
 public class AppConfig
 {

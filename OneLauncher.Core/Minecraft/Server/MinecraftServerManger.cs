@@ -22,8 +22,8 @@ public class MinecraftServerManger
         MinecraftVersionInfo serverGetInfo;
         string versionPath = Path.Combine(Core.Init.GameRootPath,"versions",version);
         serverGetInfo = await JsonSerializer.DeserializeAsync<MinecraftVersionInfo>
-            (File.OpenRead(Path.Combine(versionPath,$"{version}.json")),MinecraftJsonContext.Default.MinecraftVersionInfo);
-        if (serverGetInfo.Downloads.Server == null)
+            (File.OpenRead(Path.Combine(versionPath,$"version.json")),MinecraftJsonContext.Default.MinecraftVersionInfo);
+        if (serverGetInfo?.Downloads?.Server == null)
             throw new OlanException("无法初始化服务端","当前版本不支持服务端",OlanExceptionAction.Error);
         using (Download t = new Download())
         {

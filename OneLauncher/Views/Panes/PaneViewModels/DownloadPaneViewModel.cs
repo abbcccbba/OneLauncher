@@ -81,7 +81,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             IsFabric = IsMod,
             IsNeoForge = IsNeoForge,
         };
-        DateTime _lastUpdateTime = DateTime.MinValue;
+        DateTime lastUpdateTime = DateTime.MinValue;
         TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
         return Task.Run(async () => // 避免实际下载任务在UI线程执行导致线程卡死，别改这个，因为真的会卡死
         {
@@ -106,7 +106,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         Dispatcher.UIThread.InvokeAsync(() =>
                         {
                             double progressPercentage = (p.a == 0) ? 0 : (double)p.b / p.a * 100;
-                            bool isInitialReport = (_lastUpdateTime == DateTime.MinValue && p.b == 0); // 更明确的初始条件
+                            bool isInitialReport = (lastUpdateTime == DateTime.MinValue && p.b == 0); // 更明确的初始条件
 
                             if (p.d == DownProgress.Done)
                             {
@@ -114,10 +114,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                                 Fs = $"{p.b}/{p.a}";
                                 CurrentProgress = 100;
                                 FileName = p.c;
-                                _lastUpdateTime = DateTime.UtcNow; // 完成时也更新时间戳
+                                lastUpdateTime = DateTime.UtcNow; // 完成时也更新时间戳
                             }
                             // 应用基于时间的节流策略，或在初始状态时更新
-                            else if (isInitialReport || (DateTime.UtcNow - _lastUpdateTime) > _updateInterval)
+                            else if (isInitialReport || (DateTime.UtcNow - lastUpdateTime) > _updateInterval)
                             {
                                 Dp = p.d switch
                                 {
@@ -132,7 +132,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                                 Fs = $"{p.b}/{p.a}";
                                 CurrentProgress = progressPercentage;
                                 FileName = p.c; // 确保文件名也更新
-                                _lastUpdateTime = DateTime.UtcNow;
+                                lastUpdateTime = DateTime.UtcNow;
                             }
                         }));
 
@@ -146,7 +146,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
                         IsDownloadFabricWithAPI,
                         IsAllowToUseBetaNeoforge,
-                        IsJava);  
+                        IsJava,
+                        Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);  
                 }
                 
                 if (IsLaunchGameAfterDone)
@@ -166,13 +167,13 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             }
             catch (OlanException ex)
             {
-                cts.Cancel();
+                await cts.CancelAsync();
                 await OlanExceptionWorker.ForOlanException(ex);
             }
 #if !DEBUG
             catch (Exception ex)
             {
-                cts.Cancel();
+                await cts.CancelAsync();
                 await OlanExceptionWorker.ForUnknowException(ex);
             }
 #endif
