@@ -183,15 +183,7 @@ public class VersionInfomations
 
     public int GetJavaVersion()
     {
-        return info?.JavaVersion?.MajorVersion != null ? info.JavaVersion.MajorVersion
-            :(
-                // 1.16.5及以下都是Java8
-                new Version(info.ID) > new Version("1.16.5") ? 8 : 
-                // 1.17是Java6
-                new Version(info.ID) == new Version("1.17") ? 16:
-                // 1.18 1.19 Java 17 1.20往上Java20
-                new Version(info.ID) > new Version("1.18") ? 17 : 20
-             );
+        return info?.JavaVersion?.MajorVersion ?? Tools.ForNullJavaVersion(info.ID);
     }
 }
 

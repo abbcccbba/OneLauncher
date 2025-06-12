@@ -20,6 +20,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
@@ -263,14 +264,18 @@ internal partial class VersionPageViewModel : BaseViewModel
                 IsPaneShow = true;
                 RefDownPane = new InitServerPane(versionExp.VersionID);
             }
-            else
-                MinecraftServerManger.Run(versionPath, "",
+            else       
+                MinecraftServerManger.Run(versionPath,
                     // 读取源文件获取Java版本
-                    ((MinecraftVersionInfo)await JsonSerializer.DeserializeAsync<MinecraftVersionInfo>(
+                    (await JsonNode.ParseAsync(
                         File.OpenRead(
-                            Path.Combine(versionPath, $"{versionExp.VersionID}.json")),
-                        MinecraftJsonContext.Default.MinecraftVersionInfo
-                    )).JavaVersion.MajorVersion, IsVI);
+                            Path.Combine(versionPath, $"{versionExp.VersionID}.json"))))
+                                ?["javaVersion"]
+                                ?["majorVersion"]
+                                ?.GetValue<int>()
+                                ?? Tools.ForNullJavaVersion(versionExp.VersionID)
+                                , IsVI);
+            
         }
         catch (OlanException ex)
         {

@@ -76,6 +76,18 @@ internal partial class SettingsPageViewModel : BaseViewModel
         Init.ConfigManger.config.OlanSettings.IsSha1Enabled = value;
         Init.ConfigManger.Save();
     }
+    [ObservableProperty]
+    public bool _IsAllowUseBMLCAPI;
+    partial void OnIsAllowUseBMLCAPIChanged(bool value)
+    {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
+        Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI = value;
+        Init.ConfigManger.Save();
+    }
+    
     #endregion
     public SettingsPageViewModel()
     {
@@ -106,6 +118,7 @@ internal partial class SettingsPageViewModel : BaseViewModel
                 MaxDownloadThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads;
                 MaxSha1ThreadsValue = Init.ConfigManger.config.OlanSettings.MaximumSha1Threads;
                 IsSha1Enabled = Init.ConfigManger.config.OlanSettings.IsSha1Enabled;
+                IsAllowUseBMLCAPI = Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI;
             }
             catch(NullReferenceException ex)
             {
