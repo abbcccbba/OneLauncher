@@ -141,8 +141,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         download,newUserVersion,thisVersionBasicInfo,Init.GameRootPath,progressReporter,cts.Token
                         )
                     .MinecraftBasic(
-                        Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-                        Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
+                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,1,256),
+                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,1,256),
                         Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
                         IsDownloadFabricWithAPI,
                         IsAllowToUseBetaNeoforge,
