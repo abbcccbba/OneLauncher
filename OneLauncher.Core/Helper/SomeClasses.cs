@@ -92,7 +92,7 @@ public struct UserModel
     public const string nullToken = "00000000-0000-0000-0000-000000000000";
     /// <param name="accessToken">访问令牌</param>
     /// <param name="refreshToken">刷新令牌</param>
-    public UserModel(string Name, Guid uuid, string? accessToken = null, string? refreshTokenID = null)
+    public UserModel(string Name, Guid uuid, string? accessToken = null)
     {
         if (accessToken == null)
         {
@@ -103,7 +103,6 @@ public struct UserModel
         {
             IsMsaUser = true;
             this.accessToken = accessToken;
-            this.refreshTokenID = refreshTokenID ?? string.Empty;
         }
         AuthTime = DateTime.UtcNow;
         this.Name = Name;
@@ -119,6 +118,5 @@ public struct UserModel
     public string? accessToken { get; set; }
     public bool IsMsaUser { get; set; }
 
-    public string? refreshTokenID { get; set; }
     public DateTime? AuthTime { get; set; }
 }

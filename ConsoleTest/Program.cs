@@ -1,43 +1,62 @@
-﻿using OneLauncher.Core.Downloader;
+﻿using Duende.IdentityModel.OidcClient;
+using OneLauncher.Core;
+using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Core.Net.msa;
+using OneLauncher.Core.Net.QuStellar;
 using System;
 using System.Diagnostics;
 using System.Text.Json;
 
-using var down = new Download();
-Stopwatch stopwatch = new Stopwatch();
-// 单个Url分段
-Console.WriteLine(@"
-【开始测试】
-你会看到两个结果
-第一个是52分段的多分段下载
-第二个传统的单线程下载
-保存路径是C盘
 
-");
-Console.WriteLine($"开始 {DateTime.Now}");
-stopwatch.Start();
-await down.DownloadFileBig(
-    "https://piston-data.mojang.com/v1/objects/b88808bbb3da8d9f453694b5d8f74a3396f1a533/client.jar",
-    "C:\\test1.jar",
-    28984409,
-    52
-);
-stopwatch.Stop();
+var msa = await MsalMicrosoftAuthenticator.CreateAsync(Init.AzureApplicationID);
+var r = await msa.LoginAsync();
+Console.WriteLine(r.Value.accessToken,r.Value.Name,r.Value.uuid);
 
-Console.WriteLine($"完成: {DateTime.Now}");
-Console.WriteLine($"耗时: {stopwatch.ElapsedMilliseconds} 毫秒\n");
 
-stopwatch.Reset();
-Console.WriteLine($"开始: {DateTime.Now}");
-stopwatch.Start();
-await down.DownloadFile(
-    "https://piston-data.mojang.com/v1/objects/b88808bbb3da8d9f453694b5d8f74a3396f1a533/client.jar",
-    "F:\\one.tar.gz"
-);
-stopwatch.Stop();
-Console.WriteLine($"完成: {DateTime.Now}");
-Console.WriteLine($"耗时: {stopwatch.ElapsedMilliseconds} 毫秒");
+
+
+
+//Console.WriteLine("正在尝试登录...");
+//const int port = 52726;
+//const string redirectUri = $"http://127.0.0.1:52726/";
+
+//// 配置 OidcClient
+//var options = new OidcClientOptions
+//{
+//    // !! 重要：换成你服务端的真实地址 !!
+//    Authority = "https://your-auth-server.com",
+
+//    // !! 重要：换成你自己的 ClientId !!
+//    ClientId = "10001",
+
+//    Scope = "openid profile", 
+//    RedirectUri = redirectUri,
+//    Browser = new QOauth()
+//};
+
+//var client = new OidcClient(options);
+//LoginResult result = await client.LoginAsync(new LoginRequest());
+
+//Console.WriteLine("------------------------------------------");
+
+//if (result.IsError)
+//{
+//    Console.WriteLine($"登录失败: {result.Error}");
+//}
+//else
+//{
+//    Console.WriteLine("登录成功!");
+//    Console.WriteLine($"Access Token: {result.AccessToken}");
+//    Console.WriteLine();
+//    Console.WriteLine("用户信息 (Claims):");
+//    foreach (var claim in result.User.Claims)
+//    {
+//        Console.WriteLine($"{claim.Type,-20}: {claim.Value}");
+//    }
+//}
+
+//Console.WriteLine("按任意键退出...");
+//Console.ReadKey();
