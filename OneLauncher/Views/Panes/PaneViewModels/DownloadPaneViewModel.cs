@@ -36,7 +36,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     }
     ~DownloadPaneViewModel()
     {
-        cts.Dispose();
+        Debug.WriteLine("页面释放");
+        cts?.Dispose();
     }
     private CancellationTokenSource cts;
     #region 数据绑定区

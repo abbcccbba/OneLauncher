@@ -177,7 +177,7 @@ public class DownloadMinecraft
             Interlocked.Increment(ref dones);
             progress.Report((DownProgress.Meta, alls, dones, "查找Neoforge相关链接"));
             // 下载依赖库和工具依赖库文件
-            string neoForgeActualVersion = await new NeoForgeVersionListGetter(downloadTool.UnityClient)
+            string neoForgeActualVersion = await new NeoForgeVersionListGetter(downloadTool.unityClient)
             // 调用Gemini写的名字贼长的方法来获取NeoForge安装程序的url
                 .GetLatestSuitableNeoForgeVersionStringAsync(ID, IsAllowDownloadBetaNeoforge);
             string installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neoForgeActualVersion}/neoforge-{neoForgeActualVersion}-installer.jar";
@@ -251,7 +251,7 @@ public class DownloadMinecraft
         if (!UseBMLCAPI)
         {
             progress.Report((DownProgress.DownMain, alls, dones, Path.GetFileName(main.path)));
-            await downloadTool.DownloadFile(main.url, main.path, cts.Token);
+            await downloadTool.DownloadFile(main.url, main.path, cancelToken);
         }
         else
         {
@@ -263,8 +263,8 @@ public class DownloadMinecraft
 
                 try
                 {
-                    var originalTask = downloadTool.UnityClient.GetAsync(main.url, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
-                    var mirrorTask = downloadTool.UnityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
+                    var originalTask = downloadTool.unityClient.GetAsync(main.url, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
+                    var mirrorTask = downloadTool.unityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
 
                     var winnerTask = await Task.WhenAny(originalTask, mirrorTask);
 
@@ -306,8 +306,8 @@ public class DownloadMinecraft
                     x.path, x.size, x.sha1)).ToList();
 
             using CancellationTokenSource ctsd = new CancellationTokenSource();
-            Task o = downloadTool.UnityClient.GetAsync(assets[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
-            Task b = downloadTool.UnityClient.GetAsync(assetsToDownload[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
+            Task o = downloadTool.unityClient.GetAsync(assets[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
+            Task b = downloadTool.unityClient.GetAsync(assetsToDownload[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
 
             await Task.WhenAny(o, b);
             if (b.IsCompleted && !b.IsFaulted)
@@ -354,8 +354,8 @@ public class DownloadMinecraft
                         try
                         {
                             // --- 3. 竞速：同时启动两个下载任务 ---
-                            Task<HttpResponseMessage> originalTask = downloadTool.UnityClient.GetAsync(library.url, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
-                            Task<HttpResponseMessage> mirrorTask = downloadTool.UnityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
+                            Task<HttpResponseMessage> originalTask = downloadTool.unityClient.GetAsync(library.url, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
+                            Task<HttpResponseMessage> mirrorTask = downloadTool.unityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
 
                             var completedTask = await Task.WhenAny(originalTask, mirrorTask);
 

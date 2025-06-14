@@ -12,7 +12,7 @@ namespace OneLauncher.Core.Net.java;
 public class AutoJavaGetter
 {
     // https://api.adoptium.net/v3/assets/feature_releases/21/ga?architecture=x64&os=mac&image_type=jre
-    public static async Task JavaReleaser(string javaVersion, string savePath, SystemType OsType) //=> Task.Run( async () =>
+    public static async Task JavaReleaser(string javaVersion, string savePath, SystemType OsType) 
     {
         var javaDownloadPath = Path.Combine(savePath, javaVersion, $"{javaVersion}.zip");
         var os = OsType switch
@@ -28,10 +28,14 @@ public class AutoJavaGetter
         };
         using (var a = new Download())
         {
-            await a.DownloadFile(
-                await GetBinaryPackageLinkAsync(
+            await a.DownloadFileBig(
+                url:await GetBinaryPackageLinkAsync(
                     $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={arch}&os={os}&image_type=jre"
-                    , a.UnityClient), javaDownloadPath,CancellationToken.None);
+                    , a.unityClient),
+                size:null,
+                savepath:javaDownloadPath,
+                maxSegments: 6,
+                token: CancellationToken.None); 
         }
         // 对于windows，api返回的是zip，对于mac或者linux，api返回的是tag.gz
         if(OsType == SystemType.windows)
@@ -82,7 +86,7 @@ public class AutoJavaGetter
                                 .GetValue<string>(); // 获取其字符串值
 
                 // 我造密码的编译器报错了就是返回null
-                return link ?? null;
+                return link;
             }
         }
         catch (HttpRequestException ex)

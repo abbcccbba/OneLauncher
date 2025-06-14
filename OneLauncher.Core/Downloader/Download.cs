@@ -4,11 +4,17 @@ using OneLauncher.Core.ModLoader.neoforge;
 using OneLauncher.Core.ModLoader.neoforge.JsonModels;
 using OneLauncher.Core.Modrinth;
 using OneLauncher.Core.Net.java;
+using SixLabors.ImageSharp.PixelFormats;
+using System;
+using System.Buffers;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.IO.MemoryMappedFiles;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace OneLauncher.Core.Downloader;
 
@@ -60,7 +66,7 @@ public partial class Download : IDisposable
     }
     public Download(HttpClient? tc = null)
     {
-        UnityClient = tc ?? new HttpClient(new HttpClientHandler
+        unityClient = tc ?? new HttpClient(new HttpClientHandler
         {
             MaxConnectionsPerServer = 32 
         })
@@ -68,7 +74,7 @@ public partial class Download : IDisposable
             Timeout = TimeSpan.FromSeconds(60) 
         };
     }
-    public readonly HttpClient UnityClient;
+    public readonly HttpClient unityClient;
     /// <summary>
     /// 开始异步下载Mod（可选是否下载依赖项）
     /// </summary>
@@ -146,86 +152,134 @@ public partial class Download : IDisposable
         progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "下载完成！"));
     }
 
-    public async Task DownloadListAsync(
+    public Task DownloadListAsync(
         IProgress<(int completedFiles,string FilesName)> progress,
         List<NdDowItem> downloadNds,
         int maxConcurrentDownloads,
         CancellationToken token)
     {
-        // 初始化已完成文件数
         int completedFiles = 0;
-
-        // 使用信号量控制并发数
         var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
-        var downloadTasks = new List<Task>(downloadNds.Count);
-
-        // 遍历下载列表，创建并发任务
-        foreach (var item in downloadNds)
-        {
-            await semaphore.WaitAsync(token);
-            downloadTasks.Add(Task.Run(async () =>
-            {
-                try
-                {
-                    // 原子递增已完成文件数
-                    Interlocked.Increment(ref completedFiles);
-                    // 报告进度
-                    progress?.Report((completedFiles, item.url));
-                    // 执行下载操作
-                    await DownloadFile(item.url,item.path,token); 
-                }
-                catch (HttpRequestException ex)
-                {
-                    for (int attempt = 0; attempt < 3; attempt++)
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)),token);
-                        try
-                        {
-                            await DownloadFile(item.url, item.path,token);
-                            break;
-                        }
-                        catch (HttpRequestException ex2)
-                        {
-                            Debug.WriteLine($"重试下载失败: {ex2.Message}, URL: {item.url}");
-                            continue;
-                        }
-                    }
-                    throw new OlanException("下载失败","重试到达阈值抛出",OlanExceptionAction.Error,ex);
-                }
-                finally
-                {
-                    // 释放信号量
-                    semaphore.Release();
-                }
-            }));
-        }
-
-        // 等待所有任务完成
-        await Task.WhenAll(downloadTasks);
+        return Task.WhenAll(downloadNds.Select(async item => 
+        {
+            await semaphore.WaitAsync(token);
+            try
+            {
+                // 原子递增已完成文件数
+                Interlocked.Increment(ref completedFiles);
+                // 报告进度
+                progress?.Report((completedFiles, item.url));
+                // 执行下载操作
+                await DownloadFile(item.url, item.path, token);
+            }
+            catch (HttpRequestException ex)
+            {
+                for (int attempt = 0; attempt < 3; attempt++)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), token);
+                    try
+                    {
+                        await DownloadFile(item.url, item.path, token);
+                        break;
+                    }
+                    catch (HttpRequestException ex2)
+                    {
+                        Debug.WriteLine($"重试下载失败: {ex2.Message}, URL: {item.url}");
+                        continue;
+                    }
+                }
+                throw new OlanException("下载失败", "重试到达阈值抛出", OlanExceptionAction.Error, ex);
+            }
+            finally
+            {
+                // 释放信号量
+                semaphore.Release();
+            }
+        }));
     }
-    public List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI, CancellationToken token)
-    {
-        List<NdDowItem> filesToDownload = new List<NdDowItem>(FDI.Count);
-        foreach (var item in FDI)
-        {
-            token.ThrowIfCancellationRequested();
-            if (File.Exists(item.path))
-                continue;
-            filesToDownload.Add(item);
-        }
-        return filesToDownload;
-    }
+    public async Task DownloadFileBig(
+    string url,
+    string savepath,
+    long? size,
+    int maxSegments,
+    CancellationToken token)
+    {
+        long filesize;
+        if (size != null)
+            filesize = size.Value;
+        else
+        {
+            HttpResponseMessage responseForSize = await unityClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, url), token);
+            responseForSize.EnsureSuccessStatusCode();
+            filesize = responseForSize.Content.Headers.ContentLength
+                ?? throw new OlanException("下载失败", "无法知道文件大小");
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(savepath));
+        List<Task> segmentTasks = new List<Task>(0);
+        // 提前创建文件并设置其大小，为内存映射做准备
+        using (var fs = new FileStream(savepath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+        {
+            fs.SetLength(filesize);
+            using (var mmf = MemoryMappedFile.CreateFromFile(fs, null, 0, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, false))
+            {
+                var segments = Tools.GetSegments(filesize, filesize / maxSegments);
+
+                var semaphore = new SemaphoreSlim(maxSegments);
+                foreach(var segment in segments)
+                segmentTasks.Add(Task.Run(async() =>
+                {
+                    await semaphore.WaitAsync(token);
+                    try
+                    {
+                        var request = new HttpRequestMessage(HttpMethod.Get, url);
+                        request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
+
+                        using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
+                        response.EnsureSuccessStatusCode();
+
+                        using (var accessor = mmf.CreateViewAccessor(
+                            segment.startBit, 
+                            (long)response!.Content!.Headers!.ContentLength))
+                        {
+                            using var httpStream = await response.Content.ReadAsStreamAsync(token);
+
+                            byte[] buffer = ArrayPool<byte>.Shared.Rent(81920);
+                            try
+                            {
+                                int bytesRead;
+                                int viewWritePosition = 0;
+                                while ((bytesRead = await httpStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+                                {
+                                    accessor.WriteArray(viewWritePosition, buffer, 0, bytesRead);
+                                    viewWritePosition += bytesRead;
+                                }
+                            }
+                            finally
+                            {
+                                ArrayPool<byte>.Shared.Return(buffer);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                },token));
+
+                await Task.WhenAll(segmentTasks);
+            }
+        }
+    }
+    
     public async Task DownloadFile(string url,string savepath, CancellationToken? token = null)
     {
         CancellationToken cancellationToken = token ?? CancellationToken.None;
-        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead,cancellationToken))
+        using (var response = await unityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead,cancellationToken))
         {
             response.EnsureSuccessStatusCode();
             using (var httpStream = await response.Content.ReadAsStreamAsync(cancellationToken))
             {
-                var directory = Path.GetDirectoryName(savepath);
-                if (!string.IsNullOrEmpty(directory))
-                    Directory.CreateDirectory(directory);
+                Directory.CreateDirectory(Path.GetDirectoryName(savepath));
                 using (var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                 {
                     await httpStream.CopyToAsync(fileStream, 8192,cancellationToken);
@@ -235,7 +289,7 @@ public partial class Download : IDisposable
     }
     public async Task DownloadFileAndSha1(string url, string savepath,string sha1, CancellationToken token)
     {
-        using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token))
+        using (var response = await unityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, token))
         {
             response.EnsureSuccessStatusCode();
             using (var httpStream = await response.Content.ReadAsStreamAsync(token))
@@ -262,6 +316,18 @@ public partial class Download : IDisposable
                 }
             }
         }
+    }
+    public List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI, CancellationToken token)
+    {
+        List<NdDowItem> filesToDownload = new List<NdDowItem>(FDI.Count);
+        foreach (var item in FDI)
+        {
+            token.ThrowIfCancellationRequested();
+            if (File.Exists(item.path))
+                continue;
+            filesToDownload.Add(item);
+        }
+        return filesToDownload;
     }
     public async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1,CancellationToken token)
     {
@@ -294,5 +360,5 @@ public partial class Download : IDisposable
         }
         await Task.WhenAll(sha1Tasks);
     }
-    public void Dispose() => UnityClient.Dispose();
+    public void Dispose() => unityClient.Dispose();
 }

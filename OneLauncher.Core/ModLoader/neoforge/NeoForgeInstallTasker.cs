@@ -39,7 +39,7 @@ public class NeoForgeInstallTasker
     {
         #region 从网络读取
         // 通过网络写入内存流方便后续操作
-        HttpClient httpClient = downloadTask.UnityClient;
+        HttpClient httpClient = downloadTask.unityClient;
         using var response = await httpClient.GetAsync(InstallerUrl, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
         using var memoryStream = new MemoryStream();

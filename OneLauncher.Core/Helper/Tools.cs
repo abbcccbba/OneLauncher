@@ -9,6 +9,26 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Helper;
 public static class Tools
 {
+    /// <summary>
+    /// 针对多线程分段下载快速分配每个分段应该下载的文件字节流位置
+    /// </summary>
+    public static List<(long startBit, long endBit)> GetSegments(long total, long interval)
+    {
+        // 预计算分段数（避免多次计算）
+        int segmentCount = (int)((total + interval - 1) / interval);
+        var segments = new List<(long, long)>(segmentCount);
+
+        long current = 0;
+        while (current < total)
+        {
+            long end = current + interval;
+            if (end > total) end = total;
+            segments.Add((current, end));
+            current = end;
+        }
+
+        return segments;
+    }
     public static void OpenFolder(string folderPath)
     {
         var processOpenInfo = new ProcessStartInfo()
