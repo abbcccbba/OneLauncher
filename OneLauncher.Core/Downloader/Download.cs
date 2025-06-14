@@ -205,69 +205,69 @@ public partial class Download : IDisposable
     CancellationToken token)
     {
         long filesize;
+
         if (size != null)
             filesize = size.Value;
         else
         {
-            HttpResponseMessage responseForSize = await unityClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, url), token);
+            using var requestForSize = new HttpRequestMessage(HttpMethod.Head, url);
+            using var responseForSize = await unityClient.SendAsync(requestForSize, token);
             responseForSize.EnsureSuccessStatusCode();
+
             filesize = responseForSize.Content.Headers.ContentLength
-                ?? throw new OlanException("下载失败", "无法知道文件大小");
+                       ?? throw new OlanException("下载失败", "无法知道文件大小");
         }
+
         Directory.CreateDirectory(Path.GetDirectoryName(savepath));
-        List<Task> segmentTasks = new List<Task>(0);
-        // 提前创建文件并设置其大小，为内存映射做准备
-        using (var fs = new FileStream(savepath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+
+        List<Task> segmentTasks = new List<Task>((int)(filesize / maxSegments));
+
+        using (var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true))
         {
             fs.SetLength(filesize);
-            using (var mmf = MemoryMappedFile.CreateFromFile(fs, null, 0, MemoryMappedFileAccess.ReadWrite, HandleInheritability.None, false))
-            {
-                var segments = Tools.GetSegments(filesize, filesize / maxSegments);
+            var fileHandle = fs.SafeFileHandle;
 
-                var semaphore = new SemaphoreSlim(maxSegments);
-                foreach(var segment in segments)
-                segmentTasks.Add(Task.Run(async() =>
+            var segments = Tools.GetSegments(filesize, filesize / maxSegments);
+            var semaphore = new SemaphoreSlim(maxSegments);
+
+            foreach (var segment in segments)
+            {
+                segmentTasks.Add(Task.Run(async () =>
                 {
                     await semaphore.WaitAsync(token);
                     try
                     {
-                        var request = new HttpRequestMessage(HttpMethod.Get, url);
+                        using var request = new HttpRequestMessage(HttpMethod.Get, url);
                         request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
 
                         using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
                         response.EnsureSuccessStatusCode();
 
-                        using (var accessor = mmf.CreateViewAccessor(
-                            segment.startBit, 
-                            (long)response!.Content!.Headers!.ContentLength))
+                        using var httpStream = await response.Content.ReadAsStreamAsync(token);
+                        byte[] buffer = ArrayPool<byte>.Shared.Rent(81920);
+                        try
                         {
-                            using var httpStream = await response.Content.ReadAsStreamAsync(token);
+                            int bytesRead;
+                            long viewWritePosition = segment.startBit; 
 
-                            byte[] buffer = ArrayPool<byte>.Shared.Rent(81920);
-                            try
+                            while ((bytesRead = await httpStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
                             {
-                                int bytesRead;
-                                int viewWritePosition = 0;
-                                while ((bytesRead = await httpStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
-                                {
-                                    accessor.WriteArray(viewWritePosition, buffer, 0, bytesRead);
-                                    viewWritePosition += bytesRead;
-                                }
+                                await RandomAccess.WriteAsync(fileHandle, buffer.AsMemory(0, bytesRead), viewWritePosition, token);
+                                viewWritePosition += bytesRead;
                             }
-                            finally
-                            {
-                                ArrayPool<byte>.Shared.Return(buffer);
-                            }
+                        }
+                        finally
+                        {
+                            ArrayPool<byte>.Shared.Return(buffer);
                         }
                     }
                     finally
                     {
                         semaphore.Release();
                     }
-                },token));
-
-                await Task.WhenAll(segmentTasks);
+                }, token));
             }
+            await Task.WhenAll(segmentTasks);
         }
     }
     
@@ -338,10 +338,11 @@ public partial class Download : IDisposable
             token.ThrowIfCancellationRequested();
             if (string.IsNullOrEmpty(item.sha1))
                 continue;
-            await semaphore.WaitAsync();
+            
             sha1Tasks.Add(Task.Run(async () =>
             {
-                using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
+                await semaphore.WaitAsync();
+                using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
                 using (var sha1Hash = SHA1.Create())
                 {
                     byte[] hash = await sha1Hash.ComputeHashAsync(stream,token);
