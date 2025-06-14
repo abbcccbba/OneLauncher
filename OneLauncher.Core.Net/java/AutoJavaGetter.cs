@@ -29,16 +29,15 @@ public class AutoJavaGetter
         using (var a = new Download())
         {
             await a.DownloadFileBig(
-                url:await GetBinaryPackageLinkAsync(
+                url: await GetBinaryPackageLinkAsync(
                     $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={arch}&os={os}&image_type=jre"
                     , a.unityClient),
-                size:null,
-                savepath:javaDownloadPath,
-                maxSegments: 6,
-                token: CancellationToken.None); 
+                savePath: javaDownloadPath,
+                knownSize:null,
+                maxSegments: 6);
         }
         // 对于windows，api返回的是zip，对于mac或者linux，api返回的是tag.gz
-        if(OsType == SystemType.windows)
+        if (OsType == SystemType.windows)
             Download.ExtractFile(javaDownloadPath, Path.Combine(savePath, javaVersion));
         else if (OsType == SystemType.osx || OsType == SystemType.linux)
         {
