@@ -3,8 +3,6 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Core.Helper;
-using OneLauncher.Core.Modrinth;
-using OneLauncher.Core.Modrinth.JsonModelSearch;
 using OneLauncher.Views;
 using OneLauncher.Views.Panes;
 using System;

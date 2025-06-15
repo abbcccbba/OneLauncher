@@ -1,8 +1,8 @@
-﻿using OneLauncher.Core.Modrinth.JsonModelSearch;
+﻿using OneLauncher.Core.Net.ModService.Modrinth.JsonModelSearch;
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace OneLauncher.Core.Modrinth;
+namespace OneLauncher.Core.Net.ModService.Modrinth;
 public class SearchModrinth : IDisposable
 {
     public ModrinthSearch info;

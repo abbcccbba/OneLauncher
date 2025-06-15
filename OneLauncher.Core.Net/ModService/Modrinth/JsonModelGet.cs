@@ -1,10 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace OneLauncher.Core.Modrinth.JsonModelGet;
-[JsonSerializable(typeof(OneLauncher.Core.Modrinth.JsonModelGet.ModrinthProjects))]
-[JsonSerializable(typeof(OneLauncher.Core.Modrinth.JsonModelGet.ModrinthDependency))]
-[JsonSerializable(typeof(OneLauncher.Core.Modrinth.JsonModelGet.ModJarDownload))]
-[JsonSerializable(typeof(OneLauncher.Core.Modrinth.JsonModelGet.ModJarHashes))]
+namespace OneLauncher.Core.Net.ModService.Modrinth.JsonModelGet;
+[JsonSerializable(typeof(ModrinthProjects))]
+[JsonSerializable(typeof(ModrinthDependency))]
+[JsonSerializable(typeof(ModJarDownload))]
+[JsonSerializable(typeof(ModJarHashes))]
 public partial class ModrinthGetJsonContext : JsonSerializerContext { }
 public class ModrinthProjects
 {

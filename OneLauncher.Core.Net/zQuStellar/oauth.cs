@@ -1,23 +1,20 @@
 ﻿using Duende.IdentityModel.OidcClient.Browser;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
-
-namespace OneLauncher.Core.Net.QuStellar;
 
 public class QOauth : IBrowser
 {
     private readonly string redirectUri;
 
-    public QOauth()
+    // 构造函数接收一个端口号
+    public QOauth(int port)
     {
-        redirectUri = $"http://127.0.0.1:52726/";
+        // 使用传入的端口号来构建回调地址
+        this.redirectUri = $"http://127.0.0.1:{port}/";
     }
 
+    // InvokeAsync 方法和你写的一样，无需改动
     public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken = default)
     {
         using var listener = new HttpListener();
@@ -32,7 +29,6 @@ public class QOauth : IBrowser
                 UseShellExecute = true
             });
 
-            // 异步等待浏览器回调
             var context = await listener.GetContextAsync();
             var result = new BrowserResult
             {
@@ -40,7 +36,7 @@ public class QOauth : IBrowser
                 ResultType = BrowserResultType.Success
             };
 
-            var buffer = Encoding.UTF8.GetBytes("<html><head><title>授权成功</title></head><body><h1>授权成功!</h1><p>请返回您的应用程序。</p><script>window.close();</script></body></html>");
+            var buffer = Encoding.UTF8.GetBytes("<html><body>授权成功! 请返回应用程序。</body></html>");
             context.Response.ContentLength64 = buffer.Length;
             await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
             context.Response.OutputStream.Close();
@@ -49,11 +45,7 @@ public class QOauth : IBrowser
         }
         catch (Exception ex)
         {
-            return new BrowserResult
-            {
-                ResultType = BrowserResultType.HttpError,
-                Error = ex.Message
-            };
+            return new BrowserResult { ResultType = BrowserResultType.HttpError, Error = ex.Message };
         }
         finally
         {

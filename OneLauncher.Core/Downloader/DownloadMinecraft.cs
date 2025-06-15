@@ -1,8 +1,8 @@
 ﻿using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.ModLoader.neoforge;
-using OneLauncher.Core.Modrinth;
 using OneLauncher.Core.Net.java;
+using OneLauncher.Core.Net.ModService.Modrinth;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

@@ -1,23 +1,10 @@
-﻿using Microsoft.Win32.SafeHandles;
-using OneLauncher.Core.Helper;
-using OneLauncher.Core.Minecraft;
-using OneLauncher.Core.ModLoader.neoforge;
-using OneLauncher.Core.ModLoader.neoforge.JsonModels;
-using OneLauncher.Core.Modrinth;
-using OneLauncher.Core.Net.java;
-using SixLabors.ImageSharp.PixelFormats;
-using System;
+﻿using OneLauncher.Core.Helper;
+using OneLauncher.Core.Net.ModService.Modrinth;
 using System.Buffers;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
-using System.IO.MemoryMappedFiles;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Threading;
 
 namespace OneLauncher.Core.Downloader;
 

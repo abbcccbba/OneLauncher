@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace OneLauncher.Core.Modrinth.JsonModelSearch;
-[JsonSerializable(typeof(OneLauncher.Core.Modrinth.JsonModelSearch.ModrinthSearch))]
-[JsonSerializable(typeof(OneLauncher.Core.Modrinth.JsonModelSearch.ModrinthProjectHit))]
+namespace OneLauncher.Core.Net.ModService.Modrinth.JsonModelSearch;
+[JsonSerializable(typeof(ModrinthSearch))]
+[JsonSerializable(typeof(ModrinthProjectHit))]
 public partial class ModrinthSearchJsonContext : JsonSerializerContext { }
 public class ModrinthSearch
 {
