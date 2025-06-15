@@ -41,30 +41,43 @@ internal partial class AccountPageViewModel : BaseViewModel
     [RelayCommand]
     public async Task Refresh()
     {
-        for (int i = 0; i < Init.ConfigManger.config.UserModelList.Count; i++)
+        try
         {
-            var UserModelItem = Init.ConfigManger.config.UserModelList[i];
-            // 无23小时检查机制直接更新
-            if (UserModelItem.IsMsaUser
-            && Init.ConfigManger.config.UserModelList.Count != 0
-            )
+            for (int i = 0; i < Init.ConfigManger.config.UserModelList.Count; i++)
             {
-                // 更新令牌
-                var temp = (UserModel)await new MicrosoftAuthenticator().RefreshToken(UserModelItem!.refreshTokenID);
-                lock (Init.ConfigManger.config.UserModelList)
+                var UserModelItem = Init.ConfigManger.config.UserModelList[i];
+                if (UserModelItem.IsMsaUser
+                && Init.ConfigManger.config.UserModelList.Count != 0
+                )
                 {
-                    // 如果是默认用户模型也更新
-                    if (UserModelItem.uuid == Init.ConfigManger.config.DefaultUserModel.uuid)
-                        Init.ConfigManger.config.DefaultUserModel = temp;
-                    Init.ConfigManger.config.UserModelList[i] = temp;
-                    Init.ConfigManger.Save();
+                    // 更新令牌
+                    UserModel temp =
+                        await Init.MMA.TryToGetMinecraftMojangAccessTokenForLoginedAccounts(
+                            await Tools.UseAccountIDToFind(Init.ConfigManger.config.UserModelList[i].AccountID)
+                            ?? throw new OlanException("无法刷新", "无法通过用户标识符找到你的账号"))
+                        ?? throw new OlanException("无法刷新", "无法刷新你的微软正版账户登入令牌");
+                    lock (Init.ConfigManger.config.UserModelList)
+                    {
+                        // 如果是默认用户模型也更新
+                        if (UserModelItem.uuid == Init.ConfigManger.config.DefaultUserModel.uuid)
+                            Init.ConfigManger.config.DefaultUserModel = temp;
+                        Init.ConfigManger.config.UserModelList[i] = temp;
+                        Init.ConfigManger.Save();
+                    }
+                    // 更新皮肤
+                    using (var task = new MojangProfile(Init.ConfigManger.config.UserModelList[i]))
+                        await task.GetSkinHeadImage();
                 }
-                // 更新皮肤
-                using (var task = new MojangProfile(Init.ConfigManger.config.UserModelList[i]))
-                    await task.GetSkinHeadImage();
-               RefList();
-               await MainWindow.mainwindow.ShowFlyout("刷新完毕");           
             }
+            RefList();
+            await MainWindow.mainwindow.ShowFlyout("刷新完毕");
+        }
+        catch (OlanException oex)
+        {
+            await OlanExceptionWorker.ForOlanException(oex);
+        }
+        catch (Exception ex) { 
+            await OlanExceptionWorker.ForUnknowException(ex);
         }
     }
     public AccountPageViewModel()
@@ -72,15 +85,13 @@ internal partial class AccountPageViewModel : BaseViewModel
 #if DEBUG
         if (Design.IsDesignMode)
             UserModelList = new List<UserItem>()
-            { new UserItem()
             {
-                um = new UserModel()
+                new UserItem()
                 {
-                    Name="ZhiWei",
-                    uuid=Guid.NewGuid()
-                    
+                    um = new UserModel("steve",new Guid(UserModel.nullToken))
+
                 }
-            } };
+            };
         else
 #endif
         {
@@ -134,8 +145,9 @@ internal partial class AccountPageViewModel : BaseViewModel
     [RelayCommand]
     public void DeleteUser(UserModel user)
     {
-        if(user.IsMsaUser) 
-            Init.Security.Del(user.refreshTokenID);
+        if (user.IsMsaUser)
+            Init.MMA.RemoveAccount(
+                Tools.UseAccountIDToFind(user.AccountID).Result);
         Init.ConfigManger.config.UserModelList.Remove(user);
         Init.ConfigManger.Save();
         RefList();

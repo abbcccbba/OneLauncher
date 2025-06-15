@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Identity.Client;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,26 +10,11 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Helper;
 public static class Tools
 {
-    ///// <summary>
-    ///// 针对多线程分段下载快速分配每个分段应该下载的文件字节流位置
-    ///// </summary>
-    //public static List<(long startBit, long endBit)> GetSegments(long total, long interval)
-    //{
-    //    // 预计算分段数（避免多次计算）
-    //    int segmentCount = (int)((total + interval - 1) / interval);
-    //    var segments = new List<(long, long)>(segmentCount);
-
-    //    long current = 0;
-    //    while (current < total)
-    //    {
-    //        long end = current + interval;
-    //        if (end > total) end = total;
-    //        segments.Add((current, end));
-    //        current = end;
-    //    }
-
-    //    return segments;
-    //}
+    public static async Task<IAccount?> UseAccountIDToFind(string accountID)
+    {
+        return (await Init.MMA.GetCachedAccounts())
+            .FirstOrDefault(a => a.HomeAccountId.Identifier == accountID);
+    }
     public static void OpenFolder(string folderPath)
     {
         var processOpenInfo = new ProcessStartInfo()
@@ -143,7 +129,7 @@ public static class Tools
     /// <summary>
     /// 过滤出 Minecraft 的纯粹正式版版本号（如 1.20, 1.20.6）。
     /// </summary>
-    /// <param name="versions">包含所有 Minecraft 版本名称的列表。</param>
+    /// <param Name="versions">包含所有 Minecraft 版本名称的列表。</param>
     /// <returns>只包含纯粹正式版版本号的列表。</returns>
     public static List<string> McVsFilter(List<string> versions)
     {

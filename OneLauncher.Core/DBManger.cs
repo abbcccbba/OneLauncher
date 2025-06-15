@@ -27,8 +27,8 @@ public class AppConfig
     public List<UserVersion> VersionList { get; set; } = new List<UserVersion>();
     // 当前启动器有的所有用户登入模型，默认初始化为空列表
     public List<UserModel> UserModelList { get; set; } = new List<UserModel>();
-    // 默认用户模型，未指定下默认为 Zhi Wei
-    public UserModel DefaultUserModel { get; set; } = new UserModel();
+    // 默认用户模型，未指定下默认为null
+    public UserModel DefaultUserModel { get; set; } = null;
     // 默认版本（固定到仪表盘）
     public UserVersion DefaultVersion { get; set; }
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
@@ -40,38 +40,35 @@ public class DBManger
 {
     public AppConfig config;
     private readonly string ConfigFilePath;
-    private readonly string BasePath;
-    public DBManger(AppConfig FirstConfig, string BasePath)
+    private DBManger(string configBasePath)
     {
-        this.BasePath = BasePath;
-        ConfigFilePath = Path.Combine(BasePath, "config.json");
-        if (File.Exists(ConfigFilePath))
-        {
-            Read(FirstConfig);
-        }
-        else
-        {
-            Write(FirstConfig).Wait();
-        }
+        ConfigFilePath = configBasePath;
     }
-
+    public static async Task<DBManger> CreateAsync(AppConfig first, string basePath)
+    {
+        var configBasePath = Path.Combine(basePath, "config.json");
+        var r = new DBManger(configBasePath);
+        r.config = first;
+        Directory.CreateDirectory(basePath);
+        if (File.Exists(configBasePath))
+            await r.Read();
+        else
+            await r.Write(first);
+        return r;
+    }
     public Task Write(AppConfig config)
     {
         this.config = config;
-        Directory.CreateDirectory(BasePath);
         return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config,OneLauncherAppConfigsJsonContext.Default.AppConfig));
     }
     public Task Save() => Write(this.config);
-    public AppConfig Read(AppConfig Bk)
+    public async Task<AppConfig> Read()
     {
-        string jsonString = File.ReadAllText(ConfigFilePath);
-        if (string.IsNullOrEmpty(jsonString))
-        {
-            Write(Bk);
-            return config;
-        }
-        AppConfig readConfig = JsonSerializer.Deserialize<AppConfig>(jsonString, OneLauncherAppConfigsJsonContext.Default.AppConfig);
-        this.config = readConfig;
-        return readConfig;
+        AppConfig? r = await JsonSerializer.DeserializeAsync<AppConfig>(File.OpenRead(ConfigFilePath), OneLauncherAppConfigsJsonContext.Default.AppConfig);
+        if(r == null) 
+            await Write(config);
+        else
+            config = r;
+        return config;
     }
 }

@@ -39,9 +39,9 @@ public class FabricVJParser
     {
         return info.LauncherMeta.MinJavaVersion;
     }
-    public List<NdDowItem> GetLibraries(bool iv = false)
+    public List<NdDowItem> GetLibraries()
     {
-        List<NdDowItem> dowItems = new List<NdDowItem>(info.LauncherMeta.Libraries.Common.Count);
+        List<NdDowItem> dowItems = new List<NdDowItem>(info.LauncherMeta.Libraries.Common.Count+2);
         foreach (var item in info.LauncherMeta.Libraries.Common)
         {
             string[] parts = item.Name.Split(':');
@@ -104,5 +104,80 @@ public class FabricVJParser
                                             $"{_artifactId}-{_version}.jar");
         dowItems.Add(new NdDowItem(_url, _fullPath, 0));
         return dowItems;
+    }
+    public List<(string name, string path)> GetLibrariesForUsing()
+    {
+        // 初始化库列表，预分配容量以优化性能
+        var libraries = new List<(string name, string path)>(info.LauncherMeta.Libraries.Common.Count + 2);
+
+        // 处理 Common 库
+        foreach (var item in info.LauncherMeta.Libraries.Common)
+        {
+            // 解析 Maven 坐标（格式如 org.ow2.asm:asm:9.8）
+            string[] parts = item.Name.Split(':');
+            if (parts.Length < 3) continue; // 跳过无效格式
+
+            string groupId = parts[0]; // 例如 org.ow2.asm
+            string artifactId = parts[1]; // 例如 asm
+            string version = parts[2]; // 例如 9.8
+
+            // 构造本地路径
+            string fileName = $"{artifactId}-{version}.jar";
+            string fullPath = Path.Combine(
+                basePath,
+                "libraries",
+                groupId.Replace('.', Path.DirectorySeparatorChar),
+                artifactId,
+                version,
+                fileName);
+
+            libraries.Add((item.Name, fullPath));
+        }
+
+        // 处理 Loader 库
+        {
+            string[] parts = info.Loader.DownName.Split(':');
+            if (parts.Length >= 3)
+            {
+                string groupId = parts[0];
+                string artifactId = parts[1];
+                string version = parts[2];
+
+                string fileName = $"{artifactId}-{version}.jar";
+                string fullPath = Path.Combine(
+                    basePath,
+                    "libraries",
+                    groupId.Replace('.', Path.DirectorySeparatorChar),
+                    artifactId,
+                    version,
+                    fileName);
+
+                libraries.Add((info.Loader.DownName, fullPath));
+            }
+        }
+
+        // 处理 Intermediary 库
+        {
+            string[] parts = info.Intermediary.DownName.Split(':');
+            if (parts.Length >= 3)
+            {
+                string groupId = parts[0];
+                string artifactId = parts[1];
+                string version = parts[2];
+
+                string fileName = $"{artifactId}-{version}.jar";
+                string fullPath = Path.Combine(
+                    basePath,
+                    "libraries",
+                    groupId.Replace('.', Path.DirectorySeparatorChar),
+                    artifactId,
+                    version,
+                    fileName);
+
+                libraries.Add((info.Intermediary.DownName, fullPath));
+            }
+        }
+
+        return libraries;
     }
 }

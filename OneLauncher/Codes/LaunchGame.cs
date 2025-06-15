@@ -20,10 +20,10 @@ internal class Game
 {
     public event GameEvents GameStartedEvent;
     public event GameEvents GameClosedEvent;
-    /// <param name="GameVersion">游戏版本</param>
-    /// <param name="loginUserModel">登入用户模型</param>
-    /// <param name="IsVersionInsulation">版本是否启用了版本隔离</param>
-    /// <param name="UseGameTasker">是否使用游戏监视器</param>
+    /// <param Name="GameVersion">游戏版本</param>
+    /// <param Name="loginUserModel">登入用户模型</param>
+    /// <param Name="IsVersionInsulation">版本是否启用了版本隔离</param>
+    /// <param Name="UseGameTasker">是否使用游戏监视器</param>
     public async Task LaunchGame(
         string GameVersion, 
         UserModel loginUserModel, 
@@ -50,7 +50,7 @@ internal class Game
             : Init.GameRootPath), "options.txt");
         if (!File.Exists(optionsPath))
         {
-            File.WriteAllText(optionsPath, $"lang:zh_CN");
+            await File.WriteAllTextAsync(optionsPath, $"lang:zh_CN");
         }
         if (UseGameTasker)
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -62,6 +62,8 @@ internal class Game
         
         try
         {
+            // 刷新登入令牌
+            await loginUserModel.IntelligentLogin(Init.MMA);
             using (Process process = new Process())
             {
                 process.StartInfo.Arguments =

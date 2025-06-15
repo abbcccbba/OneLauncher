@@ -41,11 +41,11 @@ public class DownloadMinecraft
     public int alls = 0;
     public int dones = 0;
 
-    /// <param name="downloadTool">Download实例，用于下载</param>
-    /// <param name="cancelToken">取消令牌</param>
-    /// <param name="versionInfo">VersionInfomations实例，用于得到Minecraft信息</param>
-    /// <param name="versionUserInfo">由用户主持的下载信息</param>
-    /// <param name="GameRootPath">游戏基本路径，不含.minecraft</param>
+    /// <param Name="downloadTool">Download实例，用于下载</param>
+    /// <param Name="cancelToken">取消令牌</param>
+    /// <param Name="versionInfo">VersionInfomations实例，用于得到Minecraft信息</param>
+    /// <param Name="versionUserInfo">由用户主持的下载信息</param>
+    /// <param Name="GameRootPath">游戏基本路径，不含.minecraft</param>
     public DownloadMinecraft(
         Download downloadTool,
         UserVersion versionUserInfo,

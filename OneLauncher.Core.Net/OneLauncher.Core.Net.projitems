@@ -18,6 +18,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)msa\JsonModels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)msa\MojangProfile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)msa\msa.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)QuStellar\oauth.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)zQuStellar\oauth.cs" />
   </ItemGroup>
 </Project>

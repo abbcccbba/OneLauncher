@@ -14,21 +14,26 @@ namespace OneLauncher.Views;
 
 public partial class MainWindow : Window
 {
-    public readonly Home HomePage;
-    public readonly version versionPage;
-    public readonly download downloadPage;
-    public readonly settings settingsPage;
-    public readonly account accountPage;
-    public readonly ModsBrowser modsBrowserPage;
-    //public readonly server serverPage;
+    public Home HomePage;
+    public version versionPage;
+    public download downloadPage;
+    public settings settingsPage;
+    public account accountPage;
+    public ModsBrowser modsBrowserPage;
     public static MainWindow mainwindow;
-    public MainWindow(OlanException oex)
+    private Task<OlanException> errorTask;
+    public MainWindow(Task<OlanException> r)
     {
         InitializeComponent();
-
+        errorTask = r;
         mainwindow = this;
+    }
+    protected async override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        var oex = await errorTask;
         if (oex != null)
-            OlanExceptionWorker.ForOlanException(oex);
+            await OlanExceptionWorker.ForOlanException(oex);
         else
         {
             try
@@ -42,7 +47,7 @@ public partial class MainWindow : Window
             }
             catch (OlanException ex)
             {
-                OlanExceptionWorker.ForOlanException(ex);
+                await OlanExceptionWorker.ForOlanException(ex);
             }
             PageContent.Content = HomePage;
         }

@@ -151,6 +151,8 @@ public class MinecraftLoginResponse
 {
     [JsonPropertyName("access_token")]
     public string AccessToken { get; set; } = string.Empty;
+    [JsonPropertyName("expires_in")]
+    public int expires_in { get; set; } = 86400;
 }
 
 public class EntitlementsResponse

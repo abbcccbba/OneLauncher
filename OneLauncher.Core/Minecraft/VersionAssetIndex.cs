@@ -8,8 +8,8 @@ public class VersionAssetIndex
     /// <summary>
     /// 版本资源文件解析器
     /// </summary>
-    /// <param name="jsonString">资源文件索引文件内容</param>
-    /// <param name="path">基本路径（不含.minecraft）</param>
+    /// <param Name="jsonString">资源文件索引文件内容</param>
+    /// <param Name="path">基本路径（不含.minecraft）</param>
     /// <returns>该版本所需的资源文件列表下载信息</returns>
     public static List<NdDowItem> ParseAssetsIndex(string jsonString, string path)
     {

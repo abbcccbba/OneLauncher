@@ -26,7 +26,6 @@
 			<StackPanel IsVisible="{Binding IsMsaLogin}">
 				<StackPanel Orientation="Horizontal" Spacing="12">
 					<Button Content="跳转登入" Command="{Binding LoginWithMicrosoftCommand}"/>
-					<TextBox Watermark="登入授权码" VerticalAlignment="Center" Text="{Binding UserCode}"/>
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>

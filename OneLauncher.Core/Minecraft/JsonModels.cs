@@ -103,6 +103,8 @@ public class MinecraftLibrary
 {
     [JsonPropertyName("downloads")]
     public MinecraftLibraryDownloads? Downloads { get; set; } // 可以为空
+    [JsonPropertyName("name")]
+    public string Name {  get; set; }
 
     [JsonPropertyName("rules")]
     public List<MinecraftRule>? Rules { get; set; } // 可以为空

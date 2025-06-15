@@ -39,7 +39,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         }
         Init.ConfigManger.config.UserModelList.Add(new UserModel(
         
-            Name : UserName,
+            name : UserName,
             uuid : Guid.NewGuid()
         ));
         Init.ConfigManger.Save();
@@ -54,8 +54,6 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         MainWindow.mainwindow.ShowFlyout("已暂存修改！");
     }
 
-    [ObservableProperty]
-    public string _UserCode;
     [ObservableProperty]
     public bool _IsYaLogin = true;
     [ObservableProperty]
@@ -87,25 +85,23 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
     [RelayCommand]
     public async Task LoginWithMicrosoft()
     {
-        using (var verTask = new MicrosoftAuthenticator())
+        try
         {
-            try
-            {
-                var um = await verTask.AuthUseCode(new Progress<(string a, string b)>((x) =>
-                {
-                    // 打开网页并提醒用户
-                    Process.Start(new ProcessStartInfo { FileName = x.a, UseShellExecute = true });
-                    UserCode = x.b;
-                }));
-                Init.ConfigManger.config.UserModelList.Add((UserModel)um);
-                Init.ConfigManger.Save();
-                accountPageViewModel.RefList();
-            }
-            catch (OlanException ex)
-            {
-                await OlanExceptionWorker.ForOlanException(ex);
-                return;
-            }
+            UserModel um = 
+                await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessToken()
+                ?? throw new OlanException("认证失败","无法认证你的微软账号");
+            Init.ConfigManger.config.UserModelList.Add(um);
+            await Init.ConfigManger.Save();
+            using (var task = new MojangProfile(um))
+                await task.GetSkinHeadImage();
+            accountPageViewModel.RefList();
+            accountPageViewModel.IsPaneShow = false;
+            await MainWindow.mainwindow.ShowFlyout($"已登入账号:{UserName}");
+        }
+        catch (OlanException ex)
+        {
+            await OlanExceptionWorker.ForOlanException(ex);
+            return;
         }
     }
 }

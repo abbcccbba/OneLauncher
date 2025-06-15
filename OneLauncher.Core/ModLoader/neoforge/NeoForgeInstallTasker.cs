@@ -34,7 +34,7 @@ public class NeoForgeInstallTasker
     /// 完成安装NeoForge的准备阶段
     /// 下载安装器并拆包，提取必要文件
     /// </summary>
-    /// <param name="InstallerUrl">安装程序网络Url链接</param>
+    /// <param Name="InstallerUrl">安装程序网络Url链接</param>
     public async Task<(List<NdDowItem>, List<NdDowItem>, string)> StartReady(string InstallerUrl)
     {
         #region 从网络读取

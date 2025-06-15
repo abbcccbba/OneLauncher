@@ -32,6 +32,8 @@ public class NeoforgeArguments
 }
 public class NeoforgeLibrary
 {
+    [JsonPropertyName("name")]
+    public string Name { get;set;}
     [JsonPropertyName("downloads")]
     public NeoforgeDownloads Downloads { get; set; }
 }

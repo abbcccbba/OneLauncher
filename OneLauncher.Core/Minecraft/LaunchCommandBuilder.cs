@@ -26,12 +26,12 @@ public class LaunchCommandBuilder
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="basePath">游戏基本路径（含.minecraft）</param>
-    /// <param name="version">启动的游戏版本</param>
-    /// <param name="userModel">启动游戏的用户模型</param>
-    /// <param name="modType">模组类型</param>
-    /// <param name="system">系统类型</param>
-    /// <param name="VersionInsulation">此游戏是否启用了版本隔离</param>
+    /// <param Name="basePath">游戏基本路径（含.minecraft）</param>
+    /// <param Name="version">启动的游戏版本</param>
+    /// <param Name="userModel">启动游戏的用户模型</param>
+    /// <param Name="modType">模组类型</param>
+    /// <param Name="system">系统类型</param>
+    /// <param Name="VersionInsulation">此游戏是否启用了版本隔离</param>
     public LaunchCommandBuilder
         (
             string basePath,
@@ -167,25 +167,75 @@ public class LaunchCommandBuilder
     /// </summary>
     private string BuildClassPath()
     {
-        // 使用 List<string> 来收集所有库路径
-        var allLibPaths = new List<string>(); 
-        allLibPaths.AddRange(versionInfo.GetLibrarys().Select(x => x.path));
+        var allLibPaths = new List<(string name, string path)>();
+        allLibPaths.AddRange(versionInfo.GetLibrarysForUsing());
+
+        // 根据模组类型添加模组库
         if (modType == ModEnum.neoforge)
         {
             allLibPaths.AddRange(neoForgeParser.GetLibrariesForLaunch(basePath));
         }
         else if (modType == ModEnum.fabric)
         {
-            allLibPaths.AddRange(fabricParser.GetLibraries().Select(x => x.path));
+            allLibPaths.AddRange(fabricParser.GetLibrariesForUsing());
+        }
+        allLibPaths.Add(("", versionInfo.GetMainFile().path));
+
+        var libraryVersions = new Dictionary<string, (string path, Version version)>();
+
+        // 用于存储非 Maven 库或不符合过滤条件的库的最终路径
+        var nonMavenOrUniquePaths = new HashSet<string>();
+
+        foreach (var (name, path) in allLibPaths)
+        {
+            if (string.IsNullOrEmpty(path)) continue;
+
+            string groupIdArtifactId = "";
+            Version currentVersion = null;
+            bool isMavenLib = false;
+
+            string[] parts = name.Split(':');
+            // 一个基本的 Maven 坐标至少包含 groupId:artifactId:version (3 部分)
+            if (parts.Length >= 3)
+            {
+                groupIdArtifactId = string.Join(":", parts.Take(parts.Length - 1)); 
+                if (Version.TryParse(parts.Last(), out currentVersion))
+                {
+                    isMavenLib = true;
+                }
+            }
+
+            if (isMavenLib)
+            {
+                if (libraryVersions.TryGetValue(groupIdArtifactId, out var existing))
+                    libraryVersions[groupIdArtifactId] = (path, currentVersion);
+                else
+                    libraryVersions[groupIdArtifactId] = (path, currentVersion);
+            }
+            else
+                nonMavenOrUniquePaths.Add(path);
+            
         }
 
-        allLibPaths.Add(versionInfo.GetMainFile().path);
-        allLibPaths.Add("E:\\OneLauncherProject\\OneLauncher\\OneLauncher.Jvm\\byte-buddy-1.14.15.jar");
-        string AllClassArgs = string.Join(separator,
-                                          allLibPaths.Where(p => !string.IsNullOrEmpty(p))
-                                                     .Distinct());
+        // 构建最终的类路径列表
+        var finalClassPaths = new HashSet<string>(); // 使用 HashSet 确保最终路径的唯一性
 
-        return AllClassArgs;
+        // 首先添加所有筛选出的最佳 Maven 库版本
+        foreach (var entry in libraryVersions.Values)
+        {
+            finalClassPaths.Add(entry.path);
+        }
+
+        // 然后添加所有非 Maven 库或之前未参与版本过滤的独特路径
+        foreach (var path in nonMavenOrUniquePaths)
+        {
+            finalClassPaths.Add(path);
+        }
+        finalClassPaths.Add(versionInfo.GetMainFile().path);
+        string allClassArgs = string.Join(separator,
+                                          finalClassPaths.Where(p => !string.IsNullOrEmpty(p)));
+
+        return allClassArgs;
     }
     private string BuildGameArgs()
     {
@@ -198,12 +248,12 @@ public class LaunchCommandBuilder
             (new Version(version) > new Version("1.7") ?
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
             $"--uuid \"{userModel.uuid}\" " +
-            $"--accessToken \"{userModel.accessToken.ToString()}\" " +
+            $"--accessToken \"{userModel.AccessToken.ToString()}\" " +
             $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
             $"--versionType \"OneLauncher\" " +
             "--userProperties {} "
             // 针对旧版用户验证机制
-            : $"--session \"{userModel.accessToken}\" ");
+            : $"--session \"{userModel.AccessToken}\" ");
         if (modType == ModEnum.neoforge)
             GameArgs +=
                 string.Join(" ", neoForgeParser.info.Arguments.Game);

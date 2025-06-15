@@ -20,10 +20,10 @@ public class VersionInfomations
     /// <summary>
     /// version.json 文件解析器构造函数。
     /// </summary>
-    /// <param name="json">json文件内容</param>
-    /// <param name="basePath">游戏资本路径（含.minecraft）</param>
-    /// <param name="OsType">系统类型</param>
-    /// <param name="IsVersionInsulation">是否启用了版本隔离</param>
+    /// <param Name="json">json文件内容</param>
+    /// <param Name="basePath">游戏资本路径（含.minecraft）</param>
+    /// <param Name="OsType">系统类型</param>
+    /// <param Name="IsVersionInsulation">是否启用了版本隔离</param>
     /// <exception cref="InvalidOperationException">当json解析出错时</exception>
     public VersionInfomations(string json, string basePath, SystemType OsType, bool? IsVersionInsulation = false)
     {
@@ -115,7 +115,53 @@ public class VersionInfomations
 
         return libraries;
     }
+    public List<(string name,string path)> GetLibrarysForUsing()
+    {
+        var libraries = new List<(string name, string path)>(info.Libraries.Count); // 提前初始化相应长度内存，避免频繁扩容影响性能
 
+        foreach (var lib in info.Libraries)
+        {
+            // 检查规则
+            bool allowed = false;
+            // 如果包含规则
+            if (lib.Rules != null)
+            {
+                // 判断是双规则还是单规则
+                // 先处理双规则
+                if (lib.Rules.Count == 2)
+                {
+                    // 与当前系统尝试匹配
+                    // 第二条规则的 action 是 disallow
+                    if (lib.Rules[1].Os.Name != OsType.ToString())
+                        allowed = true;
+                    else allowed = false;
+                }
+                if (lib.Rules.Count == 1)
+                {
+                    // 与当前系统尝试匹配
+                    if (lib.Rules[0].Os.Name == OsType.ToString())
+                        allowed = true;
+                    else
+                        allowed = false;
+                }
+            }
+            // 没有规则直接下载
+            else
+            {
+                allowed = true;
+            }
+
+            // 不合当前操作系统跳过
+            if (!allowed)
+                continue;
+
+            // 普通库文件 
+            if (lib?.Downloads?.Artifact != null)
+                libraries.Add((lib.Name, Path.Combine(basePath, "libraries",Path.Combine(lib.Downloads.Artifact.Path.Split('/')))));
+        }
+
+        return libraries;
+    }
     /// <summary>
     /// 获取版本主文件下载地址。
     /// </summary>

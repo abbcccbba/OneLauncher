@@ -23,7 +23,7 @@ public class MojangProfile : IDisposable
     public MojangProfile(UserModel userModel)
     {
         this.uuid = userModel.uuid.ToString();
-        this.accessToken = userModel.accessToken;
+        this.accessToken = userModel.AccessToken;
         httpClient = new HttpClient();
         // 设置一些请求头
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);

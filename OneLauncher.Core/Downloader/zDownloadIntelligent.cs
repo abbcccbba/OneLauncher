@@ -71,10 +71,10 @@ public partial class Download
     /// <summary>
     /// 通用文件下载方法，支持多种下载策略。
     /// </summary>
-    /// <param name="urls">下载URL列表。在Failover模式下，第一个URL是主URL。</param>
-    /// <param name="savepath">文件保存路径。</param>
-    /// <param name="options">下载选项，不提供则使用默认值。</param>
-    /// <param name="token">取消令牌。</param>
+    /// <param Name="urls">下载URL列表。在Failover模式下，第一个URL是主URL。</param>
+    /// <param Name="savepath">文件保存路径。</param>
+    /// <param Name="options">下载选项，不提供则使用默认值。</param>
+    /// <param Name="token">取消令牌。</param>
     public async Task DownloadFileIntelligent(
         string[] urls,
         string savepath,

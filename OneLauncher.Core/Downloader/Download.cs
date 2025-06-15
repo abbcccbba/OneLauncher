@@ -81,14 +81,14 @@ public partial class Download : IDisposable
     /// <summary>
     /// 开始异步下载Mod（可选是否下载依赖项）
     /// </summary>
-    /// <param name="progress">进度回调：总字节数，已经下载的字节数，当前正在操作的文件名</param>
-    /// <param name="ModID">Mod ID （Modrinth）</param>
-    /// <param name="ModPath">Mods文件夹路径</param>
-    /// <param name="version">需要安装Mod的版本的版本号</param>
-    /// <param name="IsIncludeDependencies">是否下载依赖</param>
-    /// <param name="maxConcurrentDownloads">最大下载线程</param>
-    /// <param name="maxConcurrentSha1">最大Sha1校验线程</param>
-    /// <param name="IsSha1">是否校验Sha1</param>
+    /// <param Name="progress">进度回调：总字节数，已经下载的字节数，当前正在操作的文件名</param>
+    /// <param Name="ModID">Mod ID （Modrinth）</param>
+    /// <param Name="ModPath">Mods文件夹路径</param>
+    /// <param Name="version">需要安装Mod的版本的版本号</param>
+    /// <param Name="IsIncludeDependencies">是否下载依赖</param>
+    /// <param Name="maxConcurrentDownloads">最大下载线程</param>
+    /// <param Name="maxConcurrentSha1">最大Sha1校验线程</param>
+    /// <param Name="IsSha1">是否校验Sha1</param>
     /// <returns></returns>
     public async Task StartDownloadMod(
         IProgress<(long AllSizes, long DownedSizes, string DowingFileName)> progress,

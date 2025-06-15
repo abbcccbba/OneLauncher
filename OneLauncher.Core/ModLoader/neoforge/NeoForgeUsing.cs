@@ -16,13 +16,16 @@ public class NeoForgeUsing
         info = JsonSerializer.Deserialize<NeoForgeVersionJson>(jsonString,NeoforgeJsonContext.Default.NeoForgeVersionJson);
     }
     /// <summary>
-    /// 获取当前NeoForge的依赖库下载列表
+    /// 获取当前NeoForge的依赖库列表
     /// </summary>
-    public List<string> GetLibrariesForLaunch(string LibBasePath)
+    public List<(string name, string path)> GetLibrariesForLaunch(string LibBasePath)
     {
-        return info.Libraries.Select
-            (item => Path.Combine(LibBasePath, "libraries",
-                     Path.Combine(item.Downloads.Artifact.Path.Split('/')))
-            ).ToList();
+        return info.Libraries.Select(
+            item => (
+                item.Name,
+                Path.Combine(LibBasePath, "libraries",
+                             Path.Combine(item.Downloads.Artifact.Path.Split('/')))
+            )
+        ).ToList();
     }
 }

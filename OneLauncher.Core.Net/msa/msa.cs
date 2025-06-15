@@ -15,94 +15,65 @@ namespace OneLauncher.Core.Net.msa;
 public class MsalMicrosoftAuthenticator : IDisposable
 {
     private readonly IPublicClientApplication msalClient;
-    private MsalCacheHelper cacheHelper; // 新增：用于管理持久化缓存
-    private readonly HttpClient httpClient; // 修改：此 HttpClient 现在只用于调用 Xbox 和 Minecraft API
+    private MsalCacheHelper cacheHelper; 
+    private readonly HttpClient httpClient;
 
     private static readonly string[] Scopes = { "XboxLive.signin", "offline_access" };
+    public Task<IEnumerable<IAccount>> GetCachedAccounts()
+        =>msalClient.GetAccountsAsync();
+    
+    public Task<AuthenticationResult> AcquireTokenSilentc(IAccount account)
+        => msalClient.AcquireTokenSilent(Scopes, account).ExecuteAsync();
 
-    /// <summary>
-    /// 获取所有已缓存的账号列表。
-    /// </summary>
-    public async Task<IEnumerable<IAccount>> GetCachedAccountsAsync()
+    public async Task<UserModel?> LoginNewAccountToGetMinecraftMojangAccessToken()
     {
-        return await msalClient.GetAccountsAsync();
-    }
+        try
+        {
+            var authResult = await msalClient.AcquireTokenInteractive(Scopes)
+                .WithSystemWebViewOptions(new SystemWebViewOptions()
+                {
+                    BrowserRedirectSuccess = new Uri("https://baidu.com"),
+                })
+                .ExecuteAsync();
 
-    /// <summary>
-    /// 为指定的账号静默获取令牌。
-    /// 这是多账号登录的核心，我们明确指定要为哪个账号操作。
-    /// </summary>
-    public async Task<AuthenticationResult> AcquireTokenSilentAsync(IAccount account)
-    {
-        return await msalClient.AcquireTokenSilent(Scopes, account).ExecuteAsync();
+            return await ToLoandauth(authResult.AccessToken, authResult.Account);
+        }
+        catch (MsalClientException ex) when (ex.ErrorCode == MsalError.AuthenticationCanceledError)
+        {
+            Debug.WriteLine("User cancelled authentication.");
+            return null;
+        }
     }
-
-    /// <summary>
-    /// 通过交互式流程添加一个新账号。
-    /// </summary>
-    public async Task<AuthenticationResult> AcquireTokenInteractiveAsync()
-    {
-        return await msalClient.AcquireTokenInteractive(Scopes).ExecuteAsync();
-    }
-
-    /// <summary>
-    /// 【新增】从缓存中移除一个指定的账号（即“登出”）。
-    /// </summary>
-    public async Task RemoveAccountAsync(IAccount account)
-    {
-        await msalClient.RemoveAsync(account);
-    }
-
-    // --- 构造函数（已被静态工厂方法替代） ---
-    // 私有化构造函数，强制使用异步的 CreateAsync 方法来正确设置缓存
+    public Task RemoveAccount(IAccount account)
+        =>msalClient.RemoveAsync(account);
+    
     private MsalMicrosoftAuthenticator(string clientId)
     {
         var clientBuilder = PublicClientApplicationBuilder.Create(clientId)
             .WithAuthority("https://login.microsoftonline.com/consumers")
-            .WithRedirectUri("http://localhost"); // 使用系统浏览器进行交互式登录
-
+            .WithRedirectUri("http://localhost"); 
         msalClient = clientBuilder.Build();
-
-        // 这个 HttpClient 仍然需要，但只用于调用 Microsoft 认证之外的 API (Xbox, Minecraft)
         httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
-
-    /// <summary>
-    /// 异步工厂方法，用于创建和初始化 MsalMicrosoftAuthenticator 实例。
-    /// 这是推荐的模式，因为令牌缓存的设置是异步的。
-    /// </summary>
     public static async Task<MsalMicrosoftAuthenticator> CreateAsync(string clientId)
     {
         var authenticator = new MsalMicrosoftAuthenticator(clientId);
 
         var storageProperties =
-         new StorageCreationPropertiesBuilder("onelauncher.msal.cache.dat", @"C:\Users\wwwin\OneLauncher\MsaPlayerData")
+         new StorageCreationPropertiesBuilder("onelauncher.msal.cache.dat", Init.BasePath)
          .Build();
 
         authenticator.cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
         authenticator.cacheHelper.RegisterCache(authenticator.msalClient.UserTokenCache);
         return authenticator;
     }
-
-    /// <summary>
-    /// 【新增方法】此方法将取代你旧的 AuthUseCode 和 RefreshToken 方法。
-    /// 它会首先尝试静默获取令牌（自动处理刷新），如果需要用户交互，则启动浏览器进行登录。
-    /// </summary>
-    /// <returns>包含更新用户信息的 UserModel，如果认证失败则为 null。</returns>
-    public async Task<UserModel?> LoginAsync()
+    public async Task<UserModel?> TryToGetMinecraftMojangAccessTokenForLoginedAccounts(IAccount account)
     {
         try
         {
-            AuthenticationResult msalResult = await AcquireTokenAsync();
-
-            // 使用从 MSAL 获取的 AccessToken 完成后续的 Minecraft 登录流程
-            return await ToLoandauth(msalResult.AccessToken);
-        }
-        catch (OlanException)
-        {
-            // 直接抛出我们已知的、处理过的异常
-            throw;
+            AuthenticationResult msalResult = await TryToGetMicrosoftAccessToken(account);
+            return await ToLoandauth(msalResult.AccessToken,account);
         }
         catch (MsalClientException ex) when (ex.ErrorCode == "access_denied")
         {
@@ -123,35 +94,19 @@ public class MsalMicrosoftAuthenticator : IDisposable
                 ex);
         }
     }
-
-    /// <summary>
-    /// 封装 MSAL 的令牌获取逻辑。
-    /// </summary>
-    private async Task<AuthenticationResult> AcquireTokenAsync()
+    private async Task<AuthenticationResult> TryToGetMicrosoftAccessToken(IAccount account)
     {
-        // 尝试从缓存中获取账户信息
-        IAccount? account = (await msalClient.GetAccountsAsync()).FirstOrDefault();
-
         try
         {
-            // 尝试在后台静默获取令牌。如果令牌过期，此方法会自动使用刷新令牌换取新令牌。
             return await msalClient.AcquireTokenSilent(Scopes, account).ExecuteAsync();
         }
         catch (MsalUiRequiredException)
         {
-            // 如果静默获取失败（例如：首次登录、会话过期、需要用户重新授权），
-            // 则回退到交互式登录，这会打开一个浏览器窗口。
             return await msalClient.AcquireTokenInteractive(Scopes).ExecuteAsync();
         }
     }
-
-    /// <summary>
-    /// 【修改】此方法现在只接收一个参数：微软的 AccessToken。
-    /// 它不再需要关心刷新令牌，因为 MSAL 会自动处理。
-    /// </summary>
-    private async Task<UserModel?> ToLoandauth(string microsoftAccessToken)
+    private async Task<UserModel?> ToLoandauth(string microsoftAccessToken,IAccount account)
     {
-        // 这里的逻辑与你原来的代码几乎完全相同，只是最后创建 UserModel 时不再需要处理刷新令牌。
         try
         {
             var xblAuthResponse = await AuthInXboxLive(microsoftAccessToken);
@@ -195,13 +150,12 @@ public class MsalMicrosoftAuthenticator : IDisposable
                 );
             }
 
-            // 【关键修改】创建 UserModel 时，不再需要保存刷新令牌。
-            // MSAL 的持久化缓存已经替我们完成了这项工作。
-            // 你可以传递一个空值或修改 UserModel 的构造函数。
             return new UserModel(
                 profileResponse.Name,
                 Guid.Parse(profileResponse.Id),
-                mcLoginResponse.AccessToken
+                mcLoginResponse.AccessToken,
+                account.HomeAccountId.Identifier,
+                mcLoginResponse.expires_in
             );
         }
         catch (OlanException)
@@ -245,13 +199,8 @@ public class MsalMicrosoftAuthenticator : IDisposable
         response.EnsureSuccessStatusCode();
 
         // 5. 读取响应内容并反序列化为目标对象
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.XboxLiveAuthResponse);
+        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.XboxLiveAuthResponse);
     }
-
-    /// <summary>
-    /// XSTS 身份验证。
-    /// </summary>
     private async Task<XSTSAuthResponse?> AuthInXSTS(string xblToken, string uhs)
     {
         var requestBody = new XSTSAuthRequest
@@ -266,11 +215,10 @@ public class MsalMicrosoftAuthenticator : IDisposable
         };
         var content = new StringContent(JsonSerializer.Serialize(requestBody, MsaJsonContext.Default.XSTSAuthRequest), Encoding.UTF8, "application/json");
         var response = await httpClient.PostAsync("https://xsts.auth.xboxlive.com/xsts/authorize", content);
-        var json = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
-            var errorResponse = JsonSerializer.Deserialize(json, MsaJsonContext.Default.XSTSErrorResponse);
+            var errorResponse = await JsonSerializer.DeserializeAsync(response.Content.ReadAsStream(), MsaJsonContext.Default.XSTSErrorResponse);
             if (errorResponse?.XErr == "214891605")
             {
                 Debug.WriteLine("XSTS 认证失败: 该 Xbox Live 账号需要完成资料设置或家长同意。");
@@ -289,12 +237,8 @@ public class MsalMicrosoftAuthenticator : IDisposable
             return null; // 返回 null，表示认证失败，上层会统一抛出 OlanException
         }
 
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.XSTSAuthResponse);
+        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.XSTSAuthResponse);
     }
-
-    /// <summary>
-    /// 使用 Xbox 凭据登录 Minecraft。
-    /// </summary>
     private async Task<MinecraftLoginResponse?> LoginWithXboxAsync(string xstsToken, string uhs)
     {
         var requestBody = new MinecraftLoginRequest
@@ -304,37 +248,26 @@ public class MsalMicrosoftAuthenticator : IDisposable
         var content = new StringContent(JsonSerializer.Serialize(requestBody, MsaJsonContext.Default.MinecraftLoginRequest), Encoding.UTF8, "application/json");
         var response = await httpClient.PostAsync("https://api.minecraftservices.com/authentication/login_with_xbox", content);
         response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.MinecraftLoginResponse);
+        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.MinecraftLoginResponse);
     }
-
-    /// <summary>
-    /// 检查用户是否拥有 Minecraft 游戏。
-    /// </summary>
     private async Task<EntitlementsResponse?> CheckGameEntitlementsAsync(string minecraftAccessToken)
     {
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minecraftAccessToken);
         var response = await httpClient.GetAsync("https://api.minecraftservices.com/entitlements/mcstore");
         response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.EntitlementsResponse);
+        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.EntitlementsResponse);
     }
-
-    /// <summary>
-    /// 获取 Minecraft 玩家档案（包含 UUID 和用户名）。
-    /// </summary>
     private async Task<MinecraftProfileResponse?> GetMinecraftProfileAsync(string minecraftAccessToken)
     {
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minecraftAccessToken);
         var response = await httpClient.GetAsync("https://api.minecraftservices.com/minecraft/profile");
-        var json = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
         {
             Debug.WriteLine("获取 Minecraft 档案失败。可能此账号没有设置 Minecraft 档案（例如首次启动游戏时）。");
             return null; // 返回 null，让上层统一抛 OlanException
         }
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.MinecraftProfileResponse);
+        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.MinecraftProfileResponse);
     }
 
     public void Dispose()
@@ -360,7 +293,7 @@ public class MicrosoftAuthenticator : IDisposable
     /// <summary>
     /// 使用旧的刷新令牌获取新的访问令牌和刷新令牌，并完成后续的 Minecraft 登录流程。
     /// </summary>
-    /// <param name="oldRefreshToken">旧的刷新令牌。</param>
+    /// <param Name="oldRefreshToken">旧的刷新令牌。</param>
     /// <returns>包含更新用户信息的 UserModel，如果刷新失败则为 null。</returns>
     public async Task<UserModel?> RefreshToken(string oldRefreshTokenID)
     {
@@ -506,8 +439,8 @@ public class MicrosoftAuthenticator : IDisposable
     /// <summary>
     /// 使用设备代码流进行 Minecraft 认证。
     /// </summary>
-    /// <param name="OnUserNeedAction">用于报告用户需要执行的操作的回调。</param>
-    /// <param name="pollIntervalSeconds">轮询用户授权状态的间隔时间（秒）。</param>
+    /// <param Name="OnUserNeedAction">用于报告用户需要执行的操作的回调。</param>
+    /// <param Name="pollIntervalSeconds">轮询用户授权状态的间隔时间（秒）。</param>
     /// <returns>包含用户信息的 UserModel，如果认证失败则为 null。</returns>
     public async Task<UserModel?> AuthUseCode(IProgress<(string VerityUrl, string UserCode)> OnUserNeedAction, int pollIntervalSeconds = 5)
     {
@@ -587,9 +520,9 @@ public class MicrosoftAuthenticator : IDisposable
     /// <summary>
     /// 轮询，以检测用户是否完成授权。
     /// </summary>
-    /// <param name="deviceCode">设备代码</param>
-    /// <param name="interval">最小轮询间隔</param>
-    /// <param name="expiresIn">超时时间</param>
+    /// <param Name="deviceCode">设备代码</param>
+    /// <param Name="interval">最小轮询间隔</param>
+    /// <param Name="expiresIn">超时时间</param>
     private async Task<TokenResponse?> PollAutoState(string deviceCode, int interval, int expiresIn)
     {
         var startTime = DateTime.UtcNow;
@@ -632,8 +565,8 @@ public class MicrosoftAuthenticator : IDisposable
     /// <summary>
     /// 进行 Xbox Live 身份验证。
     /// </summary>
-    /// <param name="accessToken">上一步中获取的accessToken</param>
-    private async Task<XboxLiveAuthResponse?> AuthInXboxLive(string accessToken)
+    /// <param Name="AccessToken">上一步中获取的accessToken</param>
+    private async Task<XboxLiveAuthResponse?> AuthInXboxLive(string AccessToken)
     {
         var requestBody = new XboxLiveAuthRequest
         {
@@ -641,7 +574,7 @@ public class MicrosoftAuthenticator : IDisposable
             {
                 AuthMethod = "RPS",
                 SiteName = "user.auth.xboxlive.com",
-                RpsTicket = $"d={accessToken}"
+                RpsTicket = $"d={AccessToken}"
             },
             RelyingParty = "http://auth.xboxlive.com",
             TokenType = "JWT"
