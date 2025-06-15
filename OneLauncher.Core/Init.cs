@@ -1,5 +1,6 @@
 ﻿using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.msa;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace OneLauncher.Core;

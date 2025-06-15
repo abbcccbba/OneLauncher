@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
@@ -7,12 +8,13 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+#if WINDOWS
+using Avalonia.Win32;
+#endif
 
 namespace OneLauncher.Views.Panes.PaneViewModels;
 
@@ -87,9 +89,22 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
     {
         try
         {
-            UserModel um = 
-                await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessToken()
-                ?? throw new OlanException("认证失败","无法认证你的微软账号");
+            UserModel um;
+#if WINDOWS
+            if (Init.systemType == SystemType.windows)
+            {
+                um = 
+                    await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenUseMAMA(
+                        (MainWindow.mainwindow.TryGetPlatformHandle().Handle))
+                    ?? throw new OlanException("认证失败", "无法认证你的微软账号"); ;
+            }
+            else
+#endif
+            {
+                um =
+                    await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenOnSystemBrowser()
+                    ?? throw new OlanException("认证失败", "无法认证你的微软账号");
+            }
             Init.ConfigManger.config.UserModelList.Add(um);
             await Init.ConfigManger.Save();
             using (var task = new MojangProfile(um))

@@ -4,16 +4,19 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+	<PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
 		<DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
+	<PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
 		<DefineConstants>$(DefineConstants);MACOS</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+	<PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
 		<DefineConstants>$(DefineConstants);LINUX</DefineConstants>
 	</PropertyGroup>
 	<Import Project="..\OneLauncher.Core.Net\OneLauncher.Core.Net.projitems" Label="Shared" />
+	<ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+		<PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.72.1" />
+	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="Duende.IdentityModel.OidcClient" Version="6.0.1" />
 	  <PackageReference Include="Microsoft.Identity.Client" Version="4.72.1" />
