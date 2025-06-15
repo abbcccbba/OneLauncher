@@ -64,10 +64,9 @@ public class JvmArguments
     {
         var args = new JvmArguments();
         args.mode = mode;
-        // --- 1. 使用跨平台API获取硬件信息 ---
+        // 使用Helper API获取硬件信息 ---
         long totalSystemMemoryBytes = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes;
         long totalSystemMemoryGB = totalSystemMemoryBytes / 1024 / 1024 / 1024;
-        int coreCount = Environment.ProcessorCount;
 
         // --- 2. 根据模式和硬件信息设置优化标志 ---
         switch (mode)
@@ -77,9 +76,9 @@ public class JvmArguments
                 args.AlwaysPreTouch = true;
                 args.UseAikarFlags = true;
 
-                // 智能GC选择：内存充裕 (>=12GB) 的中高端机，默认推荐使用ZGC以获得更低的延迟
+                // 智能GC选择：内存充裕 (>=16GB) 的中高端机，默认推荐使用ZGC以获得更低的延迟
                 // ZGC非常适合大内存下的MC客户端，可以显著减少卡顿
-                if (totalSystemMemoryGB >= 12)
+                if (totalSystemMemoryGB >= 16)
                 {
                     args.UseZGC = true;
                     args.UseG1GC = false;
@@ -128,46 +127,72 @@ public class JvmArguments
     {
         var argsBuilder = new StringBuilder();
 
-        #region 1. 动态内存计算
-        long totalSystemMemoryBytes = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes;
-        long totalSystemMemoryMB = totalSystemMemoryBytes / 1024 / 1024;
+        #region 1. 真正的智能内存分配模型
+
+        // 1.获取最真实的系统可用内存
+        var memoryMetrics = SystemInfoHelper.GetMemoryMetrics();
+        long availableMemoryMB = (long)memoryMetrics.FreeMB;
 
         int finalMaxHeapSize;
-        if (MaxHeapSize > 0)
+
+        if (MaxHeapSize > 0) // Case 1: 用户手动指定了内存大小
         {
-            // 用户在配置文件中强制指定了值
             finalMaxHeapSize = MaxHeapSize;
         }
-        else
+        else // Case 2: 用户选择了“自动”模式，启动HMCL智能算法
         {
-            // 根据模式动态计算
-            finalMaxHeapSize = mode switch
+            const long minMemoryMB = 1024; // 游戏能启动的最小内存
+
+            // 2. 为系统和其他应用保留512MB的绝对安全底线
+            long memoryForGame = availableMemoryMB - 512;
+
+            if (memoryForGame <= minMemoryMB)
             {
-                // 激进: 分配可用内存的50%，最低4G，最高推荐32G（过高可能导致GC问题）
-                OptimizationMode.Aggressive => (int)Math.Clamp(totalSystemMemoryMB * 0.5, 4096, 32768),
-                // 保守: 分配可用内存的25%，最低2G，最高4G
-                OptimizationMode.Conservative => (int)Math.Clamp(totalSystemMemoryMB * 0.25, 512, 4096),
-                // 标准: 分配可用内存的40%，最低2G，最高10G
-                _ => (int)Math.Clamp(totalSystemMemoryMB * 0.4, 1024, 10240)
-            };
+                // 如果可用内存极低，只能分配最小值
+                finalMaxHeapSize = (int)minMemoryMB;
+            }
+            else
+            {
+                // 3. 应用HMCL的非线性智能算法
+                const long thresholdMB = 8L * 1024; // 8GB 阈值
+                const long hardCapMB = 16L * 1024;  // 16GB 硬上限
+                long suggestedMB;
+
+                if (memoryForGame <= thresholdMB)
+                {
+                    // 8GB以内，慷慨分配80%
+                    suggestedMB = (long)(memoryForGame * 0.8);
+                }
+                else
+                {
+                    // 超过8GB的部分，只吝啬地分配20%
+                    suggestedMB = (long)(thresholdMB * 0.8) + (long)((memoryForGame - thresholdMB) * 0.2);
+                }
+
+                // 4. 应用硬上限，并确保不低于我们设定的最小启动内存
+                finalMaxHeapSize = (int)Math.Max(minMemoryMB, Math.Min(suggestedMB, hardCapMB));
+            }
         }
 
+        // 5. 计算初始堆大小 (-Xms)
         int finalInitialHeapSize;
-        if (InitialHeapSize > 0)
+        if (InitialHeapSize > 0) // 用户手动设置了初始值
         {
             finalInitialHeapSize = InitialHeapSize;
         }
-        else
+        else // 自动计算初始值
         {
-            finalInitialHeapSize = mode switch
-            {
-                // 激进模式下，初始和最大值设为一致，避免运行时堆伸缩带来的性能抖动
-                OptimizationMode.Aggressive => finalMaxHeapSize,
-                // 其他模式下，可以设置一个较小的初始值
-                _ => Math.Clamp(finalMaxHeapSize / 2, 1024, 4096)
-            };
+            // 激进模式下设为与最大值相同，其他模式为最大值一半（但不小于512MB）
+            finalInitialHeapSize = (mode == OptimizationMode.Aggressive)
+                ? finalMaxHeapSize
+                : Math.Clamp(finalMaxHeapSize / 2, 512, finalMaxHeapSize);
         }
+
+        // 最终校验，确保初始值不会大于最大值
+        finalInitialHeapSize = Math.Min(finalInitialHeapSize, finalMaxHeapSize);
+
         argsBuilder.Append($" -Xms{finalInitialHeapSize}m -Xmx{finalMaxHeapSize}m");
+
         #endregion
 
         #region 2. GC 和其他参数组装
@@ -225,7 +250,7 @@ public class JvmArguments
                        .Append(" -Dusing.aikars.flags=true");
         }
 
-        argsBuilder.Append(" -Dfile.encoding=UTF-8");
+        //argsBuilder.Append(" -Dfile.encoding=UTF-8");
 
         #endregion
 

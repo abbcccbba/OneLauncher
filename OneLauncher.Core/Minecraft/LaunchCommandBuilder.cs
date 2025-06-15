@@ -57,7 +57,7 @@ public class LaunchCommandBuilder
     }
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion(), Path.GetDirectoryName(basePath));
-    public async Task<string> BuildCommand(string OtherArgs = "",bool UseTempFileToPaserClassPathToJvm = false)
+    public async Task<string> BuildCommand(string OtherArgs = "")
     {
         string MainClass;
         if (modType == ModEnum.fabric)
@@ -73,11 +73,11 @@ public class LaunchCommandBuilder
             MainClass = neoForgeParser.info.MainClass;
         }
         else MainClass = versionInfo.GetMainClass();
-        string Args = $"{OtherArgs} {BuildJvmArgs(UseTempFileToPaserClassPathToJvm)} {MainClass} {BuildGameArgs()}";
+        string Args = $"{OtherArgs} {BuildJvmArgs()} {MainClass} {BuildGameArgs()}";
         Debug.WriteLine(Args);
         return Args;
     }
-    private string BuildJvmArgs(bool IsUTFTPCPTJ)
+    private string BuildJvmArgs()
     {
         string osName = systemType == SystemType.windows ? "windows" :
                         systemType == SystemType.linux ? "linux" :
@@ -92,7 +92,7 @@ public class LaunchCommandBuilder
             { "natives_directory", Path.Combine(basePath,"versions",version,"natives") },
             { "launcher_name", "OneLauncher" },
             { "launcher_version", Init.OneLauncherVersoin },
-            { "classpath",BuildClassPath() },
+            { "classpath","\""+BuildClassPath()+"\"" },
             // 一些仅限NeoForge的
             { "version_name" , version},
             { "library_directory" ,"\""+Path.Combine(basePath, "libraries")+"\""},
@@ -150,7 +150,7 @@ public class LaunchCommandBuilder
                             foreach (var val in valList)
                             {
                                 string replaced = ReplacePlaceholders(val, placeholders);
-                                jvmArgs.Add(replaced);
+                                jvmArgs.Add($"\"{replaced}\"");
                             }
                         }
                     }
@@ -167,75 +167,66 @@ public class LaunchCommandBuilder
     /// </summary>
     private string BuildClassPath()
     {
-        var allLibPaths = new List<(string name, string path)>();
-        allLibPaths.AddRange(versionInfo.GetLibrarysForUsing());
+        // 使用一个字典来存储最终的库，key为库的标识(group:artifact)，value为路径
+        // 这样可以确保每个库只存在一个版本，并且可以控制哪个版本优先
+        var libraryMap = new Dictionary<string, string>();
 
-        // 根据模组类型添加模组库
-        if (modType == ModEnum.neoforge)
+        // 1. 首先添加 Fabric 的库
+        // 因为它们是后添加的，所以如果和原版有冲突，它们会覆盖掉原版的
+        if (modType == ModEnum.fabric)
         {
-            allLibPaths.AddRange(neoForgeParser.GetLibrariesForLaunch(basePath));
-        }
-        else if (modType == ModEnum.fabric)
-        {
-            allLibPaths.AddRange(fabricParser.GetLibrariesForUsing());
-        }
-        allLibPaths.Add(("", versionInfo.GetMainFile().path));
-
-        var libraryVersions = new Dictionary<string, (string path, Version version)>();
-
-        // 用于存储非 Maven 库或不符合过滤条件的库的最终路径
-        var nonMavenOrUniquePaths = new HashSet<string>();
-
-        foreach (var (name, path) in allLibPaths)
-        {
-            if (string.IsNullOrEmpty(path)) continue;
-
-            string groupIdArtifactId = "";
-            Version currentVersion = null;
-            bool isMavenLib = false;
-
-            string[] parts = name.Split(':');
-            // 一个基本的 Maven 坐标至少包含 groupId:artifactId:version (3 部分)
-            if (parts.Length >= 3)
+            foreach (var lib in fabricParser.GetLibrariesForUsing())
             {
-                groupIdArtifactId = string.Join(":", parts.Take(parts.Length - 1)); 
-                if (Version.TryParse(parts.Last(), out currentVersion))
+                // 从 "org.ow2.asm:asm:9.5" 中提取 "org.ow2.asm:asm" 作为key
+                var parts = lib.name.Split(':');
+                if (parts.Length >= 2)
                 {
-                    isMavenLib = true;
+                    var libKey = $"{parts[0]}:{parts[1]}";
+                    libraryMap[libKey] = lib.path;
                 }
             }
-
-            if (isMavenLib)
+        }
+        else if (modType == ModEnum.neoforge)
+        {
+            // NeoForge 同理
+            foreach (var lib in neoForgeParser.GetLibrariesForLaunch(basePath))
             {
-                if (libraryVersions.TryGetValue(groupIdArtifactId, out var existing))
-                    libraryVersions[groupIdArtifactId] = (path, currentVersion);
-                else
-                    libraryVersions[groupIdArtifactId] = (path, currentVersion);
+                var parts = lib.name.Split(':');
+                if (parts.Length >= 2)
+                {
+                    var libKey = $"{parts[0]}:{parts[1]}";
+                    libraryMap[libKey] = lib.path;
+                }
             }
-            else
-                nonMavenOrUniquePaths.Add(path);
-            
         }
 
-        // 构建最终的类路径列表
-        var finalClassPaths = new HashSet<string>(); // 使用 HashSet 确保最终路径的唯一性
-
-        // 首先添加所有筛选出的最佳 Maven 库版本
-        foreach (var entry in libraryVersions.Values)
+        // 2. 然后添加原版的库
+        // 对于每个原版库，只有在 libraryMap 中不存在同名库时才添加
+        foreach (var lib in versionInfo.GetLibrarysForUsing())
         {
-            finalClassPaths.Add(entry.path);
+            var parts = lib.name.Split(':');
+            if (parts.Length >= 2)
+            {
+                var libKey = $"{parts[0]}:{parts[1]}";
+                if (!libraryMap.ContainsKey(libKey)) // 如果不存在，才添加
+                {
+                    libraryMap[libKey] = lib.path;
+                }
+            }
         }
 
-        // 然后添加所有非 Maven 库或之前未参与版本过滤的独特路径
-        foreach (var path in nonMavenOrUniquePaths)
-        {
-            finalClassPaths.Add(path);
-        }
-        finalClassPaths.Add(versionInfo.GetMainFile().path);
-        string allClassArgs = string.Join(separator,
-                                          finalClassPaths.Where(p => !string.IsNullOrEmpty(p)));
+        // 3. 构建类路径字符串
+        var finalClassPathLibs = libraryMap.Values.ToList();
 
-        return allClassArgs;
+        // 4. 添加游戏主jar
+        finalClassPathLibs.Add(versionInfo.GetMainFile().path);
+
+        return string.Join(
+            separator,
+            finalClassPathLibs
+                .Where(p => !string.IsNullOrEmpty(p))
+                .Distinct() 
+        );
     }
     private string BuildGameArgs()
     {

@@ -5,6 +5,6 @@
 		<type fullname="OneLauncher.Views.Panes.PaneViewModels.*" preserve="all"/>
 	</assembly>
 	<assembly fullname="OneLauncher.Core">
-		<type fullname="OneLauncher.Core.Helper*" preserve="all"/>
+		<type fullname="OneLauncher.Core.Helper.*" preserve="all"/>
 	</assembly>
 </linker>
