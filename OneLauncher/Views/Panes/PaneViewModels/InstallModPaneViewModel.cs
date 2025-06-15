@@ -64,13 +64,12 @@ internal partial class InstallModPaneViewModel : BaseViewModel
             {
                 using (Download downTask = new())
                     await downTask.StartDownloadMod(
-                        new Progress<(long a, long b, string c)>
-                        (p => Dispatcher.UIThread.InvokeAsync(() =>
+                        new Progress<(long all, long done, string c)>
+                        (p => Dispatcher.UIThread.Post(() =>
                         {
-                            CurrentProgress = (double)p.b / p.a * 100;
+                            CurrentProgress = (double)p.done / p.all * 100;
                             Dp = p.c;
-                            Fs = $"{p.a}/{p.b}";
-                            Debug.WriteLine($"a: {p.a} b: {p.b} c: {p.c}");
+                            Fs = $"{p.done}/{p.all}";
                         })),
                         modItem.ID,
                         ((SelectedItem.IsVersionIsolation)

@@ -12,6 +12,143 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Downloader;
 // 此代码已暂时弃用
 /*
+    public async Task DownloadFileBig(
+    string url,
+    string savepath,
+    long? size,
+    int maxSegments,
+    CancellationToken token)
+    {
+        long filesize;
+
+        if (size != null)
+            filesize = size.Value;
+        else
+        {
+            using var requestForSize = new HttpRequestMessage(HttpMethod.Head, url);
+            using var responseForSize = await unityClient.SendAsync(requestForSize, token);
+            responseForSize.EnsureSuccessStatusCode();
+
+            filesize = responseForSize.Content.Headers.ContentLength
+                       ?? throw new OlanException("下载失败", "无法知道文件大小");
+        }
+
+        Directory.CreateDirectory(Path.GetDirectoryName(savepath));
+
+        using var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true);
+        fs.SetLength(filesize);
+        var fileHandle = fs.SafeFileHandle;
+
+        var segments = Tools.GetSegments(filesize, filesize / maxSegments);
+        var semaphore = new SemaphoreSlim(maxSegments);
+
+        await Parallel.ForEachAsync(segments,
+        new ParallelOptions
+        {
+            MaxDegreeOfParallelism = maxSegments,
+            CancellationToken = token
+        },
+        async (segment, ct) =>
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
+
+            using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
+            response.EnsureSuccessStatusCode();
+
+            using var httpStream = await response.Content.ReadAsStreamAsync(ct);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(81920); 
+            try
+            {
+                int bytesRead;
+                long viewWritePosition = segment.startBit;
+
+                while ((bytesRead = await httpStream.ReadAsync(buffer, ct)) > 0)
+                {
+                    await RandomAccess.WriteAsync(fileHandle, buffer.AsMemory(0, bytesRead), viewWritePosition, ct);
+                    viewWritePosition += bytesRead;
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+        });
+        
+    }
+    public async Task DownloadFileBigMoreUrl(
+    string[] urls,
+    string savepath,
+    long? size,
+    int maxSegments,
+    CancellationToken token)
+    {
+        long filesize;
+
+        if (size != null)
+        {
+            filesize = size.Value;
+        }
+        else
+        {
+            using var requestForSize = new HttpRequestMessage(HttpMethod.Head, urls[0]);
+            using var responseForSize = await unityClient.SendAsync(requestForSize, token);
+            responseForSize.EnsureSuccessStatusCode();
+
+            filesize = responseForSize.Content.Headers.ContentLength
+                       ?? throw new OlanException("下载失败", "无法知道文件大小");
+        }
+
+        Directory.CreateDirectory(Path.GetDirectoryName(savepath));
+
+        using var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true);
+        fs.SetLength(filesize);
+        var fileHandle = fs.SafeFileHandle;
+
+        var segments = Tools.GetSegments(filesize, filesize / maxSegments);
+
+        // 3. 用于线程安全地轮询URL的计数器
+        int urlIndexCounter = -1;
+
+        await Parallel.ForEachAsync(segments,
+        new ParallelOptions
+        {
+            MaxDegreeOfParallelism = maxSegments,
+            CancellationToken = token
+        },
+        async (segment, ct) =>
+        {
+            int urlIndex = Interlocked.Increment(ref urlIndexCounter) % urls.Length;
+            string urlToUse = urls[urlIndex];
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, urlToUse);
+            request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
+
+            using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
+            response.EnsureSuccessStatusCode();
+
+            using var httpStream = await response.Content.ReadAsStreamAsync(ct);
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(81920);
+            try
+            {
+                int bytesRead;
+                long viewWritePosition = segment.startBit;
+
+                while ((bytesRead = await httpStream.ReadAsync(buffer, ct)) > 0)
+                {
+                    await RandomAccess.WriteAsync(fileHandle, buffer.AsMemory(0, bytesRead), viewWritePosition, ct);
+                    viewWritePosition += bytesRead;
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+        });
+        
+    }
+    */
+/*
 public partial class Download
 {
     /// <summary>
