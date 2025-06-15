@@ -17,12 +17,12 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
   *此项目对x86的支持有限*
   
 - **运行环境**：
-  - 在依赖框架的构建中需要.NET9（或更高版本 可以在[这里](https://dotnet.microsoft.com/zh-cn/download/dotnet/9.0)下载）  
+  - 在依赖框架的构建中需要.NET9（或更高版本 可以在[这里](https://dotnet.microsoft.com/zh-cn/download/dotnet/9.0)下载）    
     *注意：部分较新的Windows可能自带此依赖，无需安装*
     
   - Java 环境  
     *OneLauncher支持自动下载并使用合适的Java，如果你的系统无Java运行时，请在下载时启动此选项*
-    *如果自动程序不起作用，我们推荐[Eclipse Adoptium](https://adoptium.net/zh-CN/download/)*
+    *；如果自动程序不起作用，我们推荐[Eclipse Adoptium](https://adoptium.net/zh-CN/download/)*  
 
 ## 跨平台安装与构建指南
 
