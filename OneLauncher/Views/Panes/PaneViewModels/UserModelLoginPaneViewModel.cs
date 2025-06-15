@@ -94,7 +94,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             if (Init.systemType == SystemType.windows)
             {
                 um = 
-                    await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenUseMAMA(
+                    await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenUseWindowsWebAccountManger(
                         (MainWindow.mainwindow.TryGetPlatformHandle().Handle))
                     ?? throw new OlanException("认证失败", "无法认证你的微软账号"); ;
             }
