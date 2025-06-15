@@ -17,11 +17,12 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
   *此项目对x86的支持有限*
   
 - **运行环境**：
-  - 在依赖框架的构建中需要.NET9（或更高版本 可以在[这里](https://dotnet.microsoft.com/zh-cn/download/dotnet/9.0)下载）  
+  - 在依赖框架的构建中需要.NET9（或更高版本 可以在[这里](https://dotnet.microsoft.com/zh-cn/download/dotnet/9.0)下载）    
     *注意：部分较新的Windows可能自带此依赖，无需安装*
     
   - Java 环境  
     *OneLauncher支持自动下载并使用合适的Java，如果你的系统无Java运行时，请在下载时启动此选项*
+    *；如果自动程序不起作用，我们推荐[Eclipse Adoptium](https://adoptium.net/zh-CN/download/)*  
 
 ## 跨平台安装与构建指南
 
@@ -63,11 +64,12 @@ OneLauncher 当前处于早期开发阶段，许多功能尚未完成。我们�
 
 ### 开源项目或需注明署名使用及贡献人员名单
 
-- 使用项目[.NET](https://github.com/dotnet)
+**省略.NET与Microsoft.,Windows.等基础框架**
+
 - 使用项目[Avalonia](https://github.com/AvaloniaUI/Avalonia)
 - 引用项目[AsyncImageLoader.Avalonia](https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia)
 - 引用项目[SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp)
-- 引用项目[SecureLocalStorage](https://github.com/bytehide/SecureLocalStorage)
+- 引用项目[SecureLocalStorage](https://github.com/bytehide/SecureLocalStorage) *最新版本中已移除引用
 - 借鉴项目[ProjBobcat](https://github.com/Corona-Studio/ProjBobcat/)
 - 使用图标[ICONS8](https://icons8.com/icons/)
 
