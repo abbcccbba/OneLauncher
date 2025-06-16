@@ -29,7 +29,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
     /// <summary>
     /// 作为新账号弹出使用仅限微软视窗操作系统的系统内置级窗口以高安全性的形式以弹出交互式获取微软到麻将访问令牌并返回
     /// </summary>
-    public async Task<UserModel?> LoginNewAccountToGetMinecraftMojangAccessTokenUseMAMA(IntPtr windowHandle)
+    public async Task<UserModel?> LoginNewAccountToGetMinecraftMojangAccessTokenUseWindowsWebAccountManger(IntPtr windowHandle)
     {
         try
         {
