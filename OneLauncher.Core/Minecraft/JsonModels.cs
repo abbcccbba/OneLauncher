@@ -102,12 +102,16 @@ public class MinecraftDownloadUrl
 public class MinecraftLibrary
 {
     [JsonPropertyName("downloads")]
-    public MinecraftLibraryDownloads? Downloads { get; set; } // 可以为空
+    public MinecraftLibraryDownloads? Downloads { get; set; }
+
     [JsonPropertyName("name")]
-    public string Name {  get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("rules")]
-    public List<MinecraftRule>? Rules { get; set; } // 可以为空
+    public List<MinecraftRule>? Rules { get; set; }
+
+    [JsonPropertyName("natives")]
+    public Dictionary<string, string>? Natives { get; set; }
 }
 
 // 表示库的下载信息
@@ -212,7 +216,10 @@ public class MinecraftRule
 public class Os
 {
     [JsonPropertyName("name")]
-    public string? Name { get; set; } // 操作系统名称，可以为空
+    public string? Name { get; set; }
+
+    [JsonPropertyName("arch")]
+    public string? Arch { get; set; }
 }
 
 // 表示natives库的操作系统映射

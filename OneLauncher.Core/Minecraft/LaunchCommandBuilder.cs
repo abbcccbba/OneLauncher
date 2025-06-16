@@ -4,7 +4,6 @@ using OneLauncher.Core.ModLoader.fabric;
 using OneLauncher.Core.ModLoader.neoforge;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-
 namespace OneLauncher.Core.Minecraft;
 
 /// <summary>

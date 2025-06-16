@@ -38,6 +38,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
             authResult = await msalClient.AcquireTokenInteractive(Scopes)
                 .WithParentActivityOrWindow(windowHandle) // 传入从UI层获取的句柄
                 .ExecuteAsync();
+            Debug.WriteLine(authResult.AccessToken);
             return await ToLoandauth(authResult.AccessToken, authResult.Account);
         }
         catch (MsalClientException ex) when (ex.ErrorCode == MsalError.AuthenticationCanceledError)
@@ -225,7 +226,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
 
         // 4. 确保请求成功，否则会抛出 HttpRequestException
         response.EnsureSuccessStatusCode();
-
+        Debug.WriteLine(await response.Content.ReadAsStringAsync());
         // 5. 读取响应内容并反序列化为目标对象
         return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.XboxLiveAuthResponse);
     }
@@ -264,7 +265,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
             }
             return null; // 返回 null，表示认证失败，上层会统一抛出 OlanException
         }
-
+        Debug.WriteLine(await response.Content.ReadAsStringAsync());
         return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.XSTSAuthResponse);
     }
     private async Task<MinecraftLoginResponse?> LoginWithXboxAsync(string xstsToken, string uhs)
@@ -276,6 +277,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
         var content = new StringContent(JsonSerializer.Serialize(requestBody, MsaJsonContext.Default.MinecraftLoginRequest), Encoding.UTF8, "application/json");
         var response = await httpClient.PostAsync("https://api.minecraftservices.com/authentication/login_with_xbox", content);
         response.EnsureSuccessStatusCode();
+        Debug.WriteLine(await response.Content.ReadAsStringAsync());
         return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.MinecraftLoginResponse);
     }
     private async Task<EntitlementsResponse?> CheckGameEntitlementsAsync(string minecraftAccessToken)
@@ -295,6 +297,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
             Debug.WriteLine("获取 Minecraft 档案失败。可能此账号没有设置 Minecraft 档案（例如首次启动游戏时）。");
             return null; // 返回 null，让上层统一抛 OlanException
         }
+        Debug.WriteLine(await response.Content.ReadAsStringAsync());
         return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.MinecraftProfileResponse);
     }
     #endregion

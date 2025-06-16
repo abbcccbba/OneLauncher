@@ -64,14 +64,22 @@ internal class Game
         {
             // 刷新登入令牌
             await loginUserModel.IntelligentLogin(Init.MMA);
+            string launchArgumentsPath = Path.GetTempFileName();
+                await File.WriteAllTextAsync(
+                launchArgumentsPath,
+                (await Builder.BuildCommand(
+                     Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion())))
+#if WINDOWS
+                // 避免微软万年屎山导致的找不到路径问题
+                .Replace("\\",@"\\")
+#endif
+                );
             using (Process process = new Process())
             {
                 process.StartInfo.Arguments =
                     // 如果你想自定义标题，可以从Github下载OneLauncher.Agent.jar，然后把路径输入到这里，后面的就是新标题
                     //"-javaagent:\"F:\\OneLauncherAgent.jar\"=\"Hello World by OneLauncher\"" +
-                    (await Builder.BuildCommand(
-                     Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()))
-                    );
+                    $"@{launchArgumentsPath}";
                 Debug.WriteLine(process.StartInfo.Arguments);
                 process.StartInfo.FileName = Builder.GetJavaPath();
                 process.StartInfo.WorkingDirectory =
