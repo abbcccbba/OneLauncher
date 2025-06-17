@@ -6,6 +6,9 @@
 		<type fullname="OneLauncher.Views.Windows.*" preserve="all"/>
 	</assembly>
 	<assembly fullname="OneLauncher.Core">
-		<type fullname="OneLauncher.Core.Helper.*" preserve="all"/>
+		<type fullname="OneLauncher.Core.*" preserve="all"/>
+	</assembly>
+	<assembly fullname="OneLauncher.Core.Net">
+		<type fullname="OneLauncher.Core.Net.*" preserve="all"/>
 	</assembly>
 </linker>

@@ -80,7 +80,9 @@ public class MainPower : IDisposable
             },
             EnableRaisingEvents = true
         };
-
+        // 解决作者写的屎山代码认配置文件不认命令行的问题
+        File.Delete(Path.Combine(coreDirectory,"config.json"));
+        Directory.Delete(Path.Combine(coreDirectory,"log"),true);
         coreProcess.OutputDataReceived += (s, e) => 
         {
             if (!string.IsNullOrEmpty(e.Data))

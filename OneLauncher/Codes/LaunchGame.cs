@@ -30,7 +30,8 @@ internal class Game
         UserModel loginUserModel, 
         ModEnum modType,
         bool IsVersionInsulation,
-        bool UseGameTasker = false)
+        bool UseGameTasker = false,
+        ServerInfo? serverInfo = null)
     {
         #region 初始化基本游戏构建类
         var Builder = new LaunchCommandBuilder
@@ -40,7 +41,8 @@ internal class Game
                             loginUserModel,
                             modType,
                             Init.systemType,
-                            IsVersionInsulation     
+                            IsVersionInsulation,
+                            serverInfo
                         );
         #endregion
         
@@ -136,6 +138,7 @@ internal class Game
                             ));
             }
             GameClosedEvent?.Invoke();
+            File.Delete(launchArgumentsPath);
         }
         catch(FileNotFoundException fex)
         {

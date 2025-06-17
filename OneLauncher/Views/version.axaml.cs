@@ -81,6 +81,6 @@ public partial class version : UserControl
             loginUserModel ?? Init.ConfigManger.config.DefaultUserModel,
             LaunchGameInfo.preferencesLaunchMode.LaunchModType,
             LaunchGameInfo.IsVersionIsolation, 
-            UseGameTasker));
+            UseGameTasker,serverInfo));
     }
 }

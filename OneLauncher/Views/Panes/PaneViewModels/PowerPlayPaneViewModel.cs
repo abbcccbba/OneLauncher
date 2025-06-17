@@ -84,13 +84,12 @@ namespace OneLauncher.Views.Panes.PaneViewModels
                 }
 
                 string p2pNodeName = "OLANNODE" + RandomNumberGenerator.GetInt32(100000, 1000000000);
-
-                // 属性名修改: 使用 UserVersion.VersionID
                 string combinedInfo = $"{p2pNodeName}:{SelectedHostVersion.VersionID}";
                 string finalRoomCode = TextHelper.Base64Encode(combinedInfo);
 
                 HostRoomCode = finalRoomCode;
                 IsConnected = true;
+                _=version.EasyGameLauncher(SelectedHostVersion);
                 await connectService.StartAsHost(p2pNodeName, null);
             }
             catch (OlanException olanEx)
@@ -133,18 +132,14 @@ namespace OneLauncher.Views.Panes.PaneViewModels
                 int localPort = Tools.GetFreeTcpPort();
                 LocalServerAddress = $"127.0.0.1:{localPort}";
                 IsConnected = true;
-                await connectService.Join(null, p2pNodeName, localPort, port, null, null, null);
-
-                LogMessage($"P2P连接成功，准备启动游戏: {targetVersion.VersionID}");
-
-                var serverInfo = new ServerInfo
+                _=version.EasyGameLauncher(targetVersion, serverInfo: new ServerInfo
                 {
                     Ip = "127.0.0.1",
                     Port = localPort.ToString()
-                };
+                });
+                await connectService.Join(null, p2pNodeName, localPort, port, null, null, null);
 
-                // 启动游戏
-                await version.EasyGameLauncher(targetVersion, serverInfo: serverInfo);
+                LogMessage($"P2P连接成功，准备启动游戏: {targetVersion.VersionID}");   
             }
             catch (OlanException olanEx)
             {

@@ -22,6 +22,7 @@ public class LaunchCommandBuilder
     private NeoForgeUsing neoForgeParser;
     private readonly string separator;
     private readonly string VersionPath;
+    private readonly ServerInfo? serverInfo;
     /// <summary>
     /// 
     /// </summary>
@@ -38,7 +39,8 @@ public class LaunchCommandBuilder
             UserModel userModel,
             ModEnum modType,
             SystemType system,
-            bool VersionInsulation = false
+            bool VersionInsulation = false,
+            ServerInfo? serverInfo= null
         )
     {
         this.basePath = basePath;
@@ -48,6 +50,7 @@ public class LaunchCommandBuilder
         systemType = system;
         IsVersionInsulation = VersionInsulation;
         this.modType = modType;
+        this.serverInfo = serverInfo;
         separator = systemType == SystemType.windows ? ";" : ":";
         versionInfo = new VersionInfomations(
             File.ReadAllText(Path.Combine(VersionPath, $"version.json")),
@@ -229,6 +232,11 @@ public class LaunchCommandBuilder
     }
     private string BuildGameArgs()
     {
+        string serverArgs = string.Empty;
+        if(serverInfo != null)
+        {
+            serverArgs = $"--server \"{((ServerInfo)serverInfo).Ip}\" --port\"{((ServerInfo)serverInfo).Port}\" ";
+        }
         string GameArgs =
             $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
@@ -241,12 +249,14 @@ public class LaunchCommandBuilder
             $"--accessToken \"{userModel.AccessToken.ToString()}\" " +
             $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
             $"--versionType \"OneLauncher\" " +
+            serverArgs+
             "--userProperties {} "
             // 针对旧版用户验证机制
             : $"--session \"{userModel.AccessToken}\" ");
         if (modType == ModEnum.neoforge)
             GameArgs +=
                 string.Join(" ", neoForgeParser.info.Arguments.Game);
+        Debug.WriteLine(GameArgs);
         return GameArgs;
     }
     private bool EvaluateRules(List<MinecraftRule> rules, string osName, string arch)
