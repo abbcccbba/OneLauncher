@@ -274,7 +274,7 @@ public partial class Download
         byte[] buffer = new byte[probeSize];
         Stopwatch stopwatch = Stopwatch.StartNew();
         var bytesRead = await httpStream.ReadAtLeastAsync(buffer, probeSize, false, token);
-        stopwatch.Stop();
+        stopwatch.StopCore();
 
         if (stopwatch.ElapsedMilliseconds < options.FastConnectionThresholdMs)
         {

@@ -62,12 +62,12 @@ public partial class version : UserControl
     /// <summary>
     /// 真·一键启动游戏函数
     /// </summary>
-    /// <param Name="IsOriginal">是否以原版模式启动（不加载Mod加载器）</param>
     /// <returns>异步任务Task</returns>
     public static Task EasyGameLauncher(
         UserVersion LaunchGameInfo,
         bool UseGameTasker = false,
-        UserModel loginUserModel = null
+        UserModel loginUserModel = null,
+        ServerInfo? serverInfo = null
         )
     {
         // 用多线程而不是异步，否则某些特定版本会阻塞

@@ -9,9 +9,9 @@
     <Import_RootNamespace>OneLauncher.Core.Net</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\ConnectMain.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\ConnentHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\IConnectService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\MainPower.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\P2PMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)java\AutoJavaGetter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\GetModrinth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\JsonModelGet.cs" />

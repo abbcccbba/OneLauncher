@@ -282,6 +282,12 @@ internal partial class VersionPageViewModel : BaseViewModel
             await OlanExceptionWorker.ForOlanException(ex);
         }
     }
-
+    private PowerPlayPane powerPlayGo = new PowerPlayPane();
+    [RelayCommand]
+    public void PowerPlay()
+    {
+        IsPaneShow = true;
+        RefDownPane = powerPlayGo;
+    }
 }
 

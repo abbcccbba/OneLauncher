@@ -8,6 +8,11 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace OneLauncher.Core.Helper;
+public struct ServerInfo
+{
+    public string Ip;
+    public string Port;
+}
 public struct ModType
 {
     public bool IsFabric { get; set; }

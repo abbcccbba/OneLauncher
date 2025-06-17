@@ -201,7 +201,7 @@ public class LaunchCommandBuilder
 
         // 2. 然后添加原版的库
         // 对于每个原版库，只有在 libraryMap 中不存在同名库时才添加
-        foreach (var lib in versionInfo.GetLibrarysForUsing())
+        foreach (var lib in versionInfo.GetLibraryiesForUsing())
         {
             var parts = lib.name.Split(':');
             if (parts.Length >= 2)

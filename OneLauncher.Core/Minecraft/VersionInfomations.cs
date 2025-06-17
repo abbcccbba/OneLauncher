@@ -144,7 +144,7 @@ public class VersionInfomations
         }
         return libraries;
     }
-    public List<(string name,string path)> GetLibrarysForUsing()
+    public List<(string name,string path)> GetLibraryiesForUsing()
     {
         var libraries = new List<(string name, string path)>(info.Libraries.Count); // 提前初始化相应长度内存，避免频繁扩容影响性能
 

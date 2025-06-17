@@ -13,10 +13,10 @@
 					<TextBlock Text="返回" VerticalAlignment="Center"/>
 				</StackPanel>
 			</Button>
-			<Button Command="{Binding CheckOnWebCommand}">
+			<Button Command="{Binding PopUpCommand}">
 				<StackPanel Orientation="Horizontal" Spacing="8">
 					<Image Source="/Assets/icos/internet.png" Width="20" Height="20"/>
-					<TextBlock Text="详细信息" VerticalAlignment="Center"/>
+					<TextBlock Text="弹出" VerticalAlignment="Center"/>
 				</StackPanel>
 			</Button>
 		</StackPanel>

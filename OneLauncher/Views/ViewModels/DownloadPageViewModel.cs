@@ -55,6 +55,6 @@ internal partial class DownloadPageViewModel : BaseViewModel
     public void ToDownload(VersionBasicInfo vbi)
     {
         IsPaneShow = true;
-        DownloadPaneContent = new DownloadPane(vbi, this);
+        DownloadPaneContent = new DownloadPane(vbi);
     }
 }

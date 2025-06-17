@@ -3,6 +3,7 @@
 	<assembly fullname="OneLauncher">
 		<type fullname="OneLauncher.Views.ViewModels.*" preserve="all"/>
 		<type fullname="OneLauncher.Views.Panes.PaneViewModels.*" preserve="all"/>
+		<type fullname="OneLauncher.Views.Windows.*" preserve="all"/>
 	</assembly>
 	<assembly fullname="OneLauncher.Core">
 		<type fullname="OneLauncher.Core.Helper.*" preserve="all"/>

@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,6 +13,46 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Helper;
 public static class Tools
 {
+    /// <summary>
+    /// 获取一个当前可用的TCP端口号。
+    /// </summary>
+    public static int GetFreeTcpPort()
+    {
+        // 1. 创建一个TCP监听器，并监听0号端口，系统会自动分配一个空闲端口。
+        var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+
+        // 2. 获取分配到的端口号。
+        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+
+        // 3. 立即停止监听，释放该端口，以便我们的核心程序可以使用。
+        listener.Stop();
+
+        return port;
+    }
+    public static async Task<string?> GetFileMD5Async(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+                {
+                    byte[] hash = await md5.ComputeHashAsync(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+        catch
+        {
+            return null;
+        }
+    }
     public static async Task<IAccount?> UseAccountIDToFind(string accountID)
     {
         return (await Init.MMA.GetCachedAccounts())

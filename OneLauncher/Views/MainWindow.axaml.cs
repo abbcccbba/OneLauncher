@@ -22,35 +22,27 @@ public partial class MainWindow : Window
     public account accountPage;
     public ModsBrowser modsBrowserPage;
     public static MainWindow mainwindow;
-    private Task<OlanException> errorTask;
-    public MainWindow(Task<OlanException> r)
+    public MainWindow()
     {
         InitializeComponent();
-        errorTask = r;
         mainwindow = this;
+        PageContent.Content = new Home();
     }
     protected async override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        var oex = await errorTask;
-        if (oex != null)
-            await OlanExceptionWorker.ForOlanException(oex);
-        else
+        try
         {
-            try
-            {
-                HomePage = new Home();
-                versionPage = new version();
-                accountPage = new account();
-                modsBrowserPage = new ModsBrowser();
-                downloadPage = new download();
-                settingsPage = new settings();
-            }
-            catch (OlanException ex)
-            {
-                await OlanExceptionWorker.ForOlanException(ex);
-            }
-            PageContent.Content = HomePage;
+            HomePage = (Home)PageContent.Content;
+            versionPage = new version();
+            accountPage = new account();
+            modsBrowserPage = new ModsBrowser();
+            downloadPage = new download();
+            settingsPage = new settings();
+        }
+        catch (OlanException ex)
+        {
+            await OlanExceptionWorker.ForOlanException(ex);
         }
     }
     public enum MainPage

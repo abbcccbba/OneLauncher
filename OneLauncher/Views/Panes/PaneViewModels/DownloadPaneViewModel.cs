@@ -8,6 +8,7 @@ using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.java;
 using OneLauncher.Views.ViewModels;
+using OneLauncher.Views.Windows;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -137,7 +138,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                             }
                         }));
 
-                    // 现在可以安全地 await StartAsync
+                    // 现在可以安全地 await LaunchCore
                     await new DownloadMinecraft(
                         download,newUserVersion,thisVersionBasicInfo,Init.GameRootPath,progressReporter,cts.Token
                         )
@@ -191,12 +192,16 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         MainWindow.mainwindow.downloadPage.viewmodel.IsPaneShow = false;
     }
     [RelayCommand]
-    public void CheckOnWeb()
+    public void PopUp()
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = $"https://zh.minecraft.wiki/w/Java版{VersionName}",
-            UseShellExecute = true
-        });
+        new PopUpPane(new DownloadPane(thisVersionBasicInfo,this)).Show();
     }
+    //public void CheckOnWeb()
+    //{
+    //    Process.Start(new ProcessStartInfo
+    //    {
+    //        FileName = $"https://zh.minecraft.wiki/w/Java版{VersionName}",
+    //        UseShellExecute = true
+    //    });
+    //}
 }

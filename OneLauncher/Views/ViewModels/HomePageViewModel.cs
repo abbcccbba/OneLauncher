@@ -14,8 +14,11 @@ internal partial class HomePageViewModel : BaseViewModel
 {
     public HomePageViewModel()
     {
-        UserName = "用户名："+Init.ConfigManger.config.DefaultUserModel.Name ?? "未指定";
-        VersionName = "版本：" + Init.ConfigManger.config.DefaultVersion ?? "未指定";
+        var InitResult = Init.InitTask.Result;
+        if (InitResult != null)
+            OlanExceptionWorker.ForOlanException(InitResult);
+        UserName = "用户名："+Init.ConfigManger?.config?.DefaultUserModel?.Name ?? "未指定";
+        VersionName = "版本：" + Init.ConfigManger?.config?.DefaultVersion ?? "未指定";
     }
     [ObservableProperty]
     public string userName;
