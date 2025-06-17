@@ -19,7 +19,6 @@ public static class Init
         try
         {
             BasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "OneLauncher");
-            GameRootPath = Path.Combine(BasePath, ".minecraft");
             Directory.CreateDirectory(BasePath); 
                                                  
             ConfigManger = await DBManger.CreateAsync(new AppConfig()
@@ -34,6 +33,7 @@ public static class Init
                     MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Standard)
                 }
             }, BasePath);
+            GameRootPath = ConfigManger.config.OlanSettings.GameInstallPath ?? Path.Combine(BasePath, ".minecraft");
             // 初始化系统信息
             systemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
                          RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :

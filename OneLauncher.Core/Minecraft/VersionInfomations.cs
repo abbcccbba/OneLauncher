@@ -86,7 +86,7 @@ public class VersionInfomations
             if (!isAllowed) continue;
 
             // 2. 识别并准备原生库
-            MInecraftLibraryArtifact nativeArtifact = null;
+            MinecraftLibraryArtifact nativeArtifact = null;
             bool isModernNative = false;
 
             // **方式A: 优先处理旧版JSON的 "natives" 对象**

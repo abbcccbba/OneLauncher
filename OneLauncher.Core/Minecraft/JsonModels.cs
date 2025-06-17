@@ -8,7 +8,7 @@ namespace OneLauncher.Core.Minecraft.JsonModels;
 [JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftDownloadUrl))]
 [JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLibrary))]
 [JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLibraryDownloads))]
-[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MInecraftLibraryArtifact))]
+[JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftLibraryArtifact))]
 [JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftArguments))]
 [JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftArgument))]
 [JsonSerializable(typeof(OneLauncher.Core.Minecraft.JsonModels.MinecraftRule))]
@@ -25,7 +25,7 @@ namespace OneLauncher.Core.Minecraft.JsonModels;
 [JsonSerializable(typeof(System.Collections.Generic.List<OneLauncher.Core.Minecraft.JsonModels.MinecraftRule>))]
 [JsonSerializable(typeof(System.Collections.Generic.List<object>))]
 [JsonSerializable(typeof(System.Collections.Generic.List<string>))]
-[JsonSerializable(typeof(System.Collections.Generic.Dictionary<string, OneLauncher.Core.Minecraft.JsonModels.MInecraftLibraryArtifact>))]
+[JsonSerializable(typeof(System.Collections.Generic.Dictionary<string, OneLauncher.Core.Minecraft.JsonModels.MinecraftLibraryArtifact>))]
 public partial class MinecraftJsonContext : JsonSerializerContext { }
 // 表示version.json的顶层结构
 public class MinecraftVersionInfo
@@ -119,14 +119,14 @@ public class MinecraftLibraryDownloads
 {
     // 普通库文件
     [JsonPropertyName("artifact")]
-    public MInecraftLibraryArtifact? Artifact { get; set; }
+    public MinecraftLibraryArtifact? Artifact { get; set; }
 
     [JsonPropertyName("classifiers")]
-    public Dictionary<string, MInecraftLibraryArtifact>? Classifiers { get; set; }
+    public Dictionary<string, MinecraftLibraryArtifact>? Classifiers { get; set; }
 }
 
 // 表示普通库文件的具体下载信息
-public class MInecraftLibraryArtifact
+public class MinecraftLibraryArtifact
 {
     [JsonPropertyName("path")]
     public string? Path { get; set; }

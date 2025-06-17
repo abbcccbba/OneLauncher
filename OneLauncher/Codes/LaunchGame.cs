@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Codes;
@@ -76,20 +77,24 @@ internal class Game
                 );
             using (Process process = new Process())
             {
-                process.StartInfo.Arguments =
+                process.StartInfo = new ProcessStartInfo()
+                {
+                    Arguments =
                     // 如果你想自定义标题，可以从Github下载OneLauncher.Agent.jar，然后把路径输入到这里，后面的就是新标题
                     //"-javaagent:\"F:\\OneLauncherAgent.jar\"=\"Hello World by OneLauncher\"" +
-                    $"@{launchArgumentsPath}";
-                Debug.WriteLine(process.StartInfo.Arguments);
-                process.StartInfo.FileName = Builder.GetJavaPath();
-                process.StartInfo.WorkingDirectory =
+                    $"@{launchArgumentsPath}",
+                    FileName = Builder.GetJavaPath(),
+                    WorkingDirectory =
                     (IsVersionInsulation)
-                    ? Path.Combine(Init.GameRootPath, "versions",GameVersion)
-                    : Init.GameRootPath;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
+                    ? Path.Combine(Init.GameRootPath, "versions", GameVersion)
+                    : Init.GameRootPath,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8
+                };
                 process.OutputDataReceived += async (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;

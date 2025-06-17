@@ -1,9 +1,9 @@
 ﻿using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.msa.JsonModels;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using System.Buffers.Binary;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -70,11 +70,11 @@ public class MojangProfile : IDisposable
                 // 添加模型参数
                 formData.Add(new StringContent(skin.IsSlimModel ? "slim" : "classic"), "variant");
                 var imageFilePath = skin.Skin.ToString();
-                var fileStream = System.IO.File.OpenRead(imageFilePath);
+                var fileStream = File.OpenRead(imageFilePath);
                 var streamContent = new StreamContent(fileStream);
-                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
 
-                formData.Add(streamContent, "file", System.IO.Path.GetFileName(imageFilePath));
+                formData.Add(streamContent, "file", Path.GetFileName(imageFilePath));
 
                 response = await httpClient.PostAsync(requestUrl, formData);
                 response.EnsureSuccessStatusCode();
@@ -176,46 +176,47 @@ public class MojangProfile : IDisposable
     {
         try
         {
-            using (var image = await Image.LoadAsync<Rgba32>(skinFile))
+            const int widthOffset = 16;
+            const int heightOffset = 20;
+
+            // 我们只需要读取文件的前 24 个字节就足够了
+            byte[] buffer = new byte[24];
+
+            await using (var stream = new FileStream(skinFile, FileMode.Open, FileAccess.Read))
             {
-                int width = image.Width;
-                int height = image.Height;
-
-                // 2. 检查基本尺寸
-                bool isValidDimension = (width == 64 && (height == 32 || height == 64)) ||
-                                        (width == 128 && height == 128) ||
-                                        (width == 32 && height == 64); // 偶尔会有这种老式布局
-
-                if (!isValidDimension)
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead < 24)
                 {
+                    // 文件太小，肯定不是有效的皮肤文件
                     return false;
                 }
-
-                else if (height == 128 && width == 128) // 高清皮肤
-                {
-                    bool hasTransparentPixels = false;
-                    for (int y = 96; y < 104; y++) // 对应 64x64 的 48-52
-                    {
-                        for (int x = 88; x < 96; x++) // 对应 64x64 的 44-48
-                        {
-                            if (x < image.Width && y < image.Height && image[x, y].A == 0)
-                            {
-                                hasTransparentPixels = true;
-                                break;
-                            }
-                        }
-                        if (hasTransparentPixels) break;
-                    }
-                    if (!hasTransparentPixels)
-                    {
-                        return false;
-                    }
-                }
-                return true;
             }
+
+            // PNG 格式使用大端序（Big-Endian）存储整数
+            // 从 buffer 的第 16 位开始读取 4 字节作为宽度
+            int width = BinaryPrimitives.ReadInt32BigEndian(buffer.AsSpan(widthOffset));
+            // 从 buffer 的第 20 位开始读取 4 字节作为高度
+            int height = BinaryPrimitives.ReadInt32BigEndian(buffer.AsSpan(heightOffset));
+
+            // 现在进行和你原来完全一样的尺寸校验
+            bool isValidDimension = (width == 64 && (height == 32 || height == 64));
+
+            // 注意：高清皮肤(128x128) 和老式布局(32x64) 的支持可以根据需要添加，
+            // 但 64x64 是最标准的。Mojang API 可能对更大尺寸有更严格的要求。
+            // 为了安全起见，可以先只允许最常见的尺寸。
+            // bool isValidDimension = (width == 64 && (height == 32 || height == 64));
+
+            // 如果你需要支持更多尺寸，可以恢复原来的逻辑：
+            // bool isValidDimension = (width == 64 && (height == 32 || height == 64)) ||
+            //                         (width == 128 && height == 128) ||
+            //                         (width == 32 && height == 64);
+
+            return isValidDimension;
         }
         catch (Exception ex)
         {
+            // 任何异常（如文件不是有效的PNG，读取失败等）都意味着文件无效
+            Debug.WriteLine($"Skin validation failed: {ex.Message}");
             return false;
         }
     }

@@ -20,6 +20,7 @@ public class AppSettings
     public int MaximumSha1Threads { get; set; } = 24;
     public bool IsSha1Enabled { get; set; } = true;
     public bool IsAllowToDownloadUseBMLCAPI { get; set; } = false;
+    public string GameInstallPath { get; set; } 
 }
 public class AppConfig
 {

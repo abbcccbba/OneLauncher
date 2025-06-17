@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<Platforms>AnyCPU;x64</Platforms>
+		<Platforms>x64</Platforms>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 	</PropertyGroup>
 	
@@ -20,18 +20,17 @@
 		<NativeLibrary Include="libs\libSkiaSharp.lib" />
 		<DirectPInvoke Include="av_libglesv2" />
 		<NativeLibrary Include="libs\av_libglesv2.lib" />
-	</ItemGroup>  
-	
+	</ItemGroup>
 	<ItemGroup>
 		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />
 		<TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />
 		<TrimmerRootAssembly Include="Avalonia.Controls" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Desktop" Version="11.3.1" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.1"/>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\OneLauncher\OneLauncher.csproj" />
+		<ProjectReference Include="..\OneLauncher\OneLauncher.csproj"/>
 	</ItemGroup>
 	<PropertyGroup>
 		<ApplicationIcon>window-logo.ico</ApplicationIcon>
