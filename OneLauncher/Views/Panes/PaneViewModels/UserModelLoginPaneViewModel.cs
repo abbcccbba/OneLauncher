@@ -12,10 +12,6 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-#if WINDOWS
-using Avalonia.Win32;
-#endif
-
 namespace OneLauncher.Views.Panes.PaneViewModels;
 
 internal partial class UserModelLoginPaneViewModel : BaseViewModel

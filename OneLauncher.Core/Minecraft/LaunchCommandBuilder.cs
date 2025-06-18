@@ -1,7 +1,7 @@
 ﻿using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
-using OneLauncher.Core.ModLoader.fabric;
-using OneLauncher.Core.ModLoader.neoforge;
+using OneLauncher.Core.Mod.ModLoader.fabric;
+using OneLauncher.Core.Mod.ModLoader.neoforge;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 namespace OneLauncher.Core.Minecraft;

@@ -130,7 +130,7 @@ public class JvmArguments
         #region 1. 真正的智能内存分配模型
 
         // 1.获取最真实的系统可用内存
-        var memoryMetrics = SystemInfoHelper.GetMemoryMetrics();
+        var memoryMetrics = SystemMemoryHelper.GetMemoryMetrics();
         long availableMemoryMB = (long)memoryMetrics.FreeMB;
 
         int finalMaxHeapSize;

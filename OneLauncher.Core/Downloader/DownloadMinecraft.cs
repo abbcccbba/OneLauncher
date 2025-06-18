@@ -1,5 +1,7 @@
 ﻿using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
+using OneLauncher.Core.Mod.ModLoader.fabric;
+using OneLauncher.Core.Mod.ModLoader.neoforge;
 using OneLauncher.Core.ModLoader.neoforge;
 using OneLauncher.Core.Net.java;
 using OneLauncher.Core.Net.ModService.Modrinth;
@@ -35,7 +37,7 @@ public class DownloadMinecraft
     private VersionInfomations mations;
 
     public readonly CancellationToken cancelToken;
-    public readonly IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress;
+    public readonly IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>? progress;
     public int maxDownloadThreads = 24;
     public int maxSha1Threads = 24;
     public int alls = 0;
@@ -80,7 +82,7 @@ public class DownloadMinecraft
         this.maxSha1Threads = maxSha1Threads;
         #region 非正式下载阶段
         Interlocked.Increment(ref dones);
-        progress.Report((DownProgress.Meta, alls, dones, "版本文件"));
+        progress?.Report((DownProgress.Meta, alls, dones, "版本文件"));
         string versionJsonFileName = Path.Combine(versionPath, "version.json");
         if (!File.Exists(versionJsonFileName))
             await downloadTool.DownloadFile(basic.Url, versionJsonFileName, cancelToken);
@@ -91,7 +93,7 @@ public class DownloadMinecraft
         if (AndJava)
             javaInstallTask = JavaInstallTasker();
         Interlocked.Increment(ref dones);
-        progress.Report((DownProgress.Meta, alls, dones, "资源文件索引"));
+        progress?.Report((DownProgress.Meta, alls, dones, "资源文件索引"));
         var assets = mations.GetAssets();
         if (!File.Exists(assets.path))
             await downloadTool.DownloadFile(assets.url, assets.path, cancelToken);
@@ -138,14 +140,14 @@ public class DownloadMinecraft
         if(userInfo.modType.IsFabric)
         {
             Interlocked.Increment(ref dones);
-            progress.Report((DownProgress.Meta, alls, dones, "查找Fabric相关链接"));
+            progress?.Report((DownProgress.Meta, alls, dones, "查找Fabric相关链接"));
             const string FabricVersionJsonName = "version.fabric.json";
             string modVersionPath = Path.Combine(versionPath, FabricVersionJsonName);
             if (!File.Exists(modVersionPath))
                 await downloadTool.DownloadFile(
                   $"https://meta.fabricmc.net/v2/versions/loader/{ID}/", modVersionPath,cancelToken);
             // 获取 Fabric 加载器下载信息
-            ModNds = downloadTool.CheckFilesExists(new ModLoader.fabric.FabricVJParser(
+            ModNds = downloadTool.CheckFilesExists(new FabricVJParser(
                 Path.Combine(modVersionPath), GameRootPath
                 ).GetLibraries(),cancelToken);
             // 获取Fabric API下载信息
@@ -175,7 +177,7 @@ public class DownloadMinecraft
               );
             neofogreITExp = installTasker;
             Interlocked.Increment(ref dones);
-            progress.Report((DownProgress.Meta, alls, dones, "查找Neoforge相关链接"));
+            progress?.Report((DownProgress.Meta, alls, dones, "查找Neoforge相关链接"));
             // 下载依赖库和工具依赖库文件
             string neoForgeActualVersion = await new NeoForgeVersionListGetter(downloadTool.unityClient)
             // 调用Gemini写的名字贼长的方法来获取NeoForge安装程序的url
@@ -223,10 +225,10 @@ public class DownloadMinecraft
         await javaInstallTask;
         if (IsSha1)
         {
-            progress.Report((DownProgress.Verify, alls, dones, "校验中！"));
+            progress?.Report((DownProgress.Verify, alls, dones, "校验中！"));
             await downloadTool.CheckAllSha1(AllNdListSha1, maxSha1Threads, cancelToken);
         }
-        progress.Report((DownProgress.Done,alls,dones,"下载完毕！"));
+        progress?.Report((DownProgress.Done, alls, dones, "下载完毕！"));
     }
     private int retryTimes; // 已经重试次数
     private const int MAX_DOWNLOAD_RETRIES = 3; // 每个文件最多重试3次
@@ -250,14 +252,14 @@ public class DownloadMinecraft
 
         if (!UseBMLCAPI)
         {
-            progress.Report((DownProgress.DownMain, alls, dones, Path.GetFileName(main.path)));
+            progress?.Report((DownProgress.DownMain, alls, dones, Path.GetFileName(main.path)));
             await downloadTool.DownloadFile(main.url, main.path, cancelToken);
         }
         else
         {
             await Task.Run(async () =>
             {
-                progress.Report((DownProgress.DownMain, alls, dones, Path.GetFileName(main.path)));
+                progress?.Report((DownProgress.DownMain, alls, dones, Path.GetFileName(main.path)));
                 string mirrorUrl = $"https://bmclapi2.bangbang93.com/version/{ID}/client";
                 using var raceCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token);
 
@@ -332,7 +334,7 @@ public class DownloadMinecraft
             new Progress<(int completedFiles, string FilesName)>(p =>
             {
                 Interlocked.Increment(ref dones);
-                progress.Report((DownProgress.DownAssets, alls, dones, p.FilesName));
+                progress?.Report((DownProgress.DownAssets, alls, dones, p.FilesName));
             }),
             assetsToDownload, maxDownloadThreads, cancelToken);
     }
@@ -412,7 +414,7 @@ public class DownloadMinecraft
                                 }
 
                                 Interlocked.Increment(ref dones);
-                                progress.Report((DownProgress.DownLibs, alls, dones, Path.GetFileName(library.path)));
+                                progress?.Report((DownProgress.DownLibs, alls, dones, Path.GetFileName(library.path)));
                                 return; 
                             }
 
@@ -447,7 +449,7 @@ public class DownloadMinecraft
                 new Progress<(int a, string b)>(p =>
                 {
                     Interlocked.Increment(ref dones);
-                    progress.Report((DownProgress.DownLibs, alls, dones, p.b));
+                    progress?.Report((DownProgress.DownLibs, alls, dones, p.b));
                 }), libraries, maxDownloadThreads, cancelToken);
         }
 
@@ -465,7 +467,7 @@ public class DownloadMinecraft
             new Progress<(int a, string b)>(p =>
             {
                 Interlocked.Increment(ref dones);
-                progress.Report((DownProgress.DownAndInstModFiles, alls, dones, p.b));
+                progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, p.b));
             }),
             modNds, maxDownloadThreads, cancelToken); 
     private Task NeoforgeInstallTasker(string tbfm,NeoForgeInstallTasker exp)
@@ -474,7 +476,7 @@ public class DownloadMinecraft
         {
             if (a == -1 && b == -1)
                 throw new OlanException("NeoForge安装失败", $"执行处理器时报错。信息：{c}", OlanExceptionAction.Error);
-            progress.Report((DownProgress.DownAndInstModFiles, alls, dones, $"[执行处理器({b}/{a})]{Environment.NewLine}{c}"));
+            progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, $"[执行处理器({b}/{a})]{Environment.NewLine}{c}"));
         };
         return Task.Run(() =>
             exp.ToRunProcessors

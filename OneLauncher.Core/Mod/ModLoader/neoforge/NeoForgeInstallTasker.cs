@@ -6,7 +6,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
-namespace OneLauncher.Core.ModLoader.neoforge;
+namespace OneLauncher.Core.Mod.ModLoader.neoforge;
 public delegate void ProcessorsOut(int all, int done, string message);
 /// <summary>
 /// 接管NeoForge几乎所有安装操作
@@ -20,7 +20,7 @@ public class NeoForgeInstallTasker
     public readonly string gamePath;
     public readonly string gameVersion;
     public NeoForgeInstallTasker(
-        Downloader.Download downloadTask,
+        Download downloadTask,
         string librariesPath,
         string gamePath,
         string gameVersion)
@@ -64,8 +64,8 @@ public class NeoForgeInstallTasker
         using Stream versionJsonStream = versionJson.Open();
         using Stream installProfileStream = installProfile.Open();
         using Stream DataClientLazmStream = DataClientLazm.Open();
-        NeoForgeVersionJson? versioninfo = await JsonSerializer.DeserializeAsync<NeoForgeVersionJson>(versionJsonStream,NeoforgeJsonContext.Default.NeoForgeVersionJson);
-        NeoforgeRoot? installinfo = await JsonSerializer.DeserializeAsync<NeoforgeRoot>(installProfileStream, NeoforgeJsonContext.Default.NeoforgeRoot);
+        NeoForgeVersionJson? versioninfo = await JsonSerializer.DeserializeAsync(versionJsonStream,NeoforgeJsonContext.Default.NeoForgeVersionJson);
+        NeoforgeRoot? installinfo = await JsonSerializer.DeserializeAsync(installProfileStream, NeoforgeJsonContext.Default.NeoforgeRoot);
         installProfileExample = installinfo;
         #endregion
         #region 下载游戏和安装工具的依赖库
@@ -190,7 +190,7 @@ public class NeoForgeInstallTasker
                                 StdArgsBuilder.Append($"\"{Tools.MavenToPath(librariesPath, aArg)}\"");
                             // 代表占位符
                             else if (aArg[0] == '{')
-                                StdArgsBuilder.Append($"\"{(ArgsExel[aArg.TrimStart('{').TrimEnd('}')])}\"");
+                                StdArgsBuilder.Append($"\"{ArgsExel[aArg.TrimStart('{').TrimEnd('}')]}\"");
                             else
                                 StdArgsBuilder.Append(aArg);
                             StdArgsBuilder.Append(" ");

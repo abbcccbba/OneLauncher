@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace OneLauncher.Core.ModLoader.neoforge;
+namespace OneLauncher.Core.Mod.ModLoader.neoforge;
 
 // NeoForgeVersionInfo 类的定义保持不变 (来自你之前的代码)
 public class NeoForgeVersionInfo : IComparable<NeoForgeVersionInfo>

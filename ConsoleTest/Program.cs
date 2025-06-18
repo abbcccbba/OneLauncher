@@ -1,32 +1,43 @@
-﻿using OneLauncher.Core; 
+﻿using Microsoft.NET.HostModel.AppHost;
+using Microsoft.NET.HostModel.Bundle;
+using OneLauncher.Core;
+using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
+using OneLauncher.Core.Minecraft;
+using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Core.Net.ConnectToolPower; 
 using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 await Init.Initialize();
-var mainPower = await MainPower.InitializationAsync();
-mainPower.CoreLog += (logMessage) =>
+async Task VersionManifestReader()
 {
-    Console.ForegroundColor = ConsoleColor.Cyan;
-    Console.WriteLine($"[Core Log] -> {logMessage}");
-};
-Console.WriteLine("输入1作为房主，输入2作为加入者");
-string r = Console.ReadLine();
-if(r == "1")
-{
-    await mainPower.LaunchCore("-node consoletest666 -token 17073157824633806511");
-}
-else
-{
-    Console.WriteLine("输入一个你认为没有被占用过的端口号");
-    string p = Console.ReadLine();
-    await mainPower.LaunchCore($"-node consoletest888 -peernode consoletest666 -srcport {p} -dstport 55555 -dstip 127.0.0.1 -appname Minecraft23456 -token 17073157824633806511");
-}
-mainPower.Dispose();
-Console.ReadKey();
+    VersionsList vl;
+    /*
+     此方法中代码可能经过三个路径
+    1、不存在清单文件，下载成功，读取
+    2、不存在清单文件，下载失败，写入失败信息
+    3、存在清单文件，读取
+     */
+    if (!File.Exists(Path.Combine(Init.BasePath, "version_manifest.json")))
+    {
+            // 路径（1）
+            using (Download download = new Download())
+                await download.DownloadFile(
+                    "https://piston-meta.mojang.com/mc/game/version_manifest.json",
+                    Path.Combine(Init.BasePath, "version_manifest.json")
+                );
+            vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
 
-
+    }
+    // 路径（3）
+    vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
+    // 提前缓存避免UI线程循环卡顿
+    List<VersionBasicInfo> releaseVersions = Init.MojangVersionList = vl.GetReleaseVersionList();
+}
+await VersionManifestReader();
+await ModpackImporter.ImportFromMrpackAsync(@"F:\User.WWWIN\dos\Better MC [NEOFORGE] BMC5 v31.mrpack",Init.GameRootPath);
 
 
 

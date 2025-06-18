@@ -1,7 +1,7 @@
 ﻿using OneLauncher.Core.ModLoader.neoforge.JsonModels;
 using System.Text;
 using System.Text.Json;
-namespace OneLauncher.Core.ModLoader.neoforge;
+namespace OneLauncher.Core.Mod.ModLoader.neoforge;
 public class NeoForgeUsing
 {
     public NeoForgeVersionJson info;
@@ -13,7 +13,7 @@ public class NeoForgeUsing
     {
         string jsonPath = Path.Combine(basePath, "versions", version, $"version.neoforge.json");
         string jsonString = await File.ReadAllTextAsync(jsonPath, Encoding.UTF8);
-        info = JsonSerializer.Deserialize<NeoForgeVersionJson>(jsonString,NeoforgeJsonContext.Default.NeoForgeVersionJson);
+        info = JsonSerializer.Deserialize(jsonString,NeoforgeJsonContext.Default.NeoForgeVersionJson);
     }
     /// <summary>
     /// 获取当前NeoForge的依赖库列表

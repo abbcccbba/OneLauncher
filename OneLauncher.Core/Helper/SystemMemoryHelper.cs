@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Helper;
-public static class SystemInfoHelper
+public static class SystemMemoryHelper
 {
-    public class MemoryMetrics
+    public struct MemoryMetrics
     {
         public double TotalMB { get; set; }
         public double UsedMB { get; set; }

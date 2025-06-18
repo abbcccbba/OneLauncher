@@ -13,6 +13,23 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Helper;
 public static class Tools
 {
+    public static async Task CopyDirectoryAsync(string sourceDir, string destDir, CancellationToken token)
+    {
+        Directory.CreateDirectory(destDir);
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            token.ThrowIfCancellationRequested();
+            string destFile = Path.Combine(destDir, Path.GetFileName(file));
+            await using var sourceStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true);
+            await using var destStream = new FileStream(destFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, 4096, true);
+            await sourceStream.CopyToAsync(destStream, token);
+        }
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+        {
+            token.ThrowIfCancellationRequested();
+            await CopyDirectoryAsync(dir, Path.Combine(destDir, Path.GetFileName(dir)), token);
+        }
+    }
     /// <summary>
     /// 获取一个当前可用的TCP端口号。
     /// </summary>

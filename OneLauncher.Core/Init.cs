@@ -17,6 +17,7 @@ public static class Init
     public static SystemType systemType { get; private set; }
     public static MsalMicrosoftAuthenticator MMA { get; private set; }
     public static MainPower ConnentToolPower { get; private set; }
+    public static List<VersionBasicInfo> MojangVersionList = null;
     public static async Task<OlanException> Initialize()
     {
         try

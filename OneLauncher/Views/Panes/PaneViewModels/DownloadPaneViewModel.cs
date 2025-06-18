@@ -194,6 +194,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public void PopUp()
     {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
         new PopUpPane(new DownloadPane(thisVersionBasicInfo,this)).Show();
     }
     //public void CheckOnWeb()

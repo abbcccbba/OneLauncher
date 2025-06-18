@@ -35,10 +35,7 @@ public partial class Download : IDisposable
 
                     // 确保目录存在
                     string destinationDir = Path.GetDirectoryName(destinationPath);
-                    if (!string.IsNullOrEmpty(destinationDir))
-                    {
-                        Directory.CreateDirectory(destinationDir);
-                    }
+                    Directory.CreateDirectory(destinationDir);
 
                     // 仅处理文件（跳过目录）
                     if (!string.IsNullOrEmpty(entry.Name))

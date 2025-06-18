@@ -20,6 +20,7 @@
 		<NativeLibrary Include="libs\libSkiaSharp.lib" />
 		<DirectPInvoke Include="av_libglesv2" />
 		<NativeLibrary Include="libs\av_libglesv2.lib" />
+
 	</ItemGroup>
 	<ItemGroup>
 		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />

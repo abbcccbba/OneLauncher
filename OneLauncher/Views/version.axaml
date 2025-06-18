@@ -16,10 +16,10 @@
 		<Grid RowDefinitions="52,*" Margin="24">
 		<StackPanel Margin="9,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
 			<TextBlock Grid.Row="0" Text="管理你的游戏版本" FontSize="36"/>
-			<Button Command="{Binding ToDownloadGameCommand}">
+			<Button Command="{Binding ImportCommand}">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
-					<TextBlock Text="转到下载版本"/>
+					<TextBlock Text="导入整合包"/>
 				</StackPanel>
 			</Button>
 			<Button Margin="-14,0,0,0" Command="{Binding PowerPlayCommand}">

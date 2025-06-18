@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,6 +11,7 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Minecraft.Server;
+using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
@@ -176,6 +179,16 @@ public enum SortingType
 }
 internal partial class VersionPageViewModel : BaseViewModel
 {
+    private void RefList()
+    {
+        var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
+        for (int i = 0; i < tempVersoinList.Count; i++)
+        {
+            tempVersoinList.Add(new VersionItem(
+                Init.ConfigManger.config.VersionList[i], i));
+        }
+        VersionList = tempVersoinList;
+    }
     public VersionPageViewModel()
     {
 #if DEBUG
@@ -197,13 +210,7 @@ internal partial class VersionPageViewModel : BaseViewModel
         {
             try
             {
-                var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
-                for (int i = 0; i < tempVersoinList.Count; i++)
-                {
-                    tempVersoinList.Add(new VersionItem(
-                        Init.ConfigManger.config.VersionList[i],i));
-                }
-                VersionList = tempVersoinList;
+                RefList();
             }
             catch (NullReferenceException ex)
             {
@@ -226,10 +233,44 @@ internal partial class VersionPageViewModel : BaseViewModel
     [ObservableProperty]
     public bool _isPaneShow;
     [RelayCommand]
-    public void ToDownloadGame()
+    public async Task Import()
     {
-        MainWindow.mainwindow.MainPageControl(MainWindow.MainPage.DownloadPage);
-    }  
+        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
+        if (topLevel?.StorageProvider is { } storageProvider && storageProvider.CanOpen)
+        {
+            var mrpackFileType = new FilePickerFileType("Modrinth整合包文件")
+            {
+                Patterns = new[] { "*.mrpack" },
+                MimeTypes = new[] { "application/mrpack" } 
+            };
+
+            var options = new FilePickerOpenOptions
+            {
+                Title = "选择 Modrinth Pack 文件",
+                AllowMultiple = false,
+                FileTypeFilter = new[] { mrpackFileType },
+            };
+            var files = await storageProvider.OpenFilePickerAsync(options);
+            var selectedFile = files.FirstOrDefault();
+
+            if (files == null || !files.Any() || selectedFile == null)
+                return;
+
+            string filePath = selectedFile.Path.LocalPath;
+            await MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
+            await ModpackImporter.ImportFromMrpackAsync(filePath,Init.GameRootPath,CancellationToken.None);
+            await MainWindow.mainwindow.ShowFlyout("导入完成！");
+            var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
+            for (int i = 0; i < Init.ConfigManger.config.VersionList.Count; i++)
+            {
+                tempVersoinList.Add(new VersionItem(
+                    Init.ConfigManger.config.VersionList[i],
+                    i
+                    ));
+            }
+            VersionList = tempVersoinList;
+        }
+    }
     [RelayCommand]
     public void Sorting(SortingType type)
     {
