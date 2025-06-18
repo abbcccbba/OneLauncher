@@ -26,7 +26,6 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
 - **特定平台功能限制**
   - **联机** 仅限Windows
   - **Web Accoount Manger登入方式** 仅限Windows
-  - **启动前内存清理** 仅限Windows、MacOS 
 
 ## 跨平台安装与构建指南
 
