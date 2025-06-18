@@ -88,9 +88,8 @@ public class MsalMicrosoftAuthenticator : IDisposable
         var authenticator = new MsalMicrosoftAuthenticator(clientId);
 
         var storageProperties =
-         new StorageCreationPropertiesBuilder("onelauncher.msal.cache.dat", Init.BasePath)
+         new StorageCreationPropertiesBuilder("onelauncher.msal.cache.dat", Path.Combine( Init.BasePath,"playerdata"))
          .Build();
-
         authenticator.cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
         authenticator.cacheHelper.RegisterCache(authenticator.msalClient.UserTokenCache);
         return authenticator;

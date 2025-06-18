@@ -9,6 +9,8 @@ using OneLauncher.Core.Net.msa;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views;
@@ -44,6 +46,13 @@ public partial class MainWindow : Window
         {
             await OlanExceptionWorker.ForOlanException(ex);
         }
+    }
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+        Debug.WriteLine("释放残余资源...");
+        Init.MMA.Dispose();
+        Init.ConnentToolPower.Dispose();
     }
     public enum MainPage
     {

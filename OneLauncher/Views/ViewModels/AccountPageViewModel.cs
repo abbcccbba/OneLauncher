@@ -34,7 +34,7 @@ internal partial class AccountPageViewModel : BaseViewModel
                 {
                     um = x,
                     HeadImg = (x.IsMsaUser)
-                    ? new Bitmap(Path.Combine(Init.BasePath, "MsaPlayerData", "body", $"{x.uuid}.png"))
+                    ? new Bitmap(Path.Combine(Init.BasePath, "playerdata", "body", $"{x.uuid}.png"))
                     : new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")))
                 }).ToList();
     }

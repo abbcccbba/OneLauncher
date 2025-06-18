@@ -480,8 +480,7 @@ public class DownloadMinecraft
             exp.ToRunProcessors
             (
               Path.Combine(GameRootPath, "versions", ID, $"{ID}.jar"),
-              Tools.IsUseOlansJreOrOssJdk(mations.GetJavaVersion(), 
-              Path.GetDirectoryName(GameRootPath)),
+              Tools.IsUseOlansJreOrOssJdk(mations.GetJavaVersion()),
               tbfm,Init.systemType,cancelToken
             ));
     }
@@ -496,7 +495,7 @@ public class DownloadMinecraft
         {
             await AutoJavaGetter.JavaReleaser(
               mations.GetJavaVersion().ToString(),
-              Path.Combine(Path.GetDirectoryName(GameRootPath), "JavaRuntimes"), Init.systemType);
+              Path.Combine(Path.GetDirectoryName(GameRootPath), "runtimes"), Init.systemType);
             Init.ConfigManger.config.AvailableJavaList.Add(mations.GetJavaVersion());
             await Init.ConfigManger.Save();
         }

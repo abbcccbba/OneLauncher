@@ -6,11 +6,11 @@ namespace OneLauncher.Core.Net.ConnectToolPower;
 
 public interface IConnectService : IDisposable
 {
-    Task StartAsHost(
+    void StartAsHost(
         string? nodeName, 
         string? token
         );
-    Task Join(
+    void Join(
         string? nodeName, 
         string peerNodeName, 
         int? sourcePort,

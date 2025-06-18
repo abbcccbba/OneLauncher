@@ -58,7 +58,7 @@ public class LaunchCommandBuilder
         );
     }
     public string GetJavaPath() =>
-        Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion(), Path.GetDirectoryName(basePath));
+        Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
     public async Task<string> BuildCommand(string OtherArgs = "")
     {
         string MainClass;
@@ -236,6 +236,10 @@ public class LaunchCommandBuilder
         if(serverInfo != null)
         {
             serverArgs = $"--server \"{((ServerInfo)serverInfo).Ip}\" --port\"{((ServerInfo)serverInfo).Port}\" ";
+            if(new Version(version) > new Version("1.20"))
+            {
+                serverArgs += $"--quickPlayMultiplayer \"{serverInfo.Value.Ip}:{serverInfo.Value.Port}\" ";
+            }
         }
         string GameArgs =
             $"--username \"{userModel.Name}\" " +

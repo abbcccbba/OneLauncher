@@ -369,50 +369,51 @@ public partial class Download : IDisposable
     }
 
     public Task DownloadListAsync(
-        IProgress<(int completedFiles,string FilesName)> progress,
-        List<NdDowItem> downloadNds,
-        int maxConcurrentDownloads,
-        CancellationToken token)
-    {
-        int completedFiles = 0;
-        var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
-        return Task.WhenAll(downloadNds.Select(async item => 
-        {
-            await semaphore.WaitAsync(token);
-            try
+    IProgress<(int completedFiles, string FilesName)> progress,
+    List<NdDowItem> downloadNds,
+    int maxConcurrentDownloads,
+    CancellationToken token)
+    {
+        int completedFiles = 0;
+
+        return Parallel.ForEachAsync(
+            downloadNds,
+            new ParallelOptions
             {
-                // 原子递增已完成文件数
-                Interlocked.Increment(ref completedFiles);
-                // 报告进度
-                progress?.Report((completedFiles, item.url));
-                // 执行下载操作
-                await DownloadFile(item.url, item.path, token);
-            }
-            catch (HttpRequestException ex)
+                MaxDegreeOfParallelism = maxConcurrentDownloads,
+                CancellationToken = token
+            },
+            async (item, ct) =>
             {
-                for (int attempt = 0; attempt < 3; attempt++)
+                try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), token);
-                    try
-                    {
-                        await DownloadFile(item.url, item.path, token);
-                        break;
-                    }
-                    catch (HttpRequestException ex2)
-                    {
-                        Debug.WriteLine($"重试下载失败: {ex2.Message}, URL: {item.url}");
-                        continue;
-                    }
+                    // 原子递增已完成文件数
+                    Interlocked.Increment(ref completedFiles);
+                    // 报告进度
+                    progress?.Report((completedFiles, item.url));
+                    // 执行下载操作
+                    await DownloadFile(item.url, item.path, ct);
                 }
-                throw new OlanException("下载失败", "重试到达阈值抛出", OlanExceptionAction.Error, ex);
-            }
-            finally
-            {
-                // 释放信号量
-                semaphore.Release();
-            }
-        }));
-    }
+                catch (HttpRequestException ex)
+                {
+                    for (int attempt = 0; attempt < 3; attempt++)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct);
+                        try
+                        {
+                            await DownloadFile(item.url, item.path, ct);
+                            return; // 成功下载，退出重试循环
+                        }
+                        catch (HttpRequestException ex2)
+                        {
+                            Debug.WriteLine($"重试下载失败: {ex2.Message}, URL: {item.url}");
+                            continue;
+                        }
+                    }
+                    throw new OlanException("下载失败", "重试到达阈值抛出", OlanExceptionAction.Error, ex);
+                }
+            });
+    }
     public async Task DownloadFile(string url,string savepath, CancellationToken? token = null)
     {
         CancellationToken cancellationToken = token ?? CancellationToken.None;

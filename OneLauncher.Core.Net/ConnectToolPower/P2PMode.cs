@@ -21,7 +21,7 @@ public class P2PMode : IConnectService
     public void Dispose()
         => this.mainPower.StopCore();
 
-    public Task Join(string? nodeName, string peerNodeName, int? sourcePort, int destPort, string? destIp, string? appName, string? token)
+    public void Join(string? nodeName, string peerNodeName, int? sourcePort, int destPort, string? destIp, string? appName, string? token)
     {
         // 获取可用端口
         int localPort = sourcePort ?? Tools.GetFreeTcpPort();
@@ -38,14 +38,14 @@ public class P2PMode : IConnectService
         args.Append($"-srcport {localPort} ");
         args.Append($"-token \"{token ?? defaultToken}\" ");
 
-        return mainPower.LaunchCore(args.ToString());
+        mainPower.LaunchCore(args.ToString());
     }
 
-    public Task StartAsHost(string? nodeName, string? token)
+    public void StartAsHost(string? nodeName, string? token)
     {
         string? node = nodeName;
         if (nodeName == null)
                 node = "OLANNODE" + RandomNumberGenerator.GetInt32(100000,1000000000).ToString();
-        return mainPower.LaunchCore($"-node \"{node}\" -token \"{token ?? defaultToken}\"");
+        mainPower.LaunchCore($"-node \"{node}\" -token \"{token ?? defaultToken}\"");
     }
 }

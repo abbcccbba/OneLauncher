@@ -153,7 +153,7 @@ public class MojangProfile : IDisposable
     public async Task GetSkinHeadImage()
     {
         // 确保输出目录存在
-        var outputPath = Path.Combine(Init.BasePath, "MsaPlayerData", "body");
+        var outputPath = Path.Combine(Init.BasePath, "playerdata", "body");
         Directory.CreateDirectory(outputPath);
 
         // 1. 获取皮肤

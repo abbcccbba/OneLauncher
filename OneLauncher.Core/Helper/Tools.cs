@@ -90,9 +90,9 @@ public static class Tools
                 OlanExceptionAction.Error);
         }
     }
-    public static string IsUseOlansJreOrOssJdk(int javaVersion, string basePath)
+    public static string IsUseOlansJreOrOssJdk(int javaVersion)
     {
-        var t = Path.Combine(basePath, "JavaRuntimes", javaVersion.ToString());
+        var t = Path.Combine(Init.BasePath,"installed","runtimes", javaVersion.ToString());
         if (Init.ConfigManger.config.AvailableJavaList.Contains(javaVersion))
             return Init.systemType == SystemType.osx
                 ? Path.Combine(t, Directory.GetDirectories(t)[0], "Contents", "Home", "bin", "java")

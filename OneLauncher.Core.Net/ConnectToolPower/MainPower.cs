@@ -22,6 +22,7 @@ public class MainPower : IDisposable
     private Process? coreProcess;
 
     public event Action<string>? CoreLog;
+    public event Action? ConnectionEstablished;
 
     private MainPower(string coreDirectory,string coreFileName)
     {
@@ -31,7 +32,7 @@ public class MainPower : IDisposable
     public static async Task<MainPower> InitializationAsync(HttpClient? client = null)
     {
         var httpClient = client ?? new HttpClient();
-        string coreDirectory = Path.Combine(Init.BasePath,"install");
+        string coreDirectory = Path.Combine(Init.BasePath,"installed");
         string coreFileName = Path.Combine(coreDirectory, CoreExecutableName);
         Directory.CreateDirectory(coreDirectory);
         // 下载核心组件
@@ -57,7 +58,7 @@ public class MainPower : IDisposable
     /// 异步启动核心进程。
     /// </summary>
     /// <param name="arguments">启动参数。</param>
-    public async Task LaunchCore(string arguments)
+    public void LaunchCore(string arguments)
     {
         if (coreProcess != null && !coreProcess.HasExited)
         {
@@ -82,28 +83,31 @@ public class MainPower : IDisposable
         };
         // 解决作者写的屎山代码认配置文件不认命令行的问题
         File.Delete(Path.Combine(coreDirectory,"config.json"));
-        Directory.Delete(Path.Combine(coreDirectory,"log"),true);
+        bool IsConnectionOk = false;
         coreProcess.OutputDataReceived += (s, e) => 
         {
-            if (!string.IsNullOrEmpty(e.Data))
+            if (string.IsNullOrEmpty(e.Data))
+                return;
+            Debug.WriteLine(e.Data);
+            CoreLog?.Invoke(e.Data);
+            if (e.Data.Contains("connection ok") && !IsConnectionOk)
             {
-                Debug.WriteLine(e.Data);
-                CoreLog?.Invoke(e.Data);
+                IsConnectionOk = true;
+                ConnectionEstablished?.Invoke();
             }
         };
         coreProcess.ErrorDataReceived += (s, e) => 
         {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                Debug.WriteLine(e.Data);
-                CoreLog?.Invoke(e.Data);
-            }
+            if (string.IsNullOrEmpty(e.Data))
+                return;
+            Debug.WriteLine(e.Data);
+            CoreLog?.Invoke(e.Data);
         };
 
         coreProcess.Start();
         coreProcess.BeginOutputReadLine();
         coreProcess.BeginErrorReadLine();
-        await coreProcess.WaitForExitAsync();
+        //await coreProcess.WaitForExitAsync();
     }
 
     /// <summary>

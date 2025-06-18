@@ -51,7 +51,7 @@ public class MinecraftServerManger
             string versionPath = Path.Combine(Core.Init.GameRootPath, "versions", version);
             serverProcess.StartInfo = new ProcessStartInfo()
             {
-                FileName = Tools.IsUseOlansJreOrOssJdk(java, OneLauncher.Core.Init.BasePath),
+                FileName = Tools.IsUseOlansJreOrOssJdk(java),
                 Arguments = Core.Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(java).Trim() + 
                             $" -jar {(Path.Combine(versionPath, "server.jar"))}",
                 WorkingDirectory =
