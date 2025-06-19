@@ -8,18 +8,17 @@ namespace OneLauncher.Core.Net.ConnectToolPower;
 
 public class P2PMode : IConnectService
 {
+    // 这里就不搞什么花招了，防君子不防小人反编译一样看得到
     const string defaultToken = "17073157824633806511";
     const string defaultAppName = "OneLauncherConnentService";
     const string defaultDestIP = "127.0.0.1";
-    private MainPower mainPower;
-    public P2PMode(MainPower mainPower)
+    private MCTPower mainPower;
+    public P2PMode(MCTPower mainPower)
     {
         if (Init.systemType != SystemType.windows)
             throw new OlanException("无法初始化联机模块","你的操作系统不受支持");
         this.mainPower = mainPower;
     }
-    public void Dispose()
-        => this.mainPower.StopCore();
 
     public void Join(string? nodeName, string peerNodeName, int? sourcePort, int destPort, string? destIp, string? appName, string? token)
     {

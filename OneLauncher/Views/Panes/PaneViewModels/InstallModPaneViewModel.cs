@@ -54,7 +54,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
         // 安装前先检查版本是否符合要求
         if(!(SupportModType.IsFabric == SelectedItem.modType.IsFabric || SupportModType.IsNeoForge == SelectedItem.modType.IsNeoForge)) 
         {
-            await MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应加载器",true);
+            MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应加载器",true);
             return;
         }
         IsShowMoreInfo = false;
@@ -77,7 +77,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
                         SelectedItem.VersionID, IsIncludeDependencies: IsICS, IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
                 return;
             }
-        await MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应版本", true);
+        MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应版本", true);
         return;
     }
     [ObservableProperty]

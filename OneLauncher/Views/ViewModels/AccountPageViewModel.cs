@@ -70,7 +70,7 @@ internal partial class AccountPageViewModel : BaseViewModel
                 }
             }
             RefList();
-            await MainWindow.mainwindow.ShowFlyout("刷新完毕");
+            MainWindow.mainwindow.ShowFlyout("刷新完毕");
         }
         catch (OlanException oex)
         {

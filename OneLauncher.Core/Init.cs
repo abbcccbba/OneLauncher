@@ -8,15 +8,14 @@ namespace OneLauncher.Core;
 public static class Init
 {
     public const string OneLauncherVersoin = "1.4.0";
-    public const string ApplicationUUID = "com.onelauncher.qustellar";
+    public const string ApplicationUUID = "com.onelauncher.lnetface";
     public const string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
-    public static Task<OlanException> InitTask { get; } = Task.Run(() =>Init.Initialize());
+    public static Task<OlanException> InitTask;
     public static string BasePath { get; private set; }
     public static string GameRootPath { get; private set; }
     public static DBManger ConfigManger { get; private set; }
     public static SystemType systemType { get; private set; }
     public static MsalMicrosoftAuthenticator MMA { get; private set; }
-    public static MainPower ConnentToolPower { get; private set; }
     public static List<VersionBasicInfo> MojangVersionList = null;
     public static async Task<OlanException> Initialize()
     {
@@ -44,8 +43,6 @@ public static class Init
                          RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
             // 初始化微软验证系统
             MMA = await MsalMicrosoftAuthenticator.CreateAsync(Init.AzureApplicationID);
-            // 初始化联机组件
-            ConnentToolPower = await MainPower.InitializationAsync();
             return null;
         }
         catch (ArgumentException ex)

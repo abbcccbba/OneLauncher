@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Avalonia;
+using OneLauncher.Core;
+using System;
 using System.IO;
 using System.Threading.Tasks;
-using Avalonia;
 namespace OneLauncher.Desktop;
 
 class Program
@@ -11,6 +12,7 @@ class Program
     {
         try
         {
+            Init.InitTask = Task.Run(() => Init.Initialize());
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
         catch (Exception ex) 

@@ -139,7 +139,7 @@ public class JvmArguments
         {
             finalMaxHeapSize = MaxHeapSize;
         }
-        else // Case 2: 用户选择了“自动”模式，启动HMCL智能算法
+        else // Case 2: 用户选择了“自动”模式
         {
             const long minMemoryMB = 1024; // 游戏能启动的最小内存
 
@@ -153,7 +153,7 @@ public class JvmArguments
             }
             else
             {
-                // 3. 应用HMCL的非线性智能算法
+                // 3. 应用非线性智能算法
                 const long thresholdMB = 8L * 1024; // 8GB 阈值
                 const long hardCapMB = 16L * 1024;  // 16GB 硬上限
                 long suggestedMB;
@@ -182,10 +182,10 @@ public class JvmArguments
         }
         else // 自动计算初始值
         {
-            // 激进模式下设为与最大值相同，其他模式为最大值一半（但不小于512MB）
+            // 激进模式下设为与最大值相同，其他模式为最大值一半（但不小于1024MB）
             finalInitialHeapSize = (mode == OptimizationMode.Aggressive)
                 ? finalMaxHeapSize
-                : Math.Clamp(finalMaxHeapSize / 2, 512, finalMaxHeapSize);
+                : Math.Clamp(finalMaxHeapSize / 2, 1024, finalMaxHeapSize);
         }
 
         // 最终校验，确保初始值不会大于最大值
@@ -249,8 +249,6 @@ public class JvmArguments
                        .Append(" -XX:MaxTenuringThreshold=1")
                        .Append(" -Dusing.aikars.flags=true");
         }
-
-        //argsBuilder.Append(" -Dfile.encoding=UTF-8");
 
         #endregion
 

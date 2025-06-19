@@ -31,7 +31,7 @@ internal partial class GameTaskerViewModel : BaseViewModel
         WeakReferenceMessenger.Default.Register<GameMessage>(this, (recipient, message) =>
         {
             // 在 UI 线程上更新 UI 绑定属性，避免跨线程访问问题
-            Avalonia.Threading.Dispatcher.UIThread.Invoke(() =>
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 _logBuilder.Append(message.Content);
 
@@ -45,11 +45,6 @@ internal partial class GameTaskerViewModel : BaseViewModel
 
                 // 将 StringBuilder 的内容更新到绑定属性
                 Out = _logBuilder.ToString();
-
-                // 强制 TextBox 滚动到底部（如果需要）
-                // 这通常需要在 View 中通过附加属性或行为实现，因为 ViewModel 不直接操作 View
-                // 例如，你可以发布一个消息让 View 知道需要滚动：
-                // WeakReferenceMessenger.Default.Send(new ScrollToEndMessage());
             });
         });
     }

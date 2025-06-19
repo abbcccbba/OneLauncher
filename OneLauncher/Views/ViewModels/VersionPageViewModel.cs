@@ -134,7 +134,7 @@ internal partial class VersionItem : BaseViewModel
             (
                 OtherArgs: "-XX:+UseG1GC"
         ));
-        await MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
+        MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
     }
     [RelayCommand]
     public void PinInDashboard()
@@ -257,9 +257,9 @@ internal partial class VersionPageViewModel : BaseViewModel
                 return;
 
             string filePath = selectedFile.Path.LocalPath;
-            await MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
+            MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
             await ModpackImporter.ImportFromMrpackAsync(filePath,Init.GameRootPath,CancellationToken.None);
-            await MainWindow.mainwindow.ShowFlyout("导入完成！");
+            MainWindow.mainwindow.ShowFlyout("导入完成！");
             var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
             for (int i = 0; i < Init.ConfigManger.config.VersionList.Count; i++)
             {

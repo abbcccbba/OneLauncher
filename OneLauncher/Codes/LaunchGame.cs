@@ -68,7 +68,7 @@ internal class Game
             // 刷新登入令牌
             await loginUserModel.IntelligentLogin(Init.MMA);
             string launchArgumentsPath = Path.GetTempFileName();
-                await File.WriteAllTextAsync(
+            await File.WriteAllTextAsync(
                 launchArgumentsPath,
                 (await Builder.BuildCommand(
                      Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion())))

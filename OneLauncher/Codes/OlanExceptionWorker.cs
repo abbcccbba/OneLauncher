@@ -19,7 +19,7 @@ internal class OlanExceptionWorker
         return Dispatcher.UIThread.InvokeAsync(async () => 
         {
             if (exception.Action == OlanExceptionAction.Warning)
-                await MainWindow.mainwindow.ShowFlyout(exception.Message,true);
+                MainWindow.mainwindow.ShowFlyout(exception.Message,true);
             if (exception.Action == OlanExceptionAction.Error)
                 await new ExceptionTip(exception).ShowDialog(MainWindow.mainwindow);
             if (exception.Action == OlanExceptionAction.FatalError)

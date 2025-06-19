@@ -3,6 +3,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core;
 using OneLauncher.Core.Net.msa;
@@ -14,7 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views;
-
+public class ApplicationClosingMessage { }
 public partial class MainWindow : Window
 {
     public Home HomePage;
@@ -51,8 +52,7 @@ public partial class MainWindow : Window
     {
         base.OnClosing(e);
         Debug.WriteLine("释放残余资源...");
-        Init.MMA.Dispose();
-        Init.ConnentToolPower.Dispose();
+        WeakReferenceMessenger.Default.Send(new ApplicationClosingMessage());
     }
     public enum MainPage
     {
@@ -90,8 +90,8 @@ public partial class MainWindow : Window
     /// 在右下角显示提示信息
     /// </summary>
     /// <param ID="text">提示信息内容</param>
-    public Task ShowFlyout(string text,bool IsWarning = false) =>
-    Dispatcher.UIThread.InvokeAsync(async() =>
+    public void ShowFlyout(string text,bool IsWarning = false) =>
+    Dispatcher.UIThread.Post(async() =>
     {
         FytFkA.Text = text;
         if (IsWarning)

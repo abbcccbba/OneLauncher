@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OneLauncher.Core.Net.ConnectToolPower;
 
-public interface IConnectService : IDisposable
+public interface IConnectService
 {
     void StartAsHost(
         string? nodeName, 

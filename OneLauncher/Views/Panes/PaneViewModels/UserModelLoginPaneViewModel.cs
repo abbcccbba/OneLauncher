@@ -107,7 +107,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
                 await task.GetSkinHeadImage();
             accountPageViewModel.RefList();
             accountPageViewModel.IsPaneShow = false;
-            await MainWindow.mainwindow.ShowFlyout($"已登入账号:{UserName}");
+            MainWindow.mainwindow.ShowFlyout($"已登入账号:{UserName}");
         }
         catch (OlanException ex)
         {

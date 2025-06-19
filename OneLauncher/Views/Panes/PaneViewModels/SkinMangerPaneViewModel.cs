@@ -82,7 +82,7 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             // 检查皮肤文件有效性
             if (!await MojangProfile.IsValidSkinFile(filePath))
             {
-                await MainWindow.mainwindow.ShowFlyout("皮肤文件无效！",true);
+                MainWindow.mainwindow.ShowFlyout("皮肤文件无效！", true);
                 return;
             }
             Debug.WriteLine("有效的皮肤文件");
@@ -99,7 +99,7 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
                 // 刷新
                 accountPageViewModel.RefList();
 
-                await MainWindow.mainwindow.ShowFlyout("已成功上传皮肤！");
+                MainWindow.mainwindow.ShowFlyout("已成功上传皮肤！");
             } 
         }
     }
@@ -120,7 +120,7 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, Url));
             if (!response.IsSuccessStatusCode || Url == null)
             {
-                await MainWindow.mainwindow.ShowFlyout("无效的ID", true);
+                MainWindow.mainwindow.ShowFlyout("无效的ID", true);
                 return;
             }
         }
@@ -137,7 +137,7 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             // 刷新
             accountPageViewModel.RefList();
 
-            await MainWindow.mainwindow.ShowFlyout("已成功通过NameMC上传皮肤！");
+            MainWindow.mainwindow.ShowFlyout("已成功通过NameMC上传皮肤！");
         }
     }
 }
