@@ -81,7 +81,8 @@ public class MainPower : IDisposable
             },
             EnableRaisingEvents = true
         };
-        // 解决作者写的屎山代码认配置文件不认命令行的问题
+        // 他让我把注释删了，为了避免误人子弟，我这里把注释给注释掉
+        // 这里原来是// 解决作者写的屎山代码认配置文件不认命令行的问题
         File.Delete(Path.Combine(coreDirectory,"config.json"));
         bool IsConnectionOk = false;
         coreProcess.OutputDataReceived += (s, e) => 
