@@ -25,6 +25,7 @@
 				  PointerEntered="Sb_in" 
 				  PointerExited="Sb_out">
 				<!-- 侧边栏选项 -->
+				<ScrollViewer>		
 				<StackPanel x:Name="SidebarStackPanel"
                             Spacing="20"
                             Margin="-6,24,0,0"
@@ -128,6 +129,7 @@
 						</ListBox.Styles>
 					</ListBox>
 				</StackPanel>
+				</ScrollViewer>
 			</Grid>
 		</SplitView.Pane>
 
