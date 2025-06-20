@@ -12,9 +12,9 @@ Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw
 
 ## 系统要求
 
-- **操作系统**：提供了跨平台支持，主要为Windows-x64、Linux-x64 和 macOS-arm64 提供了支持
-  
-  *此项目对x86的支持有限*
+- **操作系统**：
+  - 对于Windows，需为Windows10-x64及以上
+  - 对于MacOS，仅支持Arm平台
   
 - **运行环境**：
   - 在依赖框架的构建中需要.NET9（或更高版本 可以在[这里](https://dotnet.microsoft.com/zh-cn/download/dotnet/9.0)下载）    
