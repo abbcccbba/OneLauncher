@@ -70,6 +70,8 @@ public partial class version : UserControl
         ServerInfo? serverInfo = null
         )
     {
+        if (LaunchGameInfo == null)
+            return Task.CompletedTask;
         // 用多线程而不是异步，否则某些特定版本会阻塞
         MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
         var game = new Game();

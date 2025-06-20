@@ -32,8 +32,9 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         VersionName = Version.ID.ToString();
         thisVersionBasicInfo = Version;
         // 这个版本以下不支持模组加载器
-        IsAllowFabric = new System.Version(Version.ID) < new System.Version("1.14") ? false : true;
-        IsAllowNeoforge = new System.Version(Version.ID) < new System.Version("1.20.2") ? false : true;
+        IsAllowFabric = new Version(Version.ID) < new System.Version("1.14") ? false : true;
+        IsAllowNeoforge = new Version(Version.ID) < new System.Version("1.20.2") ? false : true;
+        IsAllowForge = new Version(Version.ID) < new System.Version("1.2") ? false : true;
     }
     ~DownloadPaneViewModel()
     {
@@ -42,37 +43,25 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     }
     private CancellationTokenSource cts;
     #region 数据绑定区
-    [ObservableProperty]
-    public bool isLaunchGameAfterDone;
-    [ObservableProperty]
-    public bool _IsAllowFabric;
-    [ObservableProperty]
-    public bool _IsAllowNeoforge;
+    [ObservableProperty] public bool _IsForge;
+    [ObservableProperty] public bool _IsAllowForge;
+    [ObservableProperty] public bool _IsUseRecommendedToInstallForge;
+    [ObservableProperty] public bool isLaunchGameAfterDone;
+    [ObservableProperty] public bool _IsAllowFabric;
+    [ObservableProperty] public bool _IsAllowNeoforge;
+    [ObservableProperty] public string _VersionName;
+    [ObservableProperty] public bool _IsVI = true;
+    [ObservableProperty] public bool _IsMod;
+    [ObservableProperty] public bool _IsNeoForge;
+    [ObservableProperty] public bool _IsAllowToUseBetaNeoforge = false;
+    [ObservableProperty] public bool _IsDownloadFabricWithAPI = true;
+    [ObservableProperty] public bool _IsJava;
+    [ObservableProperty] public bool _IsAllowDownloading = true; // 默认允许下载
+    [ObservableProperty] public string _Dp = "下载未开始";
+    [ObservableProperty] public string _Fs = "?/0";
+    [ObservableProperty] public string _FileName = "操作文件名：（下载未开始）";
+    [ObservableProperty] public double _CurrentProgress = 0;
     private VersionBasicInfo thisVersionBasicInfo;
-    [ObservableProperty]
-    public string _VersionName;
-    [ObservableProperty]
-    public bool _IsVI = true;
-    [ObservableProperty]
-    public bool _IsMod;
-    [ObservableProperty]
-    public bool _IsNeoForge;
-    [ObservableProperty]
-    public bool _IsAllowToUseBetaNeoforge = false;
-    [ObservableProperty]
-    public bool _IsDownloadFabricWithAPI = true;
-    [ObservableProperty]
-    public bool _IsJava;
-    [ObservableProperty]
-    public bool _IsAllowDownloading = true; // 默认允许下载
-    [ObservableProperty]
-    public string _Dp = "下载未开始";
-    [ObservableProperty]
-    public string _Fs = "?/0";
-    [ObservableProperty]
-    public string _FileName = "操作文件名：（下载未开始）";
-    [ObservableProperty]
-    public double _CurrentProgress = 0;
     #endregion
     [RelayCommand]
     public Task ToDownload()
@@ -82,6 +71,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         {
             IsFabric = IsMod,
             IsNeoForge = IsNeoForge,
+            IsForge = IsForge,
         };
         DateTime lastUpdateTime = DateTime.MinValue;
         TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
@@ -95,7 +85,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 IsVersionIsolation = IsVI,
                 preferencesLaunchMode = new PreferencesLaunchMode()
                 {
-                    LaunchModType = (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : ModEnum.none,
+                    LaunchModType = 
+                    (IsMod) ? ModEnum.fabric : 
+                    (IsNeoForge) ? ModEnum.neoforge : 
+                    (IsForge) ? ModEnum.forge : ModEnum.none,
                     IsUseDebugModeLaunch = false
                 }
             };
@@ -105,7 +98,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 using (Download download = new Download()) // 在后台任务内部创建和管理Download对象
                 {
                     var progressReporter = new Progress<(DownProgress d, int a, int b, string c)>(p =>
-                        Dispatcher.UIThread.InvokeAsync(() =>
+                        Dispatcher.UIThread.Post(() =>
                         {
                             double progressPercentage = (p.a == 0) ? 0 : (double)p.b / p.a * 100;
                             bool isInitialReport = (lastUpdateTime == DateTime.MinValue && p.b == 0); // 更明确的初始条件

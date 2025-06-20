@@ -51,6 +51,10 @@ internal partial class VersionItem : BaseViewModel
                 IsNeoforgeLaunchMode = true;
                 VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/neoforge.png")));
                 break;
+            case ModEnum.forge:
+                IsForgeLaunchMode = true;
+                VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/forge.jpg")));
+                break;
         }
     }
     int index;
@@ -105,6 +109,22 @@ internal partial class VersionItem : BaseViewModel
         Init.ConfigManger.config.VersionList[index] = version; 
         Init.ConfigManger.Save();
         VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/neoforge.png")));
+    }
+    [ObservableProperty]
+    public bool isForgeLaunchMode;
+    partial void OnIsForgeLaunchModeChanged(bool value)
+    {
+#if DEBUG
+        if (Design.IsDesignMode)
+            return;
+#endif
+        var version = Init.ConfigManger.config.VersionList[index];
+        var prefs = version.preferencesLaunchMode;
+        prefs.LaunchModType = ModEnum.forge;
+        version.preferencesLaunchMode = prefs;
+        Init.ConfigManger.config.VersionList[index] = version;
+        Init.ConfigManger.Save();
+        VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/forge.jpg")));
     }
     [ObservableProperty]
     public bool isUseDebugModLaunch;

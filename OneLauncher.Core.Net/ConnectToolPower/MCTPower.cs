@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Helper;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -36,19 +37,17 @@ public class MCTPower : IDisposable
         string coreFileName = Path.Combine(coreDirectory, CoreExecutableName);
         Directory.CreateDirectory(coreDirectory);
         // 下载核心组件
-        if (File.Exists(coreFileName))
-            goto WhenDone;
-        var response = await httpClient.GetAsync(CoreUrl);
-        response.EnsureSuccessStatusCode();
-        using (var fs = new FileStream(coreFileName, FileMode.Create, FileAccess.Write, FileShare.None))
-            await response.Content.CopyToAsync(fs);
-        // 校验
-        string? currentMd5 = await Tools.GetFileMD5Async(coreFileName);
-        if (currentMd5 == null)
-            throw new OlanException("无法初始化联机模块","在对核心程序校验时发生意外错误",OlanExceptionAction.Error);
-        if (currentMd5 != CoreMd5)
-            throw new OlanException("无法初始化联机模块",$"【无法校验核心组件MD5】{Environment.NewLine}警告：您当前的网络环境可能不安全",OlanExceptionAction.FatalError);
-        WhenDone:
+        if (!File.Exists(coreFileName))
+        {
+            using (var dt = new Download(client))
+                await dt.DownloadFile(CoreUrl,coreFileName);
+            // 校验
+            string? currentMd5 = await Tools.GetFileMD5Async(coreFileName);
+            if (currentMd5 == null)
+                throw new OlanException("无法初始化联机模块", "在对核心程序校验时发生意外错误", OlanExceptionAction.Error);
+            if (currentMd5 != CoreMd5)
+                throw new OlanException("无法初始化联机模块", $"【无法校验核心组件MD5】{Environment.NewLine}警告：您当前的网络环境可能不安全", OlanExceptionAction.FatalError);
+        }
         if (client == null)
             httpClient.Dispose();
         return new MCTPower(coreDirectory,coreFileName);

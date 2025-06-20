@@ -1,7 +1,7 @@
 ﻿using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Mod.ModLoader.fabric;
-using OneLauncher.Core.Mod.ModLoader.neoforge;
+using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 namespace OneLauncher.Core.Minecraft;
@@ -19,7 +19,7 @@ public class LaunchCommandBuilder
     private readonly bool IsVersionInsulation;
     private readonly ModEnum modType;
     private FabricVJParser fabricParser;
-    private NeoForgeUsing neoForgeParser;
+    private ForgeSeriesUsing neoForgeParser;
     private readonly string separator;
     private readonly string VersionPath;
     private readonly ServerInfo? serverInfo;
@@ -68,10 +68,10 @@ public class LaunchCommandBuilder
               Path.Combine(VersionPath, $"version.fabric.json"), basePath);
             MainClass = fabricParser.GetMainClass();
         }
-        else if (modType == ModEnum.neoforge)
+        else if (modType == ModEnum.neoforge || modType == ModEnum.forge)
         {
-            neoForgeParser = new NeoForgeUsing();
-            await neoForgeParser.Init(basePath, version);
+            neoForgeParser = new ForgeSeriesUsing();
+            await neoForgeParser.Init(basePath, version,(modType == ModEnum.forge ? true : false));
             MainClass = neoForgeParser.info.MainClass;
         }
         else MainClass = versionInfo.GetMainClass();
@@ -122,7 +122,7 @@ public class LaunchCommandBuilder
         else
         {
             var jvmArgs = new List<string>();
-            if (modType == ModEnum.neoforge)
+            if (modType == ModEnum.neoforge || modType == ModEnum.forge)
             {
                 foreach (var item in neoForgeParser.info.Arguments.Jvm)
                 {
@@ -188,7 +188,7 @@ public class LaunchCommandBuilder
                 }
             }
         }
-        else if (modType == ModEnum.neoforge)
+        else if (modType == ModEnum.neoforge || modType == ModEnum.forge)
         {
             // NeoForge 同理
             foreach (var lib in neoForgeParser.GetLibrariesForLaunch(basePath))
@@ -257,7 +257,7 @@ public class LaunchCommandBuilder
             "--userProperties {} "
             // 针对旧版用户验证机制
             : $"--session \"{userModel.AccessToken}\" ");
-        if (modType == ModEnum.neoforge)
+        if (modType == ModEnum.neoforge || modType == ModEnum.forge)
             GameArgs +=
                 string.Join(" ", neoForgeParser.info.Arguments.Game);
         Debug.WriteLine(GameArgs);

@@ -17,30 +17,27 @@ public struct ModType
 {
     public bool IsFabric { get; set; }
     public bool IsNeoForge { get; set; }
+    public bool IsForge { get; set; }
     public static bool operator ==(ModType left, ModEnum right)
     {
         if (left.IsFabric && right == ModEnum.fabric)
             return true;
         else if (left.IsNeoForge && right == ModEnum.neoforge)
             return true;
+        else if (left.IsForge && right == ModEnum.forge)
+            return true;
         else
             return false;
     }
     public static bool operator !=(ModType left, ModEnum right)
-    {
-        if (left.IsFabric && right != ModEnum.fabric)
-            return true;
-        else if (left.IsNeoForge && right != ModEnum.neoforge)
-            return true;
-        else
-            return false;
-    }
+        => !(left == right);
 }
 public enum ModEnum
 {
     none,
     fabric,
-    neoforge
+    neoforge,
+    forge
 }
 public struct PreferencesLaunchMode
 {

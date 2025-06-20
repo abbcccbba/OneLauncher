@@ -115,39 +115,52 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
     {
         try
         {
+            string[] parts;
+            string p2pNodeName;
+            string versionId;
+            bool isMCTMode = false;
             if (string.IsNullOrWhiteSpace(JoinRoomCode))
                 throw new OlanException("输入无效", "必须输入房间码。", OlanExceptionAction.Warning);
-
-            string decodedInfo = TextHelper.Base64Decode(JoinRoomCode);
-            if (string.IsNullOrEmpty(decodedInfo) || !decodedInfo.Contains(':'))
-                throw new OlanException("加入失败", "无效的房间码格式。", OlanExceptionAction.Error);
-
-            var parts = decodedInfo.Split(':', 2);
-            string p2pNodeName = parts[0];
-            string versionId = parts[1];
+            try
+            {
+                string decodedInfo = TextHelper.Base64Decode(JoinRoomCode);
+                parts = decodedInfo.Split(':', 2);
+                p2pNodeName= parts[0];
+                versionId = parts[1];
+            }
+            // 可能代表了用户使用的是MCT格式的提示码，尝试兼容
+            catch(FormatException)
+            {
+                if (!(JoinRoomCode.StartsWith("M") && JoinRoomCode.EndsWith("C")))
+                    throw new OlanException("输入无效","无法检测输入为OLANNODE格式或MCT格式的房间码");
+                p2pNodeName = JoinRoomCode;
+                versionId = "";
+                isMCTMode = true;
+            }
 
             // 数据源修改: 从全局配置中查找版本
             UserVersion? targetVersion = Init.ConfigManger.config.VersionList
                 .FirstOrDefault(v => v.VersionID == versionId);
 
-            if (targetVersion == null)
+            if (targetVersion == null && !isMCTMode)
                 throw new OlanException("加入失败", $"你没有安装房主所使用的游戏版本 ({versionId})。", OlanExceptionAction.Error);
 
             if (!int.TryParse(JoinPort, out int port) || port is < 1 or > 65535)
                 throw new OlanException("输入无效", "端口号必须是 1-65535 之间的数字。", OlanExceptionAction.Warning);
 
             // --- 业务逻辑 ---
+            
             int localPort = Tools.GetFreeTcpPort();
             LocalServerAddress = $"127.0.0.1:{localPort}";
             IsConnected = true;
-            
-            connectService.Join(null, p2pNodeName, localPort, port, null, null, null);
-            LogMessage($"P2P连接，准备启动游戏: {targetVersion.VersionID}");
             mainPower.ConnectionEstablished += () => version.EasyGameLauncher(targetVersion, serverInfo: new ServerInfo
             {
                 Ip = "127.0.0.1",
                 Port = localPort.ToString()
             });
+            connectService.Join(null, p2pNodeName, localPort, port, null, null, null);
+            LogMessage($"P2P启动");
+            
         }
         catch (OlanException olanEx)
         {

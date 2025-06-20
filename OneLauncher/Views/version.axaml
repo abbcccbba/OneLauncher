@@ -71,7 +71,8 @@
 									</StackPanel>
 									<SplitButton.Flyout>
 										<Flyout>
-											<StackPanel>	
+											<StackPanel>
+												<RadioButton IsVisible="{Binding versionExp.modType.IsForge}" IsChecked="{Binding IsForgeLaunchMode}" GroupName="LaunchModType" Content="Forge启动"/>
 												<RadioButton IsVisible="{Binding versionExp.modType.IsNeoForge}" IsChecked="{Binding IsNeoforgeLaunchMode}" GroupName="LaunchModType" Content="NeoForge启动"/>
 												<RadioButton IsVisible="{Binding versionExp.modType.IsFabric}" IsChecked="{Binding IsFabricLaunchMode}" GroupName="LaunchModType" Content="Fabric启动"/>
 												<RadioButton IsChecked="{Binding IsOriginalLaunchMode}" GroupName="LaunchModType" Content="原版启动"/>
