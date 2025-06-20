@@ -24,6 +24,7 @@ public partial class MainWindow : Window
     public settings settingsPage;
     public account accountPage;
     public ModsBrowser modsBrowserPage;
+    public gamedata gamedataPage;
     public static MainWindow mainwindow;
     public MainWindow()
     {
@@ -42,6 +43,7 @@ public partial class MainWindow : Window
             modsBrowserPage = new ModsBrowser();
             downloadPage = new download();
             settingsPage = new settings();
+            gamedataPage = new gamedata();
         }
         catch (OlanException ex)
         {
@@ -52,11 +54,12 @@ public partial class MainWindow : Window
     {
         base.OnClosing(e);
         Debug.WriteLine("释放残余资源...");
+        Init.MMA.Dispose();
         WeakReferenceMessenger.Default.Send(new ApplicationClosingMessage());
     }
     public enum MainPage
     {
-        HomePage,VersionPage,AccountPage,DownloadPage,SettingsPage, ModsBrowserPage//, ServerPage
+        HomePage,VersionPage,AccountPage,DownloadPage,SettingsPage, ModsBrowserPage,GameDataPage //, ServerPage
     }
     /// <summary>
     /// 手动管理页面切换
@@ -83,6 +86,9 @@ public partial class MainWindow : Window
                 break;
             case MainPage.SettingsPage:
                 SplitListBox.SelectedItem = SettingsListBoxItem;
+                break;
+            case MainPage.GameDataPage:
+                SplitListBox.SelectedItem = GameDataListBoxItem;
                 break;
         }
     }
@@ -129,9 +135,9 @@ public partial class MainWindow : Window
             case "Download":
                 PageContent.Content = downloadPage;
                 break;
-            //case "Server":
-            //    PageContent.Content = serverPage;
-            //    break;
+            case "GameData":
+                PageContent.Content = gamedataPage;
+                break;
             case "Settings":
                 PageContent.Content = settingsPage;
                 break;
