@@ -59,7 +59,7 @@
 					<CheckBox IsVisible="{Binding IsNeoForge}" IsChecked="{Binding IsAllowToUseBetaNeoforge}">允许下载Beta版</CheckBox>
 				</StackPanel>
 				<StackPanel Orientation="Horizontal" Spacing="36">
-					<CheckBox IsEnabled="{Binding IsAllowForge}" IsChecked="{Binding IsForge}" >是否带Forge</CheckBox>
+					<CheckBox IsEnabled="{Binding IsAllowForge}" IsChecked="{Binding IsForge}" >是否带Forge（预览版）</CheckBox>
 					<CheckBox IsVisible="{Binding IsForge}" IsChecked="{Binding IsUseRecommendedToInstallForge}">使用推荐版</CheckBox>
 				</StackPanel>
 				<!-- 额外设置 -->

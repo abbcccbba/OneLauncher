@@ -413,6 +413,8 @@ public partial class Download : IDisposable
     }
     public async Task DownloadFile(string url,string savepath, CancellationToken? token = null)
     {
+        if (string.IsNullOrEmpty(url))
+            return;
         CancellationToken cancellationToken = token ?? CancellationToken.None;
         using (var response = await unityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead,cancellationToken))
         {
@@ -478,7 +480,8 @@ public partial class Download : IDisposable
             token.ThrowIfCancellationRequested();
             if (string.IsNullOrEmpty(item.sha1))
                 continue;
-            
+            if (!File.Exists(item.path))
+                continue;
             sha1Tasks.Add(Task.Run(async () =>
             {
                 await semaphore.WaitAsync();

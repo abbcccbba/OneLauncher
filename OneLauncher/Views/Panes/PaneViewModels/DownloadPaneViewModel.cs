@@ -45,7 +45,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     #region 数据绑定区
     [ObservableProperty] public bool _IsForge;
     [ObservableProperty] public bool _IsAllowForge;
-    [ObservableProperty] public bool _IsUseRecommendedToInstallForge;
+    [ObservableProperty] public bool _IsUseRecommendedToInstallForge = true;
     [ObservableProperty] public bool isLaunchGameAfterDone;
     [ObservableProperty] public bool _IsAllowFabric;
     [ObservableProperty] public bool _IsAllowNeoforge;
