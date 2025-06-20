@@ -91,7 +91,7 @@ public class MCTPower : IDisposable
                 return;
             Debug.WriteLine(e.Data);
             CoreLog?.Invoke(e.Data);
-            if (e.Data.Contains("connection ok") && !IsConnectionOk)
+            if ((e.Data.Contains("connection ok") || e.Data.Contains("handshakeC2C ok")) && !IsConnectionOk)
             {
                 IsConnectionOk = true;
                 ConnectionEstablished?.Invoke();
