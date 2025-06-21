@@ -16,7 +16,7 @@ internal partial class HomePageViewModel : BaseViewModel
     {
         var InitResult = Init.InitTask.Result;
         if (InitResult != null)
-            OlanExceptionWorker.ForOlanException(InitResult);
+            throw InitResult;
         UserName = "用户名："+Init.ConfigManger?.config?.DefaultUserModel?.Name ?? "未指定";
         VersionName = "版本：" + Init.ConfigManger?.config?.DefaultVersion ?? "未指定";
     }

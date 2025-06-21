@@ -73,7 +73,6 @@
 										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
 							</StackPanel>
 						</ListBoxItem>
-						<!-- 哎懒得写了以后我啥时候提起兴趣了再写这个页面 -->
 						<ListBoxItem x:Name="GameDataListBoxItem" Tag="GameData">
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Image Source="/Assets/icos/game.png" Width="32" Height="32"/>

@@ -111,7 +111,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         }
         catch (OlanException ex)
         {
-            await OlanExceptionWorker.ForOlanException(ex);
+            OlanExceptionWorker.ForOlanException(ex);
             return;
         }
     }

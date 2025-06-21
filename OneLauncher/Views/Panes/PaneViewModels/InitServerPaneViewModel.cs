@@ -36,7 +36,7 @@ internal partial class InitServerPaneViewModel : BaseViewModel
     public async Task ToInstallServer()
     {
         if (!IsAgreeMinecraftEULA)
-            await OlanExceptionWorker.ForOlanException(
+            OlanExceptionWorker.ForOlanException(
                 new OlanException("无法初始化服务端","你必须在安装前同意Minecraft的最终用户许可协议",OlanExceptionAction.Error),
                 () => ToInstallServer());
         else

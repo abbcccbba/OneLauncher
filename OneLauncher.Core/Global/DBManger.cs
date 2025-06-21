@@ -20,7 +20,7 @@ public class AppSettings
     public int MaximumSha1Threads { get; set; } = 24;
     public bool IsSha1Enabled { get; set; } = true;
     public bool IsAllowToDownloadUseBMLCAPI { get; set; } = false;
-    public string GameInstallPath { get; set; } 
+    public string? GameInstallPath { get; set; } 
 }
 public class AppConfig
 {
@@ -34,6 +34,7 @@ public class AppConfig
     public UserVersion DefaultVersion { get; set; }
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
     public List<int> AvailableJavaList { get; set; } = new List<int>();
+    [JsonInclude]
     public AppSettings OlanSettings { get; set; } = new AppSettings();
 }
 

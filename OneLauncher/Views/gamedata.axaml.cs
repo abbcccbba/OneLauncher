@@ -17,8 +17,9 @@ public partial class gamedata : UserControl
     public gamedata()
     {
         InitializeComponent();
-        this.DataContext = new GameDataPageViewModel();
+        this.DataContext = viewmodel = new GameDataPageViewModel();
     }
+    internal GameDataPageViewModel viewmodel;
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);

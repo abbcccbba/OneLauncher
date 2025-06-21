@@ -59,7 +59,7 @@ public partial class download : UserControl
             }
             catch (HttpRequestException)
             {
-                await OlanExceptionWorker.ForOlanException(
+                OlanExceptionWorker.ForOlanException(
                     new OlanException("无法加载下载版本列表", "无法进行网络请求，且本地文件不存在", OlanExceptionAction.Error),
                     () => VersionManifestReader()
                         );

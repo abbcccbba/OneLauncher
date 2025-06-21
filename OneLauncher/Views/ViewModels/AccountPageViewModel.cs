@@ -74,10 +74,10 @@ internal partial class AccountPageViewModel : BaseViewModel
         }
         catch (OlanException oex)
         {
-            await OlanExceptionWorker.ForOlanException(oex);
+            OlanExceptionWorker.ForOlanException(oex);
         }
         catch (Exception ex) { 
-            await OlanExceptionWorker.ForUnknowException(ex);
+            OlanExceptionWorker.ForUnknowException(ex);
         }
     }
     public AccountPageViewModel()

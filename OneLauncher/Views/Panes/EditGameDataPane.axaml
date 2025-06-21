@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
+             x:Class="OneLauncher.Views.Panes.EditGameDataPane"
+             x:DataType="vm:EditGameDataPaneViewModel">
+	<StackPanel Spacing="15" Margin="20">
+		<TextBlock Text="编辑游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+		<Border CornerRadius="10" Width="100" Height="100" ClipToBounds="True" HorizontalAlignment="Center">
+			<Image Source="{Binding CurrentIcon}" Stretch="UniformToFill"/>
+		</Border>
+		<Button Content="更换图标" Command="{Binding ChangeIconCommand}" HorizontalAlignment="Center"/>
+		<TextBlock Text="实例名称"/>
+		<TextBox Text="{Binding InstanceName}"/>
+		<TextBlock Text="高级操作"/>
+		<Button Content="打开 Mods 文件夹" Command="{Binding OpenModsFolderCommand}" />
+		<Grid ColumnDefinitions="*,*" Margin="0,20,0,0">
+			<Button Grid.Column="0" Content="保存" Command="{Binding SaveCommand}" HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
+			<Button Grid.Column="1" Content="取消" Command="{Binding CancelCommand}" HorizontalAlignment="Stretch" Margin="5,0,0,0"/>
+		</Grid>
+	</StackPanel>
+</UserControl>

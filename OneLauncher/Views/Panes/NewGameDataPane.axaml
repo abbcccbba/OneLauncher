@@ -2,7 +2,40 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
              x:Class="OneLauncher.Views.Panes.NewGameDataPane">
-  Welcome to Avalonia!
+	
+	<StackPanel Spacing="15" Margin="20">
+		<TextBlock Text="新建游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+
+		<TextBlock Text="第一步：选择基础版本"/>
+		<ComboBox ItemsSource="{Binding AvailableBaseVersions}"
+				  SelectedItem="{Binding SelectedBaseVersion}"
+				  PlaceholderText="请选择..."/>
+
+		<TextBlock Text="第二步：填写实例信息"/>
+		<TextBox Text="{Binding GameDataName}" IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}" Watermark="例如：我的整合包"/>
+
+		<TextBlock Text="模组加载器"/>
+		<ComboBox ItemsSource="{Binding AvailableModLoaders}"
+				  SelectedItem="{Binding SelectedModLoader}"
+				  IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+
+		<TextBlock Text="默认用户"/>
+		<ComboBox ItemsSource="{Binding AvailableUsers}"
+				  SelectedItem="{Binding SelectedUser}"
+				  IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}">
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Name}"/>
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
+
+		<Grid ColumnDefinitions="*,*" Margin="0,20,0,0">
+			<Button Grid.Column="0" Content="创建" Command="{Binding SaveCommand}" HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
+			<Button Grid.Column="1" Content="取消" Command="{Binding CancelCommand}" HorizontalAlignment="Stretch" Margin="5,0,0,0"/>
+		</Grid>
+	</StackPanel>
 </UserControl>

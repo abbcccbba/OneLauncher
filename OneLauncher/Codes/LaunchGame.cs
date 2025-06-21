@@ -98,7 +98,7 @@ internal class Game
                     Debug.WriteLine(e.Data);
                     WeakReferenceMessenger.Default.Send(new GameMessage($"[ERROE] {e.Data}{Environment.NewLine}"));
                     if (e.Data.Contains("java.lang.ClassNotFoundException")) 
-                        await OlanExceptionWorker.ForOlanException(
+                        OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败","Jvm无法找到主类，请尝试重新安装游戏",OlanExceptionAction.Error),
                         () => _=LaunchGame(
                                 gameData,
@@ -110,7 +110,7 @@ internal class Game
                 process.BeginErrorReadLine();
                 await process.WaitForExitAsync();
                 if(process.ExitCode != 0)
-                    await OlanExceptionWorker.ForOlanException(
+                    OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", "未知错误，请尝试以调试模式启动游戏以查找出错原因", OlanExceptionAction.Error),
                         () => _=LaunchGame(
                                 gameData,
@@ -122,17 +122,17 @@ internal class Game
         }
         catch(FileNotFoundException fex)
         {
-            await OlanExceptionWorker.ForOlanException(
+            OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", $"无法找到启动所需的文件{Environment.NewLine}{fex}", OlanExceptionAction.Error, fex));
         }
         catch (DirectoryNotFoundException fex)
         {
-            await OlanExceptionWorker.ForOlanException(
+            OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", $"无法找到启动所需的文件夹{Environment.NewLine}{fex}", OlanExceptionAction.Error,fex));
         }
         catch(Exception ex)
         {
-            await OlanExceptionWorker.ForOlanException(
+            OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", $"系统未安装Java或系统错误{Environment.NewLine}{ex}", OlanExceptionAction.Error,ex));
         }
     }

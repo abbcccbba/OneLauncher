@@ -26,28 +26,40 @@ public partial class MainWindow : Window
     public ModsBrowser modsBrowserPage;
     public gamedata gamedataPage;
     public static MainWindow mainwindow;
+    bool IsError;
     public MainWindow()
     {
         InitializeComponent();
         mainwindow = this;
-        PageContent.Content = new Home();
+        try
+        {
+            PageContent.Content = new Home();
+        }
+        catch(OlanException e)
+        {
+            IsError = true;
+            OlanExceptionWorker.ForOlanException(e);
+        }
     }
     protected async override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        try
+        if (!IsError)
         {
-            HomePage = (Home)PageContent.Content;
-            versionPage = new version();
-            accountPage = new account();
-            modsBrowserPage = new ModsBrowser();
-            downloadPage = new download();
-            settingsPage = new settings();
-            gamedataPage = new gamedata();
-        }
-        catch (OlanException ex)
-        {
-            await OlanExceptionWorker.ForOlanException(ex);
+            try
+            {
+                HomePage = (Home)PageContent.Content;
+                versionPage = new version();
+                accountPage = new account();
+                modsBrowserPage = new ModsBrowser();
+                downloadPage = new download();
+                settingsPage = new settings();
+                gamedataPage = new gamedata();
+            }
+            catch (OlanException ex)
+            {
+                OlanExceptionWorker.ForOlanException(ex);
+            }
         }
     }
     protected override void OnClosing(WindowClosingEventArgs e)

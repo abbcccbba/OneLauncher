@@ -170,7 +170,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             catch (OlanException ex)
             {
                 await cts.CancelAsync();
-                await OlanExceptionWorker.ForOlanException(ex);
+                OlanExceptionWorker.ForOlanException(ex);
             }
 #if !DEBUG
             catch (Exception ex)

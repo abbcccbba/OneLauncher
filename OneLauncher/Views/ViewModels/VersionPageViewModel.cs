@@ -2,26 +2,18 @@
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
-using OneLauncher.Core.Minecraft;
-using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
@@ -340,7 +332,7 @@ internal partial class VersionPageViewModel : BaseViewModel
         }
         catch (OlanException ex)
         {
-            await OlanExceptionWorker.ForOlanException(ex);
+            OlanExceptionWorker.ForOlanException(ex);
         }
     }
     private PowerPlayPane powerPlayGo = new PowerPlayPane();

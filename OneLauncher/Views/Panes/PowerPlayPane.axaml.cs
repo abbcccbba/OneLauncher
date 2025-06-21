@@ -30,11 +30,11 @@ public partial class PowerPlayPane : UserControl
             }
             catch (OlanException ex)
             {
-                await OlanExceptionWorker.ForOlanException(ex);
+                OlanExceptionWorker.ForOlanException(ex);
             }
             catch (Exception ex)
             {
-                await OlanExceptionWorker.ForUnknowException(ex);
+                OlanExceptionWorker.ForUnknowException(ex);
             }
         }
     }
