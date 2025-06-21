@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Mod.ModLoader.fabric;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
@@ -12,49 +13,34 @@ namespace OneLauncher.Core.Minecraft;
 public class LaunchCommandBuilder
 {
     public VersionInfomations versionInfo;
+    private readonly GameData gameData;
     private readonly string version;
-    private readonly UserModel userModel;
     private readonly string basePath;
-    private readonly SystemType systemType;
-    private readonly bool IsVersionInsulation;
     private readonly ModEnum modType;
     private FabricVJParser fabricParser;
     private ForgeSeriesUsing neoForgeParser;
     private readonly string separator;
     private readonly string VersionPath;
     private readonly ServerInfo? serverInfo;
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param Name="basePath">游戏基本路径（含.minecraft）</param>
-    /// <param Name="version">启动的游戏版本</param>
-    /// <param Name="userModel">启动游戏的用户模型</param>
-    /// <param Name="modType">模组类型</param>
-    /// <param Name="system">系统类型</param>
-    /// <param Name="VersionInsulation">此游戏是否启用了版本隔离</param>
-    public LaunchCommandBuilder
-        (
-            string basePath,
-            string version,
-            UserModel userModel,
-            ModEnum modType,
-            SystemType system,
-            bool VersionInsulation = false,
-            ServerInfo? serverInfo= null
-        )
+    public LaunchCommandBuilder(
+        string basePath,
+        GameData gameData,
+        ServerInfo? serverInfo = null)
     {
         this.basePath = basePath;
-        this.version = version;
-        this.userModel = userModel;
-        this.VersionPath = Path.Combine(basePath, "versions", version);
-        systemType = system;
-        IsVersionInsulation = VersionInsulation;
-        this.modType = modType;
+        this.version = gameData.VersionId;
+        this.modType = gameData.ModLoader;
         this.serverInfo = serverInfo;
-        separator = systemType == SystemType.windows ? ";" : ":";
+        this.gameData = gameData;
+        this.VersionPath = Path.Combine(this.basePath, "versions", this.version);
+#if WINDOWS
+        separator = ";";
+#else
+        separator = ":";
+#endif
         versionInfo = new VersionInfomations(
-            File.ReadAllText(Path.Combine(VersionPath, $"version.json")),
-            basePath, systemType, IsVersionInsulation
+            File.ReadAllText(Path.Combine(VersionPath, "version.json")),
+            this.basePath
         );
     }
     public string GetJavaPath() =>
@@ -81,9 +67,14 @@ public class LaunchCommandBuilder
     }
     private string BuildJvmArgs()
     {
-        string osName = systemType == SystemType.windows ? "windows" :
-                        systemType == SystemType.linux ? "linux" :
-                        systemType == SystemType.osx ? "osx" : "";
+        string osName;
+#if WINDOWS
+        osName = "windows";
+#elif MACOS
+        osName = "osx";
+#else
+        osName = "linux"; 
+#endif  
         // AI 写的，干什么用的我也不知道
         string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
             var placeholders = new Dictionary<string, string>
@@ -108,8 +99,8 @@ public class LaunchCommandBuilder
                 (versionInfo.GetLoggingConfigPath() != null ?
                 $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " : " ") +
                 // 处理特定平台要求的参数
-                (systemType == SystemType.windows ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump "
-                : systemType == SystemType.osx ? "-XstartOnFirstThread " : "") +
+                (osName == "windows" ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump "
+                : osName == "osx" ? "-XstartOnFirstThread " : "") +
                 // 标准JVM参数
                 $"-Djava.library.path={placeholders["natives_directory"]} " +
                 $"-Djna.tmpdir={placeholders["natives_directory"]} " +
@@ -242,21 +233,21 @@ public class LaunchCommandBuilder
             }
         }
         string GameArgs =
-            $"--username \"{userModel.Name}\" " +
+            $"--username \"{gameData.DefaultUserModel.Name}\" " +
             $"--version \"{version}\" " +
-            $"--gameDir \"{(IsVersionInsulation ? Path.Combine(basePath, "versions", version) : basePath)}\" " +
-            $"--assetsDir \"{((systemType == SystemType.windows) ? Path.Combine(basePath, "assets").Replace("\\",@"\\") : Path.Combine(basePath, "assets"))}\" " +
+            $"--gameDir \"{gameData.InstancePath}\" " +
+            $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
-            $"--uuid \"{userModel.uuid}\" " +
-            $"--accessToken \"{userModel.AccessToken.ToString()}\" " +
-            $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
+            $"--uuid \"{gameData.DefaultUserModel.uuid}\" " +
+            $"--accessToken \"{gameData.DefaultUserModel.AccessToken.ToString()}\" " +
+            $"--userType \"{(gameData.DefaultUserModel.IsMsaUser ? "msa" : "legacy")}\" " +
             $"--versionType \"OneLauncher\" " +
             serverArgs+
             "--userProperties {} "
             // 针对旧版用户验证机制
-            : $"--session \"{userModel.AccessToken}\" ");
+            : $"--session \"{gameData.DefaultUserModel.AccessToken}\" ");
         if (modType == ModEnum.neoforge || modType == ModEnum.forge)
             GameArgs +=
                 string.Join(" ", neoForgeParser.info.Arguments.Game);

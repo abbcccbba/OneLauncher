@@ -4,9 +4,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
-using OneLauncher.Core.Net.ConnectToolPower; 
+using OneLauncher.Core.Net.ConnectToolPower;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -80,99 +80,99 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
     public bool CanStart => !isConnected;
     public bool CanStop => isConnected;
     
-    [RelayCommand]
-    private async Task Host()
-    {
-        try
-        {
-            if (SelectedHostVersion == null)
-            {
-                // 异常处理修改: 抛出OlanException
-                throw new OlanException("未能创建房间", "请先在下拉框中选择一个要进行联机的游戏版本。", OlanExceptionAction.Warning);
-            }
+    //[RelayCommand]
+    //private async Task Host()
+    //{
+    //    try
+    //    {
+    //        if (SelectedHostVersion == null)
+    //        {
+    //            // 异常处理修改: 抛出OlanException
+    //            throw new OlanException("未能创建房间", "请先在下拉框中选择一个要进行联机的游戏版本。", OlanExceptionAction.Warning);
+    //        }
 
-            string p2pNodeName = "OLANNODE" + RandomNumberGenerator.GetInt32(100000, 1000000000);
-            string combinedInfo = $"{p2pNodeName}:{SelectedHostVersion.VersionID}";
-            string finalRoomCode = TextHelper.Base64Encode(combinedInfo);
+    //        string p2pNodeName = "OLANNODE" + RandomNumberGenerator.GetInt32(100000, 1000000000);
+    //        string combinedInfo = $"{p2pNodeName}:{SelectedHostVersion.VersionID}";
+    //        string finalRoomCode = TextHelper.Base64Encode(combinedInfo);
 
-            HostRoomCode = finalRoomCode;
-            IsConnected = true;
-            connectService.StartAsHost(p2pNodeName, null);
-            _ = version.EasyGameLauncher(SelectedHostVersion);
-        }
-        catch (OlanException olanEx)
-        {
-            await OlanExceptionWorker.ForOlanException(olanEx);
-        }
-        catch (Exception ex)
-        {
-            await OlanExceptionWorker.ForUnknowException(ex);
-        }
-    }
+    //        HostRoomCode = finalRoomCode;
+    //        IsConnected = true;
+    //        connectService.StartAsHost(p2pNodeName, null);
+    //        _ = version.EasyGameLauncher(SelectedHostVersion);
+    //    }
+    //    catch (OlanException olanEx)
+    //    {
+    //        await OlanExceptionWorker.ForOlanException(olanEx);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        await OlanExceptionWorker.ForUnknowException(ex);
+    //    }
+    //}
 
-    [RelayCommand]
-    private async Task JoinAndLaunch()
-    {
-        try
-        {
-            string[] parts;
-            string p2pNodeName;
-            string versionId;
-            bool isMCTMode = false;
-            if (string.IsNullOrWhiteSpace(JoinRoomCode))
-                throw new OlanException("输入无效", "必须输入房间码。", OlanExceptionAction.Warning);
-            try
-            {
-                string decodedInfo = TextHelper.Base64Decode(JoinRoomCode);
-                parts = decodedInfo.Split(':', 2);
-                p2pNodeName= parts[0];
-                versionId = parts[1];
-            }
-            // 可能代表了用户使用的是MCT格式的提示码，尝试兼容
-            catch(FormatException)
-            {
-                if (!(JoinRoomCode.StartsWith("M") && JoinRoomCode.EndsWith("C")))
-                    throw new OlanException("输入无效","无法检测输入为OLANNODE格式或MCT格式的房间码");
-                p2pNodeName = JoinRoomCode;
-                versionId = "";
-                isMCTMode = true;
-            }
+    //[RelayCommand]
+    //private async Task JoinAndLaunch()
+    //{
+    //    try
+    //    {
+    //        string[] parts;
+    //        string p2pNodeName;
+    //        string versionId;
+    //        bool isMCTMode = false;
+    //        if (string.IsNullOrWhiteSpace(JoinRoomCode))
+    //            throw new OlanException("输入无效", "必须输入房间码。", OlanExceptionAction.Warning);
+    //        try
+    //        {
+    //            string decodedInfo = TextHelper.Base64Decode(JoinRoomCode);
+    //            parts = decodedInfo.Split(':', 2);
+    //            p2pNodeName= parts[0];
+    //            versionId = parts[1];
+    //        }
+    //        // 可能代表了用户使用的是MCT格式的提示码，尝试兼容
+    //        catch(FormatException)
+    //        {
+    //            if (!(JoinRoomCode.StartsWith("M") && JoinRoomCode.EndsWith("C")))
+    //                throw new OlanException("输入无效","无法检测输入为OLANNODE格式或MCT格式的房间码");
+    //            p2pNodeName = JoinRoomCode;
+    //            versionId = "";
+    //            isMCTMode = true;
+    //        }
 
-            // 数据源修改: 从全局配置中查找版本
-            UserVersion? targetVersion = Init.ConfigManger.config.VersionList
-                .FirstOrDefault(v => v.VersionID == versionId);
+    //        // 数据源修改: 从全局配置中查找版本
+    //        UserVersion? targetVersion = Init.ConfigManger.config.VersionList
+    //            .FirstOrDefault(v => v.VersionID == versionId);
 
-            if (targetVersion == null && !isMCTMode)
-                throw new OlanException("加入失败", $"你没有安装房主所使用的游戏版本 ({versionId})。", OlanExceptionAction.Error);
+    //        if (targetVersion == null && !isMCTMode)
+    //            throw new OlanException("加入失败", $"你没有安装房主所使用的游戏版本 ({versionId})。", OlanExceptionAction.Error);
 
-            if (!int.TryParse(JoinPort, out int port) || port is < 1 or > 65535)
-                throw new OlanException("输入无效", "端口号必须是 1-65535 之间的数字。", OlanExceptionAction.Warning);
+    ////        if (!int.TryParse(JoinPort, out int port) || port is < 1 or > 65535)
+    ////            throw new OlanException("输入无效", "端口号必须是 1-65535 之间的数字。", OlanExceptionAction.Warning);
 
-            // --- 业务逻辑 ---
+    ////        // --- 业务逻辑 ---
             
-            int localPort = Tools.GetFreeTcpPort();
-            LocalServerAddress = $"127.0.0.1:{localPort}";
-            IsConnected = true;
-            mainPower.ConnectionEstablished += () => version.EasyGameLauncher(targetVersion, serverInfo: new ServerInfo
-            {
-                Ip = "127.0.0.1",
-                Port = localPort.ToString()
-            });
-            connectService.Join(null, p2pNodeName, localPort, port, null, null, null);
-            LogMessage($"P2P启动");
+    ////        int localPort = Tools.GetFreeTcpPort();
+    ////        LocalServerAddress = $"127.0.0.1:{localPort}";
+    ////        IsConnected = true;
+    ////        mainPower.ConnectionEstablished += () => version.EasyGameLauncher(targetVersion, serverInfo: new ServerInfo
+    ////        {
+    ////            Ip = "127.0.0.1",
+    ////            Port = localPort.ToString()
+    ////        });
+    ////        connectService.Join(null, p2pNodeName, localPort, port, null, null, null);
+    ////        LogMessage($"P2P启动");
             
-        }
-        catch (OlanException olanEx)
-        {
-            await OlanExceptionWorker.ForOlanException(olanEx);
-            Stop(); 
-        }
-        catch (Exception ex)
-        {
-            await OlanExceptionWorker.ForUnknowException(ex);
-            Stop(); 
-        }
-    }
+    ////    }
+    ////    catch (OlanException olanEx)
+    ////    {
+    ////        await OlanExceptionWorker.ForOlanException(olanEx);
+    ////        Stop(); 
+    ////    }
+    ////    catch (Exception ex)
+    ////    {
+    ////        await OlanExceptionWorker.ForUnknowException(ex);
+    ////        Stop(); 
+    ////    }
+    ////}
     [RelayCommand]
     private Task CopyCode() =>
         TopLevel.GetTopLevel(MainWindow.mainwindow)?.Clipboard?.SetTextAsync(IsHostModeChecked ? HostRoomCode : JoinRoomCode);

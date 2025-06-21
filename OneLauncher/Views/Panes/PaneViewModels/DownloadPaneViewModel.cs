@@ -3,8 +3,8 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
-using OneLauncher.Core;
 using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.java;
 using OneLauncher.Views.ViewModels;
@@ -50,7 +50,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [ObservableProperty] public bool _IsAllowFabric;
     [ObservableProperty] public bool _IsAllowNeoforge;
     [ObservableProperty] public string _VersionName;
-    [ObservableProperty] public bool _IsVI = true;
     [ObservableProperty] public bool _IsMod;
     [ObservableProperty] public bool _IsNeoForge;
     [ObservableProperty] public bool _IsAllowToUseBetaNeoforge = false;
@@ -82,7 +81,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 VersionID = VersionName,
                 modType = VersionModType,
                 AddTime = DateTime.Now,
-                IsVersionIsolation = IsVI,
                 preferencesLaunchMode = new PreferencesLaunchMode()
                 {
                     LaunchModType = 
@@ -92,6 +90,11 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     IsUseDebugModeLaunch = false
                 }
             };
+            var newGameData = new GameData(
+                "新游戏数据",
+                thisVersionBasicInfo.ID,
+                newUserVersion.preferencesLaunchMode.LaunchModType,
+                Init.ConfigManger.config.DefaultUserModel);
             cts = new();
             try
             {
@@ -133,7 +136,13 @@ internal partial class DownloadPaneViewModel : BaseViewModel
 
                     // 现在可以安全地 await LaunchCore
                     await new DownloadMinecraft(
-                        download,newUserVersion,thisVersionBasicInfo,Init.GameRootPath,progressReporter,cts.Token
+                        download,
+                        newUserVersion,
+                        thisVersionBasicInfo,
+                        newGameData,
+                        Init.GameRootPath,
+                        progressReporter,
+                        cts.Token
                         )
                     .MinecraftBasic(
                         Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,1,256),
@@ -146,13 +155,11 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 }
                 
                 if (IsLaunchGameAfterDone)
-                    _ = version.EasyGameLauncher
-                    (
-                        newUserVersion, false,Init.ConfigManger.config.DefaultUserModel
-                    );
+                    _ = version.EasyGameLauncher(newGameData);
 
                 // 在配置文件中添加版本信息
                 Init.ConfigManger.config.VersionList.Add(newUserVersion);
+                await Init.GameDataManger.AddGameDataAsync(newGameData);
                 await Init.ConfigManger.Save();
             }
             catch (OperationCanceledException)

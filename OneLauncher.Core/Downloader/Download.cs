@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.ModService.Modrinth;
 using System.Buffers;
 using System.Diagnostics;
@@ -111,16 +112,27 @@ public partial class Download : IDisposable
 
         // 过滤掉已经存在的文件
         List<NdDowItem> filesToDownload = CheckFilesExists(allFiles, cancellationToken);
+        if (!filesToDownload.Any())
+        {
+            long totalExistingBytes = allFiles.Sum(item => (long)item.size);
+            progress?.Report((totalExistingBytes, totalExistingBytes, "所有文件均已存在。"));
+            if (IsSha1)
+            {
+                progress?.Report((totalExistingBytes, totalExistingBytes, "正在校验文件..."));
+                await CheckAllSha1(allFiles, maxConcurrentSha1, cancellationToken);
+            }
+            progress?.Report((totalExistingBytes, totalExistingBytes, "处理完成！"));
+            return;
+        }
 
         long totalBytesToDownload = filesToDownload.Sum(item => (long)item.size);
 
+        // --- 优化点 1: 移除 fileDownloadProgressMap, 使用一个 long 变量通过原子操作更新 ---
         long accumulatedDownloadedBytes = 0;
 
-        var fileDownloadProgressMap = new Dictionary<string, long>();
-        foreach (var file in filesToDownload)
-        {
-            fileDownloadProgressMap[file.path] = 0; // 初始化为0
-        }
+        // --- 优化点 2: 为进度报告节流（Throttling）准备变量 ---
+        int lastReportTimestamp = 0;
+        const int reportIntervalMs = 100; // 每 100ms 报告一次
 
         // 初始报告总大小和0已下载
         progress?.Report((totalBytesToDownload, 0, "开始下载Mod文件..."));
@@ -128,83 +140,61 @@ public partial class Download : IDisposable
         var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
 
         await Parallel.ForEachAsync(
-            filesToDownload, // 只处理需要下载的文件
+            filesToDownload,
             new ParallelOptions { MaxDegreeOfParallelism = maxConcurrentDownloads, CancellationToken = cancellationToken },
             async (item, ct) =>
             {
                 await semaphore.WaitAsync(ct);
                 try
                 {
+                    // ===== 主下载逻辑 =====
                     Directory.CreateDirectory(Path.GetDirectoryName(item.path)!);
-
                     using (var request = new HttpRequestMessage(HttpMethod.Get, item.url))
                     {
-                        // 禁用缓存，确保每次都从服务器获取最新文件信息
-                        request.Headers.CacheControl = new CacheControlHeaderValue
-                        {
-                            NoCache = true,
-                            NoStore = true,
-                            MustRevalidate = true
-                        };
-
+                        request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true, NoStore = true, MustRevalidate = true };
                         using (var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct))
                         {
                             response.EnsureSuccessStatusCode();
-
-                            // 优先从 Content-Length 获取文件总大小，如果为 null 则使用 item.size
-                            long currentFileTotalBytes = response.Content.Headers.ContentLength ?? item.size;
-
                             using (var httpStream = await response.Content.ReadAsStreamAsync(ct))
                             {
                                 using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true))
                                 {
                                     var buffer = new byte[8192];
-                                    long currentFileDownloadedBytes = 0;
                                     int bytesRead;
                                     while ((bytesRead = await httpStream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
                                     {
                                         await fileStream.WriteAsync(buffer, 0, bytesRead, ct);
-                                        currentFileDownloadedBytes += bytesRead;
 
-                                        // 实时更新当前文件的下载进度到 map 中
-                                        lock (fileDownloadProgressMap)
+                                        // --- 优化点 3: 使用 Interlocked.Add 进行无锁、线程安全的累加 ---
+                                        Interlocked.Add(ref accumulatedDownloadedBytes, bytesRead);
+
+                                        // --- 优化点 4: 节流，控制进度报告频率 ---
+                                        int currentTimestamp = Environment.TickCount;
+                                        if (currentTimestamp - lastReportTimestamp > reportIntervalMs)
                                         {
-                                            fileDownloadProgressMap[item.path] = currentFileDownloadedBytes;
-
-                                            // 重新计算累积的已下载字节数
-                                            long currentAccumulated = 0;
-                                            foreach (var bytes in fileDownloadProgressMap.Values)
-                                            {
-                                                currentAccumulated += bytes;
-                                            }
-                                            accumulatedDownloadedBytes = currentAccumulated;
+                                            lastReportTimestamp = currentTimestamp;
+                                            // 报告总进度。第一个参数应为总大小，以确保进度条最大值稳定
+                                            progress?.Report((totalBytesToDownload, accumulatedDownloadedBytes, Path.GetFileName(item.path)));
                                         }
-
-                                        // 报告总进度，传入当前正在下载的文件名
-                                        progress?.Report((currentFileTotalBytes, accumulatedDownloadedBytes, Path.GetFileName(item.path)));
                                     }
                                 }
                             }
                         }
                     }
                 }
-                catch (HttpRequestException ex)
+                catch (HttpRequestException) // 注意：只捕获 HttpRequestException 以进入重试
                 {
+                    // ===== 重试逻辑 (内联) =====
                     const int maxRetries = 3;
                     for (int attempt = 0; attempt < maxRetries; attempt++)
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct);
                         try
                         {
+                            await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct);
                             Directory.CreateDirectory(Path.GetDirectoryName(item.path)!);
                             using (var request = new HttpRequestMessage(HttpMethod.Get, item.url))
                             {
-                                request.Headers.CacheControl = new CacheControlHeaderValue
-                                {
-                                    NoCache = true,
-                                    NoStore = true,
-                                    MustRevalidate = true
-                                };
+                                request.Headers.CacheControl = new CacheControlHeaderValue { NoCache = true, NoStore = true, MustRevalidate = true };
                                 using (var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct))
                                 {
                                     response.EnsureSuccessStatusCode();
@@ -213,29 +203,27 @@ public partial class Download : IDisposable
                                         using (var fileStream = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true))
                                         {
                                             var buffer = new byte[8192];
-                                            long currentFileDownloadedBytes = 0;
                                             int bytesRead;
                                             while ((bytesRead = await httpStream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
                                             {
                                                 await fileStream.WriteAsync(buffer, 0, bytesRead, ct);
-                                                currentFileDownloadedBytes += bytesRead;
-                                                lock (fileDownloadProgressMap)
+
+                                                // --- 优化点 3 (同样应用于重试逻辑): 使用 Interlocked.Add ---
+                                                Interlocked.Add(ref accumulatedDownloadedBytes, bytesRead);
+
+                                                // --- 优化点 4 (同样应用于重试逻辑): 节流 ---
+                                                int currentTimestamp = Environment.TickCount;
+                                                if (currentTimestamp - lastReportTimestamp > reportIntervalMs)
                                                 {
-                                                    fileDownloadProgressMap[item.path] = currentFileDownloadedBytes;
-                                                    long currentAccumulated = 0;
-                                                    foreach (var bytes in fileDownloadProgressMap.Values)
-                                                    {
-                                                        currentAccumulated += bytes;
-                                                    }
-                                                    accumulatedDownloadedBytes = currentAccumulated;
+                                                    lastReportTimestamp = currentTimestamp;
+                                                    progress?.Report((totalBytesToDownload, accumulatedDownloadedBytes, Path.GetFileName(item.path)));
                                                 }
-                                                progress?.Report((totalBytesToDownload, accumulatedDownloadedBytes, Path.GetFileName(item.path)));
                                             }
                                         }
                                     }
                                 }
                             }
-                            break; // 重试成功，跳出循环
+                            break; // 重试成功，跳出 for 循环
                         }
                         catch (HttpRequestException ex2)
                         {
@@ -262,10 +250,10 @@ public partial class Download : IDisposable
         if (IsSha1)
         {
             progress?.Report((totalBytesToDownload, totalBytesToDownload, "正在校验文件..."));
-            // CheckAllSha1 应该基于 allFiles，因为它需要校验所有相关文件（包括之前存在的）
             await CheckAllSha1(allFiles, maxConcurrentSha1, cancellationToken);
         }
 
+        // 确保最后一次进度是100%
         progress?.Report((totalBytesToDownload, totalBytesToDownload, "下载完成！"));
     }
 
@@ -366,10 +354,10 @@ public partial class Download : IDisposable
     }
 
     public Task DownloadListAsync(
-    IProgress<(int completedFiles, string FilesName)> progress,
-    List<NdDowItem> downloadNds,
-    int maxConcurrentDownloads,
-    CancellationToken token)
+        IProgress<(int completedFiles, string FilesName)> progress,
+        List<NdDowItem> downloadNds,
+        int maxConcurrentDownloads,
+        CancellationToken token)
     {
         int completedFiles = 0;
 

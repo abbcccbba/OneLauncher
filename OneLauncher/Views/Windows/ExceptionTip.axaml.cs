@@ -1,7 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Views.Windows.WindowViewModels;
 using System;
 using System.Threading.Tasks;

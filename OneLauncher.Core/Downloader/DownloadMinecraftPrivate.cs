@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using OneLauncher.Core.Net.java;
 using System;
@@ -267,7 +268,7 @@ public partial class DownloadMinecraft
         {
             await AutoJavaGetter.JavaReleaser(
               mations.GetJavaVersion().ToString(),
-              Path.Combine(Path.GetDirectoryName(GameRootPath), "runtimes"), Init.systemType);
+              Path.Combine(Path.GetDirectoryName(GameRootPath), "runtimes"), Init.SystemType);
             Init.ConfigManger.config.AvailableJavaList.Add(mations.GetJavaVersion());
             await Init.ConfigManger.Save();
         }

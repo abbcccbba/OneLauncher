@@ -1,5 +1,5 @@
-﻿using OneLauncher.Core;
-using OneLauncher.Core.Downloader;
+﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using System.Diagnostics;
 using System.IO.Compression;

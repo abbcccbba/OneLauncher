@@ -72,7 +72,6 @@ public class UserVersion
 {
     public string VersionID { get; set; }
     public ModType modType { get; set; }
-    public bool IsVersionIsolation { get; set; }
     public DateTime AddTime { get; set; }
     public PreferencesLaunchMode preferencesLaunchMode { get; set; }
     public override string ToString()

@@ -1,4 +1,4 @@
-﻿namespace OneLauncher.Core;
+﻿namespace OneLauncher.Core.Global;
 /// <summary>
 /// 出现已知错误时应该做什么？
 /// Warning : 仅在右下角显示警告
@@ -23,21 +23,21 @@ public class OlanException : Exception
     {
         this.Title = Title;
         this.Message = Message;
-        this.Action = action;
+        Action = action;
     }
     public OlanException(string Title, string Message, OlanExceptionAction action, Exception originalException)
     {
         this.Title = Title;
         this.Message = Message;
-        this.Action = action;
-        this.OriginalException = originalException;
+        Action = action;
+        OriginalException = originalException;
     }
     public OlanException(string Title, string Message, OlanExceptionAction action, Exception originalException, Action taf)
     {
         this.Title = Title;
         this.Message = Message;
-        this.Action = action;
-        this.OriginalException = originalException;
+        Action = action;
+        OriginalException = originalException;
         TryAgainFunction = taf;
     }
 }

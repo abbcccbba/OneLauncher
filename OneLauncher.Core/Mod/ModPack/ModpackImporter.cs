@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Mod.ModPack.JsonModels;
 using System.Diagnostics;
@@ -107,7 +108,6 @@ public class ModpackImporter : IDisposable
         {
             VersionID = mcVersion, 
             modType = omc,
-            IsVersionIsolation = true,
             AddTime = DateTime.Now
         };
 
@@ -116,6 +116,7 @@ public class ModpackImporter : IDisposable
             downloadTool,
             userVersionForDownloader,
             versionBasicInfo,
+            new GameData("整合包名字",mcVersion,loaderType,Init.ConfigManger.config.DefaultUserModel),
             gameRootPath,
             null,
             token

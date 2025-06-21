@@ -4,7 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using OneLauncher.Codes;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views.ViewModels;
@@ -64,13 +64,12 @@ public partial class version : UserControl
     /// </summary>
     /// <returns>异步任务Task</returns>
     public static Task EasyGameLauncher(
-        UserVersion LaunchGameInfo,
+        GameData gameData,
         bool UseGameTasker = false,
-        UserModel loginUserModel = null,
         ServerInfo? serverInfo = null
         )
     {
-        if (LaunchGameInfo == null)
+        if (gameData.InstanceId == null)
             return Task.CompletedTask;
         // 用多线程而不是异步，否则某些特定版本会阻塞
         MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
@@ -79,10 +78,7 @@ public partial class version : UserControl
         game.GameClosedEvent += () => MainWindow.mainwindow.ShowFlyout("游戏已关闭！");
 
        return Task.Run(() => game.LaunchGame(
-            LaunchGameInfo.VersionID, 
-            loginUserModel ?? Init.ConfigManger.config.DefaultUserModel,
-            LaunchGameInfo.preferencesLaunchMode.LaunchModType,
-            LaunchGameInfo.IsVersionIsolation, 
+            gameData,
             UseGameTasker,serverInfo));
     }
 }

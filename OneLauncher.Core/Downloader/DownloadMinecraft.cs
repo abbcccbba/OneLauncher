@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModLoader.fabric;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
@@ -30,6 +31,7 @@ public partial class DownloadMinecraft
     private readonly Download downloadTool;
     private readonly VersionBasicInfo basic;
     private readonly UserVersion userInfo;
+    private readonly GameData gameData;
     private readonly string GameRootPath;
     private readonly string versionPath;
     private readonly string ID;
@@ -51,11 +53,13 @@ public partial class DownloadMinecraft
         Download downloadTool,
         UserVersion versionUserInfo,
         VersionBasicInfo basic,
+        GameData gameData,
         string GameRootPath,
         IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
         CancellationToken? cancelToken = null
         )
     {
+        this.gameData = gameData;
         this.progress = progress;
         this.cancelToken = cancelToken ?? CancellationToken.None;
         this.downloadTool = downloadTool;
@@ -88,7 +92,7 @@ public partial class DownloadMinecraft
             await downloadTool.DownloadFile(basic.Url, versionJsonFileName, cancelToken);
         mations = new VersionInfomations(
             await File.ReadAllTextAsync(
-                Path.Combine(versionJsonFileName)),GameRootPath,Init.systemType,userInfo.IsVersionIsolation);
+                Path.Combine(versionJsonFileName)),GameRootPath);
         Task javaInstallTask = Task.CompletedTask;
         if (AndJava)
             javaInstallTask = JavaInstallTasker();
@@ -105,27 +109,7 @@ public partial class DownloadMinecraft
         List<NdDowItem> ModNds = null;
         NdDowItem main = new(),log4j2 = new();
         string loggingFile = mations.GetLoggingConfigPath();
-        if (LibNds.Count == 0 && AssetsNds.Count == 0)
-            /*
-        //if (!userInfo.modType.IsNeoForge && !userInfo.modType.IsFabric)
-        //    try
-        //    {
-        //        Debug.WriteLine("已安装");
-        //        progress.Report((DownProgress.Meta,0,0,"请稍后"));
-        //        await downloadTool.CheckAllSha1(AllNdListSha1,maxSha1Threads,cancelToken);
-        //        if(!Init.ConfigManger.config.VersionList.Contains(userInfo))
-        //        {
-        //            Init.ConfigManger.config.VersionList.Add(userInfo);
-        //            await Init.ConfigManger.Save();
-        //        }    
-        //        throw new OlanException("不建议下载","您当前已经完成下载，可以转到版本列表启动游戏");
-        //    }
-        //    catch
-        //    {
-
-        //    }
-            */
-        
+        if (LibNds.Count == 0 && AssetsNds.Count == 0)    
         if (!File.Exists(Path.Combine(versionPath, $"{userInfo.VersionID}.jar")))
         {
             main = mations.GetMainFile();
@@ -157,9 +141,7 @@ public partial class DownloadMinecraft
             {
                 var a = new GetModrinth(
                  "fabric-api", ID,
-                  !userInfo.IsVersionIsolation
-                  ? Path.Combine(GameRootPath, "mods")
-                  : Path.Combine(versionPath, "mods"));
+                  Path.Combine(gameData.InstancePath,"mods"));
                 await a.Init();
                 var modApi = (NdDowItem)a!.GetDownloadInfos();
                 if(!File.Exists( modApi.path))

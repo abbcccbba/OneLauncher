@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
 using System;
@@ -19,10 +20,10 @@ public class MinecraftServerManger
         bool IsVI
         )
     {
-        string versionPath = Path.Combine(Core.Init.GameRootPath,"versions",version);
+        string versionPath = Path.Combine(Global.Init.GameRootPath,"versions",version);
         var versionInfo = new VersionInfomations(
             await File.ReadAllTextAsync(Path.Combine(versionPath,"version.json"))
-            ,Core.Init.GameRootPath,Core.Init.systemType);
+            ,Global.Init.GameRootPath);
         if (versionInfo.info.Downloads?.Server == null)
             throw new OlanException("无法初始化服务端","当前版本不支持服务端",OlanExceptionAction.Error);
         using (Download t = new Download())
@@ -35,12 +36,12 @@ public class MinecraftServerManger
         Directory.CreateDirectory(
             (IsVI)
             ? Path.Combine(versionPath, "servers")
-            : Path.Combine(Core.Init.GameRootPath, "servers")
+            : Path.Combine(Global.Init.GameRootPath, "servers")
             );
         await File.WriteAllTextAsync((
             (IsVI)
             ? Path.Combine(versionPath,"servers","eula.txt")
-            : Path.Combine(Core.Init.GameRootPath,"servers","eula.txt"))
+            : Path.Combine(Global.Init.GameRootPath,"servers","eula.txt"))
             ,"eula=true");
         return versionInfo.GetJavaVersion();
     }
@@ -48,16 +49,16 @@ public class MinecraftServerManger
     {
         using (Process serverProcess = new Process())
         {
-            string versionPath = Path.Combine(Core.Init.GameRootPath, "versions", version);
+            string versionPath = Path.Combine(Global.Init.GameRootPath, "versions", version);
             serverProcess.StartInfo = new ProcessStartInfo()
             {
                 FileName = Tools.IsUseOlansJreOrOssJdk(java),
-                Arguments = Core.Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(java).Trim() + 
+                Arguments = Global.Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(java).Trim() + 
                             $" -jar {(Path.Combine(versionPath, "server.jar"))}",
                 WorkingDirectory =
                 (IsVI)
                 ? Path.Combine(versionPath, "servers")
-                : Path.Combine(Core.Init.GameRootPath,"servers")
+                : Path.Combine(Global.Init.GameRootPath,"servers")
             };
             serverProcess.Start();
         }

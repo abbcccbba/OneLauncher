@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -15,7 +16,7 @@ public class P2PMode : IConnectService
     private MCTPower mainPower;
     public P2PMode(MCTPower mainPower)
     {
-        if (Init.systemType != SystemType.windows)
+        if (Init.SystemType != SystemType.windows)
             throw new OlanException("无法初始化联机模块","你的操作系统不受支持");
         this.mainPower = mainPower;
     }

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Views.ViewModels;
 using System;
@@ -36,7 +37,7 @@ internal partial class InitServerPaneViewModel : BaseViewModel
     {
         if (!IsAgreeMinecraftEULA)
             await OlanExceptionWorker.ForOlanException(
-                new Core.OlanException("无法初始化服务端","你必须在安装前同意Minecraft的最终用户许可协议",Core.OlanExceptionAction.Error),
+                new OlanException("无法初始化服务端","你必须在安装前同意Minecraft的最终用户许可协议",OlanExceptionAction.Error),
                 () => ToInstallServer());
         else
         {

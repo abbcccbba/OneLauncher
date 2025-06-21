@@ -6,7 +6,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Minecraft.JsonModels;
@@ -131,30 +131,30 @@ internal partial class VersionItem : BaseViewModel
     [RelayCommand]
     public void LaunchGame()
     {
-        Views.version.EasyGameLauncher(versionExp,IsUseDebugModLaunch);
+        //Views.version.EasyGameLauncher(versionExp,IsUseDebugModLaunch);
     }
     [RelayCommand]
     public async Task PinToDesktop()
     {
         
-        await File.WriteAllTextAsync(
-            Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                $"启动{versionExp.VersionID}." + (Init.systemType == SystemType.windows ? "bat" : "sh")),
-            "cd " + (Init.systemType == SystemType.windows ? "/D " : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
-            + $"{Init.GameRootPath}{Environment.NewLine}java " + await new LaunchCommandBuilder
-            (
-                Init.GameRootPath,
-                versionExp.VersionID,
-                Init.ConfigManger.config.DefaultUserModel,
-                versionExp.preferencesLaunchMode.LaunchModType,
-                Init.systemType,
-                versionExp.IsVersionIsolation
-            ).BuildCommand
-            (
-                OtherArgs: "-XX:+UseG1GC"
-        ));
-        MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
+        //await File.WriteAllTextAsync(
+        //    Path.Combine(
+        //        Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+        //        $"启动{versionExp.VersionID}." + (Init.SystemType == SystemType.windows ? "bat" : "sh")),
+        //    "cd " + (Init.SystemType == SystemType.windows ? "/D " : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
+        //    + $"{Init.GameRootPath}{Environment.NewLine}java " + await new LaunchCommandBuilder
+        //    (
+        //        Init.GameRootPath,
+        //        versionExp.VersionID,
+        //        Init.ConfigManger.config.DefaultUserModel,
+        //        versionExp.preferencesLaunchMode.LaunchModType,
+        //        Init.SystemType,
+        //        versionExp.IsVersionIsolation
+        //    ).BuildCommand
+        //    (
+        //        OtherArgs: "-XX:+UseG1GC"
+        //));
+        //MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
     }
     [RelayCommand]
     public void PinInDashboard()
@@ -166,18 +166,18 @@ internal partial class VersionItem : BaseViewModel
     [RelayCommand]
     public void OpenModsFolder()
     {
-        string path = ((versionExp.IsVersionIsolation)
-                ? Path.Combine(Init.GameRootPath, "versions", versionExp.VersionID, "mods")
-                : Path.Combine(Init.GameRootPath, "mods"));
-        try
-        {
-            Tools.OpenFolder(path);
-        }
-        catch (OlanException ex)
-        {
-            OlanExceptionWorker.ForOlanException(ex,
-                () => OpenModsFolder());  
-        }
+        //string path = ((versionExp.IsVersionIsolation)
+        //        ? Path.Combine(Init.GameRootPath, "versions", versionExp.VersionID, "mods")
+        //        : Path.Combine(Init.GameRootPath, "mods"));
+        //try
+        //{
+        //    Tools.OpenFolder(path);
+        //}
+        //catch (OlanException ex)
+        //{
+        //    OlanExceptionWorker.ForOlanException(ex,
+        //        () => OpenModsFolder());  
+        //}
     }
     [RelayCommand]
     public void OpenServerFolder()

@@ -8,6 +8,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using OneLauncher.Core.Global;
+
 #if WINDOWS
 using Microsoft.Identity.Client.Broker;
 #endif

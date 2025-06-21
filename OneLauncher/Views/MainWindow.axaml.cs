@@ -5,7 +5,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Net.msa;
 using System;
 using System.Collections.Generic;

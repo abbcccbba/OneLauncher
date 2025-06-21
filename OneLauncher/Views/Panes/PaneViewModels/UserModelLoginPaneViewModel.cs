@@ -3,7 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.ViewModels;
@@ -87,7 +87,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         {
             UserModel um;
 #if WINDOWS
-            if (Init.systemType == SystemType.windows)
+            if (Init.SystemType == SystemType.windows)
             {
                 um = 
                     await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenUseWindowsWebAccountManger(

@@ -14,8 +14,6 @@ public class VersionInfomations
 {
     public readonly MinecraftVersionInfo info;
     public readonly string basePath;
-    public readonly bool? IsVersionInsulation;
-    public readonly SystemType OsType;
     public List<string> NativesLibs = new List<string>();
 
     /// <summary>
@@ -26,15 +24,11 @@ public class VersionInfomations
     /// <param Name="OsType">系统类型</param>
     /// <param Name="IsVersionInsulation">是否启用了版本隔离</param>
     /// <exception cref="InvalidOperationException">当json解析出错时</exception>
-    public VersionInfomations(string json, string basePath, SystemType OsType, bool? IsVersionInsulation = false)
+    public VersionInfomations(string json, string basePath)
     {
         this.basePath = basePath;
-        this.OsType = OsType;
 
         info = JsonSerializer.Deserialize<MinecraftVersionInfo>(json, MinecraftJsonContext.Default.MinecraftVersionInfo);
-
-
-        this.IsVersionInsulation = IsVersionInsulation;
     }
 
     /// <summary>
@@ -144,10 +138,17 @@ public class VersionInfomations
         }
         return libraries;
     }
-    public List<(string name,string path)> GetLibraryiesForUsing()
+    public List<(string name, string path)> GetLibraryiesForUsing()
     {
         var libraries = new List<(string name, string path)>(info.Libraries.Count); // 提前初始化相应长度内存，避免频繁扩容影响性能
-
+        string OsName;
+#if WINDOWS
+        OsName = "windows"; 
+#elif MACOS
+        OsName = "osx";
+#else
+        OsName = "linux";
+#endif
         foreach (var lib in info.Libraries)
         {
             // 检查规则
@@ -161,14 +162,14 @@ public class VersionInfomations
                 {
                     // 与当前系统尝试匹配
                     // 第二条规则的 action 是 disallow
-                    if (lib.Rules[1].Os.Name != OsType.ToString())
+                    if (lib.Rules[1].Os.Name != OsName)
                         allowed = true;
                     else allowed = false;
                 }
                 if (lib.Rules.Count == 1)
                 {
                     // 与当前系统尝试匹配
-                    if (lib.Rules[0].Os.Name == OsType.ToString())
+                    if (lib.Rules[0].Os.Name == OsName)
                         allowed = true;
                     else
                         allowed = false;

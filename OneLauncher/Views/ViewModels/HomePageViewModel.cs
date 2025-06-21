@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,25 +24,25 @@ internal partial class HomePageViewModel : BaseViewModel
     public string userName;
     [ObservableProperty] 
     public string versionName;
-    [RelayCommand]
-    public async Task ToPlay()
-    {
-        if(Init.ConfigManger.config.DefaultVersion == null)
-        {
-            await OlanExceptionWorker.ForOlanException(
-                new OlanException("无法启动","未指定默认版本",OlanExceptionAction.Error),
-                () => 
-                {
-                    if (Init.ConfigManger.config.UserModelList.Count > 0) 
-                    { 
-                        Init.ConfigManger.config.DefaultVersion = Init.ConfigManger.config.VersionList[0];
-                        Init.ConfigManger.Save();
-                    }
-                    ToPlay();
-                }
-            );
-            return;
-        }
-        _=version.EasyGameLauncher(Init.ConfigManger.config.DefaultVersion, false, Init.ConfigManger.config.DefaultUserModel);
-    }
+    //[RelayCommand]
+    //public async Task ToPlay()
+    //{
+    //    if(Init.ConfigManger.config.DefaultVersion == null)
+    //    {
+    //        await OlanExceptionWorker.ForOlanException(
+    //            new OlanException("无法启动","未指定默认版本",OlanExceptionAction.Error),
+    //            () => 
+    //            {
+    //                if (Init.ConfigManger.config.UserModelList.Count > 0) 
+    //                { 
+    //                    Init.ConfigManger.config.DefaultVersion = Init.ConfigManger.config.VersionList[0];
+    //                    Init.ConfigManger.Save();
+    //                }
+    //                ToPlay();
+    //            }
+    //        );
+    //        return;
+    //    }
+    //    _=version.EasyGameLauncher(false, Init.ConfigManger.config.DefaultUserModel);
+    //}
 }

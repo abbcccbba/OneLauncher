@@ -1,7 +1,7 @@
 ﻿// 文件名: ForgeVersionListGetter.cs
 // 命名空间: OneLauncher.Core.Mod.ModLoader.forgeseries
 
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;

@@ -25,7 +25,7 @@
 			</StackPanel>
 			<ListBox x:Name="navVL" Grid.Row="2" Background="Transparent" SelectionMode="Multiple">
 				<ListBox.ItemTemplate>
-					<DataTemplate x:DataType="vm:UserItem">
+					<DataTemplate>
 						<Border CornerRadius="5">
 							<Grid ColumnDefinitions="65,Auto,*" Margin="6">
 								<Border Grid.Column="0" Grid.RowSpan="2">
@@ -39,7 +39,7 @@
 									<TextBlock Text="Time"/>
 								</StackPanel>
 								<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal" >
-									<Button>
+									<Button Command="{Binding $parent[ListBox].DataContext.LaunchCommand}" CommandParameter="{Binding}">
 										<StackPanel Orientation="Horizontal" Spacing="2">
 											<Image VerticalAlignment="Center" Source="/Assets/icos/skin.png" Width="16" Height="16"/>
 											<TextBlock Text="Button"/>

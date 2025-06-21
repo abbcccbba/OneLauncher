@@ -4,7 +4,7 @@ using OneLauncher.Core.Net.msa;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace OneLauncher.Core;
+namespace OneLauncher.Core.Global;
 public static class Init
 {
     public const string OneLauncherVersoin = "1.5.0";
@@ -14,7 +14,8 @@ public static class Init
     public static string BasePath { get; private set; }
     public static string GameRootPath { get; private set; }
     public static DBManger ConfigManger { get; private set; }
-    public static SystemType systemType { get; private set; }
+    public static GameDataManager GameDataManger { get; private set; }
+    public static SystemType SystemType { get; private set; }
     public static MsalMicrosoftAuthenticator MMA { get; private set; }
     public static List<VersionBasicInfo> MojangVersionList = null;
     public static async Task<OlanException> Initialize()
@@ -38,11 +39,13 @@ public static class Init
             }, BasePath);
             GameRootPath = ConfigManger.config.OlanSettings.GameInstallPath ?? Path.Combine(BasePath, "installed",".minecraft");
             // 初始化系统信息
-            systemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
+            SystemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
                          RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
                          RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
             // 初始化微软验证系统
-            MMA = await MsalMicrosoftAuthenticator.CreateAsync(Init.AzureApplicationID);
+            MMA = await MsalMicrosoftAuthenticator.CreateAsync(AzureApplicationID);
+            // 初始化游戏数据管理器
+            GameDataManger = await GameDataManager.CreateAsync(GameRootPath);
             return null;
         }
         catch (ArgumentException ex)

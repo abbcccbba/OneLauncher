@@ -1,5 +1,5 @@
 ﻿using Avalonia.Threading;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Views;
 using OneLauncher.Views.Windows;
 using System;

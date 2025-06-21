@@ -3,8 +3,8 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
-using OneLauncher.Core;
 using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
 using System;
@@ -51,34 +51,33 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     [RelayCommand]
     public async Task ToInstall()
     {
-        // 安装前先检查版本是否符合要求
-        if(!(SupportModType.IsFabric == SelectedItem.modType.IsFabric || SupportModType.IsNeoForge == SelectedItem.modType.IsNeoForge)) 
-        {
-            MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应加载器",true);
-            return;
-        }
-        IsShowMoreInfo = false;
-        foreach (var needVersion in SupportVersions)
-            if (needVersion == SelectedItem.VersionID)
-            {
-                using (Download downTask = new())
-                    await downTask.StartDownloadMod(
-                        new Progress<(long all, long done, string c)>
-                        (p => Dispatcher.UIThread.Post(() =>
-                        {
-                            CurrentProgress = (double)p.done / p.all * 100;
-                            Dp = p.c;
-                            Fs = $"{p.done}/{p.all}";
-                        })),
-                        modItem.ID,
-                        ((SelectedItem.IsVersionIsolation)
-                        ? Path.Combine(Init.GameRootPath, "versions", SelectedItem.VersionID, "mods")
-                        : Path.Combine(Init.GameRootPath, "mods")),
-                        SelectedItem.VersionID, IsIncludeDependencies: IsICS, IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
-                return;
-            }
-        MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应版本", true);
-        return;
+        //// 安装前先检查版本是否符合要求
+        //if(!(SupportModType.IsFabric == SelectedItem.modType.IsFabric || SupportModType.IsNeoForge == SelectedItem.modType.IsNeoForge)) 
+        //{
+        //    MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应加载器",true);
+        //    return;
+        //}
+        //IsShowMoreInfo = false;
+        //foreach (var needVersion in SupportVersions)
+        //    if (needVersion == SelectedItem.VersionID)
+        //    {
+        //        using (Download downTask = new())
+        //            await downTask.StartDownloadMod(
+        //                new Progress<(long all, long done, string c)>
+        //                (p => Dispatcher.UIThread.Post(() =>
+        //                {
+        //                    CurrentProgress = (double)p.done / p.all * 100;
+        //                    Dp = p.c;
+        //                    Fs = $"{p.done}/{p.all}";
+        //                })),
+        //                modItem.ID,
+        //                ((SelectedItem.IsVersionIsolation)
+        //                ? Path.Combine(Init.GameRootPath, "versions", SelectedItem.VersionID, "mods")
+        //                : Path.Combine(Init.GameRootPath, "mods")),
+        //                SelectedItem.VersionID, IsIncludeDependencies: IsICS, IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
+        //        return;
+        //    }
+        //MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应版本", true);
     }
     [ObservableProperty]
     public bool _IsICS;

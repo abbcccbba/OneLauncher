@@ -1,157 +1,163 @@
-﻿using Microsoft.NET.HostModel.AppHost;
-using Microsoft.NET.HostModel.Bundle;
-using OneLauncher.Core;
-using OneLauncher.Core.Downloader;
+﻿using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
-using OneLauncher.Core.Mod.ModPack;
-using OneLauncher.Core.Net.ConnectToolPower; 
 using System;
-using System.Net.Http;
-using System.Text.Json;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-await Init.Initialize();
-async Task VersionManifestReader()
+
+// GameData 结构体在 OneLauncher.Core.Helper 命名空间下
+// using OneLauncher.Core.Helper; 
+
+// 为了代码清晰，我们定义一个新的命名空间
+namespace ConsoleTest
 {
-    VersionsList vl;
-    /*
-     此方法中代码可能经过三个路径
-    1、不存在清单文件，下载成功，读取
-    2、不存在清单文件，下载失败，写入失败信息
-    3、存在清单文件，读取
-     */
-    if (!File.Exists(Path.Combine(Init.BasePath, "version_manifest.json")))
+    class Program
     {
-            // 路径（1）
-            using (Download download = new Download())
-                await download.DownloadFile(
-                    "https://piston-meta.mojang.com/mc/game/version_manifest.json",
-                    Path.Combine(Init.BasePath, "version_manifest.json")
+        static async Task Main(string[] args)
+        {
+            Console.WriteLine("--- OneLauncher 游戏数据功能测试 (修正版) ---");
+
+            try
+            {
+                // 1. 初始化核心服务
+                Console.WriteLine("[1/5] 初始化启动器核心服务...");
+                var initError = await Init.Initialize();
+                if (initError != null)
+                {
+                    Console.WriteLine($"初始化失败: {initError.Title} - {initError.Message}");
+                    return;
+                }
+                Console.WriteLine("核心服务初始化成功！");
+                Console.WriteLine($"游戏数据配置文件: {Path.Combine(Init.GameRootPath, "instance", "instance.json")}");
+
+                // 2. 准备基础数据
+                Console.WriteLine("\n[2/5] 确保基础测试数据存在...");
+                await EnsureTestData(); // 改为 async
+                Console.WriteLine("测试数据准备就绪。");
+
+                // 3. 创建新的游戏数据
+                Console.WriteLine("\n[3/5] 创建新的游戏数据对象...");
+                var vanillaGameData = new GameData(
+                    name: "纯净生存",
+                    versionId: "1.20.4",
+                    loader: ModEnum.none,
+                    userModel: Init.ConfigManger.config.DefaultUserModel
                 );
-            vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
 
+                var fabricGameData = new GameData(
+                    name: "Fabric 模组",
+                    versionId: "1.20.4",
+                    loader: ModEnum.fabric,
+                    userModel: Init.ConfigManger.config.DefaultUserModel
+                );
+
+                // 4. 使用 GameDataManager 添加并保存
+                // 使用正确的名称 Init.GameDataManager
+                Console.WriteLine("正在添加和保存 '纯净生存' 数据...");
+                await Init.GameDataManger.AddGameDataAsync(vanillaGameData);
+
+                Console.WriteLine("正在添加和保存 'Fabric 模组' 数据...");
+                await Init.GameDataManger.AddGameDataAsync(fabricGameData);
+                Console.WriteLine("游戏数据已成功保存到 instance.json！");
+
+                // 5. 验证启动命令生成
+                Console.WriteLine("\n[4/5] 测试启动命令生成...");
+                var dataToLaunch = Init.GameDataManger.AllGameData.FirstOrDefault(d => d.InstanceId == fabricGameData.InstanceId);
+                if (dataToLaunch.Name == null) // struct 不能为 null，检查其内容
+                {
+                    Console.WriteLine("错误：无法从管理器中找到刚刚添加的游戏数据！");
+                    return;
+                }
+
+                Console.WriteLine($"准备为游戏数据 '{dataToLaunch.Name}' 生成启动命令...");
+                var userToLaunch = dataToLaunch.DefaultUserModel ?? Init.ConfigManger.config.DefaultUserModel;
+
+                // 为测试创建假的 version.json
+                EnsureFakeVersionFiles(dataToLaunch.VersionId);
+
+                // 使用我们新增的构造函数
+                var launchBuilder = new LaunchCommandBuilder(
+                    Init.GameRootPath,
+                    dataToLaunch,
+                    userToLaunch
+                );
+
+                string command = await launchBuilder.BuildCommand();
+
+                Console.WriteLine("\n[5/5] 生成的启动命令如下：");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"java {command}");
+                Console.ResetColor();
+
+                Console.WriteLine("\n请检查上面的 --gameDir 参数是否指向了一个 GUID 文件夹路径。");
+
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"\n测试过程中发生未处理的异常: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+                Console.ResetColor();
+            }
+
+            Console.WriteLine("\n--- 测试结束 ---");
+            Console.ReadLine();
+        }
+
+        static async Task EnsureTestData()
+        {
+            bool needsSave = false;
+
+            if (Init.ConfigManger.config.DefaultUserModel == null)
+            {
+                var defaultUser = new UserModel("Tester", Guid.NewGuid());
+                Init.ConfigManger.config.UserModelList.Add(defaultUser);
+                Init.ConfigManger.config.DefaultUserModel = defaultUser;
+                needsSave = true;
+                Console.WriteLine("  - 创建了默认用户 'Tester'");
+            }
+
+            if (!Init.ConfigManger.config.VersionList.Any(v => v.VersionID == "1.20.4"))
+            {
+                var newVersion = new UserVersion
+                {
+                    VersionID = "1.20.4",
+                    AddTime = DateTime.Now
+                };
+                Init.ConfigManger.config.VersionList.Add(newVersion);
+                needsSave = true;
+                Console.WriteLine("  - 创建了 '1.20.4' 的基础版本配置");
+            }
+
+            if (needsSave)
+            {
+                await Init.ConfigManger.Save(); // 改为 await
+                Console.WriteLine("  - 已保存更新到 config.json");
+            }
+        }
+
+        static void EnsureFakeVersionFiles(string versionId)
+        {
+            var versionDir = Path.Combine(Init.GameRootPath, "versions", versionId);
+            Directory.CreateDirectory(versionDir);
+
+            var versionJsonPath = Path.Combine(versionDir, "version.json");
+            if (!File.Exists(versionJsonPath))
+            {
+                string fakeJsonContent = """
+                {
+                    "id": "1.20.4",
+                    "mainClass": "net.minecraft.client.main.Main",
+                    "assetIndex": { "id": "12", "url": "" },
+                    "downloads": { "client": { "url": "" } },
+                    "libraries": []
+                }
+                """;
+                File.WriteAllText(versionJsonPath, fakeJsonContent);
+                Console.WriteLine($"  - 创建了假的 'version.json' 用于测试路径: {versionJsonPath}");
+            }
+        }
     }
-    // 路径（3）
-    vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
-    // 提前缓存避免UI线程循环卡顿
-    List<VersionBasicInfo> releaseVersions = Init.MojangVersionList = vl.GetReleaseVersionList();
 }
-await VersionManifestReader();
-await ModpackImporter.ImportFromMrpackAsync(@"F:\User.WWWIN\dos\Better MC [NEOFORGE] BMC5 v31.mrpack",Init.GameRootPath);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Console.WriteLine("OAuth 客户端测试程序 - 手动交换令牌模式");
-//Console.WriteLine("------------------------------------------");
-
-//// 你哥们提供的信息
-//var authority = "http://110.42.59.70:5100";
-//var clientId = "10001";
-//var clientSecret = "618470616107912bf450b448b5530282";
-//var scope = "profile email";
-//var port = 51762; // 他要求的端口
-//var redirectUri = $"http://127.0.0.1:{port}/";
-
-//// --- 步骤 1: 使用你升级后的 QOauth 类获取 Code ---
-//var browser = new QOauth(port); // 把端口号传进去
-//var startUrl = $"http://110.42.59.70:5100/oauth/authorize?response_type=code&client_id=10001&scope=profile&redirect_uri=http://127.0.0.1:51762";
-//var browserOptions = new Duende.IdentityModel.OidcClient.Browser.BrowserOptions(startUrl, redirectUri);
-
-//Console.WriteLine("准备打开浏览器获取 Code...");
-//var browserResult = await browser.InvokeAsync(browserOptions);
-
-//if (browserResult.IsError)
-//{
-//    Console.WriteLine($"获取 Code 失败: {browserResult.Error}");
-//    return;
-//}
-
-//// 从回调 URL 中解析出 Code
-//var code = new Uri(browserResult.Response).Query
-//    .Split(new[] { '&', '?' }, StringSplitOptions.RemoveEmptyEntries)
-//    .FirstOrDefault(s => s.StartsWith("code="))?
-//    .Substring(5);
-
-//if (string.IsNullOrEmpty(code))
-//{
-//    Console.WriteLine("未能从回调中获取到 Code。");
-//    return;
-//}
-
-//Console.ForegroundColor = ConsoleColor.Green;
-//Console.WriteLine($"成功获取到 Code: {code}");
-//Console.ResetColor();
-//Console.WriteLine("------------------------------------------");
-
-//// --- 步骤 2: 手动携带 Secret 交换 Token ---
-//Console.WriteLine("正在使用 Code 和 Secret 交换 Access Token...");
-//using var httpClient = new HttpClient();
-
-//var tokenRequestContent = new FormUrlEncodedContent(new Dictionary<string, string>
-//{
-//    { "grant_type", "authorization_code" },
-//    { "code", code },
-//    { "redirect_uri", redirectUri },
-//    { "client_id", clientId },
-//    { "client_secret", clientSecret }
-//});
-
-//try
-//{
-//    var tokenEndpoint = $"{authority}/oauth/token"; // 令牌端点的地址
-//    Console.WriteLine($"正在向 {tokenEndpoint} 发送 POST 请求...");
-//    var tokenResponse = await httpClient.PostAsync(tokenEndpoint, tokenRequestContent);
-//    var responseString = await tokenResponse.Content.ReadAsStringAsync();
-
-//    if (!tokenResponse.IsSuccessStatusCode)
-//    {
-//        Console.ForegroundColor = ConsoleColor.Red;
-//        Console.WriteLine($"交换 Token 失败: {(int)tokenResponse.StatusCode} {tokenResponse.ReasonPhrase}");
-//        Console.WriteLine($"服务器响应: {responseString}");
-//        Console.ResetColor();
-//        return;
-//    }
-
-//    Console.ForegroundColor = ConsoleColor.Green;
-//    Console.WriteLine("成功获取到 Access Token!");
-//    Console.ResetColor();
-
-//    using var jsonDoc = JsonDocument.Parse(responseString);
-//    var formattedJson = JsonSerializer.Serialize(jsonDoc, new JsonSerializerOptions { WriteIndented = true });
-//    Console.WriteLine(formattedJson);
-//}
-//catch (Exception ex)
-//{
-//    Console.WriteLine($"请求时发生异常: {ex.Message}");
-//}
-
-//Console.WriteLine("\n测试结束，按任意键退出...");
-//Console.ReadKey();

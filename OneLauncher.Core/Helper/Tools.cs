@@ -1,4 +1,5 @@
 ﻿using Microsoft.Identity.Client;
+using OneLauncher.Core.Global;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -85,7 +86,7 @@ public static class Tools
         Directory.CreateDirectory(folderPath);
         try
         {
-            switch (Init.systemType)
+            switch (Init.SystemType)
             {
                 case SystemType.windows:
                     processOpenInfo.FileName = "explorer.exe";
@@ -111,7 +112,7 @@ public static class Tools
     {
         var t = Path.Combine(Init.BasePath,"installed","runtimes", javaVersion.ToString());
         if (Init.ConfigManger.config.AvailableJavaList.Contains(javaVersion))
-            return Init.systemType == SystemType.osx
+            return Init.SystemType == SystemType.osx
                 ? Path.Combine(t, Directory.GetDirectories(t)[0], "Contents", "Home", "bin", "java")
                 : Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
         return "java"; // 否则默认使用系统Java 

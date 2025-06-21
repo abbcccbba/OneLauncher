@@ -2,7 +2,7 @@
 using Avalonia.Data;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
-using OneLauncher.Core;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views.Windows;
@@ -26,31 +26,22 @@ internal class Game
     /// <param Name="IsVersionInsulation">版本是否启用了版本隔离</param>
     /// <param Name="UseGameTasker">是否使用游戏监视器</param>
     public async Task LaunchGame(
-        string GameVersion, 
-        UserModel loginUserModel, 
-        ModEnum modType,
-        bool IsVersionInsulation,
+        GameData gameData,
         bool UseGameTasker = false,
         ServerInfo? serverInfo = null)
     {
         #region 初始化基本游戏构建类
+        await gameData.DefaultUserModel.IntelligentLogin(Init.MMA);
         var Builder = new LaunchCommandBuilder
                         (
                             Init.GameRootPath,
-                            GameVersion,
-                            loginUserModel,
-                            modType,
-                            Init.systemType,
-                            IsVersionInsulation,
+                            gameData,
                             serverInfo
                         );
         #endregion
         
         #region 初次启动时帮用户设置语言和在调试模式下打开调试窗口
-        var optionsPath = Path.Combine(
-            (IsVersionInsulation
-            ? Path.Combine(Init.GameRootPath, "versions",GameVersion)
-            : Init.GameRootPath), "options.txt");
+        var optionsPath = Path.Combine(gameData.InstancePath,"options.txt");
         if (!File.Exists(optionsPath))
         {
             await File.WriteAllTextAsync(optionsPath, $"lang:zh_CN");
@@ -65,8 +56,6 @@ internal class Game
         
         try
         {
-            // 刷新登入令牌
-            await loginUserModel.IntelligentLogin(Init.MMA);
             string launchArgumentsPath = Path.GetTempFileName();
             await File.WriteAllTextAsync(
                 launchArgumentsPath,
@@ -86,10 +75,7 @@ internal class Game
                     //"-javaagent:\"F:\\OneLauncherAgent.jar\"=\"Hello World by OneLauncher\"" +
                     $"@{launchArgumentsPath}",
                     FileName = Builder.GetJavaPath(),
-                    WorkingDirectory =
-                    (IsVersionInsulation)
-                    ? Path.Combine(Init.GameRootPath, "versions", GameVersion)
-                    : Init.GameRootPath,
+                    WorkingDirectory = Init.GameRootPath,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -115,10 +101,7 @@ internal class Game
                         await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败","Jvm无法找到主类，请尝试重新安装游戏",OlanExceptionAction.Error),
                         () => _=LaunchGame(
-                                GameVersion,
-                                loginUserModel,
-                                modType,
-                                IsVersionInsulation,
+                                gameData,
                                 UseGameTasker
                             ));
                 };
@@ -130,10 +113,7 @@ internal class Game
                     await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", "未知错误，请尝试以调试模式启动游戏以查找出错原因", OlanExceptionAction.Error),
                         () => _=LaunchGame(
-                                GameVersion,
-                                loginUserModel,
-                                modType,
-                                IsVersionInsulation,
+                                gameData,
                                 true
                             ));
             }
