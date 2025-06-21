@@ -12,7 +12,12 @@ public static class Init
     public const string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static Task<OlanException> InitTask;
     public static string BasePath { get; private set; }
-    public static string GameRootPath { get; private set; }
+    public static string GameRootPath
+#if DEBUG
+    { get; set; }
+#else
+    { get; private set; }
+#endif
     public static DBManger ConfigManger { get; private set; }
     public static GameDataManager GameDataManger { get; private set; }
     public static SystemType SystemType { get; private set; }

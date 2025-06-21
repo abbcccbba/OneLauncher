@@ -5,6 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OneLauncher.Views.gamedata"
 			 xmlns:vm="using:OneLauncher.Views.ViewModels"
+			 xmlns:lo="using:OneLauncher.Core.Helper"
 			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
 				 DisplayMode="Overlay"
@@ -23,9 +24,9 @@
 					</StackPanel>
 				</Button>
 			</StackPanel>
-			<ListBox x:Name="navVL" Grid.Row="2" Background="Transparent" SelectionMode="Multiple">
+			<ListBox x:Name="navVL" Grid.Row="2" ItemsSource="{Binding GameDataList}" Background="Transparent" SelectionMode="Multiple">
 				<ListBox.ItemTemplate>
-					<DataTemplate>
+					<DataTemplate x:DataType="vm:GameDataItem">
 						<Border CornerRadius="5">
 							<Grid ColumnDefinitions="65,Auto,*" Margin="6">
 								<Border Grid.Column="0" Grid.RowSpan="2">
@@ -33,13 +34,12 @@
 								</Border>
 								<StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,-8,0,0">
 									<StackPanel Orientation="Horizontal" Spacing="4">
-										<TextBlock FontSize="32" Text="Name" FontWeight="Bold"/>
-										<TextBlock FontSize="16" Margin="0,12" VerticalAlignment="Center" Text="Type" FontStyle="Italic"/>
+										<TextBlock FontSize="32" Text="{Binding data.Name}" FontWeight="Bold"/>
 									</StackPanel>
-									<TextBlock Text="Time"/>
+									<TextBlock Text="{Binding data.CreationTime}"/>
 								</StackPanel>
 								<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal" >
-									<Button Command="{Binding $parent[ListBox].DataContext.LaunchCommand}" CommandParameter="{Binding}">
+									<Button Command="{Binding $parent[ListBox].DataContextLaunchCommand}" CommandParameter="{Binding}">
 										<StackPanel Orientation="Horizontal" Spacing="2">
 											<Image VerticalAlignment="Center" Source="/Assets/icos/skin.png" Width="16" Height="16"/>
 											<TextBlock Text="Button"/>

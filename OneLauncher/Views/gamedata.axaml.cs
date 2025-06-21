@@ -8,6 +8,7 @@ using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace OneLauncher.Views;
 
@@ -27,7 +28,7 @@ public partial class gamedata : UserControl
 #endif
         try
         {
-            navVL.ItemsSource = Init.GameDataManger.AllGameData;
+            navVL.ItemsSource = Init.GameDataManger.AllGameData.Select(x => new GameDataItem(x)).ToList();
         }
         catch (NullReferenceException ex)
         {
