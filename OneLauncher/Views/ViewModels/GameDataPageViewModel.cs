@@ -17,39 +17,30 @@ using System.Threading.Tasks;
 namespace OneLauncher.Views.ViewModels;
 internal partial class GameDataItem : BaseViewModel
 {
+    public GameData data { get; set; }
+    public bool IsDefault { get; }
+    public Bitmap Icon { get; set; }
     public GameDataItem(GameData gameData)
     {
         data = gameData;
-//#if DEBUG
-//        if (Design.IsDesignMode)
-//        {
 
-//        }
-//#endif
-        #region 定义图标
+        // 检查自己是否是其对应版本的默认实例
+        var defaultInstance = Init.GameDataManger.GetDefaultInstance(gameData.VersionId);
+        IsDefault = (defaultInstance != null && defaultInstance.InstanceId == gameData.InstanceId);
         if (!string.IsNullOrEmpty(data.CustomIconPath) && File.Exists(data.CustomIconPath))
         {
-            try
-            {
-                Icon = new Bitmap(data.CustomIconPath);
-                return;
-            }
-            catch (Exception) {} // 若无法加载图标，回退到默认图标
+            try { Icon = new Bitmap(data.CustomIconPath); return; }
+            catch (Exception) { /* 忽略错误，使用默认图标 */ }
         }
         string iconUri = data.ModLoader switch
         {
             ModEnum.fabric => "avares://OneLauncher/Assets/Imgs/fabric.png",
             ModEnum.neoforge => "avares://OneLauncher/Assets/Imgs/neoforge.png",
             ModEnum.forge => "avares://OneLauncher/Assets/Imgs/forge.jpg",
-            _ => "avares://OneLauncher/Assets/Imgs/basic.png", 
+            _ => "avares://OneLauncher/Assets/Imgs/basic.png", // 草方块
         };
         Icon = new Bitmap(AssetLoader.Open(new Uri(iconUri)));
-        #endregion
-        
     }
-    public Bitmap Icon { get; set; }
-    public GameData data { get; set; }
-    string Type { get; set; }
 }
 internal partial class GameDataPageViewModel : BaseViewModel
 {
@@ -73,27 +64,40 @@ internal partial class GameDataPageViewModel : BaseViewModel
     }
     public GameDataPageViewModel()
     {
-        
 #if DEBUG
+        // 造密码的Avalonia设计器天天报错
+        // 设计时数据
         if (Design.IsDesignMode)
         {
-            Init.GameRootPath = "AVALONIA";
-            GameDataList.Add(new GameDataItem(new GameData()
-            {
-                CreationTime = DateTime.Now,
-                InstanceId = "1.21.5",
-                Name = "设计时游戏数据-1"
-            }));
-            GameDataList.Add(new GameDataItem(new GameData()
-            {
-                CreationTime = DateTime.Now.AddDays(-5),
-                InstanceId = "1.20.4",
-                Name = "设计时游戏数据-2"
-            }));
+            // 创建一个临时的、仅用于设计的假用户模型
+            var designTimeUser = new UserModel("Steve", Guid.NewGuid());
+            var gameData1 = new GameData(
+                name: "纯净生存 (设计时)",
+                versionId: "1.21",
+                loader: ModEnum.none,
+                userModel: designTimeUser
+            );
+
+            var gameData2 = new GameData(
+                name: "Fabric 模组包 (设计时)",
+                versionId: "1.20.4",
+                loader: ModEnum.fabric,
+                userModel: designTimeUser
+            );
+
+            // 将创建好的 GameData 包装成 GameDataItem 并添加到列表
+            GameDataList = new List<GameDataItem>()
+        {
+            new GameDataItem(gameData1),
+            new GameDataItem(gameData2)
+        };
         }
         else
 #endif
+        {
+            // 把配置文件的游戏数据列表显示到UI
             GameDataList = Init.GameDataManger.AllGameData.Select(x => new GameDataItem(x)).ToList();
+        }
     }
     [RelayCommand]
     public void Launch(GameData gameData)
@@ -130,5 +134,13 @@ internal partial class GameDataPageViewModel : BaseViewModel
 
         RefList(); // 重新加载列表
         MainWindow.mainwindow.ShowFlyout($"已删除: {data.Name}");
+    }
+    [RelayCommand]
+    private async Task SetAsDefaultInstance(GameData targetData)
+    {
+        if (targetData == null) return;
+        await Init.GameDataManger.SetDefaultInstanceAsync(targetData);
+        RefList();
+        MainWindow.mainwindow.ShowFlyout($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。");
     }
 }

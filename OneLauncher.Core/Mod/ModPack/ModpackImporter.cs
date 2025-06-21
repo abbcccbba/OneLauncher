@@ -53,8 +53,13 @@ public class ModpackImporter : IDisposable
         // 安装游戏本体
         string mcVersion = parser.GetMinecraftVersion();
         (ModEnum loaderType, string loaderVersion) = parser.GetLoaderInfo();
+        GameData packGameData = new GameData(
+            parser.GetName(),
+            mcVersion,
+            loaderType,
+            null
+            );
         await InstallBaseGameAsync(mcVersion, loaderType, token);
-
         token.ThrowIfCancellationRequested();
 
         // 安装Mod
@@ -121,7 +126,12 @@ public class ModpackImporter : IDisposable
             null,
             token
         );
-        await mcDownloader.MinecraftBasic(AndJava: true);
+        await mcDownloader.MinecraftBasic(
+            maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
+            maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
+            IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
+            UseBMLCAPI: Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI,
+            AndJava: true);
         if (IsNotAddNewConfig)
             return;
         Init.ConfigManger.config.VersionList.Add(userVersionForDownloader);

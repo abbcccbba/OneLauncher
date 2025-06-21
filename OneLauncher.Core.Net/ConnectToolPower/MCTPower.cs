@@ -84,7 +84,8 @@ public class MCTPower : IDisposable
         // 他又让我改回第一版注释了，那就只能再次注释注释注释的注释了
         // 这里原本是// 他让我把注释删了，为了避免误人子弟，我这里把注释给注释掉
         // 这里原本是// 这里原来是// 解决作者写的屎山代码认配置文件不认命令行的问题
-        File.Delete(Path.Combine(coreDirectory,"config.json"));
+        var coreConfigPath = Path.Combine(coreDirectory, "config.json");
+        if (File.Exists(coreConfigPath)) File.Delete(coreConfigPath);
         bool IsConnectionOk = false;
         coreProcess.OutputDataReceived += (s, e) => 
         {

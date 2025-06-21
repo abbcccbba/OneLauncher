@@ -64,8 +64,6 @@ public partial class Download : IDisposable
     }
     public readonly HttpClient unityClient;
 
-
-
     /// <summary>
     /// 开始异步下载Mod（可选是否下载依赖项）
     /// </summary>

@@ -43,18 +43,15 @@ public class MrpackParser
 
         throw new OlanException("加载器不兼容", "未在整合包中找到受支持的加载器 (Fabric 或 NeoForge)。", OlanExceptionAction.Error);
     }
-    public List<NdDowItem> GetLibraries(string instanceName, string gameRootPath,bool IsVI)
+    public List<NdDowItem> GetLibraries(string instanceName, string modPath)
     {
         var items = new List<NdDowItem>(manifest.Files.Count);
-        string versionPath = IsVI 
-            ? Path.Combine(gameRootPath, "version", manifest.Dependencies["minecraft"])
-            : gameRootPath;
 
         foreach (var file in manifest.Files)
         {
             items.Add(new NdDowItem(
                 Url: file.Downloads.FirstOrDefault(),
-                Path:Path.Combine(versionPath,Path.Combine(file.Path.Split('/'))),
+                Path:Path.Combine(modPath,Path.Combine(file.Path.Split('/'))),
                 Size:file.FileSize,
                 Sha1:file.Hashes["sha1"]));
         }

@@ -10,7 +10,7 @@ namespace OneLauncher.Core.Helper;
 /// <summary>
 /// 游戏数据，基于版本（UserVersion）
 /// </summary>
-public struct GameData
+public class GameData
 {
     public string Name { get; set; }
     public string VersionId { get; set; }
@@ -33,7 +33,6 @@ public struct GameData
         InstanceId = instanceId;
         CustomIconPath = customIconPath;
     }
-
     public GameData(string name, string versionId, ModEnum loader, UserModel? userModel,string? customIconPath = null)
     {
         Name = name;
@@ -44,4 +43,6 @@ public struct GameData
         CreationTime = DateTime.Now;
         InstanceId = Guid.NewGuid().ToString()[..8]; // 避免路径过长
     }
+    public override string ToString()
+        => VersionId;
 }

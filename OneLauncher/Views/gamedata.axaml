@@ -28,36 +28,56 @@
 				<ListBox.ItemTemplate>
 					<DataTemplate x:DataType="vm:GameDataItem">
 						<Border CornerRadius="5">
-							<Grid ColumnDefinitions="65,Auto,*" Margin="6">
-								<Border Grid.Column="0" Grid.RowSpan="2">
+							<Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+								<Border Grid.Column="0" CornerRadius="6" ClipToBounds="True">
 									<Image Width="64" Height="64" Source="{Binding Icon}"/>
 								</Border>
-								<StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,-8,0,0">
-									<StackPanel Orientation="Horizontal" Spacing="4">
-										<TextBlock FontSize="32" Text="{Binding data.Name}" FontWeight="Bold"/>
+								<StackPanel Grid.Column="1" Margin="15,0" VerticalAlignment="Center">
+									<TextBlock FontSize="18" FontWeight="SemiBold" Text="{Binding data.Name}"/>
+
+									<StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+										<TextBlock FontSize="12" Foreground="Gray">
+											<Run Text="版本:"/>
+											<Run Text="{Binding data.VersionId}"/>
+										</TextBlock>
+										<TextBlock FontSize="12" Foreground="Gray">
+											<Run Text="加载器:"/>
+											<Run Text="{Binding data.ModLoader}"/>
+										</TextBlock>
 									</StackPanel>
-									<TextBlock Text="{Binding data.CreationTime}"/>
 								</StackPanel>
-								<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal" >
-									<Button 
-										Command="{Binding $parent[UserControl].DataContext.ShowEditPaneCommand}"
-										CommandParameter="{Binding data}">
-										<StackPanel Orientation="Horizontal">
-											<Image Source="/Assets/icos/edit.png" Width="20" Height="20"/>
+
+								<StackPanel Grid.Column="2" Spacing="8" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="6">
+
+									<Border IsVisible="{Binding IsDefault}"
+											Background="#FFFBE5" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+										<TextBlock Text="默认" FontWeight="Bold" Foreground="#D4AC0D" FontSize="12"/>
+									</Border>
+
+									<Button IsVisible="{Binding !IsDefault}"
+											Command="{Binding $parent[UserControl].DataContext.SetAsDefaultInstanceCommand}"
+											CommandParameter="{Binding data}">
+										<StackPanel Orientation="Horizontal" Spacing="6">
+											<Image Source="/Assets/icos/pin.png" Width="16" Height="16"/>
+											<TextBlock Text="设为默认"/>
+										</StackPanel>
+									</Button>
+
+									<Button Command="{Binding $parent[UserControl].DataContext.ShowEditPaneCommand}" CommandParameter="{Binding data}">
+										<StackPanel Orientation="Horizontal" Spacing="6">
+											<Image Source="/Assets/icos/edit.png" Width="16" Height="16"/>
 											<TextBlock Text="编辑"/>
 										</StackPanel>
 									</Button>
-									<Button Command="{Binding $parent[UserControl].DataContext.LaunchCommand}"
-											CommandParameter="{Binding data}">
-										<StackPanel Orientation="Horizontal">
-											<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
+									<Button Classes="Accent" Command="{Binding $parent[UserControl].DataContext.LaunchCommand}" CommandParameter="{Binding data}">
+										<StackPanel Orientation="Horizontal" Spacing="6">
+											<Image Source="/Assets/icos/launch.png" Width="16" Height="16"/>
 											<TextBlock Text="启动"/>
 										</StackPanel>
 									</Button>
-									<Button Command="{Binding $parent[UserControl].DataContext.DeleteInstanceCommand}"
-											CommandParameter="{Binding data}">
-										<StackPanel Orientation="Horizontal">
-											<Image Source="/Assets/icos/del.png" Width="20" Height="20"/>
+									<Button Classes="Danger" Command="{Binding $parent[UserControl].DataContext.DeleteInstanceCommand}" CommandParameter="{Binding data}">
+										<StackPanel Orientation="Horizontal" Spacing="6">
+											<Image Source="/Assets/icos/del.png" Width="16" Height="16"/>
 											<TextBlock Text="删除"/>
 										</StackPanel>
 									</Button>

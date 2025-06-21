@@ -34,9 +34,9 @@
 				<StackPanel Spacing="10">
 					<TextBlock Text="我是房主" FontSize="16" FontWeight="SemiBold"/>
 
-					<ComboBox ItemsSource="{Binding InstalledVersions}"
-                              SelectedItem="{Binding SelectedHostVersion}"
-                              PlaceholderText="第一步: 选择一个游戏版本"
+					<ComboBox ItemsSource="{Binding AvailableGameData}"
+                              SelectedItem="{Binding SelectedHostGameData}"
+                              PlaceholderText="第一步: 选择一个游戏数据"
                               IsEnabled="{Binding !IsConnected}"/>
 
 					<Grid ColumnDefinitions="*,Auto">

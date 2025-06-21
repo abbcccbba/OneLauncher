@@ -12,8 +12,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.Panes.PaneViewModels;
@@ -34,7 +32,8 @@ internal partial class InstallModPaneViewModel : BaseViewModel
         modItem = item;
         ModName = item.Title;
         SupportVersions = item.SupportVersions;
-        OwnedVersoins = Init.ConfigManger.config.VersionList;
+        // 修改点 1：直接从 GameDataManger 获取所有实例
+        AvailableGameData = Init.GameDataManger.AllGameData;
         this.SupportModType = item.SupportModType;
     }
     private ModType SupportModType;
@@ -44,49 +43,86 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     public string _ModName;
     [ObservableProperty]
     public List<string> _SupportVersions;
+
+    // --- 修改点 2：添加用于绑定的属性 ---
     [ObservableProperty]
-    public List<UserVersion> _OwnedVersoins;
+    private List<GameData> _AvailableGameData;
+
     [ObservableProperty]
-    public UserVersion _SelectedItem;
+    private GameData _SelectedGameData; 
     [RelayCommand]
     public async Task ToInstall()
     {
-        //// 安装前先检查版本是否符合要求
-        //if(!(SupportModType.IsFabric == SelectedItem.modType.IsFabric || SupportModType.IsNeoForge == SelectedItem.modType.IsNeoForge)) 
-        //{
-        //    MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应加载器",true);
-        //    return;
-        //}
-        //IsShowMoreInfo = false;
-        //foreach (var needVersion in SupportVersions)
-        //    if (needVersion == SelectedItem.VersionID)
-        //    {
-        //        using (Download downTask = new())
-        //            await downTask.StartDownloadMod(
-        //                new Progress<(long all, long done, string c)>
-        //                (p => Dispatcher.UIThread.Post(() =>
-        //                {
-        //                    CurrentProgress = (double)p.done / p.all * 100;
-        //                    Dp = p.c;
-        //                    Fs = $"{p.done}/{p.all}";
-        //                })),
-        //                modItem.ID,
-        //                ((SelectedItem.IsVersionIsolation)
-        //                ? Path.Combine(Init.GameRootPath, "versions", SelectedItem.VersionID, "mods")
-        //                : Path.Combine(Init.GameRootPath, "mods")),
-        //                SelectedItem.VersionID, IsIncludeDependencies: IsICS, IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
-        //        return;
-        //    }
-        //MainWindow.mainwindow.ShowFlyout("你的游戏不支持所对应版本", true);
+        // 验证是否选择了实例
+        if (SelectedGameData == null)
+        {
+            MainWindow.mainwindow.ShowFlyout("请先选择一个游戏实例！", true);
+            return;
+        }
+        // 检查加载器是否匹配
+        if (SupportModType != SelectedGameData.ModLoader)
+        {
+            MainWindow.mainwindow.ShowFlyout($"此 Mod 不支持 {SelectedGameData.ModLoader} 加载器。", true);
+            return;
+        }
+        // 检查游戏版本是否受支持
+        if (!SupportVersions.Contains(SelectedGameData.VersionId))
+        {
+            MainWindow.mainwindow.ShowFlyout($"此 Mod 不支持游戏版本 {SelectedGameData.VersionId}。", true);
+            return;
+        }
+        // 4. 所有检查通过，开始下载
+        IsShowMoreInfo = false;
+        try
+        {
+            using (Download downTask = new())
+            {
+                // 目标路径现在直接从 SelectedGameData 获取
+                string modsPath = Path.Combine(SelectedGameData.InstancePath, "mods");
+
+                await downTask.StartDownloadMod(
+                    new Progress<(long all, long done, string c)>(p => Dispatcher.UIThread.Post(() =>
+                    {
+                        if (p.all > 0) // 避免除零错误
+                        {
+                            CurrentProgress = (double)p.done / p.all * 100;
+                            Fs = $"{p.done}/{p.all}";
+                        }
+                        Dp = p.c; // 更新文件名或状态
+                    })),
+                    modItem.ID,
+                    modsPath,
+                    SelectedGameData.VersionId,
+                    IsIncludeDependencies: IsICS,
+                    IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled
+                );
+            }
+            MainWindow.mainwindow.ShowFlyout($"{ModName} 安装成功！");
+        }
+        catch (OlanException ex)
+        {
+            OlanExceptionWorker.ForOlanException(ex);
+            IsShowMoreInfo = true; // 失败后恢复界面
+        }
+        catch (Exception ex)
+        {
+            OlanExceptionWorker.ForUnknowException(ex);
+            IsShowMoreInfo = true; // 失败后恢复界面
+        }
     }
+
     [ObservableProperty]
-    public bool _IsICS;
+    public bool _IsICS = true; // 默认勾选下载依赖
+
     [ObservableProperty]
-    public string _Dp = "下载未开始";
+    public string _Dp = "等待安装";
+
     [ObservableProperty]
-    public string _Fs = "?/0";
+    public string _Fs = "0/0";
+
     [ObservableProperty]
     public double _CurrentProgress = 0;
+
     [RelayCommand]
     public void ClosePane()
     {
