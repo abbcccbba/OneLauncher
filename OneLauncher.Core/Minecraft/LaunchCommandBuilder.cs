@@ -160,12 +160,7 @@ public class LaunchCommandBuilder
     /// </summary>
     private string BuildClassPath()
     {
-        // 使用一个字典来存储最终的库，key为库的标识(group:artifact)，value为路径
-        // 这样可以确保每个库只存在一个版本，并且可以控制哪个版本优先
         var libraryMap = new Dictionary<string, string>();
-
-        // 1. 首先添加 Fabric 的库
-        // 因为它们是后添加的，所以如果和原版有冲突，它们会覆盖掉原版的
         if (modType == ModEnum.fabric)
         {
             foreach (var lib in fabricParser.GetLibrariesForUsing())
@@ -192,9 +187,6 @@ public class LaunchCommandBuilder
                 }
             }
         }
-
-        // 2. 然后添加原版的库
-        // 对于每个原版库，只有在 libraryMap 中不存在同名库时才添加
         foreach (var lib in versionInfo.GetLibraryiesForUsing())
         {
             var parts = lib.name.Split(':');
@@ -207,11 +199,7 @@ public class LaunchCommandBuilder
                 }
             }
         }
-
-        // 3. 构建类路径字符串
         var finalClassPathLibs = libraryMap.Values.ToList();
-
-        // 4. 添加游戏主jar
         finalClassPathLibs.Add(versionInfo.GetMainFile().path);
 
         return string.Join(

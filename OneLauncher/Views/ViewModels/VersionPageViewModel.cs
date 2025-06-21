@@ -128,7 +128,6 @@ internal partial class VersionItem : BaseViewModel
     [RelayCommand]
     public async Task PinToDesktop()
     {
-        
         //await File.WriteAllTextAsync(
         //    Path.Combine(
         //        Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
@@ -154,22 +153,6 @@ internal partial class VersionItem : BaseViewModel
         Init.ConfigManger.config.DefaultVersion = versionExp;
         Init.ConfigManger.Write(Init.ConfigManger.config);
         MainWindow.mainwindow.ShowFlyout($"已将{versionExp.VersionID}固定到仪表盘并设为默认版本！");
-    }
-    [RelayCommand]
-    public void OpenModsFolder()
-    {
-        //string path = ((versionExp.IsVersionIsolation)
-        //        ? Path.Combine(Init.GameRootPath, "versions", versionExp.VersionID, "mods")
-        //        : Path.Combine(Init.GameRootPath, "mods"));
-        //try
-        //{
-        //    Tools.OpenFolder(path);
-        //}
-        //catch (OlanException ex)
-        //{
-        //    OlanExceptionWorker.ForOlanException(ex,
-        //        () => OpenModsFolder());  
-        //}
     }
     [RelayCommand]
     public void OpenServerFolder()

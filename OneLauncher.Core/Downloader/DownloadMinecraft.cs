@@ -80,6 +80,7 @@ public partial class DownloadMinecraft
         bool IsUseRecommendedToInstallForge = true,
         bool AndJava = false,
         bool UseBMLCAPI = false
+        // 这个代码写的有点屎，一般不是给人看的
         )
     {
         this.maxDownloadThreads = maxDownloadThreads;
@@ -109,7 +110,8 @@ public partial class DownloadMinecraft
         List<NdDowItem> ModNds = null;
         NdDowItem main = new(),log4j2 = new();
         string loggingFile = mations.GetLoggingConfigPath();
-        if (LibNds.Count == 0 && AssetsNds.Count == 0)    
+        //if (LibNds.Count == 0 && AssetsNds.Count == 0)
+        //这行代码干什么用的不知道，反正会导致bug
         if (!File.Exists(Path.Combine(versionPath, $"{userInfo.VersionID}.jar")))
         {
             main = mations.GetMainFile();
@@ -186,12 +188,12 @@ public partial class DownloadMinecraft
             AllNdListSha1.AddRange(ModNds);
             Interlocked.Add(ref dones,ModNds.Count);
         }
-        // 我也忘了当初干嘛要写这个东西，反正会导致进度报告混乱
+        //我也忘了当初干嘛要写这个东西，反正会导致进度报告混乱
         //Interlocked.Add(ref dones, );//LibNds.Count+AssetsNds.Count);
         Interlocked.Add(ref alls, dones+AllNdListSha1.Count);
         #endregion
         #endregion
-        if(main.url != null && main.path != null)
+        if(main.url != null || main.path != null)
             await DownloadClientTasker((NdDowItem)main,UseBMLCAPI);
         Task neoforgeToRunTask = Task.CompletedTask;
         if(ModNds != null)

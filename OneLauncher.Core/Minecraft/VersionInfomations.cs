@@ -198,12 +198,13 @@ public class VersionInfomations
     /// <param ID="version">Minecraft版本号。</param>
     public NdDowItem GetMainFile()
     {
-        return new NdDowItem(
+        var t = new NdDowItem(
             Url: info.Downloads.Client.Url,
             Sha1: info.Downloads.Client.Sha1,
             Size: (int)info.Downloads.Client.Size,
             Path: Path.Combine(basePath, "versions", info.ID, $"{info.ID}.jar")
         );
+        return t;
     }
 
     /// <summary>

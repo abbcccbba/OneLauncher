@@ -15,7 +15,7 @@
 		</SplitView.Pane>
 		<Grid RowDefinitions="52,Auto,*" Margin="24">
 		<StackPanel Margin="16,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
-			<TextBlock Grid.Row="0" Text="管理用户登入验证模型（开发中）" FontSize="36"/>
+			<TextBlock Grid.Row="0" Text="管理用户登入验证模型" FontSize="36"/>
 			<Button Command="{Binding NewUserModelCommand}">
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/icos/add.png" Width="20" Height="20"/>
