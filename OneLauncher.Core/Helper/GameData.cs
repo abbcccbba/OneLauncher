@@ -42,6 +42,6 @@ public struct GameData
         CustomIconPath = customIconPath;
         DefaultUserModel = userModel ?? Init.ConfigManger.config.DefaultUserModel;
         CreationTime = DateTime.Now;
-        InstanceId = Guid.NewGuid().ToString();
+        InstanceId = Guid.NewGuid().ToString()[..8]; // 避免路径过长
     }
 }
