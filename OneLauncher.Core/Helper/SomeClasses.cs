@@ -8,6 +8,13 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace OneLauncher.Core.Helper;
+public class LaunchOption
+{
+    public string InstanceId { get; set; }
+    public string UserModelUUID { get; set; }
+    public ServerInfo ServerInfo { get; set; }
+}
+
 public enum SortingType
 {
     AnTime_OldFront,
@@ -131,33 +138,17 @@ public class UserModel
 {
     public const string nullToken = "00000000-0000-0000-0000-000000000000";
 
+
     #region 构造函数
-    [JsonConstructor] 
-    public UserModel(
-        string Name,
-        Guid uuid,
-        string accessToken,
-        bool IsMsaUser,
-        string? AccountID,
-        DateTimeOffset? AccessTokenExpiration 
-        )
-    {
-        this.Name = Name;
-        this.uuid = uuid;
-        this.AccessToken = accessToken;
-        this.IsMsaUser = IsMsaUser;
-        this.AccountID = AccountID;
-        this.AccessTokenExpiration = AccessTokenExpiration;
-    }
     /// <summary>
     /// 主要构造函数。
     /// </summary>
     public UserModel(
-        string name, 
-        Guid uuid, 
+        string name,
+        Guid uuid,
         // 下面的仅限正版用户
-        string? accessToken = null, 
-        string? accountID = null, 
+        string? accessToken = null,
+        string? accountID = null,
         int? accessTokenExpiration = null)
     {
         this.Name = name;
@@ -177,6 +168,23 @@ public class UserModel
             AccountID = accountID;
             this.AccessTokenExpiration = DateTimeOffset.UtcNow.AddSeconds((double)(accessTokenExpiration ?? 86400));
         }
+    }
+    [JsonConstructor] 
+    public UserModel(
+        string Name,
+        Guid uuid,
+        string accessToken,
+        bool IsMsaUser,
+        string? AccountID,
+        DateTimeOffset? AccessTokenExpiration 
+        )
+    {
+        this.Name = Name;
+        this.uuid = uuid;
+        this.AccessToken = accessToken;
+        this.IsMsaUser = IsMsaUser;
+        this.AccountID = AccountID;
+        this.AccessTokenExpiration = AccessTokenExpiration;
     }
 
     #endregion

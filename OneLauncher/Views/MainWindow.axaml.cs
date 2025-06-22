@@ -62,12 +62,12 @@ public partial class MainWindow : Window
             }
         }
     }
-    protected override void OnClosing(WindowClosingEventArgs e)
+    protected override async void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
         Debug.WriteLine("释放残余资源...");
         Init.MMA.Dispose();
-        Init.ConfigManger.Dispose();
+        await Init.ConfigManger.ShutdownAsync();
         WeakReferenceMessenger.Default.Send(new ApplicationClosingMessage());
     }
     public enum MainPage
