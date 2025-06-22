@@ -50,6 +50,8 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     private async Task ChangeIcon()
     {
         var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
+        if (topLevel?.StorageProvider is null) return;
+
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "选择一个新的图标",
@@ -64,16 +66,18 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         Directory.CreateDirectory(imageDir);
         string destPath = Path.Combine(imageDir, $"{editingGameData.InstanceId}.png");
 
-        // 把文件复制过去
-        await using var sourceStream = await selectedFile.OpenReadAsync();
-        await using var destStream = File.Create(destPath);
-        await sourceStream.CopyToAsync(destStream);
+        { // 确保文件流被释放
+            await using var sourceStream = await selectedFile.OpenReadAsync();
+            await using var destStream = File.Create(destPath);
+            await sourceStream.CopyToAsync(destStream);
+        }
 
         editingGameData.CustomIconPath = destPath;
-        CurrentIcon = new Bitmap(AssetLoader.Open(new Uri(destPath))); // 显示一个预览
+        CurrentIcon = new Bitmap(destPath); // 显示预览
         parentViewModel.UpdateGameData(editingGameData);
 
-        LoadCurrentIcon();
+        parentViewModel.RefList();
+
         MainWindow.mainwindow.ShowFlyout("图标已更新！");
     }
 
@@ -85,15 +89,21 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task Save()
+    private void Save()
     {
         editingGameData.Name = InstanceName;
         parentViewModel.UpdateGameData(editingGameData);
-        await Init.GameDataManger.SaveAsync();
+        Init.GameDataManger.SaveAsync();
 
         parentViewModel.RefList();
         parentViewModel.IsPaneShow = false;
         MainWindow.mainwindow.ShowFlyout("保存成功！");
+    }
+    [RelayCommand]
+    private void DeleteInstance()
+    {
+        MainWindow.mainwindow.gamedataPage.viewmodel.DeleteInstance(editingGameData);
+        MainWindow.mainwindow.gamedataPage.viewmodel.IsPaneShow = false;
     }
 
     [RelayCommand]

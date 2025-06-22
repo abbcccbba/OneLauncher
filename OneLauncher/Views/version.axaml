@@ -5,6 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Views.version"
 			 xmlns:vm="clr-namespace:OneLauncher.Views.ViewModels;assembly=OneLauncher"
+			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
 			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
                DisplayMode="Overlay"
@@ -16,19 +17,7 @@
 		<Grid RowDefinitions="52,*" Margin="24">
 		<StackPanel Margin="9,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
 			<TextBlock Grid.Row="0" Text="管理你的游戏版本" FontSize="36"/>
-			<Button Command="{Binding ImportCommand}">
-				<StackPanel Orientation="Horizontal">
-					<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
-					<TextBlock Text="导入整合包"/>
-				</StackPanel>
-			</Button>
-			<Button Margin="-14,0,0,0" Command="{Binding PowerPlayCommand}">
-				<StackPanel Orientation="Horizontal">
-					<Image Source="/Assets/icos/internet.png" Width="20" Height="20"/>
-					<TextBlock Text="联机"/>
-				</StackPanel>
-			</Button>
-			<Button Margin="-14,0,0,0">
+			<Button>
 				<StackPanel Orientation="Horizontal">
 					<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
 					<TextBlock Text="排序"/>
@@ -38,49 +27,43 @@
 						<StackPanel>
 							<Button Content="按时间排序（旧）"
 									Command="{Binding SortingCommand}"
-									CommandParameter="{x:Static vm:SortingType.AnTime_OldFront}"/>
+									CommandParameter="{x:Static lo:SortingType.AnTime_OldFront}"/>
 							<Button Content="按时间排序（新）"
 									Command="{Binding SortingCommand}"
-									CommandParameter="{x:Static vm:SortingType.AnTime_NewFront}"/>
+									CommandParameter="{x:Static lo:SortingType.AnTime_NewFront}"/>
 							<Button Content="按版本排序（旧）"
 									Command="{Binding SortingCommand}"
-									CommandParameter="{x:Static vm:SortingType.AnVersion_OldFront}"/>
+									CommandParameter="{x:Static lo:SortingType.AnVersion_OldFront}"/>
 							<Button Content="按版本排序（新）"
 									Command="{Binding SortingCommand}"
-									CommandParameter="{x:Static vm:SortingType.AnVersion_NewFront}"/>
+									CommandParameter="{x:Static lo:SortingType.AnVersion_NewFront}"/>
 						</StackPanel>
 					</Flyout>
 				</Button.Flyout>
+			</Button>
+			<Button Command="{Binding GoToDownloadCommand}" Margin="-14,0,0,0">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
+					<TextBlock Text="转到下载"/>
+				</StackPanel>
 			</Button>
 		</StackPanel>
 		<ListBox x:Name="navVL" Grid.Row="1" ItemsSource="{Binding VersionList,Mode=TwoWay}" Background="Transparent" SelectionMode="Multiple">
 			<ListBox.ItemTemplate>
 				<DataTemplate x:DataType="vm:VersionItem">
 					<Border CornerRadius="5">
-						<Grid RowDefinitions="*,*" ColumnDefinitions="64,Auto,*" >
-							<Image Source="{Binding VersionIcon}" Grid.Column="0" Grid.RowSpan="2" Width="52" Height="52"/>
+						<Grid RowDefinitions="*,*" Margin="12,0,0,0" ColumnDefinitions="Auto,*" >
 							<StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="4">
 								<TextBlock FontSize="24" Text="{Binding versionExp.VersionID}" FontWeight="Bold"/>
 							</StackPanel>
 							<TextBlock Margin="0,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding versionExp.AddTime}"/>
 							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" >
-								<SplitButton Command="{Binding LaunchGameCommand}" CommandParameter="{Binding versionExp}">
+								<Button Command="{Binding LaunchGameCommand}" CommandParameter="{Binding versionExp}">
 									<StackPanel Orientation="Horizontal" Spacing="2">
 										<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
-										<TextBlock Text="启动游戏"/>
+										<TextBlock Text="启动默认实例"/>
 									</StackPanel>
-									<SplitButton.Flyout>
-										<Flyout>
-											<StackPanel>
-												<RadioButton IsVisible="{Binding versionExp.modType.IsForge}" IsChecked="{Binding IsForgeLaunchMode}" GroupName="LaunchModType" Content="Forge启动"/>
-												<RadioButton IsVisible="{Binding versionExp.modType.IsNeoForge}" IsChecked="{Binding IsNeoforgeLaunchMode}" GroupName="LaunchModType" Content="NeoForge启动"/>
-												<RadioButton IsVisible="{Binding versionExp.modType.IsFabric}" IsChecked="{Binding IsFabricLaunchMode}" GroupName="LaunchModType" Content="Fabric启动"/>
-												<RadioButton IsChecked="{Binding IsOriginalLaunchMode}" GroupName="LaunchModType" Content="原版启动"/>
-												<CheckBox IsChecked="{Binding IsUseDebugModLaunch}" Content="调试模式启动"/>
-											</StackPanel>
-										</Flyout>
-									</SplitButton.Flyout>
-								</SplitButton>
+								</Button>
 								<Button>
 									<StackPanel Orientation="Horizontal">
 										<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
@@ -88,16 +71,6 @@
 									</StackPanel>
 									<Button.Flyout>
 										<MenuFlyout>
-											<MenuItem>
-												<MenuItem.Header>
-													<StackPanel Orientation="Horizontal">
-														<Image Source="/Assets/icos/pin.png" Width="20" Height="20"/>
-														<TextBlock Text="固定..."/>
-													</StackPanel>
-												</MenuItem.Header>
-												<MenuItem Command="{Binding PinInDashboardCommand}" Header="固定到仪表盘"/>
-												<MenuItem Command="{Binding PinToDesktopCommand}" Header="固定到桌面" />
-											</MenuItem>
 											<MenuItem>
 												<MenuItem.Header>
 													<StackPanel Orientation="Horizontal">
@@ -122,11 +95,11 @@
 													</MenuItem.Header>
 												</MenuItem>
 											</MenuItem>
-											<MenuItem IsVisible="{Binding IsMod}" Command="{Binding OpenModsFolderCommand}">
+											<MenuItem Command="{Binding ReadMoreInformationsCommand}">
 												<MenuItem.Header>
 													<StackPanel Orientation="Horizontal">
 														<Image Source="/Assets/icos/browser.png" Width="20" Height="20"/>
-														<TextBlock Text="打开Mods文件夹"/>
+														<TextBlock Text="查看详细信息" />
 													</StackPanel>
 												</MenuItem.Header>
 											</MenuItem>

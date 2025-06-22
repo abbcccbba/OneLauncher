@@ -5,6 +5,9 @@
              xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
              x:Class="OneLauncher.Views.Panes.NewGameDataPane">
+	<UserControl.Resources>
+		<vm:ModEnumToStringConverter x:Key="ModLoaderNameConverter"/>
+	</UserControl.Resources>
 	
 	<StackPanel Spacing="15" Margin="20">
 		<TextBlock Text="新建游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
@@ -20,7 +23,13 @@
 		<TextBlock Text="模组加载器"/>
 		<ComboBox ItemsSource="{Binding AvailableModLoaders}"
 				  SelectedItem="{Binding SelectedModLoader}"
-				  IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+				  IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}">
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Converter={StaticResource ModLoaderNameConverter}}"/>
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
 
 		<TextBlock Text="默认用户"/>
 		<ComboBox ItemsSource="{Binding AvailableUsers}"

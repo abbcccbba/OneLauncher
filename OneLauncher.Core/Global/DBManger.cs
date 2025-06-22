@@ -38,13 +38,13 @@ public class AppConfig
     public AppSettings OlanSettings { get; set; } = new AppSettings();
 }
 
-public class DBManger
+public class DBManger : IDisposable
 {
     public AppConfig config;
-    private readonly string ConfigFilePath;
+    private readonly FileStream configStream;
     private DBManger(string configBasePath)
     {
-        ConfigFilePath = configBasePath;
+        configStream = File.Open(configBasePath,FileMode.OpenOrCreate,FileAccess.ReadWrite);
     }
     public static async Task<DBManger> CreateAsync(AppConfig first, string basePath)
     {
@@ -61,16 +61,21 @@ public class DBManger
     public Task Write(AppConfig config)
     {
         this.config = config;
-        return File.WriteAllTextAsync(ConfigFilePath, JsonSerializer.Serialize(config,OneLauncherAppConfigsJsonContext.Default.AppConfig));
+        configStream.Seek(0, SeekOrigin.Begin);
+        return JsonSerializer.SerializeAsync(configStream,config,OneLauncherAppConfigsJsonContext.Default.AppConfig);
     }
     public Task Save() => Write(this.config);
     public async Task<AppConfig> Read()
     {
-        AppConfig? r = await JsonSerializer.DeserializeAsync<AppConfig>(File.OpenRead(ConfigFilePath), OneLauncherAppConfigsJsonContext.Default.AppConfig);
+        configStream.Seek(0, SeekOrigin.Begin);
+        AppConfig? r = await JsonSerializer.DeserializeAsync<AppConfig>(configStream, OneLauncherAppConfigsJsonContext.Default.AppConfig);
         if(r == null) 
             await Write(config);
         else
             config = r;
         return config;
     }
+
+    public void Dispose()
+        => configStream.Dispose();
 }

@@ -8,7 +8,24 @@
 			 d:DesignWidth="650" d:DesignHeight="620"
 			 >
 	<StackPanel Spacing="15" Margin="20">
-		<TextBlock Text="编辑游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+		<Grid ColumnDefinitions="*,*,*">
+			<StackPanel Orientation="Horizontal" Grid.Column="0" Margin="12,0,0,0" Spacing="12">
+				<Button Command="{Binding CancelCommand}">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/back.png" Height="20" Width="20"/>
+						<TextBlock Text="返回"/>
+					</StackPanel>
+				</Button>
+				<Button Command="{Binding SaveCommand}">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/save.png" Height="20" Width="20"/>
+						<TextBlock Text="保存"/>
+					</StackPanel>
+				</Button>
+			</StackPanel>
+			<TextBlock Grid.Column="1" Text="编辑游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+		</Grid>
+		<Separator/>
 		<Border CornerRadius="10" Width="100" Height="100" ClipToBounds="True" HorizontalAlignment="Center">
 			<Image Source="{Binding CurrentIcon}" Stretch="UniformToFill"/>
 		</Border>
@@ -18,8 +35,12 @@
 		<TextBlock Text="高级操作"/>
 		<Button Content="打开 Mods 文件夹" Command="{Binding OpenModsFolderCommand}" />
 		<Grid ColumnDefinitions="*,*" Margin="0,20,0,0">
-			<Button Grid.Column="0" Content="保存" Command="{Binding SaveCommand}" HorizontalAlignment="Stretch" Margin="0,0,5,0"/>
-			<Button Grid.Column="1" Content="取消" Command="{Binding CancelCommand}" HorizontalAlignment="Stretch" Margin="5,0,0,0"/>
+			<Button Command="{Binding DeleteInstanceCommand}">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="/Assets/icos/del.png" Height="20" Width="20"/>
+					<TextBlock Text="移除此游戏数据"/>
+				</StackPanel>
+			</Button>
 		</Grid>
 	</StackPanel>
 </UserControl>

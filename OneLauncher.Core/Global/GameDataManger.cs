@@ -26,38 +26,33 @@ public partial class GameDataJsonContext : JsonSerializerContext { }
 public class GameDataManager
 {
     private readonly string configPath;
-    private GameDataRoot gameDataRoot;
-    public List<GameData> AllGameData { get => gameDataRoot.Instances; }
+    private readonly GameDataRoot gameDataRoot;
+    public List<GameData> AllGameData { get => gameDataRoot.Instances; set => gameDataRoot.Instances = value; }
 
-    private GameDataManager(string gameRootPath)
+    private GameDataManager(GameDataRoot gameDataRoot,string configPath)
     {
-        var instanceDir = Path.Combine(gameRootPath, "instance");
-        Directory.CreateDirectory(instanceDir);
-        configPath = Path.Combine(instanceDir, "instance.json");
+        this.gameDataRoot = gameDataRoot;
+        this.configPath = configPath;
     }
-
     public static async Task<GameDataManager> CreateAsync(string gameRootPath)
     {
-        var manager = new GameDataManager(gameRootPath);
-        await manager.LoadAsync();
-        return manager;
-    }
-    public async Task LoadAsync()
-    {
+        string instanceDir = Path.Combine(gameRootPath, "instance");
+        string configPath = Path.Combine(instanceDir, "instance.json");
+        Directory.CreateDirectory(instanceDir);
+        GameDataRoot gameDataRoot = null;
         if (File.Exists(configPath))
-        {
             gameDataRoot = await JsonSerializer.DeserializeAsync(File.OpenRead(configPath), GameDataJsonContext.Default.GameDataRoot) ?? new();
-        }
         else
-        {
-            gameDataRoot = new();
-            await SaveAsync(); // 如果文件不存在，则创建一个空的
-        }
+            using (FileStream fs = File.Create(configPath))
+            {
+                gameDataRoot = new();
+                await JsonSerializer.SerializeAsync(fs, gameDataRoot, GameDataJsonContext.Default.GameDataRoot);
+            }
+        return new GameDataManager(gameDataRoot,configPath);
+        
     }
-
     public Task SaveAsync()
     {
-        var options = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(gameDataRoot, GameDataJsonContext.Default.GameDataRoot);
         return File.WriteAllTextAsync(configPath, json);
     }

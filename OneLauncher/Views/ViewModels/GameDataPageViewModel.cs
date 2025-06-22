@@ -1,10 +1,13 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
+using OneLauncher.Core.Minecraft;
+using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
@@ -12,6 +15,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
@@ -20,6 +24,12 @@ internal partial class GameDataItem : BaseViewModel
     public GameData data { get; set; }
     public bool IsDefault { get; }
     public Bitmap Icon { get; set; }
+    public bool IsUseDebugModLaunch {  get; set; }
+    [RelayCommand]
+    public void Launch(GameData gameData)
+    {
+        version.EasyGameLauncher(gameData,IsUseDebugModLaunch);
+    }
     public GameDataItem(GameData gameData)
     {
         data = gameData;
@@ -100,11 +110,6 @@ internal partial class GameDataPageViewModel : BaseViewModel
         }
     }
     [RelayCommand]
-    public void Launch(GameData gameData)
-    {
-        version.EasyGameLauncher(gameData);
-    }
-    [RelayCommand]
     public void NewGameData()
     {
         IsPaneShow = true;
@@ -117,10 +122,10 @@ internal partial class GameDataPageViewModel : BaseViewModel
         PaneContent = new EditGameDataPane(data);
     }
     [RelayCommand]
-    public async Task DeleteInstance(GameData data)
+    public void DeleteInstance(GameData data)
     {
         // 未来可以加一个对话框确认
-        await Init.GameDataManger.RemoveGameDataAsync(data);
+        _=Init.GameDataManger.RemoveGameDataAsync(data);
 
         try
         {
@@ -142,5 +147,59 @@ internal partial class GameDataPageViewModel : BaseViewModel
         await Init.GameDataManger.SetDefaultInstanceAsync(targetData);
         RefList();
         MainWindow.mainwindow.ShowFlyout($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。");
+    }
+    [RelayCommand]
+    public void Sorting(SortingType type)
+    {
+        List<GameDataItem> orderedList = type switch
+        {
+            SortingType.AnTime_OldFront => GameDataList.OrderBy(x => x.data.CreationTime).ToList(),
+            SortingType.AnTime_NewFront => GameDataList.OrderByDescending(x => x.data.CreationTime).ToList(),
+            SortingType.AnVersion_OldFront => GameDataList.OrderBy(x => new Version(x.data.VersionId)).ToList(),
+            SortingType.AnVersion_NewFront => GameDataList.OrderByDescending(x => new Version(x.data.VersionId)).ToList(),
+            _ => GameDataList // 默认不排序
+        };
+
+        GameDataList = orderedList;
+        Init.GameDataManger.AllGameData = GameDataList.Select(x => x.data).ToList();
+        Init.ConfigManger.Save();
+    }
+    private PowerPlayPane powerPlayGo = new PowerPlayPane();
+    [RelayCommand]
+    public void PowerPlay()
+    {
+        IsPaneShow = true;
+        PaneContent = powerPlayGo;
+    }
+    [RelayCommand]
+    public async Task Import()
+    {
+        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
+        if (topLevel?.StorageProvider is { } storageProvider && storageProvider.CanOpen)
+        {
+            var mrpackFileType = new FilePickerFileType("Modrinth整合包文件")
+            {
+                Patterns = new[] { "*.mrpack" },
+                MimeTypes = new[] { "application/mrpack" }
+            };
+
+            var options = new FilePickerOpenOptions
+            {
+                Title = "选择 Modrinth Pack 文件",
+                AllowMultiple = false,
+                FileTypeFilter = new[] { mrpackFileType },
+            };
+            var files = await storageProvider.OpenFilePickerAsync(options);
+            var selectedFile = files.FirstOrDefault();
+
+            if (files == null || !files.Any() || selectedFile == null)
+                return;
+
+            string filePath = selectedFile.Path.LocalPath;
+            MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
+            await ModpackImporter.ImportFromMrpackAsync(filePath, Init.GameRootPath, CancellationToken.None);
+            MainWindow.mainwindow.ShowFlyout("导入完成！");
+            RefList();
+        }
     }
 }

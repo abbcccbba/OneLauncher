@@ -27,132 +27,37 @@ internal partial class VersionItem : BaseViewModel
     {
         versionExp = a;
         index = IndexInInit;
-        if (a.modType.IsNeoForge || a.modType.IsFabric)
-            IsMod = true;
-        switch (a.preferencesLaunchMode.LaunchModType)
-        {
-            case ModEnum.none:
-                IsOriginalLaunchMode = true;
-                VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/basic.png")));
-                break;
-            case ModEnum.fabric:
-                IsFabricLaunchMode = true;
-                VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/fabric.png")));
-                break;
-            case ModEnum.neoforge:
-                IsNeoforgeLaunchMode = true;
-                VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/neoforge.png")));
-                break;
-            case ModEnum.forge:
-                IsForgeLaunchMode = true;
-                VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/forge.jpg")));
-                break;
-        }
     }
     int index;
-    public bool IsMod {  get; set; } = false;
-    [ObservableProperty]
-    public Bitmap versionIcon;
     public UserVersion versionExp { get; set; }
-    [ObservableProperty]
-    public bool isOriginalLaunchMode;
-    partial void OnIsOriginalLaunchModeChanged(bool value)
-    {
-#if DEBUG
-        if (Design.IsDesignMode)
-            return;
-#endif
-        var version = Init.ConfigManger.config.VersionList[index];
-        var prefs = version.preferencesLaunchMode;
-        prefs.LaunchModType = ModEnum.none;
-        version.preferencesLaunchMode = prefs;
-        Init.ConfigManger.config.VersionList[index] = version;
-        Init.ConfigManger.Save();
-        VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/basic.png")));
-    }
-    [ObservableProperty]
-    public bool isFabricLaunchMode;
-    partial void OnIsFabricLaunchModeChanged(bool value)
-    {
-#if DEBUG
-        if (Design.IsDesignMode)
-            return;
-#endif
-        var version = Init.ConfigManger.config.VersionList[index];
-        var prefs = version.preferencesLaunchMode;
-        prefs.LaunchModType = ModEnum.fabric;
-        version.preferencesLaunchMode = prefs;
-        Init.ConfigManger.config.VersionList[index] = version;
-        Init.ConfigManger.Save();
-        VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/fabric.png")));
-    }
-    [ObservableProperty]
-    public bool isNeoforgeLaunchMode;
-    partial void OnIsNeoforgeLaunchModeChanged(bool value)
-    {
-#if DEBUG
-        if (Design.IsDesignMode)
-            return;
-#endif
-        var version = Init.ConfigManger.config.VersionList[index];
-        var prefs = version.preferencesLaunchMode; 
-        prefs.LaunchModType = ModEnum.neoforge; 
-        version.preferencesLaunchMode = prefs; 
-        Init.ConfigManger.config.VersionList[index] = version; 
-        Init.ConfigManger.Save();
-        VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/neoforge.png")));
-    }
-    [ObservableProperty]
-    public bool isForgeLaunchMode;
-    partial void OnIsForgeLaunchModeChanged(bool value)
-    {
-#if DEBUG
-        if (Design.IsDesignMode)
-            return;
-#endif
-        var version = Init.ConfigManger.config.VersionList[index];
-        var prefs = version.preferencesLaunchMode;
-        prefs.LaunchModType = ModEnum.forge;
-        version.preferencesLaunchMode = prefs;
-        Init.ConfigManger.config.VersionList[index] = version;
-        Init.ConfigManger.Save();
-        VersionIcon = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/forge.jpg")));
-    }
-    [ObservableProperty]
-    public bool isUseDebugModLaunch;
     [RelayCommand]
-    public void LaunchGame()
+    public async Task LaunchGame()
     {
-        //Views.version.EasyGameLauncher(versionExp,IsUseDebugModLaunch);
+        // 找到默认游戏数据
+        GameData? gameData = Init.GameDataManger.GetDefaultInstance(versionExp.VersionID);
+        if (gameData == null) 
+        {
+            // 没有的话那就帮她设成默认
+            // 确定默认游戏数据名称
+            string modLoaderName = 
+                (versionExp.modType.IsFabric) 
+                ? "Fabric" 
+                : (versionExp.modType.IsNeoForge) 
+                ? "NeoForge" 
+                : (versionExp.modType.IsForge) 
+                ? "Forge" : "原版";
+            string gameDataName = $"{versionExp.VersionID} - {modLoaderName}";
+            gameData = new GameData(gameDataName, versionExp.VersionID, versionExp.modType.ToModEnum(), null);
+            await Init.GameDataManger.AddGameDataAsync(gameData);
+            await Init.GameDataManger
+                .SetDefaultInstanceAsync(gameData);
+        }
+        _=version.EasyGameLauncher(gameData);
     }
     [RelayCommand]
-    public async Task PinToDesktop()
+    public void ReadMoreInformations()
     {
-        //await File.WriteAllTextAsync(
-        //    Path.Combine(
-        //        Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-        //        $"启动{versionExp.VersionID}." + (Init.SystemType == SystemType.windows ? "bat" : "sh")),
-        //    "cd " + (Init.SystemType == SystemType.windows ? "/D " : "") // 不同的操作系统切换工作目录可能需要加上 /D 参数
-        //    + $"{Init.GameRootPath}{Environment.NewLine}java " + await new LaunchCommandBuilder
-        //    (
-        //        Init.GameRootPath,
-        //        versionExp.VersionID,
-        //        Init.ConfigManger.config.DefaultUserModel,
-        //        versionExp.preferencesLaunchMode.LaunchModType,
-        //        Init.SystemType,
-        //        versionExp.IsVersionIsolation
-        //    ).BuildCommand
-        //    (
-        //        OtherArgs: "-XX:+UseG1GC"
-        //));
-        //MainWindow.mainwindow.ShowFlyout("已创建启动脚本到桌面！");
-    }
-    [RelayCommand]
-    public void PinInDashboard()
-    {
-        Init.ConfigManger.config.DefaultVersion = versionExp;
-        Init.ConfigManger.Write(Init.ConfigManger.config);
-        MainWindow.mainwindow.ShowFlyout($"已将{versionExp.VersionID}固定到仪表盘并设为默认版本！");
+
     }
     [RelayCommand]
     public void OpenServerFolder()
@@ -165,13 +70,7 @@ internal partial class VersionItem : BaseViewModel
             Tools.OpenFolder(path);
     }
 }
-public enum SortingType
-{
-    AnTime_OldFront,
-    AnTime_NewFront,
-    AnVersion_OldFront,
-    AnVersion_NewFront,
-}
+
 internal partial class VersionPageViewModel : BaseViewModel
 {
     private void RefList()
@@ -228,45 +127,6 @@ internal partial class VersionPageViewModel : BaseViewModel
     [ObservableProperty]
     public bool _isPaneShow;
     [RelayCommand]
-    public async Task Import()
-    {
-        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
-        if (topLevel?.StorageProvider is { } storageProvider && storageProvider.CanOpen)
-        {
-            var mrpackFileType = new FilePickerFileType("Modrinth整合包文件")
-            {
-                Patterns = new[] { "*.mrpack" },
-                MimeTypes = new[] { "application/mrpack" } 
-            };
-
-            var options = new FilePickerOpenOptions
-            {
-                Title = "选择 Modrinth Pack 文件",
-                AllowMultiple = false,
-                FileTypeFilter = new[] { mrpackFileType },
-            };
-            var files = await storageProvider.OpenFilePickerAsync(options);
-            var selectedFile = files.FirstOrDefault();
-
-            if (files == null || !files.Any() || selectedFile == null)
-                return;
-
-            string filePath = selectedFile.Path.LocalPath;
-            MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
-            await ModpackImporter.ImportFromMrpackAsync(filePath,Init.GameRootPath,CancellationToken.None);
-            MainWindow.mainwindow.ShowFlyout("导入完成！");
-            var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
-            for (int i = 0; i < Init.ConfigManger.config.VersionList.Count; i++)
-            {
-                tempVersoinList.Add(new VersionItem(
-                    Init.ConfigManger.config.VersionList[i],
-                    i
-                    ));
-            }
-            VersionList = tempVersoinList;
-        }
-    }
-    [RelayCommand]
     public void Sorting(SortingType type)
     {
         List<VersionItem> orderedList = type switch
@@ -315,15 +175,13 @@ internal partial class VersionPageViewModel : BaseViewModel
         }
         catch (OlanException ex)
         {
-            OlanExceptionWorker.ForOlanException(ex);
+            await OlanExceptionWorker.ForOlanException(ex);
         }
     }
-    private PowerPlayPane powerPlayGo = new PowerPlayPane();
     [RelayCommand]
-    public void PowerPlay()
+    public void GoToDownload()
     {
-        IsPaneShow = true;
-        RefDownPane = powerPlayGo;
+        MainWindow.mainwindow.MainPageControl(MainWindow.MainPage.DownloadPage);
     }
 }
 

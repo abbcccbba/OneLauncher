@@ -8,6 +8,13 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace OneLauncher.Core.Helper;
+public enum SortingType
+{
+    AnTime_OldFront,
+    AnTime_NewFront,
+    AnVersion_OldFront,
+    AnVersion_NewFront,
+}
 public struct ServerInfo
 {
     public string Ip;
@@ -18,6 +25,17 @@ public struct ModType
     public bool IsFabric { get; set; }
     public bool IsNeoForge { get; set; }
     public bool IsForge { get; set; }
+    public ModEnum ToModEnum()
+    {
+        if (IsFabric)
+            return ModEnum.fabric;
+        if (IsNeoForge)
+            return ModEnum.neoforge;
+        if (IsForge)
+            return ModEnum.forge;
+
+        return ModEnum.none;
+    }
     public static bool operator ==(ModType left, ModEnum right)
     {
         if (left.IsFabric && right == ModEnum.fabric)

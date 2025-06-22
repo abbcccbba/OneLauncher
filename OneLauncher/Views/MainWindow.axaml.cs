@@ -67,6 +67,7 @@ public partial class MainWindow : Window
         base.OnClosing(e);
         Debug.WriteLine("释放残余资源...");
         Init.MMA.Dispose();
+        Init.ConfigManger.Dispose();
         WeakReferenceMessenger.Default.Send(new ApplicationClosingMessage());
     }
     public enum MainPage

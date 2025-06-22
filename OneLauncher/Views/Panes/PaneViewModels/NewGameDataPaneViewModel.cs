@@ -1,16 +1,42 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using Avalonia.Data.Converters;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.Panes.PaneViewModels;
+public class ModEnumToStringConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is ModEnum modEnum)
+        {
+            return modEnum switch
+            {
+                ModEnum.none => "原版",
+                ModEnum.fabric => "Fabric",
+                ModEnum.neoforge => "NeoForge",
+                ModEnum.forge => "Forge",
+                _ => value.ToString() // 作为备用，显示原始名称
+            };
+        }
+        return value;
+    }
 
+    // ConvertBack 通常用于双向绑定，这里我们用不到，但接口要求实现
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
 internal partial class NewGameDataPaneViewModel : BaseViewModel
 {
     // --- 可绑定属性 ---
@@ -28,7 +54,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
     private List<ModEnum> availableModLoaders;
 
     [ObservableProperty]
-    private ModEnum selectedModLoader;
+    private ModEnum? selectedModLoader;
 
     [ObservableProperty]
     private List<UserModel> availableUsers;
@@ -49,10 +75,6 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
         AvailableModLoaders = new List<ModEnum> { ModEnum.none };
         SelectedModLoader = ModEnum.none;
     }
-
-    // --- 属性变化响应 ---
-
-    // 当用户选择了不同的“基础版本”时，这个方法会被自动调用
     partial void OnSelectedBaseVersionChanged(UserVersion value)
     {
         if (value == null)
@@ -64,16 +86,13 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
             return;
         }
 
-        // 根据所选版本支持的模组加载器，动态更新加载器下拉列表
         var loaders = new List<ModEnum> { ModEnum.none };
         if (value.modType.IsFabric) loaders.Add(ModEnum.fabric);
         if (value.modType.IsNeoForge) loaders.Add(ModEnum.neoforge);
         if (value.modType.IsForge) loaders.Add(ModEnum.forge);
         AvailableModLoaders = loaders;
 
-        // 自动选择一个默认加载器（或保持“无”）
         SelectedModLoader = value.preferencesLaunchMode.LaunchModType;
-        // 自动生成一个建议的实例名称
         GameDataName = $"{value.VersionID} - Instance";
     }
 
@@ -92,21 +111,21 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
             return;
         }
 
-        // 创建新的 GameData 对象
+        var loaderType = SelectedModLoader ?? ModEnum.none;
+
         var newGameData = new GameData(
             name: GameDataName,
             versionId: SelectedBaseVersion.VersionID,
-            loader: SelectedModLoader,
+            loader: loaderType, 
             userModel: SelectedUser
         );
 
-        // 使用 GameDataManager 添加并保存到 instance.json
         await Init.GameDataManger.AddGameDataAsync(newGameData);
         MainWindow.mainwindow.ShowFlyout($"已成功创建游戏数据: {GameDataName}");
 
         MainWindow.mainwindow.gamedataPage.viewmodel.RefList();
 
-        Cancel(); 
+        Cancel();
     }
 
     [RelayCommand]

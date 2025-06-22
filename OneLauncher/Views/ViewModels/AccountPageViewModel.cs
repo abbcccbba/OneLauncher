@@ -23,20 +23,26 @@ internal partial class UserItem
 {
     public UserModel um { get; set; }
     public Bitmap HeadImg { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")));
+    public bool IsDefault { get; set; }
 }
 internal partial class AccountPageViewModel : BaseViewModel
 {
     // 刷新
     public void RefList()
     {
+        // 在刷新列表时，判断每一项是否为默认用户
+        UserModel? defaultUser = Init.ConfigManger.config.DefaultUserModel;
+
         UserModelList = Init.ConfigManger.config.UserModelList
-                .Select(x => new UserItem()
-                {
-                    um = x,
-                    HeadImg = (x.IsMsaUser)
-                    ? new Bitmap(Path.Combine(Init.BasePath, "playerdata", "body", $"{x.uuid}.png"))
-                    : new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")))
-                }).ToList();
+            .Select(user => new UserItem()
+            {
+                um = user,
+                HeadImg = (user.IsMsaUser && File.Exists(Path.Combine(Init.BasePath, "playerdata", "body", $"{user.uuid}.png")))
+                    ? new Bitmap(Path.Combine(Init.BasePath, "playerdata", "body", $"{user.uuid}.png"))
+                    : new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png"))),
+                // 在创建 UserItem 时，就设置好 IsDefault 属性
+                IsDefault = (defaultUser != null && user.uuid == defaultUser.uuid)
+            }).ToList();
     }
     [RelayCommand]
     public async Task Refresh()
@@ -136,11 +142,14 @@ internal partial class AccountPageViewModel : BaseViewModel
     }
     
     [RelayCommand]
-    public void SetDefault(UserModel user)
+    public void SetDefault(UserItem user)
     {
-        Init.ConfigManger.config.DefaultUserModel = user;
+        UserModelList.Select(x => x.IsDefault = false);
+        user.IsDefault = true;
+        Init.ConfigManger.config.DefaultUserModel = user.um;
         Init.ConfigManger.Save();
-        MainWindow.mainwindow.ShowFlyout($"已将默认用户模型设置为{user.Name}");
+        RefList();
+        MainWindow.mainwindow.ShowFlyout($"已将默认用户模型设置为{user.um.Name}");
     }
     [RelayCommand]
     public void DeleteUser(UserModel user)

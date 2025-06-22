@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OneLauncher.Views.gamedata"
 			 xmlns:vm="using:OneLauncher.Views.ViewModels"
-			 xmlns:lo="using:OneLauncher.Core.Helper"
+			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
 			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
 				 DisplayMode="Overlay"
@@ -22,6 +22,42 @@
 						<Image Source="/Assets/icos/add.png" Width="20" Height="20"/>
 						<TextBlock Text="新建"/>
 					</StackPanel>
+				</Button>
+				<Button Margin="-14,0,0,0" Command="{Binding ImportCommand}">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
+						<TextBlock Text="导入整合包"/>
+					</StackPanel>
+				</Button>
+				<Button Margin="-14,0,0,0" Command="{Binding PowerPlayCommand}">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/internet.png" Width="20" Height="20"/>
+						<TextBlock Text="联机"/>
+					</StackPanel>
+				</Button>
+				<Button Margin="-14,0,0,0">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
+						<TextBlock Text="排序"/>
+					</StackPanel>
+					<Button.Flyout>
+						<Flyout>
+							<StackPanel>
+								<Button Content="按时间排序（旧）"
+										Command="{Binding SortingCommand}"
+										CommandParameter="{x:Static lo:SortingType.AnTime_OldFront}"/>
+								<Button Content="按时间排序（新）"
+										Command="{Binding SortingCommand}"
+										CommandParameter="{x:Static lo:SortingType.AnTime_NewFront}"/>
+								<Button Content="按版本排序（旧）"
+										Command="{Binding SortingCommand}"
+										CommandParameter="{x:Static lo:SortingType.AnVersion_OldFront}"/>
+								<Button Content="按版本排序（新）"
+										Command="{Binding SortingCommand}"
+										CommandParameter="{x:Static lo:SortingType.AnVersion_NewFront}"/>
+							</StackPanel>
+						</Flyout>
+					</Button.Flyout>
 				</Button>
 			</StackPanel>
 			<ListBox x:Name="navVL" Grid.Row="2" ItemsSource="{Binding GameDataList}" Background="Transparent" SelectionMode="Multiple">
@@ -69,18 +105,17 @@
 											<TextBlock Text="编辑"/>
 										</StackPanel>
 									</Button>
-									<Button Classes="Accent" Command="{Binding $parent[UserControl].DataContext.LaunchCommand}" CommandParameter="{Binding data}">
+									<SplitButton Classes="Accent" Command="{Binding LaunchCommand}" CommandParameter="{Binding data}">
 										<StackPanel Orientation="Horizontal" Spacing="6">
 											<Image Source="/Assets/icos/launch.png" Width="16" Height="16"/>
 											<TextBlock Text="启动"/>
 										</StackPanel>
-									</Button>
-									<Button Classes="Danger" Command="{Binding $parent[UserControl].DataContext.DeleteInstanceCommand}" CommandParameter="{Binding data}">
-										<StackPanel Orientation="Horizontal" Spacing="6">
-											<Image Source="/Assets/icos/del.png" Width="16" Height="16"/>
-											<TextBlock Text="删除"/>
-										</StackPanel>
-									</Button>
+										<SplitButton.Flyout>
+											<Flyout>
+												<CheckBox IsChecked="{Binding IsUseDebugModLaunch}" Content="调试模式启动"/>
+											</Flyout>
+										</SplitButton.Flyout>
+									</SplitButton>
 								</StackPanel>
 							</Grid>
 						</Border>

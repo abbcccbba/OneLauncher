@@ -12,6 +12,7 @@ using OneLauncher.Views.Windows;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -74,7 +75,12 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         };
         DateTime lastUpdateTime = DateTime.MinValue;
         TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
-        return Task.Run(async () => // 避免实际下载任务在UI线程执行导致线程卡死，别改这个，因为真的会卡死
+
+        // 提前确定最终的默认实例名称
+        string modLoaderName = (IsMod) ? "Fabric" : (IsNeoForge) ? "NeoForge" : (IsForge) ? "Forge" : "原版";
+        string finalInstanceName = $"{VersionName} - {modLoaderName}";
+
+        return Task.Run(async () =>
         {
             var newUserVersion = new UserVersion
             {
@@ -83,58 +89,51 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 AddTime = DateTime.Now,
                 preferencesLaunchMode = new PreferencesLaunchMode()
                 {
-                    LaunchModType = 
-                    (IsMod) ? ModEnum.fabric : 
-                    (IsNeoForge) ? ModEnum.neoforge : 
-                    (IsForge) ? ModEnum.forge : ModEnum.none,
+                    LaunchModType = (ModEnum)Enum.Parse(typeof(ModEnum), modLoaderName, true), // 从名称反向解析枚举
                     IsUseDebugModeLaunch = false
                 }
             };
+
+            // 创建 GameData 实例
             var newGameData = new GameData(
-                "新游戏数据",
+                finalInstanceName,
                 thisVersionBasicInfo.ID,
                 newUserVersion.preferencesLaunchMode.LaunchModType,
                 Init.ConfigManger.config.DefaultUserModel);
+
             cts = new();
             try
             {
-                using (Download download = new Download()) // 在后台任务内部创建和管理Download对象
+                using (Download download = new Download())
                 {
                     var progressReporter = new Progress<(DownProgress d, int a, int b, string c)>(p =>
                         Dispatcher.UIThread.Post(() =>
                         {
                             double progressPercentage = (p.a == 0) ? 0 : (double)p.b / p.a * 100;
-                            bool isInitialReport = (lastUpdateTime == DateTime.MinValue && p.b == 0); // 更明确的初始条件
-
                             if (p.d == DownProgress.Done)
                             {
                                 Dp = "已下载完毕";
-                                Fs = $"{p.b}/{p.a}";
                                 CurrentProgress = 100;
-                                FileName = p.c;
-                                lastUpdateTime = DateTime.UtcNow; // 完成时也更新时间戳
                             }
-                            // 应用基于时间的节流策略，或在初始状态时更新
-                            else if (isInitialReport || (DateTime.UtcNow - lastUpdateTime) > _updateInterval)
+                            else if ((DateTime.UtcNow - lastUpdateTime) > _updateInterval)
                             {
                                 Dp = p.d switch
                                 {
-                                    DownProgress.Meta => "下载原信息...",
-                                    DownProgress.DownAndInstModFiles => "正在下载Mod相关文件...",
-                                    DownProgress.DownLog4j2 => "正在下载日志配置文件...",
-                                    DownProgress.DownLibs => "正在下载库文件...",
-                                    DownProgress.DownAssets => "正在下载资源文件...",
-                                    DownProgress.DownMain => "正在下载主文件...",
-                                    DownProgress.Verify => "正在校验，请稍后..."
+                                    DownProgress.Meta => "准备元数据...",
+                                    DownProgress.DownAndInstModFiles => "下载并安装模组加载器...",
+                                    DownProgress.DownLog4j2 => "下载日志配置...",
+                                    DownProgress.DownLibs => "下载库文件...",
+                                    DownProgress.DownAssets => "下载资源文件...",
+                                    DownProgress.DownMain => "下载游戏主文件...",
+                                    DownProgress.Verify => "校验文件中..."
                                 };
-                                Fs = $"{p.b}/{p.a}";
                                 CurrentProgress = progressPercentage;
-                                FileName = p.c; // 确保文件名也更新
                                 lastUpdateTime = DateTime.UtcNow;
                             }
+                            Fs = $"{p.b}/{p.a}";
+                            FileName = p.c;
                         }));
 
-                    // 现在可以安全地 await LaunchCore
                     await new DownloadMinecraft(
                         download,
                         newUserVersion,
@@ -143,41 +142,59 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         Init.GameRootPath,
                         progressReporter,
                         cts.Token
-                        )
-                    .MinecraftBasic(
-                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,1,256),
-                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,1,256),
+                    ).MinecraftBasic(
+                        // 避免用户乱改配置文件这里手动限制一下
+                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, 1, 256),
+                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumSha1Threads, 1, 256),
                         Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
                         IsDownloadFabricWithAPI,
                         IsAllowToUseBetaNeoforge,
                         IsJava,
-                        Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);  
+                        Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);
                 }
-                
+
+                // 检查版本是否已经存在
+                // 深入贯彻学习全局单版本实例思想
+                var existingUserVersion = Init.ConfigManger.config.VersionList
+                    .FirstOrDefault(v => v.VersionID == newUserVersion.VersionID);
+
+                if (existingUserVersion == null)
+                    Init.ConfigManger.config.VersionList.Add(newUserVersion);
+                else
+                {
+                    // 如果已存在，则正确地更新其 modType 结构体
+                    ModType updatedModType = existingUserVersion.modType;
+                    if (newUserVersion.modType.IsFabric) updatedModType.IsFabric = true;
+                    if (newUserVersion.modType.IsNeoForge) updatedModType.IsNeoForge = true;
+                    if (newUserVersion.modType.IsForge) updatedModType.IsForge = true;
+                    existingUserVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
+                }
+
+                // 添加游戏实例并设为默认，因为是全局单例我也没做删除功能
+                await Init.GameDataManger.AddGameDataAsync(newGameData);
+                await Init.GameDataManger.SetDefaultInstanceAsync(newGameData);
+
+                await Init.ConfigManger.Save();
+                MainWindow.mainwindow.ShowFlyout($"“{finalInstanceName}”已成功创建并设为默认启动项。");
+
                 if (IsLaunchGameAfterDone)
                     _ = version.EasyGameLauncher(newGameData);
-
-                // 在配置文件中添加版本信息
-                Init.ConfigManger.config.VersionList.Add(newUserVersion);
-                await Init.GameDataManger.AddGameDataAsync(newGameData);
-                await Init.ConfigManger.Save();
             }
             catch (OperationCanceledException)
             {
-                Debug.WriteLine("下载任务被取消");
-                return;
+                Debug.WriteLine("下载任务被用户取消");
             }
             catch (OlanException ex)
             {
                 await cts.CancelAsync();
-                OlanExceptionWorker.ForOlanException(ex);
+                await OlanExceptionWorker.ForOlanException(ex);
             }
 #if !DEBUG
-            catch (Exception ex)
-            {
-                await cts.CancelAsync();
-                await OlanExceptionWorker.ForUnknowException(ex);
-            }
+        catch (Exception ex)
+        {
+            await cts.CancelAsync();
+            await OlanExceptionWorker.ForUnknowException(ex);
+        }
 #endif
         });
     }

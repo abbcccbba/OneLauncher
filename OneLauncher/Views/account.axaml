@@ -33,35 +33,57 @@
 		<ListBox x:Name="navVL" Grid.Row="2" ItemsSource="{Binding UserModelList}" Background="Transparent" SelectionMode="Multiple">
 			<ListBox.ItemTemplate>
 				<DataTemplate x:DataType="vm:UserItem">
-					<Border CornerRadius="5">
-						<Grid ColumnDefinitions="65,Auto,*" Margin="6">
-							<Border Grid.Column="0" Grid.RowSpan="2">
+					<Border CornerRadius="5" Padding="5">
+						<Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+							<Border Grid.Column="0" CornerRadius="6" ClipToBounds="True">
 								<Image Width="64" Height="64" Source="{Binding HeadImg}"/>
 							</Border>
-							<StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,-8,0,0">
-								<StackPanel Orientation="Horizontal" Spacing="4">
-									<TextBlock FontSize="32" Text="{Binding um.Name}" FontWeight="Bold"/>
-									<TextBlock FontSize="16" Margin="0,12" VerticalAlignment="Center" Text="{Binding um}" FontStyle="Italic"/>
+
+							<StackPanel Grid.Column="1" Margin="15,0" VerticalAlignment="Center">
+								<TextBlock FontSize="24" Margin="0,-6,0,0" FontWeight="SemiBold" Text="{Binding um.Name}"/>
+
+								<StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+									<TextBlock FontSize="12" Foreground="Gray">
+										<Run Text="类型:"/>
+										<Run Text="{Binding um}"/>
+									</TextBlock>
+									<TextBlock FontSize="12" Foreground="Gray">
+										<Run Text="UUID:"/>
+										<Run Text="{Binding um.uuid}"/>
+									</TextBlock>
 								</StackPanel>
-								<TextBlock Text="{Binding um.uuid}"/>
 							</StackPanel>
-							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal" >
-								<Button IsVisible="{Binding um.IsMsaUser}" Command="{Binding $parent[ListBox].DataContext.SkinMangerCommand}" CommandParameter="{Binding um}">
-									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image VerticalAlignment="Center" Source="/Assets/icos/skin.png" Width="16" Height="16"/>
-										<TextBlock Text="皮肤管理"/>
-									</StackPanel>
-								</Button>
-								<Button Command="{Binding $parent[ListBox].DataContext.SetDefaultCommand}" CommandParameter="{Binding um}">
-									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image VerticalAlignment="Center" Source="/Assets/icos/pin.png" Width="16" Height="16"/>
+
+							<StackPanel Grid.Column="2" Spacing="8" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="6">
+
+								<Border IsVisible="{Binding IsDefault}"
+										Background="#EBF5FB" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+									<TextBlock Text="默认" FontWeight="Bold" Foreground="#3498DB" FontSize="12"/>
+								</Border>
+								<Button IsVisible="{Binding !IsDefault}"
+										Command="{Binding $parent[ListBox].DataContext.SetDefaultCommand}"
+										CommandParameter="{Binding}">
+									<StackPanel Orientation="Horizontal" Spacing="6">
+										<Image Source="/Assets/icos/pin.png" Width="16" Height="16"/>
 										<TextBlock Text="设为默认"/>
 									</StackPanel>
 								</Button>
-								<Button Command="{Binding $parent[ListBox].DataContext.DeleteUserCommand}" CommandParameter="{Binding um}">
-									<StackPanel Orientation="Horizontal" Spacing="2">
-										<Image VerticalAlignment="Center" Source="/Assets/icos/settings1.png" Width="16" Height="16"/>
-										<TextBlock Text="删除" />
+								
+								<Button IsVisible="{Binding um.IsMsaUser}"
+										Command="{Binding $parent[ListBox].DataContext.SkinMangerCommand}"
+										CommandParameter="{Binding um}">
+									<StackPanel Orientation="Horizontal" Spacing="6">
+										<Image Source="/Assets/icos/skin.png" Width="16" Height="16"/>
+										<TextBlock Text="皮肤管理"/>
+									</StackPanel>
+								</Button>							
+
+								<Button Classes="Danger"
+										Command="{Binding $parent[ListBox].DataContext.DeleteUserCommand}"
+										CommandParameter="{Binding um}">
+									<StackPanel Orientation="Horizontal" Spacing="6">
+										<Image Source="/Assets/icos/del.png" Width="16" Height="16"/>
+										<TextBlock Text="移除" />
 									</StackPanel>
 								</Button>
 							</StackPanel>
