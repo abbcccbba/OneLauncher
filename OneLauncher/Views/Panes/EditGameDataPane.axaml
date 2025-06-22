@@ -1,8 +1,12 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
              x:Class="OneLauncher.Views.Panes.EditGameDataPane"
-             x:DataType="vm:EditGameDataPaneViewModel">
+             x:DataType="vm:EditGameDataPaneViewModel"
+			 d:DesignWidth="650" d:DesignHeight="620"
+			 >
 	<StackPanel Spacing="15" Margin="20">
 		<TextBlock Text="编辑游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
 		<Border CornerRadius="10" Width="100" Height="100" ClipToBounds="True" HorizontalAlignment="Center">

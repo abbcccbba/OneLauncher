@@ -24,14 +24,12 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     public EditGameDataPaneViewModel(GameData gameData)
     {
         editingGameData = gameData;
-
         InstanceName = gameData.Name;
         LoadCurrentIcon();
     }
 
     private void LoadCurrentIcon()
     {
-        // 这个图标加载逻辑和你之前修复的 GameDataItem 中的逻辑完全一样
         if (!string.IsNullOrEmpty(editingGameData.CustomIconPath) && File.Exists(editingGameData.CustomIconPath))
         {
             try { CurrentIcon = new Bitmap(editingGameData.CustomIconPath); return; }
@@ -66,13 +64,13 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         Directory.CreateDirectory(imageDir);
         string destPath = Path.Combine(imageDir, $"{editingGameData.InstanceId}.png");
 
+        // 把文件复制过去
         await using var sourceStream = await selectedFile.OpenReadAsync();
         await using var destStream = File.Create(destPath);
         await sourceStream.CopyToAsync(destStream);
 
         editingGameData.CustomIconPath = destPath;
-
-
+        CurrentIcon = new Bitmap(AssetLoader.Open(new Uri(destPath))); // 显示一个预览
         parentViewModel.UpdateGameData(editingGameData);
 
         LoadCurrentIcon();
