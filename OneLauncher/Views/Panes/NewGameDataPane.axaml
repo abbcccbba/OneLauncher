@@ -2,13 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
+             xmlns:vm="using:OneLauncher.Views.ViewModels"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
              x:Class="OneLauncher.Views.Panes.NewGameDataPane">
-	<UserControl.Resources>
-		<vm:ModEnumToStringConverter x:Key="ModLoaderNameConverter"/>
-	</UserControl.Resources>
-	
 	<StackPanel Spacing="15" Margin="20">
 		<TextBlock Text="新建游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
 

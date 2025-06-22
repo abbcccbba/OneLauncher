@@ -2,16 +2,71 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-			 xmlns:material="using:Material.Icons.Avalonia"
+             xmlns:vm="using:OneLauncher.Views.ViewModels"
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
-             x:Class="OneLauncher.Home">
-	<Grid ColumnDefinitions="2*,*">
-		<Panel Grid.Column="1" Background="{DynamicResource PaneBackgound}">
-			<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-				<TextBlock Text="{Binding UserName}"/>
-				<TextBlock Text="{Binding VersionName}"/>
-				<Button Content="启动游戏" Command="{Binding ToPlayCommand}"/>
-			</StackPanel>
+             x:Class="OneLauncher.Home"
+             x:DataType="vm:HomePageViewModel">
+
+	<Grid ColumnDefinitions="*, 300">
+
+		<Panel Grid.Column="0">
+			<Grid VerticalAlignment="Center" HorizontalAlignment="Center" RowDefinitions="Auto,Auto,Auto,Auto" MaxWidth="400">
+				<Border Grid.Row="0" CornerRadius="12" ClipToBounds="True" Margin="0,0,0,20"
+                        Width="128" Height="128">
+					<Image Source="{Binding PrimaryGameInstance.Icon}" Stretch="UniformToFill"/>
+				</Border>
+
+				<TextBlock Grid.Row="1" Text="{Binding PrimaryGameInstance.data.Name}"
+                           FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"
+                           TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,5"/>
+
+				<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10" Margin="0,0,0,25">
+					<TextBlock FontSize="14" Foreground="Gray">
+						<Run Text="版本: "/>
+						<Run Text="{Binding PrimaryGameInstance.data.VersionId}"/>
+					</TextBlock>
+					<TextBlock FontSize="14" Foreground="Gray">
+						<Run Text="加载器: "/>
+						<Run Text="{Binding PrimaryGameInstance.data.ModLoader, Converter={StaticResource ModEnumToStringConverter}}"/>
+					</TextBlock>
+				</StackPanel>
+
+				<Button Grid.Row="3" Content="启 动 游 戏"
+                        Command="{Binding LaunchPrimaryInstanceCommand}"
+                        HorizontalAlignment="Center"
+                        Padding="50,15" FontSize="18" FontWeight="Medium"
+                        IsEnabled="{Binding PrimaryGameInstance, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+			</Grid>
+
+			<TextBlock Text="尚未创建任何游戏实例，请前往“游戏实例”页面创建。"
+                       IsVisible="{Binding PrimaryGameInstance, Converter={x:Static ObjectConverters.IsNull}}"
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       FontSize="16" Foreground="Gray"/>
 		</Panel>
+
+		<Border Grid.Column="1" Background="{DynamicResource PaneBackgound}" Padding="10">
+			<ScrollViewer>
+				<ItemsRepeater ItemsSource="{Binding QuickLaunchItems}">
+					<ItemsRepeater.ItemTemplate>
+						<DataTemplate>
+							<Button Margin="0,0,0,5" Padding="10" HorizontalContentAlignment="Stretch"
+                                    Command="{Binding $parent[UserControl].DataContext.SelectItemAsPrimaryCommand}"
+                                    CommandParameter="{Binding .}">
+								<Grid ColumnDefinitions="Auto, *">
+									<Border Grid.Column="0" Width="48" Height="48" CornerRadius="4" ClipToBounds="True" Margin="0,0,10,0">
+										<Image Source="{Binding Icon}" Stretch="UniformToFill"/>
+									</Border>
+									<StackPanel Grid.Column="1" VerticalAlignment="Center">
+										<TextBlock Text="{Binding data.Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
+										<TextBlock Text="{Binding data.VersionId}" FontSize="12" Foreground="Gray"/>
+									</StackPanel>
+								</Grid>
+							</Button>
+						</DataTemplate>
+					</ItemsRepeater.ItemTemplate>
+				</ItemsRepeater>
+			</ScrollViewer>
+		</Border>
+
 	</Grid>
 </UserControl>

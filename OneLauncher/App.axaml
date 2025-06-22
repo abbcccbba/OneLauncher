@@ -3,30 +3,32 @@
              xmlns:themes="clr-namespace:Avalonia.Styling;assembly=Avalonia.Base"
              xmlns:views="using:OneLauncher.Views"
              xmlns:diagnostics="using:Avalonia.Diagnostics"
+			 xmlns:vm="clr-namespace:OneLauncher.Views.ViewModels;assembly=OneLauncher"
              x:Class="OneLauncher.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-  <Application.Resources>
-	  <ResourceDictionary>
-		  <ResourceDictionary.ThemeDictionaries>
-			  <!-- 浅色模式 -->
-			  <ResourceDictionary x:Key="Light">
-				  <SolidColorBrush x:Key="MainWindowBackground" Color="#99FFFFFF"/>
-				  <SolidColorBrush x:Key="PageBackground" Color="#FFFFFF"/>
-				  <SolidColorBrush x:Key="ListBoxItemBackgound" Color="#F4F4F5" />
-				  <SolidColorBrush x:Key="PaneBackgound" Color="#EAEAEA" />
-			  </ResourceDictionary>
-			  <!-- 深色模式 -->
-			  <ResourceDictionary x:Key="Dark">
-				  <SolidColorBrush x:Key="MainWindowBackground" Color="#99181820"/>
-				  <SolidColorBrush x:Key="PageBackground" Color="#212121"/>
-				  <SolidColorBrush x:Key="ListBoxItemBackgound" Color="#24252A" />
-				  <SolidColorBrush x:Key="PaneBackgound" Color="#171717" />
-			  </ResourceDictionary>
-		  </ResourceDictionary.ThemeDictionaries>
-	  </ResourceDictionary>
-  </Application.Resources>
-  <Application.Styles>
-    <FluentTheme />  
-  </Application.Styles>
+	<Application.Resources>
+		<ResourceDictionary>
+
+			<vm:ModEnumToStringConverter x:Key="ModEnumToStringConverter"/>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<SolidColorBrush x:Key="MainWindowBackground" Color="#99FFFFFF"/>
+					<SolidColorBrush x:Key="PageBackground" Color="#FFFFFF"/>
+					<SolidColorBrush x:Key="ListBoxItemBackgound" Color="#F4F4F5" />
+					<SolidColorBrush x:Key="PaneBackgound" Color="#EAEAEA" />
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Dark">
+					<SolidColorBrush x:Key="MainWindowBackground" Color="#99181820"/>
+					<SolidColorBrush x:Key="PageBackground" Color="#212121"/>
+					<SolidColorBrush x:Key="ListBoxItemBackgound" Color="#24252A" />
+					<SolidColorBrush x:Key="PaneBackgound" Color="#171717" />
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+
+		</ResourceDictionary>
+	</Application.Resources>
+
+	<Application.Styles>
+		<FluentTheme />
+	</Application.Styles>
 </Application>

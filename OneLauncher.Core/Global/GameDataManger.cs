@@ -28,7 +28,50 @@ public class GameDataManager
     private readonly string configPath;
     private readonly GameDataRoot gameDataRoot;
     public List<GameData> AllGameData { get => gameDataRoot.Instances; set => gameDataRoot.Instances = value; }
+    /// <summary>
+    /// 获取或创建一个指定版本的游戏数据实例。
+    /// 查找逻辑：1. 默认实例 -> 2. 第一个可用实例 -> 3. 创建新实例。
+    /// </summary>
+    public async Task<GameData> GetOrCreateInstanceAsync(UserVersion userVersion)
+    {
+        // 尝试获取该版本的默认实例
+        var gameData = GetDefaultInstance(userVersion.VersionID);
+        if (gameData != null)
+            return gameData;
+        
 
+        // 2. 如果没有默认实例，则查找该版本的第一个可用实例
+        gameData = AllGameData.FirstOrDefault(gd => gd.VersionId == userVersion.VersionID);
+        if (gameData != null)
+        {
+            await SetDefaultInstanceAsync(gameData);
+            return gameData;
+        }
+
+        // 如果完全没有任何实例，则创建一个新的
+        // 确定默认游戏数据名称
+        string modLoaderName = userVersion.modType.ToModEnum() switch
+        {
+            ModEnum.fabric => "Fabric",
+            ModEnum.neoforge => "NeoForge",
+            ModEnum.forge => "Forge",
+            _ => "原版"
+        };
+        string gameDataName = $"{userVersion.VersionID} - {modLoaderName}";
+
+        var newGameData = new GameData(
+            name: gameDataName,
+            versionId: userVersion.VersionID,
+            loader: userVersion.modType.ToModEnum(),
+            userModel: Init.ConfigManger.config.DefaultUserModel // 使用全局默认用户
+        );
+
+        // 添加并设为默认
+        await AddGameDataAsync(newGameData);
+        await SetDefaultInstanceAsync(newGameData);
+
+        return newGameData;
+    }
     private GameDataManager(GameDataRoot gameDataRoot,string configPath)
     {
         this.gameDataRoot = gameDataRoot;

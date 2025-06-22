@@ -33,26 +33,8 @@ internal partial class VersionItem : BaseViewModel
     [RelayCommand]
     public async Task LaunchGame()
     {
-        // 找到默认游戏数据
-        GameData? gameData = Init.GameDataManger.GetDefaultInstance(versionExp.VersionID);
-        if (gameData == null) 
-        {
-            // 没有的话那就帮她设成默认
-            // 确定默认游戏数据名称
-            string modLoaderName = 
-                (versionExp.modType.IsFabric) 
-                ? "Fabric" 
-                : (versionExp.modType.IsNeoForge) 
-                ? "NeoForge" 
-                : (versionExp.modType.IsForge) 
-                ? "Forge" : "原版";
-            string gameDataName = $"{versionExp.VersionID} - {modLoaderName}";
-            gameData = new GameData(gameDataName, versionExp.VersionID, versionExp.modType.ToModEnum(), null);
-            await Init.GameDataManger.AddGameDataAsync(gameData);
-            await Init.GameDataManger
-                .SetDefaultInstanceAsync(gameData);
-        }
-        _=version.EasyGameLauncher(gameData);
+        GameData gameData = await Init.GameDataManger.GetOrCreateInstanceAsync(versionExp);
+        _ =version.EasyGameLauncher(gameData);
     }
     [RelayCommand]
     public void ReadMoreInformations()
