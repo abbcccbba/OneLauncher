@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core;
-[JsonSerializable(typeof(LaunchOption))]
 [JsonSerializable(typeof(JvmArguments))]
 [JsonSerializable(typeof(AppSettings))]
 [JsonSerializable(typeof(AppConfig))]
@@ -31,10 +30,9 @@ public class AppConfig
     public List<UserModel> UserModelList { get; set; } = new ();
     // 默认用户模型，未指定下默认为null
     public UserModel DefaultUserModel { get; set; } = new UserModel("Default",new Guid(UserModel.nullToken));
+    public string DefaultInstanceID { get; set; }
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
     public List<int> AvailableJavaList { get; set; } = new ();
-    // 用于在主页显示的一键启动选项列表
-    public List<LaunchOption> LaunchOptionList { get; set; } = new ();
     public AppSettings OlanSettings { get; set; } = new AppSettings();
 }
 public class DBManger // 不再实现 IDisposable

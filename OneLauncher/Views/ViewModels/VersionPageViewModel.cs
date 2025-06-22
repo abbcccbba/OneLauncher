@@ -1,21 +1,20 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
+using OneLauncher.Core.Compatible.ImportPCL2Version;
+using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.Server;
-using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
@@ -158,6 +157,43 @@ internal partial class VersionPageViewModel : BaseViewModel
         catch (OlanException ex)
         {
             await OlanExceptionWorker.ForOlanException(ex);
+        }
+    }
+    [RelayCommand]
+    public async Task ImportVersionByPCL2()
+    {
+        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
+        if (topLevel?.StorageProvider is { } storageProvider && storageProvider.CanOpen)
+        {
+            var options = new FolderPickerOpenOptions
+            {
+                Title = "选择你的PCL2版本文件夹",
+                AllowMultiple = false,
+            };
+            var files = await storageProvider.OpenFolderPickerAsync(options);
+            var selectedFile = files.FirstOrDefault();
+
+            if (files == null || !files.Any() || selectedFile == null)
+                return;
+
+            string path = selectedFile.Path.LocalPath;
+            var dirs = Directory.GetDirectories(path);
+            Debug.WriteLine(path);
+            foreach (var item in dirs)
+            {
+                Debug.WriteLine(item);
+                if (item == Path.Combine(path,"PCL"))
+                {
+                    MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
+                    await new PCL2Importer(new Progress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>(p => {
+                        Debug.WriteLine($"Titli:{p.Title}\nAll:{p.AllFiles},Down:{p.DownedFiles}\nOutput:\n{p.DowingFileName}");
+                    })).ImportAsync(path);
+                    MainWindow.mainwindow.ShowFlyout("导入完成！");
+                    RefList();
+                    return;
+                }
+            }
+            MainWindow.mainwindow.ShowFlyout("这不是有效的PCL版本文件夹",true);
         }
     }
     [RelayCommand]

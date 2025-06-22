@@ -14,6 +14,19 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Helper;
 public static class Tools
 {
+    /// <summary>
+    /// 基于主类名的模组加载器判断机制
+    /// </summary>
+    public static ModEnum MainClassToModEnum(string mainClass)
+    {
+        return mainClass switch
+        {
+            "cpw.mods.bootstraplauncher.BootstrapLauncher" => ModEnum.neoforge,
+            "net.fabricmc.loader.impl.launch.knot.KnotClient" => ModEnum.fabric,
+            "net.minecraft.client.main.Main" => ModEnum.none,
+            _ => ModEnum.none
+        };
+    }
     public static async Task CopyDirectoryAsync(string sourceDir, string destDir, CancellationToken token)
     {
         Directory.CreateDirectory(destDir);

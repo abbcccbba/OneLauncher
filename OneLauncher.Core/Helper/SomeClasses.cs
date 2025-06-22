@@ -8,12 +8,6 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace OneLauncher.Core.Helper;
-public class LaunchOption
-{
-    public string InstanceId { get; set; }
-    public string UserModelUUID { get; set; }
-    public ServerInfo ServerInfo { get; set; }
-}
 
 public enum SortingType
 {
