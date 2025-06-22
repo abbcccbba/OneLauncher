@@ -47,7 +47,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [ObservableProperty] public bool _IsForge;
     [ObservableProperty] public bool _IsAllowForge;
     [ObservableProperty] public bool _IsUseRecommendedToInstallForge = true;
-    [ObservableProperty] public bool isLaunchGameAfterDone;
     [ObservableProperty] public bool _IsAllowFabric;
     [ObservableProperty] public bool _IsAllowNeoforge;
     [ObservableProperty] public string _VersionName;
@@ -86,12 +85,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             {
                 VersionID = VersionName,
                 modType = VersionModType,
-                AddTime = DateTime.Now,
-                preferencesLaunchMode = new PreferencesLaunchMode()
-                {
-                    LaunchModType = (ModEnum)Enum.Parse(typeof(ModEnum), modLoaderName, true), // 从名称反向解析枚举
-                    IsUseDebugModeLaunch = false
-                }
+                AddTime = DateTime.Now
             };
 
             // 创建 GameData 实例
@@ -176,9 +170,6 @@ internal partial class DownloadPaneViewModel : BaseViewModel
 
                 await Init.ConfigManger.Save();
                 MainWindow.mainwindow.ShowFlyout($"“{finalInstanceName}”已成功创建并设为默认启动项。");
-
-                if (IsLaunchGameAfterDone)
-                    _ = version.EasyGameLauncher(newGameData);
             }
             catch (OperationCanceledException)
             {

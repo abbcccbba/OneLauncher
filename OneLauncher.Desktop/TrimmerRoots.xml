@@ -1,14 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <linker>
 	<assembly fullname="OneLauncher">
-		<type fullname="OneLauncher.Views.ViewModels.*" preserve="all"/>
-		<type fullname="OneLauncher.Views.Panes.PaneViewModels.*" preserve="all"/>
-		<type fullname="OneLauncher.Views.Windows.*" preserve="all"/>
+		<type fullname="OneLauncher.Views.settings" preserve="all"/>
+		<type fullname="OneLauncher.Views.Panes.*" preserve="all"/>
 	</assembly>
 	<assembly fullname="OneLauncher.Core">
-		<type fullname="OneLauncher.Core.*" preserve="all"/>
-	</assembly>
-	<assembly fullname="OneLauncher.Core.Net">
-		<type fullname="OneLauncher.Core.Net.*" preserve="all"/>
+		<type fullname="OneLauncher.Core.Minecraft.*" preserve="all"/>
+		<type fullname="OneLauncher.Core.Mod.*" preserve="all"/>
 	</assembly>
 </linker>

@@ -22,7 +22,7 @@
 				  IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}">
 			<ComboBox.ItemTemplate>
 				<DataTemplate>
-					<TextBlock Text="{Binding Converter={StaticResource ModLoaderNameConverter}}"/>
+					<TextBlock Text="{Binding ModLoaderNameConverter}"/>
 				</DataTemplate>
 			</ComboBox.ItemTemplate>
 		</ComboBox>

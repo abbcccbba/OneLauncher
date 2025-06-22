@@ -88,8 +88,9 @@ public class ForgeVersionListGetter
     {
         try
         {
-            var json = await _httpClient.GetStringAsync(ForgePromotionsUrl);
-            var promoData = JsonSerializer.Deserialize<ForgePromotionData>(json);
+            var promoData = 
+                await JsonSerializer.DeserializeAsync<ForgePromotionData>(
+                    await _httpClient.GetStreamAsync(ForgePromotionsUrl),ForgeSeriesJsonContext.Default.ForgePromotionData);
             return promoData?.Promos ?? new Dictionary<string, string>();
         }
         catch (Exception ex)
@@ -135,70 +136,6 @@ public class ForgeVersionListGetter
                 .Where(v => v != null).ToList();
         }
         catch (System.Xml.XmlException ex) { throw new OlanException("元数据格式错误", "NeoForge 版本列表的 XML 元数据格式无效。", OlanExceptionAction.Error, ex); }
-    }
-
-    #endregion
-
-    #region Private Helper Classes
-
-    private class ForgePromotionData
-    {
-        [JsonPropertyName("promos")]
-        public Dictionary<string, string> Promos { get; set; }
-    }
-
-    private class ForgeVersionInfo : IComparable<ForgeVersionInfo>
-    {
-        public string FullVersionString { get; }
-        public string MinecraftVersion { get; }
-        public Version ForgeVersion { get; }
-
-        public ForgeVersionInfo(string versionStr)
-        {
-            FullVersionString = versionStr ?? throw new ArgumentNullException(nameof(versionStr));
-            int separatorIndex = versionStr.IndexOf('-');
-            if (separatorIndex <= 0) throw new ArgumentException($"Invalid Forge version format: {versionStr}");
-
-            MinecraftVersion = versionStr.Substring(0, separatorIndex);
-            string forgePart = versionStr.Substring(separatorIndex + 1);
-
-            if (!Version.TryParse(forgePart.Split('-')[0], out var parsedVersion))
-                throw new ArgumentException($"Cannot parse Forge version part: {forgePart}");
-            ForgeVersion = parsedVersion;
-        }
-
-        public int CompareTo(ForgeVersionInfo other) => other == null ? 1 : ForgeVersion.CompareTo(other.ForgeVersion);
-        public override string ToString() => FullVersionString;
-    }
-
-    private class NeoForgeVersionInfo : IComparable<NeoForgeVersionInfo>
-    {
-        public string FullVersionString { get; }
-        public Version ParsedNumericVersion { get; }
-        public bool IsBeta { get; }
-
-        public NeoForgeVersionInfo(string versionStr)
-        {
-            FullVersionString = versionStr ?? throw new ArgumentNullException(nameof(versionStr));
-            string numericPart = versionStr;
-            if (versionStr.Contains("-"))
-            {
-                numericPart = versionStr.Split('-')[0];
-                IsBeta = versionStr.ToLowerInvariant().Contains("beta");
-            }
-            if (!Version.TryParse(numericPart, out var parsedVersion))
-                throw new ArgumentException($"Cannot parse NeoForge version part: {numericPart}");
-            ParsedNumericVersion = parsedVersion;
-        }
-
-        public int CompareTo(NeoForgeVersionInfo other)
-        {
-            if (other == null) return 1;
-            int numericCompare = ParsedNumericVersion.CompareTo(other.ParsedNumericVersion);
-            if (numericCompare != 0) return numericCompare;
-            return IsBeta == other.IsBeta ? 0 : (IsBeta ? -1 : 1); // 稳定版 (非Beta) 优先
-        }
-        public override string ToString() => FullVersionString;
     }
 
     #endregion

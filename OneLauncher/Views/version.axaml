@@ -6,6 +6,8 @@
              x:Class="OneLauncher.Views.version"
 			 xmlns:vm="clr-namespace:OneLauncher.Views.ViewModels;assembly=OneLauncher"
 			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
+			 x:CompileBindings="True"
+			 x:DataType="vm:VersionPageViewModel"
 			 >
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
                DisplayMode="Overlay"

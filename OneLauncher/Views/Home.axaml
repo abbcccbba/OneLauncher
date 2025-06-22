@@ -3,22 +3,24 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.ViewModels"
-			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
-             mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
+             xmlns:lo="using:OneLauncher.Core.Helper" mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Home"
-             x:DataType="vm:HomePageViewModel">
+             x:DataType="vm:HomePageViewModel"
+             x:CompileBindings="True">
 
 	<Grid ColumnDefinitions="*, 300">
 		<Panel Grid.Column="1" Background="{DynamicResource PaneBackgound}">
 			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
 				<Image Source="/Assets/Imgs/basic.png" Height="128" Width="128"/>
-				<ComboBox x:DataType="lo:GameData" ItemsSource="{Binding LaunchItems}" SelectedItem="{Binding SelectedGameData}" PlaceholderText="选择启动实例">
+
+				<ComboBox ItemsSource="{Binding LaunchItems}" SelectedItem="{Binding SelectedGameData}" PlaceholderText="选择启动实例">
 					<ComboBox.ItemTemplate>
-						<DataTemplate>
+						<DataTemplate x:DataType="lo:GameData">
 							<TextBlock Text="{Binding Name}"/>
 						</DataTemplate>
 					</ComboBox.ItemTemplate>
 				</ComboBox>
+
 				<Button Command="{Binding Launch}" Width="128">
 					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 						<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>

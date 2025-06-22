@@ -16,6 +16,7 @@ internal partial class HomePageViewModel : BaseViewModel
     [ObservableProperty] private List<GameData> launchItems = Init.GameDataManger.AllGameData;
     [ObservableProperty] private GameData selectedGameData = 
         Init.GameDataManger.AllGameData.FirstOrDefault(x => x.InstanceId == Init.ConfigManger.config.DefaultInstanceID);
+    [ObservableProperty] private bool isShowServerOption;
     public HomePageViewModel()
     {
 #if DEBUG

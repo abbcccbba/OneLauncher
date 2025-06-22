@@ -24,6 +24,7 @@ internal partial class UserItem
     public UserModel um { get; set; }
     public Bitmap HeadImg { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")));
     public bool IsDefault { get; set; }
+    public bool IsNotDefault => !IsDefault;
 }
 internal partial class AccountPageViewModel : BaseViewModel
 {
