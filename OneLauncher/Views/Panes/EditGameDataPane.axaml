@@ -5,6 +5,7 @@
              xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
              x:Class="OneLauncher.Views.Panes.EditGameDataPane"
              x:DataType="vm:EditGameDataPaneViewModel"
+			 x:CompileBindings="True"
 			 d:DesignWidth="650" d:DesignHeight="620"
 			 >
 	<StackPanel Spacing="15" Margin="20">

@@ -165,7 +165,7 @@ public class JvmArgumentConverter : JsonConverter<List<object>>
             else if (reader.TokenType == JsonTokenType.StartObject)
             {
                 // 反序列化为 MinecraftArgument 对象
-                var arg = JsonSerializer.Deserialize<MinecraftArgument>(ref reader, options);
+                var arg = JsonSerializer.Deserialize(ref reader, MinecraftJsonContext.Default.MinecraftArgument);
                 if (arg != null) list.Add(arg);
             }
             else
@@ -184,7 +184,7 @@ public class JvmArgumentConverter : JsonConverter<List<object>>
             if (item is string str)
                 writer.WriteStringValue(str);
             else if (item is MinecraftArgument arg)
-                JsonSerializer.Serialize(writer, arg, options); // 序列化为 MinecraftArgument
+                JsonSerializer.Serialize(writer, arg, MinecraftJsonContext.Default.MinecraftArgument); // 序列化为 MinecraftArgument
             else
                 // 处理其他类型或抛出异常
                 throw new JsonException($"JVM 参数中遇到未知对象类型: {item?.GetType().Name}");
@@ -313,10 +313,6 @@ public class ArgumentValueConverter : JsonConverter<object>
         }
     }
 }
-
-
-
-
 
 public class MinecraftVersionList
 {

@@ -3,6 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
+			 x:DataType="vm:UserModelLoginPaneViewModel"
+			 x:CompileBindings="True"
              x:Class="OneLauncher.Views.Panes.UserModelLoginPane">
 	<Grid RowDefinitions="Auto,*">
 		<Grid Grid.Row="0" ColumnDefinitions="*,*,*">

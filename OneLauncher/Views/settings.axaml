@@ -3,6 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
+			 xmlns:vm="using:OneLauncher.Views.ViewModels"
+			 x:DataType="vm:SettingsPageViewModel"
+			 x:CompileBindings="True"
              x:Class="OneLauncher.Views.settings">
   <ScrollViewer>
 	  <StackPanel Margin="64" Spacing="36">

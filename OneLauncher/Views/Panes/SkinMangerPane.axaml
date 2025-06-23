@@ -2,6 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
+			 x:DataType="vm:SkinMangerPaneViewModel"
+			 x:CompileBindings="True"
              mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="530"
              x:Class="OneLauncher.Views.Panes.SkinMangerPane">
 	<Grid Margin="24">
