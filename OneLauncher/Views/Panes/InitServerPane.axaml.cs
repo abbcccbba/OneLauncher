@@ -7,13 +7,14 @@ namespace OneLauncher.Views.Panes;
 
 public partial class InitServerPane : UserControl
 {
-#if DEBUG
+
     public InitServerPane()
     {
         InitializeComponent();
+#if DEBUG
         this.DataContext = new InitServerPaneViewModel();
-    }
 #endif
+    }
     public InitServerPane(string version)
     {
         InitializeComponent();

@@ -16,19 +16,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Codes;
-public delegate void GameEvents();
 internal class Game
 {
-    public event GameEvents GameStartedEvent;
-    public event GameEvents GameClosedEvent;
-    /// <param Name="GameVersion">游戏版本</param>
-    /// <param Name="loginUserModel">登入用户模型</param>
-    /// <param Name="IsVersionInsulation">版本是否启用了版本隔离</param>
-    /// <param Name="UseGameTasker">是否使用游戏监视器</param>
+    public event Action? GameStartedEvent;
+    public event Action? GameClosedEvent;
+    public event Action<string>? GamePutEvent;
     public async Task LaunchGame(
         GameData gameData,
-        bool UseGameTasker = false,
-        ServerInfo? serverInfo = null)
+        ServerInfo? serverInfo = null,
+        bool useRootLaunch = false)
     {
         #region 初始化基本游戏构建类
         await gameData.DefaultUserModel.IntelligentLogin(Init.MMA);
@@ -40,27 +36,13 @@ internal class Game
                         );
         #endregion
         
-        #region 初次启动时帮用户设置语言和在调试模式下打开调试窗口
-        var optionsPath = Path.Combine(gameData.InstancePath,"options.txt");
-        if (!File.Exists(optionsPath))
-        {
-            await File.WriteAllTextAsync(optionsPath, $"lang:zh_CN");
-        }
-        if (UseGameTasker)
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                var gameTasker = new GameTasker();
-                gameTasker.Show();
-            });
-        #endregion  
-        
         try
         {
             string launchArgumentsPath = Path.GetTempFileName();
             await File.WriteAllTextAsync(
                 launchArgumentsPath,
                 (await Builder.BuildCommand(
-                     Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion())))
+                     Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()),useRootLaunch))
 #if WINDOWS
                 // 避免微软万年屎山导致的找不到路径问题
                 .Replace("\\",@"\\")
@@ -86,9 +68,8 @@ internal class Game
                 process.OutputDataReceived += async (sender, e) =>
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
-                
                     Debug.WriteLine(e.Data);
-                    WeakReferenceMessenger.Default.Send(new GameMessage($"[STDOUT] {e.Data}{Environment.NewLine}"));
+                    GamePutEvent?.Invoke($"[STDOUT] {e.Data}{Environment.NewLine}");
                     if (e.Data.Contains("Backend library: LWJGL version"))
                         GameStartedEvent?.Invoke();
                 };
@@ -96,43 +77,39 @@ internal class Game
                 {
                     if (string.IsNullOrEmpty(e.Data)) return;
                     Debug.WriteLine(e.Data);
-                    WeakReferenceMessenger.Default.Send(new GameMessage($"[ERROE] {e.Data}{Environment.NewLine}"));
+                    GamePutEvent?.Invoke($"[ERROR] {e.Data}{Environment.NewLine}");
                     if (e.Data.Contains("java.lang.ClassNotFoundException")) 
-                        OlanExceptionWorker.ForOlanException(
+                        await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败","Jvm无法找到主类，请尝试重新安装游戏",OlanExceptionAction.Error),
                         () => _=LaunchGame(
-                                gameData,
-                                UseGameTasker
-                            ));
+                                gameData));
                 };
                 process.Start();
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
                 await process.WaitForExitAsync();
                 if(process.ExitCode != 0)
-                    OlanExceptionWorker.ForOlanException(
+                    await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", "未知错误，请尝试以调试模式启动游戏以查找出错原因", OlanExceptionAction.Error),
                         () => _=LaunchGame(
-                                gameData,
-                                true
-                            ));
+                                gameData));
             }
             GameClosedEvent?.Invoke();
             File.Delete(launchArgumentsPath);
         }
         catch(FileNotFoundException fex)
         {
-            OlanExceptionWorker.ForOlanException(
+            await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", $"无法找到启动所需的文件{Environment.NewLine}{fex}", OlanExceptionAction.Error, fex));
         }
         catch (DirectoryNotFoundException fex)
         {
-            OlanExceptionWorker.ForOlanException(
+            await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", $"无法找到启动所需的文件夹{Environment.NewLine}{fex}", OlanExceptionAction.Error,fex));
         }
         catch(Exception ex)
         {
-            OlanExceptionWorker.ForOlanException(
+            await OlanExceptionWorker.ForOlanException(
                         new OlanException("启动失败", $"系统未安装Java或系统错误{Environment.NewLine}{ex}", OlanExceptionAction.Error,ex));
         }
     }

@@ -69,7 +69,7 @@
 								<Button Command="{Binding LaunchGameCommand}" CommandParameter="{Binding versionExp}">
 									<StackPanel Orientation="Horizontal" Spacing="2">
 										<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
-										<TextBlock Text="启动默认实例"/>
+										<TextBlock Text="根启动"/>
 									</StackPanel>
 								</Button>
 								<Button>

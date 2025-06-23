@@ -3,11 +3,14 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views.ViewModels;
+using OneLauncher.Views.Windows;
+using OneLauncher.Views.Windows.WindowViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -63,7 +66,7 @@ public partial class version : UserControl
     /// 真·一键启动游戏函数
     /// </summary>
     /// <returns>异步任务Task</returns>
-    public static Task EasyGameLauncher(
+    public static async Task<Task> EasyGameLauncher(
         GameData gameData,
         bool UseGameTasker = false,
         ServerInfo? serverInfo = null
@@ -72,13 +75,24 @@ public partial class version : UserControl
         if (gameData.InstanceId == null)
             return Task.CompletedTask;
         // 用多线程而不是异步，否则某些特定版本会阻塞
+        var optionsPath = Path.Combine(gameData.InstancePath, "options.txt");
+        if (!File.Exists(optionsPath))
+            await File.WriteAllTextAsync(optionsPath, $"lang:zh_CN");
+        if (UseGameTasker)
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                var gameTasker = new GameTasker();
+                gameTasker.Show();
+            });
+
         MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
         var game = new Game();
+        if(UseGameTasker)
+            game.GamePutEvent += (string Message) => WeakReferenceMessenger.Default.Send(new GameMessage(Message));
         game.GameStartedEvent += () => MainWindow.mainwindow.ShowFlyout("游戏已启动！");
         game.GameClosedEvent += () => MainWindow.mainwindow.ShowFlyout("游戏已关闭！");
 
        return Task.Run(() => game.LaunchGame(
-            gameData,
-            UseGameTasker,serverInfo));
+            gameData,serverInfo));
     }
 }

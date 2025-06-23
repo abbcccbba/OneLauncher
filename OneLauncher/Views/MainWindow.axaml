@@ -1,153 +1,147 @@
 <Window xmlns="https://github.com/avaloniaui"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:easing="using:Avalonia.Animation.Easings"
-		mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="560"
-		x:Class="OneLauncher.Views.MainWindow"
-		Icon="/Assets/window-logo.ico"
-		Title="One Launcher"
-		TransparencyLevelHint="AcrylicBlur"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:easing="using:Avalonia.Animation.Easings"
+        mc:Ignorable="d" d:DesignWidth="860" d:DesignHeight="560"
+        x:Class="OneLauncher.Views.MainWindow"
+        Icon="/Assets/window-logo.ico"
+        Title="OneLauncher"
+        TransparencyLevelHint="AcrylicBlur"
         Background="{DynamicResource MainWindowBackground}"
-		ExtendClientAreaToDecorationsHint="True"
-		Width="880" 
-		Height="560"
-		x:Name="MainWindowLabel">
+        ExtendClientAreaToDecorationsHint="True"
+        Width="880"
+        Height="560"
+        x:Name="MainWindowLabel">
 	<SplitView x:Name="SidebarSplitView"
-				   IsPaneOpen="False"
-				   DisplayMode="CompactInline" 
-				   OpenPaneLength="152"
-				   CompactPaneLength="62"
-				   PaneBackground="Transparent">
-		<!-- 侧边栏 -->
+               IsPaneOpen="False"
+               DisplayMode="CompactInline"
+               OpenPaneLength="152"
+               CompactPaneLength="62"
+               PaneBackground="Transparent">
 		<SplitView.Pane>
-			<Grid Background="Transparent" 
-				  PointerEntered="Sb_in" 
-				  PointerExited="Sb_out">
-				<!-- 侧边栏选项 -->
-				<ScrollViewer>		
-				<StackPanel x:Name="SidebarStackPanel"
-                            Spacing="20"
-                            Margin="-6,24,0,0"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Top">
-					<!-- 开始菜单按钮 -->
-					<ListBox x:Name="SplitListBox" Background="Transparent" SelectionChanged="ListBox_SelectionChanged">
-						<ListBoxItem x:Name="HomeListBoxItem" Tag="Home">
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/home.png" Width="32" Height="32"/>
-								<TextBlock x:Name="HomeText"
-											Text="开始菜单"
-											VerticalAlignment="Center"
-											FontSize="16"
-											IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-							</StackPanel>
-						</ListBoxItem>
-						<ListBoxItem x:Name="VersionListBoxItem" Tag="Version">
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/version.png" Width="32" Height="32"/>
-								<TextBlock x:Name="VersionText"
-										   Text="版本管理"
-										   VerticalAlignment="Center"
-										   FontSize="16"
-										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-							</StackPanel>
-						</ListBoxItem>
-						<ListBoxItem x:Name="GameDataListBoxItem" Tag="GameData">
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/game.png" Width="32" Height="32"/>
-								<TextBlock x:Name="GameDataText"
-										   Text="游戏数据"
-										   VerticalAlignment="Center"
-										   FontSize="16"
-										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-							</StackPanel>
-						</ListBoxItem>
-						<ListBoxItem x:Name="AccountListBoxItem" Tag="Account">
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/account.png" Width="32" Height="32"/>
-								<TextBlock x:Name="AccountText"
-										   Text="账户管理"
-										   VerticalAlignment="Center"
-										   FontSize="16"
-										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-							</StackPanel>
-						</ListBoxItem>
-						<ListBoxItem x:Name="DownloadListBoxItem" Tag="Download">
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/download.png" Width="32" Height="32"/>
-								<TextBlock x:Name="DownloadText"
-										   Text="下载管理"
-										   VerticalAlignment="Center"
-										   FontSize="16"
-										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-							</StackPanel>
-						</ListBoxItem>
-						<ListBoxItem x:Name="ModsBrowserListBoxItem" Tag="ModsBrowser">
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/browser.png" Width="32" Height="32"/>
-								<TextBlock x:Name="ModsBrowserText"
-										   Text="模组浏览"
-										   VerticalAlignment="Center"
-										   FontSize="16"
-										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-							</StackPanel>
-						</ListBoxItem>
-						<ListBoxItem x:Name="SettingsListBoxItem" Tag="Settings">
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<Image Source="/Assets/icos/settings1.png" Width="32" Height="32"/>
-								<TextBlock x:Name="SettingsText"
-										   Text="设置选项"
-										   VerticalAlignment="Center"
-										   FontSize="16"
-										   IsVisible="{Binding #SidebarSplitView.IsPaneOpen}"/>
-							</StackPanel>
-						</ListBoxItem>
-						<ListBox.Styles>
-							<Style Selector="ListBox /template/ ContentPresenter">
-								<Setter Property="Background" Value="Transparent"/>
-								<Setter Property="CornerRadius" Value="16"/>
-							</Style>
-							<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-								<Setter Property="Background" Value="#777777"/>
-								<Setter Property="CornerRadius" Value="16"/>
-							</Style>
-							<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
-								<Setter Property="Background" Value="#666666"/>
-								<Setter Property="CornerRadius" Value="16"/>
-							</Style>
-							<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-								<Setter Property="Background" Value="#555555"/>
-								<Setter Property="CornerRadius" Value="24"/>
-							</Style>
-							<Style Selector="ListBoxItem /template/ ContentPresenter">
-								<Setter Property="Margin" Value="8"/>
-								<Setter Property="Background" Value="Transparent"/>
-								<Setter Property="CornerRadius" Value="16"/>
-							</Style>
-						</ListBox.Styles>
-					</ListBox>
-				</StackPanel>
+			<Grid Background="Transparent"
+                  PointerEntered="Sb_in"
+                  PointerExited="Sb_out">
+				<ScrollViewer>
+					<StackPanel x:Name="SidebarStackPanel"
+                                Spacing="20"
+                                Margin="-6,24,0,0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top">
+						<ListBox x:Name="SplitListBox" Background="Transparent" SelectionChanged="ListBox_SelectionChanged">
+							<ListBoxItem x:Name="HomeListBoxItem" Tag="Home">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Image Source="/Assets/icos/home.png" Width="32" Height="32"/>
+									<TextBlock x:Name="HomeText"
+                                               Text="开始菜单"
+                                               VerticalAlignment="Center"
+                                               FontSize="16"
+                                               IsVisible="{Binding IsPaneOpen, ElementName=SidebarSplitView}"/>
+								</StackPanel>
+							</ListBoxItem>
+							<ListBoxItem x:Name="VersionListBoxItem" Tag="Version">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Image Source="/Assets/icos/version.png" Width="32" Height="32"/>
+									<TextBlock x:Name="VersionText"
+                                               Text="版本管理"
+                                               VerticalAlignment="Center"
+                                               FontSize="16"
+                                               IsVisible="{Binding IsPaneOpen, ElementName=SidebarSplitView}"/>
+								</StackPanel>
+							</ListBoxItem>
+							<ListBoxItem x:Name="GameDataListBoxItem" Tag="GameData">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Image Source="/Assets/icos/game.png" Width="32" Height="32"/>
+									<TextBlock x:Name="GameDataText"
+										 Text="游戏数据"
+										 VerticalAlignment="Center"
+										 FontSize="16"
+										 IsVisible="{Binding IsPaneOpen, ElementName=SidebarSplitView}"/>
+								</StackPanel>
+							</ListBoxItem>
+							<ListBoxItem x:Name="AccountListBoxItem" Tag="Account">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Image Source="/Assets/icos/account.png" Width="32" Height="32"/>
+									<TextBlock x:Name="AccountText"
+                                               Text="账户管理"
+                                               VerticalAlignment="Center"
+                                               FontSize="16"
+                                               IsVisible="{Binding IsPaneOpen, ElementName=SidebarSplitView}"/>
+								</StackPanel>
+							</ListBoxItem>
+							<ListBoxItem x:Name="DownloadListBoxItem" Tag="Download">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Image Source="/Assets/icos/download.png" Width="32" Height="32"/>
+									<TextBlock x:Name="DownloadText"
+                                               Text="下载管理"
+                                               VerticalAlignment="Center"
+                                               FontSize="16"
+                                               IsVisible="{Binding IsPaneOpen, ElementName=SidebarSplitView}"/>
+								</StackPanel>
+							</ListBoxItem>
+							<ListBoxItem x:Name="ModsBrowserListBoxItem" Tag="ModsBrowser">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Image Source="/Assets/icos/browser.png" Width="32" Height="32"/>
+									<TextBlock x:Name="ModsBrowserText"
+                                               Text="模组浏览"
+                                               VerticalAlignment="Center"
+                                               FontSize="16"
+                                               IsVisible="{Binding IsPaneOpen, ElementName=SidebarSplitView}"/>
+								</StackPanel>
+							</ListBoxItem>
+							<ListBoxItem x:Name="SettingsListBoxItem" Tag="Settings">
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Image Source="/Assets/icos/settings1.png" Width="32" Height="32"/>
+									<TextBlock x:Name="SettingsText"
+                                               Text="设置选项"
+                                               VerticalAlignment="Center"
+                                               FontSize="16"
+                                               IsVisible="{Binding IsPaneOpen, ElementName=SidebarSplitView}"/>
+								</StackPanel>
+							</ListBoxItem>
+							<ListBox.Styles>
+								<Style Selector="ListBox /template/ ContentPresenter">
+									<Setter Property="Background" Value="Transparent"/>
+									<Setter Property="CornerRadius" Value="16"/>
+								</Style>
+								<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+									<Setter Property="Background" Value="#777777"/>
+									<Setter Property="CornerRadius" Value="16"/>
+								</Style>
+								<Style Selector="ListBoxItem:pressed /template/ ContentPresenter">
+									<Setter Property="Background" Value="#666666"/>
+									<Setter Property="CornerRadius" Value="16"/>
+								</Style>
+								<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+									<Setter Property="Background" Value="#555555"/>
+									<Setter Property="CornerRadius" Value="24"/>
+								</Style>
+								<Style Selector="ListBoxItem /template/ ContentPresenter">
+									<Setter Property="Margin" Value="8"/>
+									<Setter Property="Background" Value="Transparent"/>
+									<Setter Property="CornerRadius" Value="16"/>
+								</Style>
+							</ListBox.Styles>
+						</ListBox>
+					</StackPanel>
 				</ScrollViewer>
 			</Grid>
 		</SplitView.Pane>
 
-		<!-- 主内容区域 -->
-
 		<Grid RowDefinitions="30,*">
 			<Border Grid.Row="0">
-				<!-- 标题 -->
 				<TextBlock Text="One Launcher"
-							HorizontalAlignment="Left"
-							VerticalAlignment="Center"
-						    FontWeight="Bold"
-							Margin="12,0,0,0"/>
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           FontWeight="Bold"
+                           Margin="12,0,0,0"/>
 			</Border>
 			<Panel Grid.Row="1" Margin="0,0,0,0">
-				<TransitioningContentControl                                  
-					x:Name="PageContent" Background="{DynamicResource PageBackground}">
+				<TransitioningContentControl
+                    x:Name="PageContent" Background="{DynamicResource PageBackground}">
 					<TransitioningContentControl.PageTransition>
-						<PageSlide Orientation="Vertical" Duration="0:00:00.15">	
+						<PageSlide Orientation="Vertical" Duration="0:00:00.15">
 							<PageSlide.SlideInEasing>
 								<CubicEaseIn />
 							</PageSlide.SlideInEasing>
@@ -155,17 +149,17 @@
 								<CubicEaseOut />
 							</PageSlide.SlideOutEasing>
 						</PageSlide>
-					</TransitioningContentControl.PageTransition> 
+					</TransitioningContentControl.PageTransition>
 				</TransitioningContentControl>
 				<Border x:Name="FytB"
-						IsVisible="False"
-						Margin="16" 
-						Background="LightBlue"
-						HorizontalAlignment="Right" 
-						VerticalAlignment="Bottom" 
-						CornerRadius="5" >
+                        IsVisible="False"
+                        Margin="16"
+                        Background="LightBlue"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        CornerRadius="5" >
 					<TextBlock Margin="6" x:Name="FytFkA"/>
-				</Border>	
+				</Border>
 			</Panel>
 		</Grid>
 	</SplitView>

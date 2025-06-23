@@ -8,8 +8,7 @@
              RequestedThemeVariant="Default">
 	<Application.Resources>
 		<ResourceDictionary>
-
-			<vm:ModEnumToStringConverter x:Key="ModEnumToStringConverter"/>
+			<vm:ModEnumToStringConverter x:Key="ModEnumConverter"/>
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
 					<SolidColorBrush x:Key="MainWindowBackground" Color="#99FFFFFF"/>
@@ -24,7 +23,6 @@
 					<SolidColorBrush x:Key="PaneBackgound" Color="#171717" />
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
-
 		</ResourceDictionary>
 	</Application.Resources>
 

@@ -8,12 +8,10 @@ namespace OneLauncher.Views.Panes;
 
 public partial class EditGameDataPane : UserControl
 {
-#if DEBUG
     public EditGameDataPane()
     {
         InitializeComponent();
     }
-#endif
     public EditGameDataPane(GameData gameData)
     {
         InitializeComponent();

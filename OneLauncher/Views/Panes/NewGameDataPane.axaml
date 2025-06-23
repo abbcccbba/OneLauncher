@@ -31,7 +31,7 @@
 				  IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}">
 			<ComboBox.ItemTemplate>
 				<DataTemplate x:DataType="lo:ModEnum">
-					<TextBlock Text="111"/>
+					<TextBlock Text="{Binding Converter={StaticResource ModEnumConverter}}"/>
 				</DataTemplate>
 			</ComboBox.ItemTemplate>
 		</ComboBox>

@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Downloader;
+﻿using OneLauncher.Core.Compatible.ImportPCL2Version;
+using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using System;
@@ -10,7 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Compatible.ImportPCL2Version;
+namespace OneLauncher.Core.Helper.ImportPCL2Version;
 
 /// <summary>
 /// 负责处理从 PCL2 实例文件夹导入游戏到 OneLauncher 的全部逻辑。
@@ -28,7 +29,7 @@ public class PCL2Importer
     public async Task ImportAsync(string pclVersionPath)
     {
         string versionJsonPath = FindAuthoritativeJsonFile(pclVersionPath);
-        var info = await JsonSerializer.DeserializeAsync<PCL2VersionJsonModels>(File.OpenRead(versionJsonPath),PCL2VersionJsonContent.Default.PCL2VersionJsonModels);
+        var info = await JsonSerializer.DeserializeAsync(File.OpenRead(versionJsonPath),PCL2VersionJsonContent.Default.PCL2VersionJsonModels);
         ModEnum modLoaderType = Tools.MainClassToModEnum(info.MainClass);
         GameData gameData = new GameData(info.UserCustomName,info.ClientVersionID,modLoaderType,null);
         await Init.GameDataManger.AddGameDataAsync(gameData);

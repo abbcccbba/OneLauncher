@@ -7,6 +7,7 @@ using OneLauncher.Core.Compatible.ImportPCL2Version;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.ImportPCL2Version;
 using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Views.Panes;
 using System;
@@ -33,7 +34,7 @@ internal partial class VersionItem : BaseViewModel
     public async Task LaunchGame()
     {
         GameData gameData = await Init.GameDataManger.GetOrCreateInstanceAsync(versionExp);
-        _ =version.EasyGameLauncher(gameData);
+        _=new Game().LaunchGame(gameData,null,true);
     }
     [RelayCommand]
     public void ReadMoreInformations()

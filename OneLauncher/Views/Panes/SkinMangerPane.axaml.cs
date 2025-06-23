@@ -9,13 +9,13 @@ namespace OneLauncher.Views.Panes;
 
 internal partial class SkinMangerPane : UserControl
 {
-#if DEBUG
     public SkinMangerPane()
     {
         InitializeComponent();
+#if DEBUG
         this.DataContext = new SkinMangerPaneViewModel();
-    }
 #endif
+    }
     public SkinMangerPane(AccountPageViewModel accountPageViewModel, UserModel SelUserModel)
     {
         InitializeComponent();

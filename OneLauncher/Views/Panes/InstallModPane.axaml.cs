@@ -9,13 +9,14 @@ namespace OneLauncher.Views.Panes;
 
 internal partial class InstallModPane : UserControl
 {
-#if DEBUG
+
     public InstallModPane()
     {
         InitializeComponent();
+#if DEBUG
         this.DataContext = new InstallModPaneViewModel();
-    }
 #endif
+    }
     public InstallModPane(ModItem item)
     {
         InitializeComponent();

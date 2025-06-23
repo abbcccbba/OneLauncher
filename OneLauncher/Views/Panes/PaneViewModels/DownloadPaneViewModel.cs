@@ -92,7 +92,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             var newGameData = new GameData(
                 finalInstanceName,
                 thisVersionBasicInfo.ID,
-                newUserVersion.preferencesLaunchMode.LaunchModType,
+                (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : (IsForge) ? ModEnum.forge : ModEnum.none,
                 Init.ConfigManger.config.DefaultUserModel);
 
             cts = new();

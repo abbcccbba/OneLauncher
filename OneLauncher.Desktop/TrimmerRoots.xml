@@ -1,11 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <linker>
 	<assembly fullname="OneLauncher">
-		<type fullname="OneLauncher.Views.settings" preserve="all"/>
-		<type fullname="OneLauncher.Views.Panes.*" preserve="all"/>
+		<type fullname="OneLauncher.Views.ViewModels.ModEnumToStringConverter" preserve="all"/>
 	</assembly>
 	<assembly fullname="OneLauncher.Core">
-		<type fullname="OneLauncher.Core.Minecraft.*" preserve="all"/>
-		<type fullname="OneLauncher.Core.Mod.*" preserve="all"/>
+		
 	</assembly>
 </linker>

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace OneLauncher.Core.Global;
 public static class Init
 {
-    public const string OneLauncherVersoin = "1.6.0";
+    public const string OneLauncherVersoin = "1.2.0.0";
     public const string ApplicationUUID = "com.onelauncher.lnetface";
     public const string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static Task<OlanException> InitTask;
