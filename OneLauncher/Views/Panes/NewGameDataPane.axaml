@@ -14,7 +14,13 @@
 		<TextBlock Text="第一步：选择基础版本"/>
 		<ComboBox ItemsSource="{Binding AvailableBaseVersions}"
 				  SelectedItem="{Binding SelectedBaseVersion}"
-				  PlaceholderText="请选择..."/>
+				  PlaceholderText="请选择...">
+			<ComboBox.ItemTemplate>
+				<DataTemplate x:DataType="lo:UserVersion">
+					<TextBlock Text="{Binding VersionID}" />
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
 
 		<TextBlock Text="第二步：填写实例信息"/>
 		<TextBox Text="{Binding GameDataName}" IsEnabled="{Binding SelectedBaseVersion, Converter={x:Static ObjectConverters.IsNotNull}}" Watermark="例如：我的整合包"/>
