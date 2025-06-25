@@ -138,6 +138,7 @@ public class UserModel
     /// 主要构造函数。
     /// </summary>
     public UserModel(
+        Guid UserID,
         string name,
         Guid uuid,
         // 下面的仅限正版用户
@@ -145,6 +146,7 @@ public class UserModel
         string? accountID = null,
         int? accessTokenExpiration = null)
     {
+        this.UserID = UserID;
         this.Name = name;
         this.uuid = uuid;
 
@@ -165,6 +167,7 @@ public class UserModel
     }
     [JsonConstructor] 
     public UserModel(
+        Guid UserID,
         string Name,
         Guid uuid,
         string accessToken,
@@ -173,6 +176,7 @@ public class UserModel
         DateTimeOffset? AccessTokenExpiration 
         )
     {
+        this.UserID = UserID;
         this.Name = Name;
         this.uuid = uuid;
         this.AccessToken = accessToken;
@@ -187,7 +191,7 @@ public class UserModel
     /// 【新】智能登录方法。
     /// 检查自身令牌是否过期，如果过期则尝试刷新，并返回一个包含最新状态的新实例。
     /// </summary>
-    public async Task<UserModel> IntelligentLogin(MsalMicrosoftAuthenticator authenticator)
+    public async Task<UserModel> IntelligentLogin(MsalAuthenticator authenticator)
     {
         // 如果不是正版用户，或令牌未过期，则直接返回自身，无需任何操作。
         if (!IsMsaUser || (AccessTokenExpiration.HasValue && AccessTokenExpiration.Value > DateTimeOffset.UtcNow))
@@ -232,6 +236,7 @@ public class UserModel
     }
 
     // --- 属性 ---
+    public Guid UserID { get; set; }
     public string Name { get; set; }
     public Guid uuid { get; set; }
     public string AccessToken { get; set; }

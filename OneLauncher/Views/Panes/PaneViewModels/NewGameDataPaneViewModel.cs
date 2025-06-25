@@ -44,8 +44,8 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
     {
         // 从全局静态类 Init 加载所需数据
         AvailableBaseVersions = Init.ConfigManger.config.VersionList;
-        AvailableUsers = Init.ConfigManger.config.UserModelList;
-        SelectedUser = Init.ConfigManger.config.DefaultUserModel ?? AvailableUsers.FirstOrDefault();
+        AvailableUsers = Init.AccountManager.GetAllUsers().ToList();
+        SelectedUser = Init.AccountManager.GetDefaultUser() ?? AvailableUsers.FirstOrDefault();
 
         // 默认情况下，模组加载器列表为空，等待用户选择基础版本
         AvailableModLoaders = new List<ModEnum> { ModEnum.none };

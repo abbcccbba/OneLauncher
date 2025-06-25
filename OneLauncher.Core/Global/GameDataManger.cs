@@ -63,7 +63,7 @@ public class GameDataManager
             name: gameDataName,
             versionId: userVersion.VersionID,
             loader: userVersion.modType.ToModEnum(),
-            userModel: Init.ConfigManger.config.DefaultUserModel // 使用全局默认用户
+            userModel: Init.AccountManager.GetDefaultUser()
         );
 
         // 添加并设为默认

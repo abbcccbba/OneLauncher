@@ -80,7 +80,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
         if (Design.IsDesignMode)
         {
             // 创建一个临时的、仅用于设计的假用户模型
-            var designTimeUser = new UserModel("Steve", Guid.NewGuid());
+            var designTimeUser = Guid.NewGuid();
             var gameData1 = new GameData(
                 name: "纯净生存 (设计时)",
                 versionId: "1.21",

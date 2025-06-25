@@ -15,7 +15,7 @@ using Microsoft.Identity.Client.Broker;
 #endif
 namespace OneLauncher.Core.Net.msa;
 
-public class MsalMicrosoftAuthenticator : IDisposable
+public class MsalAuthenticator : IDisposable
 {
     private readonly IPublicClientApplication msalClient;
     private MsalCacheHelper cacheHelper; 
@@ -69,7 +69,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
     public Task RemoveAccount(IAccount account)
         =>msalClient.RemoveAsync(account);
 
-    private MsalMicrosoftAuthenticator(string clientId)
+    private MsalAuthenticator(string clientId)
     {
         var clientBuilder = PublicClientApplicationBuilder.Create(clientId)
             .WithAuthority("https://login.microsoftonline.com/consumers")
@@ -85,9 +85,9 @@ public class MsalMicrosoftAuthenticator : IDisposable
         httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
-    public static async Task<MsalMicrosoftAuthenticator> CreateAsync(string clientId)
+    public static async Task<MsalAuthenticator> CreateAsync(string clientId)
     {
-        var authenticator = new MsalMicrosoftAuthenticator(clientId);
+        var authenticator = new MsalAuthenticator(clientId);
 
         var storageProperties =
          new StorageCreationPropertiesBuilder("onelauncher.msal.cache.dat", Path.Combine( Init.BasePath,"playerdata"))
@@ -180,6 +180,7 @@ public class MsalMicrosoftAuthenticator : IDisposable
             }
 
             return new UserModel(
+                Guid.NewGuid(),
                 profileResponse.Name,
                 Guid.Parse(profileResponse.Id),
                 mcLoginResponse.AccessToken,

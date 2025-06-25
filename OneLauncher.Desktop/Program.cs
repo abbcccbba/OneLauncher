@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Microsoft.Extensions.DependencyInjection;
 using OneLauncher.Core.Global;
 using System;
 using System.IO;
@@ -12,7 +13,7 @@ class Program
     {
         try
         {
-            Init.InitTask = Task.Run(() => Init.Initialize());
+            Init.InitTask = Init.Initialize();
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
         catch (Exception ex) 
@@ -24,8 +25,7 @@ class Program
             // 抛出，方便调试器看到
             throw;
         }
-    }
-
+    } 
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()

@@ -17,10 +17,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\JsonModelGet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\jsonModelSearch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\SearchModrinth.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)msa\JsonModels.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)msa\MojangProfile.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)msa\msa.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)msa\zmsa.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\JsonModels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\MojangProfile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\MsalAuthenticator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\zmsa.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)zQuStellar\oauth.cs" />
   </ItemGroup>
 </Project>

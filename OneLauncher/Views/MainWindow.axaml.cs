@@ -4,14 +4,12 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
-using OneLauncher.Core.Net.msa;
+using OneLauncher.Views.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views;
@@ -27,6 +25,7 @@ public partial class MainWindow : Window
     public gamedata gamedataPage;
     public static MainWindow mainwindow;
     bool IsError;
+    IServiceProvider provider;
     public MainWindow()
     {
         InitializeComponent();

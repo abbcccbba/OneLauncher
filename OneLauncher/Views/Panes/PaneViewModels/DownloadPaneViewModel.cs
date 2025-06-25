@@ -93,7 +93,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                 finalInstanceName,
                 thisVersionBasicInfo.ID,
                 (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : (IsForge) ? ModEnum.forge : ModEnum.none,
-                Init.ConfigManger.config.DefaultUserModel);
+                Init.AccountManager.GetDefaultUser());
 
             cts = new();
             try

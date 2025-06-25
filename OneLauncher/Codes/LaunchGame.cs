@@ -27,7 +27,7 @@ internal class Game
         bool useRootLaunch = false)
     {
         #region 初始化基本游戏构建类
-        await gameData.DefaultUserModel.IntelligentLogin(Init.MMA);
+        await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MMA);
         var Builder = new LaunchCommandBuilder
                         (
                             Init.GameRootPath,

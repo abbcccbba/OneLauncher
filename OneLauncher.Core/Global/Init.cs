@@ -11,7 +11,7 @@ public static class Init
     public const string ApplicationUUID = "com.onelauncher.lnetface";
     public const string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static Task<OlanException> InitTask;
-    public static string BasePath { get; private set; }
+    public static string BasePath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "OneLauncher");
     public static string GameRootPath
 #if DEBUG
     { get; set; }
@@ -20,37 +20,28 @@ public static class Init
 #endif
     public static DBManger ConfigManger { get; private set; }
     public static GameDataManager GameDataManger { get; private set; }
+    public static AccountManager AccountManager { get; private set; }
     public static SystemType SystemType { get; private set; }
-    public static MsalMicrosoftAuthenticator MMA { get; private set; }
+    public static MsalAuthenticator MMA { get; private set; }
     public static List<VersionBasicInfo> MojangVersionList = null;
     public static async Task<OlanException> Initialize()
     {
         try
         {
-            BasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "OneLauncher");
-            Directory.CreateDirectory(BasePath); 
-                                                 
-            ConfigManger = await DBManger.CreateAsync(new AppConfig()
-            {
-                DefaultUserModel =
-                // 默认用户模型
-                new UserModel("ZhiWei", Guid.NewGuid()),
-                // 应用设置
-                OlanSettings = new AppSettings()
-                {
-                    // 使用标准参数
-                    MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Standard)
-                }
-            }, BasePath);
-            GameRootPath = ConfigManger.config.OlanSettings.GameInstallPath ?? Path.Combine(BasePath, "installed",".minecraft");
+            Directory.CreateDirectory(BasePath);                          
+            ConfigManger = await DBManger.CreateAsync(new AppConfig(), BasePath);
+            var installPath = ConfigManger.config.OlanSettings.InstallPath;
+            GameRootPath = installPath == null ? Path.Combine(BasePath, "installed",".minecraft") : Path.Combine(installPath,".minecraft");
             // 初始化系统信息
             SystemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
                          RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :
                          RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? SystemType.osx : SystemType.linux;
             // 初始化微软验证系统
-            MMA = await MsalMicrosoftAuthenticator.CreateAsync(AzureApplicationID);
+            MMA = await MsalAuthenticator.CreateAsync(AzureApplicationID);
             // 初始化游戏数据管理器
             GameDataManger = await GameDataManager.CreateAsync(GameRootPath);
+            // 初始化用户管理器
+            AccountManager = await AccountManager.InitializeAsync(BasePath);
             return null;
         }
         catch (ArgumentException ex)
