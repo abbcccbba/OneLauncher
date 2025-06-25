@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OneLauncher.Core.Net.java;
+namespace OneLauncher.Core.Net;
 
-public class AutoJavaGetter
+public class AdoptiumAPI
 {
     // https://api.adoptium.net/v3/assets/feature_releases/21/ga?architecture=x64&os=mac&image_type=jre
     public static async Task JavaReleaser(string javaVersion, string savePath, SystemType OsType) 

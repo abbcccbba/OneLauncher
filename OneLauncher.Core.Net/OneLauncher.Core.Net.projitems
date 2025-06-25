@@ -11,8 +11,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\IConnectService.cs" />
     <Compile Include="..\OneLauncher.Core.Net\ConnectToolPower\MCTPower.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AdoptiumAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\P2PMode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)java\AutoJavaGetter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\GetModrinth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\JsonModelGet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\jsonModelSearch.cs" />

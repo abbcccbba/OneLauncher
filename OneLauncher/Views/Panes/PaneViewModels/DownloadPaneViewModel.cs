@@ -6,7 +6,6 @@ using OneLauncher.Codes;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
-using OneLauncher.Core.Net.java;
 using OneLauncher.Views.ViewModels;
 using OneLauncher.Views.Windows;
 using System;

@@ -50,8 +50,8 @@ public partial class LaunchCommandBuilder
         string MainClass;
         if (modType == ModEnum.fabric)
         {
-            fabricParser = new FabricVJParser(
-              Path.Combine(VersionPath, $"version.fabric.json"), basePath);
+            fabricParser = FabricVJParser.ParserAuto(
+              File.OpenRead(Path.Combine(VersionPath, $"version.fabric.json")), basePath);
             MainClass = fabricParser.GetMainClass();
         }
         else if (modType == ModEnum.neoforge || modType == ModEnum.forge)

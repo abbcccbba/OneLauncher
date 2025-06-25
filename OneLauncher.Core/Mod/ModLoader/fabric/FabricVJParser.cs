@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.ModLoader.fabric.JsonModels;
 using System.Text.Json;
 namespace OneLauncher.Core.Mod.ModLoader.fabric;
@@ -8,28 +9,35 @@ public class FabricVJParser
     public readonly FabricRoot info;
     private readonly string basePath;
 
-    public FabricVJParser(string jsonPath, string BasePath)
+    private FabricVJParser(FabricRoot json, string BasePath)
     {
         basePath = BasePath;
+        info = json;
+    }
+    public static FabricVJParser ParserAuto(Stream json,string basePath)
+    {
+        using JsonDocument document = JsonDocument.Parse(json);
+        
+        JsonElement firstElement = document.RootElement[0];
 
-        using (FileStream stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
-        using (JsonDocument document = JsonDocument.Parse(stream))
+        var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
+            ?? throw new OlanException("内部错误","无法解析Fabric文本");
+        return new FabricVJParser(info, basePath);  
+        
+    }
+    public static FabricVJParser ParserUseVersion(Stream json, string basePath,string version)
+    {
+        using JsonDocument document = JsonDocument.Parse(json);
+        var element = document.RootElement;
+        for(int i = 0;i < element.GetArrayLength();i++)
         {
-            if (document.RootElement.ValueKind == JsonValueKind.Array)
-            {
-                // 只序列化第一个对象，不要他妈的乱改不然他妈的会报错
-                if (document.RootElement.GetArrayLength() > 0)
-                {
-                    JsonElement firstElement = document.RootElement[0];
-                    info = JsonSerializer.Deserialize(firstElement.GetRawText(),FabricJsonContext.Default.FabricRoot)
-                        ?? throw new InvalidOperationException("解析 Fabric JSON 的第一个对象失败。");
-                }
-                else
-                {
-                    throw new InvalidOperationException("Fabric JSON 文件是空数组。");
-                }
-            }
+            if (element[i].GetProperty("loader").GetProperty("version").GetString() == version)
+                return new FabricVJParser(
+                    JsonSerializer.Deserialize(element[i].GetRawText(),FabricJsonContext.Default.FabricRoot),
+                    basePath
+                    );
         }
+        throw new OlanException("内部错误","无法找到对应的Fabric版本");
     }
     public string GetMainClass()
     {

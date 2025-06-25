@@ -3,16 +3,8 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModLoader.fabric;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
-using OneLauncher.Core.Net.java;
 using OneLauncher.Core.Net.ModService.Modrinth;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace OneLauncher.Core.Downloader;
 public enum DownProgress
@@ -80,7 +72,6 @@ public partial class DownloadMinecraft
         bool IsUseRecommendedToInstallForge = true,
         bool AndJava = false,
         bool UseBMLCAPI = false
-        // 这个代码写的有点屎，一般不是给人看的
         )
     {
         this.maxDownloadThreads = maxDownloadThreads;
@@ -135,8 +126,8 @@ public partial class DownloadMinecraft
                 await downloadTool.DownloadFile(
                   $"https://meta.fabricmc.net/v2/versions/loader/{ID}/", modVersionPath,cancelToken);
             // 获取 Fabric 加载器下载信息
-            ModNds = downloadTool.CheckFilesExists(new FabricVJParser(
-                Path.Combine(modVersionPath), GameRootPath
+            ModNds = downloadTool.CheckFilesExists(FabricVJParser.ParserAuto(
+                File.OpenRead(FabricVersionJsonName), GameRootPath
                 ).GetLibraries(),cancelToken);
             // 获取Fabric API下载信息
             if (IsDownloadFabricWithAPI)
