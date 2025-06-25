@@ -93,7 +93,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
             name: GameDataName,
             versionId: SelectedBaseVersion.VersionID,
             loader: loaderType, 
-            userModel: SelectedUser
+            userModel: SelectedUser.UserID
         );
 
         await Init.GameDataManger.AddGameDataAsync(newGameData);

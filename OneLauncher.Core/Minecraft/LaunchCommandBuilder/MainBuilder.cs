@@ -67,6 +67,7 @@ public partial class LaunchCommandBuilder
     }
     private string BuildGameArgs(bool useRootLaunch)
     {
+        var userModel = Init.AccountManager.GetUser(gameData.DefaultUserModelID);
         string serverArgs = string.Empty;
         if(serverInfo != null)
         {
@@ -77,21 +78,21 @@ public partial class LaunchCommandBuilder
             }
         }
         string GameArgs =
-            $"--username \"{gameData.DefaultUserModel.Name}\" " +
+            $"--username \"{userModel.Name}\" " +
             $"--version \"{version}\" " +
             $"--gameDir \"{(useRootLaunch ? basePath : gameData.InstancePath)}\" " +
             $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\" " +
             // 1.7版本及以上启用新用户验证机制
             (new Version(version) > new Version("1.7") ?
             $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
-            $"--uuid \"{gameData.DefaultUserModel.uuid}\" " +
-            $"--accessToken \"{gameData.DefaultUserModel.AccessToken.ToString()}\" " +
-            $"--userType \"{(gameData.DefaultUserModel.IsMsaUser ? "msa" : "legacy")}\" " +
+            $"--uuid \"{userModel.uuid}\" " +
+            $"--accessToken \"{userModel.AccessToken.ToString()}\" " +
+            $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
             $"--versionType \"OneLauncher\" " +
             serverArgs+
             "--userProperties {} "
             // 针对旧版用户验证机制
-            : $"--session \"{gameData.DefaultUserModel.AccessToken}\" ");
+            : $"--session \"{userModel.AccessToken}\" ");
         if (modType == ModEnum.neoforge || modType == ModEnum.forge)
             GameArgs +=
                 string.Join(" ", neoForgeParser.info.Arguments.Game);
