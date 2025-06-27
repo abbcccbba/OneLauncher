@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Global;
+﻿using OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using OneLauncher.Core.Net;
@@ -10,7 +11,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders;
-
+public enum DownProgress
+{
+    Meta,
+    DownMain,
+    DownLibs,
+    DownAndInstModFiles,
+    DownAssets,
+    DownLog4j2,
+    Verify,
+    Done
+}
 public partial class DownloadMinecraft
 {
     private int retryTimes; // 已经重试次数
@@ -232,30 +243,16 @@ public partial class DownloadMinecraft
             }
         }, cancelToken);
     }
-    private Task UnityModsInstallTasker(List<NdDowItem> modNds) =>
-        downloadTool.DownloadListAsync(
+    private async Task UnityModsInstallTasker(List<NdDowItem> modNds, IConcreteProviders modProviders)
+    {
+        // 先把依赖库下载了
+        await info.DownloadTool.DownloadListAsync(
             new Progress<(int a, string b)>(p =>
             {
                 Interlocked.Increment(ref dones);
                 progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, p.b));
             }),
             modNds, maxDownloadThreads, cancelToken);
-    private Task ForgeSeriesInstallTasker(string tbfm, ForgeSeriesInstallTasker exp)
-    {
-        exp.ProcessorsOutEvent += (a, b, c) =>
-        {
-            if (a == -1 && b == -1)
-                throw new OlanException("NeoForge安装失败", $"执行处理器时报错。信息：{c}", OlanExceptionAction.Error);
-            progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, $"[执行处理器({b}/{a})]{Environment.NewLine}{c}"));
-        };
-        return Task.Run(() =>
-            exp.RunProcessorsAsync
-            (
-                Path.Combine(versionPath, $"{ID}.jar"),
-                Tools.IsUseOlansJreOrOssJdk(mations.GetJavaVersion()),
-                tbfm, cancelToken,
-                userInfo.modType.IsForge
-            ));
     }
     private Task LogginInstallTasker(NdDowItem log4j2_xml)
     {

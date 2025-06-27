@@ -7,17 +7,6 @@ using OneLauncher.Core.Net.ModService.Modrinth;
 
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders;
-public enum DownProgress
-{
-    Meta,
-    DownMain,
-    DownLibs,
-    DownAndInstModFiles,
-    DownAssets,
-    DownLog4j2,
-    Verify,
-    Done
-}
 public partial class DownloadMinecraft
 {
     internal DownloadInfo info;
@@ -69,12 +58,13 @@ public partial class DownloadMinecraft
     {
         this.maxDownloadThreads = maxDownloadThreads;
         this.maxSha1Threads = maxSha1Threads;
+        string versionPath = info.VersionInstallInfo.VersionPath;
         #region 非正式下载阶段
         Interlocked.Increment(ref dones);
         progress?.Report((DownProgress.Meta, alls, dones, "版本文件"));
         string versionJsonFileName = Path.Combine(versionPath, "version.json");
         if (!File.Exists(versionJsonFileName))
-            await downloadTool.DownloadFile(basic.Url, versionJsonFileName, cancelToken);
+            await info.DownloadTool.DownloadFile(basic.Url, versionJsonFileName, cancelToken);
         mations = new VersionInfomations(
             await File.ReadAllTextAsync(
                 Path.Combine(versionJsonFileName)),GameRootPath);
@@ -205,6 +195,4 @@ public partial class DownloadMinecraft
             await downloadTool.CheckAllSha1(AllNdListSha1, maxSha1Threads, cancelToken);
         }
         progress?.Report((DownProgress.Done, alls, dones, "下载完毕！"));
-    }
-    
-}
+    }}
