@@ -20,11 +20,11 @@ public enum DownProgress
 }
 public partial class DownloadMinecraft
 {
-    private readonly Download downloadTool;
+    public readonly Download downloadTool;
     private readonly VersionBasicInfo basic;
-    private readonly UserVersion userInfo;
+    public readonly UserVersion userInfo;
     private readonly GameData gameData;
-    private readonly string GameRootPath;
+    public readonly string GameRootPath;
     private readonly string versionPath;
     private readonly string ID;
     private VersionInfomations mations;

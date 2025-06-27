@@ -84,6 +84,8 @@ public class AccountManager
 
     public async Task RemoveUserAsync(Guid userId)
     {
+        if (_userDictionary.Count == 1)
+            throw new OlanException("拒绝访问","你至少要有一个有效的用户模型");
         if (_userDictionary.Remove(userId))
         {
             if (_defaultUserId == userId)

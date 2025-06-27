@@ -58,12 +58,6 @@ public enum ModEnum
     neoforge,
     forge
 }
-public struct PreferencesLaunchMode
-{
-    public ModEnum LaunchModType { get; set; }
-    public bool IsUseDebugModeLaunch { get; set; }
-}
-
 
 /// <summary>
 /// 描述单个下载项
@@ -86,17 +80,6 @@ public struct NdDowItem
     public string path;
     public int size;
     public string? sha1;
-}
-public class UserVersion
-{
-    public string VersionID { get; set; }
-    public ModType modType { get; set; }
-    public DateTime AddTime { get; set; }
-    public PreferencesLaunchMode preferencesLaunchMode { get; set; }
-    public override string ToString()
-    {
-        return VersionID;
-    }
 }
 // 不要把他改成结构体，不然会出一些神奇的问题
 public class VersionBasicInfo

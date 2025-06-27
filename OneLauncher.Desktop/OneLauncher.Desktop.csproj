@@ -7,6 +7,8 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Platforms>x64</Platforms>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+   	    <TrimMode>link</TrimMode>
+        <PublishSingleFile>true</PublishSingleFile>
 	</PropertyGroup>
 	
 	<PropertyGroup>

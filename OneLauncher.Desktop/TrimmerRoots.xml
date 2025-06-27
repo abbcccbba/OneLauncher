@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <linker>
 	<assembly fullname="OneLauncher">
-		<type fullname="OneLauncher.Views.ViewModels.ModEnumToStringConverter" preserve="all"/>
+		
 	</assembly>
 	<assembly fullname="OneLauncher.Core">
 		
