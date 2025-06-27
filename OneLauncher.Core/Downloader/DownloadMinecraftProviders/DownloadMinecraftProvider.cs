@@ -243,23 +243,26 @@ public partial class DownloadMinecraft
             }
         }, cancelToken);
     }
-    private async Task UnityModsInstallTasker(List<NdDowItem> modNds, IModLoaderConcreteProviders modProvider,Task javaInstallTask)
+    private async Task UnityModsInstallTasker(List<NdDowItem> modNds, IModLoaderConcreteProviders[] modProviders,Task javaInstallTask)
     {
         // 先把依赖库下载了
         await info.DownloadTool.DownloadListAsync(
-            new Progress<(int a, string b)>(p =>
-            {
-                Interlocked.Increment(ref dones);
-                progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, p.b));
-            }),
-            modNds, maxDownloadThreads, cancelToken);
-        // 然后执行安装器
+                new Progress<(int a, string b)>(p =>
+                {
+                    Interlocked.Increment(ref dones);
+                    progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, p.b));
+                }),
+                modNds, maxDownloadThreads, cancelToken);
+        // 处理器需要Java
         await javaInstallTask;
-        await modProvider.RunInstaller(
-            new Progress<string>(p =>
-            {
-                progress?.Report((DownProgress.DownAndInstModFiles,alls,dones,p));
-            }),cancelToken);
+        // 依次执行每个加载器的处理器
+        foreach (var provider in modProviders)
+            await provider.RunInstaller(
+                new Progress<string>(p =>
+                {
+                    progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, p));
+                }), cancelToken);
+        
     }
     private Task LogginInstallTasker(NdDowItem log4j2_xml)
     {

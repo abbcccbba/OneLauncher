@@ -70,15 +70,20 @@ public class ModpackImporter : IDisposable
     private async Task InstallBaseGameAsync(GameData gameData, CancellationToken token)
     {
         using var downTool = new Download();
-        var loaderType = gameData.ModLoader; 
+        var loaderType = gameData.ModLoader;
         var mcVersion = gameData.VersionId;
 
         var downInfo = await DownloadInfo.Create(
-                mcVersion, loaderType,downTool,false,true,true,true,null,gameData
+                mcVersion,new ModType()
+                {
+                    IsFabric = loaderType == ModEnum.fabric,
+                    IsNeoForge = loaderType == ModEnum.neoforge,
+                    IsForge = loaderType == ModEnum.forge
+                }, downTool, false, true, true, true, null, gameData
             );
 
         var mcDownloader = new DownloadMinecraft(
-            
+            downInfo,
             null,
             token
         );
@@ -87,7 +92,7 @@ public class ModpackImporter : IDisposable
             maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
             maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
             IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
-            Isus
+            useBMLCAPI:Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI
         );
         await Init.ConfigManger.Save();
     }

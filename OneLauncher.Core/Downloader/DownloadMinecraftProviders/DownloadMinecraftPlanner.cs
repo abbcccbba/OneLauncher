@@ -17,7 +17,7 @@ public partial class DownloadMinecraft
         List<NdDowItem>? ModLoaderFiles,
         NdDowItem ClientMainFile,
         NdDowItem? LoggingFile,
-        IModLoaderConcreteProviders? ModProviders // 如果原版则为null
+        IModLoaderConcreteProviders[] ModProviders // 如果原版则为null
     );
     private async Task<DownloadPlan> CreateDownloadPlan()
     {
@@ -39,13 +39,14 @@ public partial class DownloadMinecraft
 
         #region 模组加载器
 
-        IModLoaderConcreteProviders? provider = info.UserInfo.ModLoader switch
-        {
-            ModEnum.none => null,
-            ModEnum.fabric => new FabricProvider(info),
-            ModEnum.forge => new ForgeSeriesProvider(info),
-            ModEnum.neoforge => new ForgeSeriesProvider(info)
-        };
+        List<IModLoaderConcreteProviders> providers = new();
+        if (info.VersionInstallInfo.modType.IsFabric)
+            providers.Add(new FabricProvider(info));
+        if (info.VersionInstallInfo.modType.IsNeoForge)
+            providers.Add(new NeoforgeProvider(info));
+        if (info.VersionInstallInfo.modType.IsForge)
+            providers.Add(new ForgeProvider(info));
+
         List<NdDowItem>? modFiles = new();
         #endregion
 
@@ -56,11 +57,13 @@ public partial class DownloadMinecraft
         allFiles.Add(clientFile);
         if(loggingFile != null)
             allFiles.Add((NdDowItem)loggingFile);
-        if (provider != null)
-        {
-            modFiles = await provider.GetDependencies();
-            allFiles.AddRange(modFiles);
-        }
+        if (providers.Count != 0)
+            foreach (var provider in providers)
+            {
+                modFiles.AddRange(await provider.GetDependencies());
+                allFiles.AddRange(modFiles);
+            }
+        
         return new DownloadPlan(
             // 自动检查文件存在性
             AllFilesGoVerify:info.DownloadTool.CheckFilesExists(allFiles,cancelToken),
@@ -69,7 +72,7 @@ public partial class DownloadMinecraft
             ModLoaderFiles: info.DownloadTool.CheckFilesExists(modFiles,cancelToken),
             ClientMainFile: clientFile,
             LoggingFile:loggingFile,
-            ModProviders: provider
+            ModProviders: providers.ToArray()
             );
         #endregion
     }

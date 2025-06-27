@@ -87,12 +87,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     // 创建下载上下文信息
                     content = await DownloadInfo.Create(
                         VersionName,
-                        new ModType()
-                        {
-                            IsFabric = IsMod,
-                            IsNeoForge = IsNeoForge,
-                            IsForge = IsForge
-                        },
+                        VersionModType,
                         download, 
                         IsAllowToUseBetaNeoforge, 
                         IsUseRecommendedToInstallForge, 

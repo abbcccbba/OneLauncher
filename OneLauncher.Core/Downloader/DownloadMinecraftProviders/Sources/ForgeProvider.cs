@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 
-internal class ForgeSeriesProvider : IModLoaderConcreteProviders
+internal class ForgeProvider : IModLoaderConcreteProviders
 {
     private readonly DownloadInfo _context;
     private readonly ForgeSeriesInstallTasker _installTasker;
 
     // 用于在 GetDependenciesAsync 和 RunPostInstallTasksAsync 之间传递数据
     private string _clientLzmaTempPath;
-    public ForgeSeriesProvider(DownloadInfo context)
+    public ForgeProvider(DownloadInfo context)
     {
         _context = context;
         // 提前创建安装任务器实例，供后续两个方法使用
@@ -28,23 +28,16 @@ internal class ForgeSeriesProvider : IModLoaderConcreteProviders
     }
     public async Task<List<NdDowItem>> GetDependencies()
     {
-        bool isForge = _context.UserInfo.ModLoader == ModEnum.forge;
-        string modTypeName = isForge ? "Forge" : "NeoForge";
-
         #region 确定安装器Url
         string installerUrl;
-        if (isForge && !string.IsNullOrEmpty(_context.SpecifiedForgeVersion))
+        if (!string.IsNullOrEmpty(_context.SpecifiedForgeVersion))
             installerUrl = $"https://maven.minecraftforge.net/net/minecraftforge/forge/{_context.SpecifiedForgeVersion}/forge-{_context.SpecifiedForgeVersion}-installer.jar";
-        
-        else if (!isForge && !string.IsNullOrEmpty(_context.SpecifiedNeoForgeVersion))
-            installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{_context.SpecifiedNeoForgeVersion}/neoforge-{_context.SpecifiedNeoForgeVersion}-installer.jar";
-        
         else
         {
             // 自动获取最新版本
             installerUrl = await new ForgeVersionListGetter(_context.DownloadTool.unityClient)
                 .GetInstallerUrlAsync(
-                    isForge,
+                    true,
                     _context.ID,
                     _context.IsAllowToUseBetaNeoforge,
                     _context.IsUseRecommendedToInstallForge
@@ -53,9 +46,9 @@ internal class ForgeSeriesProvider : IModLoaderConcreteProviders
         #endregion
 
         // 调用准备方法
-        var (versionLibs, installerLibs, lzmaPath) = await _installTasker.StartReadyAsync(
+        (List<NdDowItem> versionLibs, List<NdDowItem> installerLibs,string lzmaPath) = await _installTasker.StartReadyAsync(
             installerUrl,
-            modTypeName,
+            "Forge",
             _context.ID
         );
         _clientLzmaTempPath = lzmaPath;
@@ -70,7 +63,7 @@ internal class ForgeSeriesProvider : IModLoaderConcreteProviders
         _installTasker.ProcessorsOutEvent += (all, done, message) =>
         {
             if (all == -1 && done == -1)
-                throw new OlanException("执行安装器时出错",$"当安装器[{done}/{all}]被执行时抛出了错误或异常退出{Environment.NewLine}错误信息：{message}");
+                throw new OlanException("执行Forge安装器时出错",$"当安装器[{done}/{all}]被执行时抛出了错误或异常退出{Environment.NewLine}错误信息：{message}");
             Put?.Report($"[执行处理器({done}/{all})]{Environment.NewLine}{message}");
         };
 
