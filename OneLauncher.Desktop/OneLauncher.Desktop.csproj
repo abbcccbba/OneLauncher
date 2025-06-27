@@ -34,6 +34,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\OneLauncher.Console\OneLauncher.Console.csproj" />
 		<ProjectReference Include="..\OneLauncher\OneLauncher.csproj" />
 	</ItemGroup>
 	<PropertyGroup>

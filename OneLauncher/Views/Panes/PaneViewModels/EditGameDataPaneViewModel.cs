@@ -82,12 +82,25 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void OpenModsFolder()
+    private void OpenInstanceFolder()
     {
-        string modsPath = Path.Combine(editingGameData.InstancePath, "mods");
+        string modsPath = Path.Combine(editingGameData.InstancePath);
         Tools.OpenFolder(modsPath);
     }
-
+    [RelayCommand]
+    private void AddToQuicklyPlay()
+    {
+        File.WriteAllTextAsync(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),$"快速启动 - {editingGameData.Name}"+
+            #if WINDOWS
+            ".bat"
+            #else
+            ".sh"
+            #endif
+            ), 
+            $"{Environment.ProcessPath} --quicklyPlay {editingGameData.InstanceId}"
+            );
+    }
     [RelayCommand]
     private void Save()
     {

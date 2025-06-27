@@ -13,14 +13,19 @@ class Program
     {
         try
         {
-            Init.InitTask = Init.Initialize();
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            if (args.Length != 0)
+                Console.boot.RunBoot(args).GetAwaiter().GetResult();
+            else
+            {
+                Init.InitTask = Init.Initialize();
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            }
         }
         catch (Exception ex) 
         {
             string crashLogPath = Path.Combine(AppContext.BaseDirectory, "crash_log.txt");
             string errorMessage = $"程序启动时发生致命错误:{ex}";
-            Console.WriteLine(errorMessage);
+            System.Console.WriteLine(errorMessage);
             File.WriteAllText(crashLogPath, errorMessage);
             // 抛出，方便调试器看到
             throw;
