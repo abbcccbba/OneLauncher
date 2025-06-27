@@ -13,7 +13,7 @@ public partial class DownloadInfo
 {
     // 基本信息
     public string ID => VersionDownloadInfo.ID ?? VersionInstallInfo.VersionID ?? UserInfo.VersionId;
-    public string GameRootPath => Init.GameRootPath;
+    public string GameRootPath { get; init; }
     
     // 核心下载组件与配置
     public Download DownloadTool { get; init; }

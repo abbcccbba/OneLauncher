@@ -4,6 +4,8 @@ using OneLauncher.Core.Minecraft;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,10 +25,11 @@ public partial class DownloadInfo
         bool isDownloadWithJavaRuntime = true,
         // 下面是一些可传递可不传递的参数，不传递会自动获取
         VersionBasicInfo? versionBasic = null,
-        GameData? gameDataD = null
+        GameData? gameDataD = null,
+        string? gameRootPathD = null
         )
     {
-        string gameRootPath = Init.GameRootPath;
+        string gameRootPath = gameRootPathD ?? Init.GameRootPath;
         #region 查找一些资源
         // 创建默认实例
         ModEnum modEnum = modType.ToModEnum();
@@ -81,6 +84,8 @@ public partial class DownloadInfo
             IsDownloadFabricWithAPI = isDownloadFabricWithAPI,
             IsUseRecommendedToInstallForge = isUseRecommendedToInstallForge,
             AndJava = isDownloadWithJavaRuntime,
+
+            GameRootPath = gameRootPath,
         };
     }
 }
