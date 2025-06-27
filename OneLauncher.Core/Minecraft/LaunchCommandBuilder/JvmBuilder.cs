@@ -1,6 +1,7 @@
 ﻿using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
+using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,9 +32,20 @@ public partial class LaunchCommandBuilder
                 }
             }
         }
+        else if (modType == ModEnum.quilt) // 假设你的 ModEnum 枚举中已添加 quilt
+        {
+            foreach (var lib in quiltParser.GetLibrariesForUsing())
+            {
+                var parts = lib.name.Split(':');
+                if (parts.Length >= 2)
+                {
+                    var libKey = $"{parts[0]}:{parts[1]}";
+                    libraryMap[libKey] = lib.path;
+                }
+            }
+        }
         else if (modType == ModEnum.neoforge || modType == ModEnum.forge)
         {
-            // NeoForge 同理
             foreach (var lib in neoForgeParser.GetLibrariesForLaunch(basePath))
             {
                 var parts = lib.name.Split(':');

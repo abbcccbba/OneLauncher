@@ -8,6 +8,7 @@ namespace OneLauncher.Core.ModLoader.fabric.JsonModels;
 [JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricLibraries))]
 [JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricLibrary))]
 [JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.FabricMainClass))]
+[JsonSerializable(typeof(OneLauncher.Core.ModLoader.fabric.JsonModels.QuiltHashed))]
 public partial class FabricJsonContext : JsonSerializerContext { }
 public class FabricRoot
 {
@@ -18,6 +19,8 @@ public class FabricRoot
     public FabricIntermediary Intermediary { get; set; }
     [JsonPropertyName("launcherMeta")]
     public FabricLauncherMeta LauncherMeta { get; set; }
+    [JsonPropertyName("hashed")]
+    public QuiltHashed QuiltHashed { get; set; }
 }
 public class FabricLoader
 {
@@ -28,6 +31,15 @@ public class FabricLoader
     public string Version { get; set; }
 }
 public class FabricIntermediary
+{
+    [JsonPropertyName("maven")]
+    public string DownName { get; set; }
+
+    [JsonPropertyName("version")]
+    public string Version { get; set; }
+}
+/* 这个东西是Quilt专属的，但因为结构跟Fabric几乎没区别就丢这里了 */
+public class QuiltHashed
 {
     [JsonPropertyName("maven")]
     public string DownName { get; set; }

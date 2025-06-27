@@ -1,44 +1,49 @@
 ﻿using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.ModLoader.fabric.JsonModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
-namespace OneLauncher.Core.Mod.ModLoader.fabric;
+using System.Threading.Tasks;
 
-public class FabricVJParser
+namespace OneLauncher.Core.Mod.ModLoader.fabric.quilt;
+public class QuiltNJParser
 {
     public readonly FabricRoot info;
     private readonly string basePath;
 
-    private FabricVJParser(FabricRoot json, string BasePath)
+    private QuiltNJParser(FabricRoot json, string BasePath)
     {
         basePath = BasePath;
         info = json;
     }
-    public static FabricVJParser ParserAuto(Stream json,string basePath)
+    public static QuiltNJParser ParserAuto(Stream json, string basePath)
     {
         using JsonDocument document = JsonDocument.Parse(json);
-        
+
         JsonElement firstElement = document.RootElement[0];
 
         var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
-            ?? throw new OlanException("内部错误","无法解析Fabric文本");
-        return new FabricVJParser(info, basePath);  
-        
+            ?? throw new OlanException("内部错误", "无法解析Quilt文本");
+        return new QuiltNJParser(info, basePath);
+
     }
-    public static FabricVJParser ParserUseVersion(Stream json, string basePath,string version)
-    {
-        using JsonDocument document = JsonDocument.Parse(json);
-        var element = document.RootElement;
-        for(int i = 0;i < element.GetArrayLength();i++)
-        {
-            if (element[i].GetProperty("loader").GetProperty("version").GetString() == version)
-                return new FabricVJParser(
-                    JsonSerializer.Deserialize(element[i].GetRawText(),FabricJsonContext.Default.FabricRoot),
-                    basePath
-                    );
-        }
-        throw new OlanException("内部错误","无法找到对应的Fabric版本");
-    }
+    //public static FabricVJParser ParserUseVersion(Stream json, string basePath, string version)
+    //{
+    //    using JsonDocument document = JsonDocument.Parse(json);
+    //    var element = document.RootElement;
+    //    for (int i = 0; i < element.GetArrayLength(); i++)
+    //    {
+    //        if (element[i].GetProperty("loader").GetProperty("version").GetString() == version)
+    //            return new FabricVJParser(
+    //                JsonSerializer.Deserialize(element[i].GetRawText(), FabricJsonContext.Default.FabricRoot),
+    //                basePath
+    //                );
+    //    }
+    //    throw new OlanException("内部错误", "无法找到对应的Fabric版本");
+    //}
     public string GetMainClass()
     {
         return info.LauncherMeta.MainClass.Client;
@@ -49,8 +54,8 @@ public class FabricVJParser
     }
     public List<NdDowItem> GetLibraries()
     {
-        const string defaultBaseUrl = "https://maven.fabricmc.net/";
-        List<NdDowItem> dowItems = new List<NdDowItem>(info.LauncherMeta.Libraries.Common.Count+2);
+        const string defaultBaseUrl = "https://maven.quiltmc.org/repository/release/";
+        List<NdDowItem> dowItems = new List<NdDowItem>(info.LauncherMeta.Libraries.Common.Count + 3);
         foreach (var item in info.LauncherMeta.Libraries.Common)
         {
             string[] parts = item.Name.Split(':');
@@ -81,7 +86,7 @@ public class FabricVJParser
                                                 $"{artifactId}-{version}.jar");
             dowItems.Add(new NdDowItem(url, fullPath, item.Size, item.Sha1));
         }
-        // 额外添加两个特殊的
+        // 额外添加三个特殊的
         string[] _parts;
         _parts = info.Loader.DownName.Split(':');
         string _groupId = _parts[0], _artifactId = _parts[1], _version = _parts[2];
@@ -99,6 +104,21 @@ public class FabricVJParser
         dowItems.Add(new NdDowItem(_url, _fullPath, 0));
 
         _parts = info.Intermediary.DownName.Split(':');
+        _groupId = _parts[0]; _artifactId = _parts[1]; _version = _parts[2];
+        _urlPathSegments = Path.Combine(_groupId.Replace('.', Path.DirectorySeparatorChar),
+                                                  _artifactId,
+                                                  _version,
+                                                  $"{_artifactId}-{_version}.jar");
+        _url = $"{defaultBaseUrl}{_urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
+        _fullPath = Path.Combine(basePath,
+                                            "libraries",
+                                            _groupId.Replace('.', Path.DirectorySeparatorChar),
+                                            _artifactId,
+                                            _version,
+                                            $"{_artifactId}-{_version}.jar");
+        dowItems.Add(new NdDowItem(_url, _fullPath, 0));
+
+        _parts = info.QuiltHashed.DownName.Split(':');
         _groupId = _parts[0]; _artifactId = _parts[1]; _version = _parts[2];
         _urlPathSegments = Path.Combine(_groupId.Replace('.', Path.DirectorySeparatorChar),
                                                   _artifactId,
@@ -186,7 +206,27 @@ public class FabricVJParser
                 libraries.Add((info.Intermediary.DownName, fullPath));
             }
         }
+        // 处理 hasd 库
+        {
+            string[] parts = info.QuiltHashed.DownName.Split(':');
+            if (parts.Length >= 3)
+            {
+                string groupId = parts[0];
+                string artifactId = parts[1];
+                string version = parts[2];
 
+                string fileName = $"{artifactId}-{version}.jar";
+                string fullPath = Path.Combine(
+                    basePath,
+                    "libraries",
+                    groupId.Replace('.', Path.DirectorySeparatorChar),
+                    artifactId,
+                    version,
+                    fileName);
+
+                libraries.Add((info.QuiltHashed.DownName, fullPath));
+            }
+        }
         return libraries;
     }
 }

@@ -26,6 +26,7 @@ public struct ModType
     public bool IsFabric { get; set; }
     public bool IsNeoForge { get; set; }
     public bool IsForge { get; set; }
+    public bool IsQuilt { get; set; }
     public ModEnum ToModEnum()
     {
         if (IsFabric)
@@ -34,6 +35,8 @@ public struct ModType
             return ModEnum.neoforge;
         if (IsForge)
             return ModEnum.forge;
+        if (IsQuilt) 
+            return ModEnum.quilt;
 
         return ModEnum.none;
     }
@@ -44,6 +47,8 @@ public struct ModType
         else if (left.IsNeoForge && right == ModEnum.neoforge)
             return true;
         else if (left.IsForge && right == ModEnum.forge)
+            return true;
+        else if (left.IsQuilt && right == ModEnum.quilt) 
             return true;
         else
             return false;
@@ -56,7 +61,8 @@ public enum ModEnum
     none,
     fabric,
     neoforge,
-    forge
+    forge,
+    quilt
 }
 
 /// <summary>

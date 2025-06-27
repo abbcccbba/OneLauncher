@@ -2,6 +2,7 @@
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Mod.ModLoader.fabric;
+using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -19,6 +20,7 @@ public partial class LaunchCommandBuilder
     private readonly ModEnum modType;
     private FabricVJParser fabricParser;
     private ForgeSeriesUsing neoForgeParser;
+    private QuiltNJParser quiltParser;
     private readonly string separator;
     private readonly string VersionPath;
     private readonly ServerInfo? serverInfo;
@@ -54,10 +56,16 @@ public partial class LaunchCommandBuilder
               File.OpenRead(Path.Combine(VersionPath, $"version.fabric.json")), basePath);
             MainClass = fabricParser.GetMainClass();
         }
+        else if (modType == ModEnum.quilt)
+        {
+            quiltParser = QuiltNJParser.ParserAuto(
+                File.OpenRead(Path.Combine(VersionPath,$"version.quilt.json")), basePath);
+            MainClass=quiltParser.GetMainClass();
+        }
         else if (modType == ModEnum.neoforge || modType == ModEnum.forge)
         {
             neoForgeParser = new ForgeSeriesUsing();
-            await neoForgeParser.Init(basePath, version,(modType == ModEnum.forge ? true : false));
+            await neoForgeParser.Init(basePath, version, (modType == ModEnum.forge ? true : false));
             MainClass = neoForgeParser.info.MainClass;
         }
         else MainClass = versionInfo.GetMainClass();
