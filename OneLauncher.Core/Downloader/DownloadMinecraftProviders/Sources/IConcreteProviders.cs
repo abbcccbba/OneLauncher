@@ -9,9 +9,10 @@ namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 
 internal interface IConcreteProviders
 {
-    Task<List<NdDowItem>> GetDownloadInfo();
-    async Task RunInstaller()
+    Task<List<NdDowItem>> GetDependencies();
+    Task RunInstaller(IProgress<string> Put)
     {
         /* 某些资源可能没有，提供一个默认啥都不干的实现 */
+        return Task.CompletedTask;
     }
 }

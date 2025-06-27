@@ -6,7 +6,7 @@ using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using OneLauncher.Core.Net.ModService.Modrinth;
 
 
-namespace OneLauncher.Core.Downloader;
+namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 public enum DownProgress
 {
     Meta,
@@ -20,14 +20,7 @@ public enum DownProgress
 }
 public partial class DownloadMinecraft
 {
-    public readonly Download downloadTool;
-    private readonly VersionBasicInfo basic;
-    public readonly UserVersion userInfo;
-    private readonly GameData gameData;
-    public readonly string GameRootPath;
-    private readonly string versionPath;
-    private readonly string ID;
-    private VersionInfomations mations;
+    internal DownloadInfo info;
 
     public readonly CancellationToken cancelToken;
     public readonly IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>? progress;

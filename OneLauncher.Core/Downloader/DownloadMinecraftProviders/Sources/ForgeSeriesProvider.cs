@@ -1,39 +1,90 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
+using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 
 internal class ForgeSeriesProvider : IConcreteProviders
 {
-    private readonly DownloadMinecraft downloadInfo;
-    private readonly ForgeSeriesInstallTasker installTasker;
-    public ForgeSeriesProvider(DownloadMinecraft downloadInfo)
+    private readonly DownloadInfo _context;
+    private readonly ForgeSeriesInstallTasker _installTasker;
+
+    // 用于在 GetDependenciesAsync 和 RunPostInstallTasksAsync 之间传递数据
+    private string _clientLzmaTempPath;
+    public ForgeSeriesProvider(DownloadInfo context)
     {
-        this.downloadInfo = downloadInfo;                                   
-        installTasker = new ForgeSeriesInstallTasker(
-            downloadInfo.downloadTool,
-            Path.Combine(downloadInfo.GameRootPath, "libraries"),
-            downloadInfo.GameRootPath
-            );
+        _context = context;
+        // 提前创建安装任务器实例，供后续两个方法使用
+        _installTasker = new ForgeSeriesInstallTasker(
+            _context.DownloadTool,
+            Path.Combine(_context.GameRootPath, "libraries"),
+            _context.GameRootPath
+        );
     }
-    public async Task<List<NdDowItem>> GetDownloadInfo()
+    public async Task<List<NdDowItem>> GetDependencies()
     {
-        (List<NdDowItem> NdModLibs, List<NdDowItem> NdModToolsLibs, string BDFilePath) =
-                await installTasker.StartReadyAsync(
-                    // 获取安装器url
-                    await new ForgeVersionListGetter(downloadInfo.downloadTool.unityClient)
-                    .GetInstallerUrlAsync(
-                        downloadInfo.userInfo.modType == ModEnum.forge ? true : false,
-                        downloadInfo.userInfo.VersionID, IsAllowDownloadBetaNeoforge, IsUseRecommendedToInstallForge
-                        )
-                    , (
-                    userInfo.modType == ModEnum.forge ? "forge" : "neoforge"
-                    ), ID);
-        List<NdDowItem> result = new List<NdDowItem>();
+        bool isForge = _context.UserInfo.ModLoader == ModEnum.forge;
+        string modTypeName = isForge ? "Forge" : "NeoForge";
+
+        #region 确定安装器Url
+        string installerUrl;
+        if (isForge && !string.IsNullOrEmpty(_context.SpecifiedForgeVersion))
+            installerUrl = $"https://maven.minecraftforge.net/net/minecraftforge/forge/{_context.SpecifiedForgeVersion}/forge-{_context.SpecifiedForgeVersion}-installer.jar";
+        
+        else if (!isForge && !string.IsNullOrEmpty(_context.SpecifiedNeoForgeVersion))
+            installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{_context.SpecifiedNeoForgeVersion}/neoforge-{_context.SpecifiedNeoForgeVersion}-installer.jar";
+        
+        else
+        {
+            // 自动获取最新版本
+            installerUrl = await new ForgeVersionListGetter(_context.DownloadTool.unityClient)
+                .GetInstallerUrlAsync(
+                    isForge,
+                    _context.ID,
+                    _context.IsAllowToUseBetaNeoforge,
+                    _context.IsUseRecommendedToInstallForge
+                );
+        }
+        #endregion
+
+        // 调用准备方法
+        var (versionLibs, installerLibs, lzmaPath) = await _installTasker.StartReadyAsync(
+            installerUrl,
+            modTypeName,
+            _context.ID
+        );
+        _clientLzmaTempPath = lzmaPath;
+        // 合并下载信息
+        return versionLibs.Concat(installerLibs).ToList();
+    }
+
+    public async Task RunInstaller(IProgress<string> Put)
+    {
+        if (_clientLzmaTempPath == null)
+            throw new OlanException("内部错误","无法执行安装器，无法得到补丁文件");
+        _installTasker.ProcessorsOutEvent += (all, done, message) =>
+        {
+            if (all == -1 && done == -1)
+                throw new OlanException("执行安装器时出错",$"当安装器[{done}/{all}]被执行时抛出了错误或异常退出{Environment.NewLine}错误信息：{message}");
+            Put?.Report($"[执行处理器({done}/{all})]{Environment.NewLine}{message}");
+        };
+
+        await _installTasker.RunProcessorsAsync(
+            _context.VersionMojangInfo.GetMainFile().path,
+            Tools.IsUseOlansJreOrOssJdk(_context.VersionMojangInfo.GetJavaVersion()),
+            _clientLzmaTempPath,
+            _context.CancellationToken,
+            isForge: _context.UserInfo.ModLoader == ModEnum.forge
+        );
+
+        // 清理临时文件
+        if (File.Exists(_clientLzmaTempPath))
+            File.Delete(_clientLzmaTempPath);
+        
     }
 }

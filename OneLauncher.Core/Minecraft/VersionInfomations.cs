@@ -36,7 +36,7 @@ public class VersionInfomations
     /// 此方法使用编译时预处理指令为特定平台进行优化。
     /// </summary>
     /// <returns>一个包含所有需要下载的库文件的列表。</returns>
-    public List<NdDowItem> GetLibrarys()
+    public List<NdDowItem> GetLibraries()
     {
         var libraries = new List<NdDowItem>();
         NativesLibs.Clear();

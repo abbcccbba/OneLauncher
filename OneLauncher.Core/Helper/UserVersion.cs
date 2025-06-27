@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OneLauncher.Core.Global;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ public struct PreferencesLaunchMode
 public class UserVersion
 {
     public string VersionID { get; set; }
+    public string VersionPath { get => Path.Combine(Init.GameRootPath,"versions",VersionID);}
     public ModType modType { get; set; }
     public DateTime AddTime { get; set; }
     public PreferencesLaunchMode preferencesLaunchMode { get; set; }
