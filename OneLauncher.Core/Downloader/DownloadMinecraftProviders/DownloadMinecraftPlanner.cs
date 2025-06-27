@@ -17,7 +17,7 @@ public partial class DownloadMinecraft
         List<NdDowItem>? ModLoaderFiles,
         NdDowItem ClientMainFile,
         NdDowItem? LoggingFile,
-        IConcreteProviders? ModProviders // 如果原版则为null
+        IModLoaderConcreteProviders? ModProviders // 如果原版则为null
     );
     private async Task<DownloadPlan> CreateDownloadPlan()
     {
@@ -37,7 +37,7 @@ public partial class DownloadMinecraft
 
         #region 模组加载器
 
-        IConcreteProviders? provider = info.UserInfo.ModLoader switch
+        IModLoaderConcreteProviders? provider = info.UserInfo.ModLoader switch
         {
             ModEnum.none => null,
             ModEnum.fabric => new FabricProvider(info),
@@ -60,11 +60,12 @@ public partial class DownloadMinecraft
             allFiles.AddRange(modFiles);
         }
         return new DownloadPlan(
-            AllFilesGoVerify:allFiles,
-            LibraryFiles: libraryFiles,
-            AssetFiles: assetFiles,
-            ModLoaderFiles: modFiles,
-            ClientMainFile:clientFile,
+            // 自动检查文件存在性
+            AllFilesGoVerify:info.DownloadTool.CheckFilesExists(allFiles,cancelToken),
+            LibraryFiles: info.DownloadTool.CheckFilesExists(libraryFiles,cancelToken),
+            AssetFiles: info.DownloadTool.CheckFilesExists(assetFiles,cancelToken),
+            ModLoaderFiles: info.DownloadTool.CheckFilesExists(modFiles,cancelToken),
+            ClientMainFile: clientFile,
             LoggingFile:loggingFile,
             ModProviders: provider
             );

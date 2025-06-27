@@ -20,7 +20,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Microsoft\JsonModels.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Microsoft\MojangProfile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Microsoft\MsalAuthenticator.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\zmsa.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)zQuStellar\oauth.cs" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using OneLauncher.Core.Compatible.ImportPCL2Version;
 using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using System;
@@ -52,25 +53,25 @@ public class PCL2Importer
     }
     private async Task InstallMinecraft(GameData gameData,string versionID,ModEnum modLoaderType)
     {
-        using Download downTool = new Download();
-        // 调用自己的方法把版本下了
-        // 这里离开using会释放，所以要在这里等待
-        await new DownloadMinecraft(downTool, new UserVersion()
-        {
-            VersionID = versionID,
-            modType = new ModType()
-            {
-                IsFabric = modLoaderType == ModEnum.fabric,
-                IsNeoForge = modLoaderType == ModEnum.neoforge,
-            }
-        }, Init.MojangVersionList.FirstOrDefault(x => x.ID == versionID),
-        gameData, Init.GameRootPath,
-        process, 
-        token).MinecraftBasic(
-            Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-            Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
-            Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
-            Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);
+        //using Download downTool = new Download();
+        //// 调用自己的方法把版本下了
+        //// 这里离开using会释放，所以要在这里等待
+        //await new DownloadMinecraft(downTool, new UserVersion()
+        //{
+        //    VersionID = versionID,
+        //    modType = new ModType()
+        //    {
+        //        IsFabric = modLoaderType == ModEnum.fabric,
+        //        IsNeoForge = modLoaderType == ModEnum.neoforge,
+        //    }
+        //}, Init.MojangVersionList.FirstOrDefault(x => x.ID == versionID),
+        //gameData, Init.GameRootPath,
+        //process, 
+        //token).MinecraftBasic(
+        //    Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
+        //    Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
+        //    Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
+        //    Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);
     }
     private async Task MigrateUserDataAsync(string sourcePath, string destinationPath)
     {

@@ -34,20 +34,20 @@ public partial class DownloadMinecraft
         if (!UseBMLCAPI)
         {
             progress?.Report((DownProgress.DownMain, alls, dones, Path.GetFileName(main.path)));
-            await downloadTool.DownloadFile(main.url, main.path, cancelToken);
+            await info.DownloadTool.DownloadFile(main.url, main.path, cancelToken);
         }
         else
         {
             await Task.Run(async () =>
             {
                 progress?.Report((DownProgress.DownMain, alls, dones, Path.GetFileName(main.path)));
-                string mirrorUrl = $"https://bmclapi2.bangbang93.com/version/{ID}/client";
+                string mirrorUrl = $"https://bmclapi2.bangbang93.com/version/{info.ID}/client";
                 using var raceCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token);
 
                 try
                 {
-                    var originalTask = downloadTool.unityClient.GetAsync(main.url, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
-                    var mirrorTask = downloadTool.unityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
+                    var originalTask = info.DownloadTool.unityClient.GetAsync(main.url, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
+                    var mirrorTask = info.DownloadTool.unityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, raceCts.Token);
 
                     var winnerTask = await Task.WhenAny(originalTask, mirrorTask);
 
@@ -72,7 +72,7 @@ public partial class DownloadMinecraft
                 catch (HttpRequestException)
                 {
                     // 自动回退
-                    await downloadTool.DownloadFile(main.url, main.path, cts.Token);
+                    await info.DownloadTool.DownloadFile(main.url, main.path, cts.Token);
                 }
             }, cts.Token);
         }
@@ -89,8 +89,8 @@ public partial class DownloadMinecraft
                     x.path, x.size, x.sha1)).ToList();
 
             using CancellationTokenSource ctsd = new CancellationTokenSource();
-            Task o = downloadTool.unityClient.GetAsync(assets[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
-            Task b = downloadTool.unityClient.GetAsync(assetsToDownload[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
+            Task o = info.DownloadTool.unityClient.GetAsync(assets[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
+            Task b = info.DownloadTool.unityClient.GetAsync(assetsToDownload[0].url, HttpCompletionOption.ResponseHeadersRead, ctsd.Token);
 
             await Task.WhenAny(o, b);
             if (b.IsCompleted && !b.IsFaulted)
@@ -111,7 +111,7 @@ public partial class DownloadMinecraft
         }
 
         // 执行下载
-        await downloadTool.DownloadListAsync(
+        await               info.DownloadTool.DownloadListAsync(
             new Progress<(int completedFiles, string FilesName)>(p =>
             {
                 Interlocked.Increment(ref dones);
@@ -137,8 +137,8 @@ public partial class DownloadMinecraft
                         try
                         {
                             // --- 3. 竞速：同时启动两个下载任务 ---
-                            Task<HttpResponseMessage> originalTask = downloadTool.unityClient.GetAsync(library.url, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
-                            Task<HttpResponseMessage> mirrorTask = downloadTool.unityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
+                            Task<HttpResponseMessage> originalTask = info.DownloadTool.unityClient.GetAsync(library.url, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
+                            Task<HttpResponseMessage> mirrorTask = info.DownloadTool.unityClient.GetAsync(mirrorUrl, HttpCompletionOption.ResponseHeadersRead, attemptCts.Token);
 
                             var completedTask = await Task.WhenAny(originalTask, mirrorTask);
 
@@ -226,7 +226,7 @@ public partial class DownloadMinecraft
         else
         {
             // 不使用镜像的原始逻辑
-            await downloadTool.DownloadListAsync(
+            await info.DownloadTool.DownloadListAsync(
                 new Progress<(int a, string b)>(p =>
                 {
                     Interlocked.Increment(ref dones);
@@ -237,13 +237,13 @@ public partial class DownloadMinecraft
         // 解压原生库文件
         await Task.Run(() =>
         {
-            foreach (var i in mations.NativesLibs)
+            foreach (var i in info.VersionMojangInfo.NativesLibs)
             {
-                Download.ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(versionPath, "natives"));
+                Download.ExtractFile(Path.Combine(info.GameRootPath, "libraries", i), Path.Combine(info.VersionInstallInfo.VersionPath, "natives"));
             }
         }, cancelToken);
     }
-    private async Task UnityModsInstallTasker(List<NdDowItem> modNds, IConcreteProviders modProviders)
+    private async Task UnityModsInstallTasker(List<NdDowItem> modNds, IModLoaderConcreteProviders modProvider)
     {
         // 先把依赖库下载了
         await info.DownloadTool.DownloadListAsync(
@@ -253,20 +253,26 @@ public partial class DownloadMinecraft
                 progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, p.b));
             }),
             modNds, maxDownloadThreads, cancelToken);
+        // 然后执行安装器
+        await modProvider.RunInstaller(
+            new Progress<string>(p =>
+            {
+                progress?.Report((DownProgress.DownAndInstModFiles,alls,dones,p));
+            }));
     }
     private Task LogginInstallTasker(NdDowItem log4j2_xml)
     {
         Interlocked.Increment(ref dones);
-        return downloadTool.DownloadFile(log4j2_xml.url, log4j2_xml.path, cancelToken);
+        return info.DownloadTool.DownloadFile(log4j2_xml.url, log4j2_xml.path, cancelToken);
     }
     private Task JavaInstallTasker() => Task.Run(async () =>
     {
-        if (!Init.ConfigManger.config.AvailableJavaList.Contains(mations.GetJavaVersion()))
+        if (!Init.ConfigManger.config.AvailableJavaList.Contains(info.VersionMojangInfo.GetJavaVersion()))
         {
             await AdoptiumAPI.JavaReleaser(
-              mations.GetJavaVersion().ToString(),
-              Path.Combine(Path.GetDirectoryName(GameRootPath), "runtimes"), Init.SystemType);
-            Init.ConfigManger.config.AvailableJavaList.Add(mations.GetJavaVersion());
+              info.VersionMojangInfo.GetJavaVersion().ToString(),
+              Path.Combine(Path.GetDirectoryName(info.GameRootPath), "runtimes"), Init.SystemType);
+            Init.ConfigManger.config.AvailableJavaList.Add(info.VersionMojangInfo.GetJavaVersion());
             await Init.ConfigManger.Save();
         }
     });

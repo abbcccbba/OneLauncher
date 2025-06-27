@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
@@ -74,31 +75,31 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         DateTime lastUpdateTime = DateTime.MinValue;
         TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
 
-        // 提前确定最终的默认实例名称
-        string modLoaderName = (IsMod) ? "Fabric" : (IsNeoForge) ? "NeoForge" : (IsForge) ? "Forge" : "原版";
-        string finalInstanceName = $"{VersionName} - {modLoaderName}";
-
         return Task.Run(async () =>
         {
-            var newUserVersion = new UserVersion
-            {
-                VersionID = VersionName,
-                modType = VersionModType,
-                AddTime = DateTime.Now
-            };
-
-            // 创建 GameData 实例
-            var newGameData = new GameData(
-                finalInstanceName,
-                thisVersionBasicInfo.ID,
-                (IsMod) ? ModEnum.fabric : (IsNeoForge) ? ModEnum.neoforge : (IsForge) ? ModEnum.forge : ModEnum.none,
-                Init.AccountManager.GetDefaultUser().UserID);
+            DownloadInfo content;
 
             cts = new();
             try
             {
                 using (Download download = new Download())
                 {
+                    // 创建下载上下文信息
+                    content = await DownloadInfo.Create(
+                        VersionName,
+                        new ModType()
+                        {
+                            IsFabric = IsMod,
+                            IsNeoForge = IsNeoForge,
+                            IsForge = IsForge
+                        },
+                        download, 
+                        IsAllowToUseBetaNeoforge, 
+                        IsUseRecommendedToInstallForge, 
+                        IsDownloadFabricWithAPI, 
+                        IsJava
+                        );
+                    // 创建进度回调
                     var progressReporter = new Progress<(DownProgress d, int a, int b, string c)>(p =>
                         Dispatcher.UIThread.Post(() =>
                         {
@@ -126,49 +127,40 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                             Fs = $"{p.b}/{p.a}";
                             FileName = p.c;
                         }));
-
+                    // 执行下载
                     await new DownloadMinecraft(
-                        download,
-                        newUserVersion,
-                        thisVersionBasicInfo,
-                        newGameData,
-                        Init.GameRootPath,
+                        content,
                         progressReporter,
                         cts.Token
                     ).MinecraftBasic(
-                        // 避免用户乱改配置文件这里手动限制一下
-                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, 1, 256),
-                        Math.Clamp(Init.ConfigManger.config.OlanSettings.MaximumSha1Threads, 1, 256),
-                        Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
-                        IsDownloadFabricWithAPI,
-                        IsAllowToUseBetaNeoforge,
-                        IsJava,
-                        Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);
+                        Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
+                        Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
+                        Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
                 }
+                /* 下面的工作将由 DownloadInfo 取代 */
+                //// 检查版本是否已经存在
+                //// 深入贯彻学习全局单版本实例思想
+                //var existingUserVersion = Init.ConfigManger.config.VersionList
+                //    .FirstOrDefault(v => v.VersionID == newUserVersion.VersionID);
 
-                // 检查版本是否已经存在
-                // 深入贯彻学习全局单版本实例思想
-                var existingUserVersion = Init.ConfigManger.config.VersionList
-                    .FirstOrDefault(v => v.VersionID == newUserVersion.VersionID);
+                //if (existingUserVersion == null)
+                //    Init.ConfigManger.config.VersionList.Add(newUserVersion);
+                //else
+                //{
+                //    // 如果已存在，则正确地更新其 modType 结构体
+                //    ModType updatedModType = existingUserVersion.modType;
+                //    if (newUserVersion.modType.IsFabric) updatedModType.IsFabric = true;
+                //    if (newUserVersion.modType.IsNeoForge) updatedModType.IsNeoForge = true;
+                //    if (newUserVersion.modType.IsForge) updatedModType.IsForge = true;
+                //    existingUserVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
+                //}
 
-                if (existingUserVersion == null)
-                    Init.ConfigManger.config.VersionList.Add(newUserVersion);
-                else
-                {
-                    // 如果已存在，则正确地更新其 modType 结构体
-                    ModType updatedModType = existingUserVersion.modType;
-                    if (newUserVersion.modType.IsFabric) updatedModType.IsFabric = true;
-                    if (newUserVersion.modType.IsNeoForge) updatedModType.IsNeoForge = true;
-                    if (newUserVersion.modType.IsForge) updatedModType.IsForge = true;
-                    existingUserVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
-                }
+                //// 添加游戏实例并设为默认，因为是全局单例我也没做删除功能
+                //await Init.GameDataManger.AddGameDataAsync(newGameData);
+                //await Init.GameDataManger.SetDefaultInstanceAsync(newGameData);
 
-                // 添加游戏实例并设为默认，因为是全局单例我也没做删除功能
-                await Init.GameDataManger.AddGameDataAsync(newGameData);
-                await Init.GameDataManger.SetDefaultInstanceAsync(newGameData);
-
-                await Init.ConfigManger.Save();
-                MainWindow.mainwindow.ShowFlyout($"“{finalInstanceName}”已成功创建并设为默认启动项。");
+                //await Init.ConfigManger.Save();
+                MainWindow.mainwindow.ShowFlyout($"“{content.UserInfo.Name}”已成功创建并设为默认启动项。");
             }
             catch (OperationCanceledException)
             {

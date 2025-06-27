@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 
-internal class ForgeSeriesProvider : IConcreteProviders
+internal class ForgeSeriesProvider : IModLoaderConcreteProviders
 {
     private readonly DownloadInfo _context;
     private readonly ForgeSeriesInstallTasker _installTasker;

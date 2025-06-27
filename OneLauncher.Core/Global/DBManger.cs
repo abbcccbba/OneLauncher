@@ -9,7 +9,6 @@ namespace OneLauncher.Core;
 [JsonSerializable(typeof(UserModel))]
 [JsonSerializable(typeof(UserVersion))]
 [JsonSerializable(typeof(ModType))]
-[JsonSerializable(typeof(PreferencesLaunchMode))]
 [JsonSerializable(typeof(ModEnum))]
 public partial class OneLauncherAppConfigsJsonContext : JsonSerializerContext { }
 public class AppSettings

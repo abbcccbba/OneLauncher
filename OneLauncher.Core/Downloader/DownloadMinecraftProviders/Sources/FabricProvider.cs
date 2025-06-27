@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 
-internal class FabricProvider : IConcreteProviders
+internal class FabricProvider : IModLoaderConcreteProviders
 {
     private readonly DownloadInfo _context;
     public FabricProvider(DownloadInfo context)

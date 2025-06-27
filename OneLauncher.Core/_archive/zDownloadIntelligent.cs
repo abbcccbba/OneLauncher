@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Downloader;
+namespace OneLauncher.Core._archive;
 // 此代码已暂时弃用
 /*
     public async Task DownloadFileBig(

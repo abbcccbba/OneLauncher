@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 
-internal interface IConcreteProviders
+internal interface IModLoaderConcreteProviders
 {
     Task<List<NdDowItem>> GetDependencies();
     Task RunInstaller(IProgress<string> Put)
