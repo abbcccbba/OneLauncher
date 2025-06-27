@@ -22,7 +22,8 @@ public partial class DownloadInfo
         bool isDownloadFabricWithAPI = true,
         bool isDownloadWithJavaRuntime = true,
         // 下面是一些可传递可不传递的参数，不传递会自动获取
-        VersionBasicInfo? versionBasic = null
+        VersionBasicInfo? versionBasic = null,
+        GameData? gameDataD = null
         )
     {
         string gameRootPath = Init.GameRootPath;
@@ -38,7 +39,7 @@ public partial class DownloadInfo
             ? "forge"
             : "原版";
         string defaultInstanceName = $"{versionId} - {defaultInstanceModLoaderDisplayName}";
-        GameData gameData = new GameData(defaultInstanceName, versionId, modEnum, null);
+        GameData gameData = gameDataD ?? new GameData(defaultInstanceName, versionId, modEnum, null);
 
         // 确定下载信息
         VersionBasicInfo versionDownloadInfo =

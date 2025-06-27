@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using System.Diagnostics;
@@ -68,63 +69,27 @@ public class ModpackImporter : IDisposable
 
     private async Task InstallBaseGameAsync(GameData gameData, CancellationToken token)
     {
+        using var downTool = new Download();
         var loaderType = gameData.ModLoader; 
-        var mcVersion = gameData.VersionId; 
+        var mcVersion = gameData.VersionId;
 
-        var existingVersion = Init.ConfigManger.config.VersionList
-            .FirstOrDefault(v => v.VersionID == mcVersion);
+        var downInfo = await DownloadInfo.Create(
+                mcVersion, loaderType,downTool,false,true,true,true,null,gameData
+            );
 
-        ModType finalModType;
-        if (existingVersion != null)
-        {
-            finalModType = existingVersion.modType;
-            if (loaderType == ModEnum.fabric && !finalModType.IsFabric) finalModType.IsFabric = true;
-            if (loaderType == ModEnum.neoforge && !finalModType.IsNeoForge) finalModType.IsNeoForge = true;
-            existingVersion.modType = finalModType;
-        }
-        else
-        {
-            finalModType = new ModType 
-            {
-                IsFabric = loaderType == ModEnum.fabric,
-                IsNeoForge = loaderType == ModEnum.neoforge,
-            };
-        }
+        var mcDownloader = new DownloadMinecraft(
+            
+            null,
+            token
+        );
 
-        var versionBasicInfo = Init.MojangVersionList.FirstOrDefault(x => x.ID == mcVersion);
-        if (versionBasicInfo == null)
-            throw new OlanException("整合包错误", $"未知的 Minecraft 版本: {mcVersion}", OlanExceptionAction.Error); //
-
-        var userVersionForDownloader = new UserVersion 
-        {
-            VersionID = mcVersion,
-            modType = finalModType,
-            AddTime = DateTime.Now
-        };
-
-        //var mcDownloader = new DownloadMinecraft( 
-        //    downloadTool,
-        //    userVersionForDownloader,
-        //    versionBasicInfo,
-        //    gameData,
-        //    gameRootPath,
-        //    null,
-        //    token
-        //);
-
-        //await mcDownloader.MinecraftBasic( 
-        //    maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, 
-        //    maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads, 
-        //    IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled, 
-        //    AndJava: true,
-        //    IsDownloadFabricWithAPI: false
-        //);
-
-        //if (existingVersion == null)
-        //{
-        //    Init.ConfigManger.config.VersionList.Add(userVersionForDownloader);
-        //}
-        //await Init.ConfigManger.Save(); 
+        await mcDownloader.MinecraftBasic(
+            maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
+            maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
+            IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
+            Isus
+        );
+        await Init.ConfigManger.Save();
     }
 
     private async Task InstallModpackFilesAsync(MrpackParser parser, GameData gameData, CancellationToken token)
