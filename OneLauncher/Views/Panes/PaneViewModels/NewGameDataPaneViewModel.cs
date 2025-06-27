@@ -68,7 +68,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
         if (value.modType.IsForge) loaders.Add(ModEnum.forge);
         AvailableModLoaders = loaders;
 
-        SelectedModLoader = value.preferencesLaunchMode.LaunchModType;
+        SelectedModLoader = value.modType.ToModEnum();
         GameDataName = $"{value.VersionID} - Instance";
     }
 

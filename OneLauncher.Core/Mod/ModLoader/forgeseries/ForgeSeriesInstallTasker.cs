@@ -204,6 +204,12 @@ namespace OneLauncher.Core.Mod.ModLoader.forgeseries
                     throw new OlanException("安装处理器失败", $"处理器 {current}/{total} 执行失败，退出代码为: {process.ExitCode}。请查看日志获取详细错误信息。", OlanExceptionAction.Error);
                 }
             }
+            catch(OperationCanceledException)
+            {
+                // 取消时彻底关闭处理器
+                process.Kill();
+                throw;
+            }
             catch (Exception ex) when (ex is not OlanException)
             {
                 throw new OlanException("处理器调用失败", $"启动或等待处理器 {current}/{total} 时发生意外错误。", OlanExceptionAction.Error, ex);

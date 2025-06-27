@@ -99,33 +99,32 @@ public class ModpackImporter : IDisposable
         {
             VersionID = mcVersion,
             modType = finalModType,
-            AddTime = DateTime.Now,
-            preferencesLaunchMode = new PreferencesLaunchMode { LaunchModType = loaderType }
+            AddTime = DateTime.Now
         };
 
-        var mcDownloader = new DownloadMinecraft( 
-            downloadTool,
-            userVersionForDownloader,
-            versionBasicInfo,
-            gameData,
-            gameRootPath,
-            null,
-            token
-        );
+        //var mcDownloader = new DownloadMinecraft( 
+        //    downloadTool,
+        //    userVersionForDownloader,
+        //    versionBasicInfo,
+        //    gameData,
+        //    gameRootPath,
+        //    null,
+        //    token
+        //);
 
-        await mcDownloader.MinecraftBasic( 
-            maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, 
-            maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads, 
-            IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled, 
-            AndJava: true,
-            IsDownloadFabricWithAPI: false
-        );
+        //await mcDownloader.MinecraftBasic( 
+        //    maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, 
+        //    maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads, 
+        //    IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled, 
+        //    AndJava: true,
+        //    IsDownloadFabricWithAPI: false
+        //);
 
-        if (existingVersion == null)
-        {
-            Init.ConfigManger.config.VersionList.Add(userVersionForDownloader);
-        }
-        await Init.ConfigManger.Save(); 
+        //if (existingVersion == null)
+        //{
+        //    Init.ConfigManger.config.VersionList.Add(userVersionForDownloader);
+        //}
+        //await Init.ConfigManger.Save(); 
     }
 
     private async Task InstallModpackFilesAsync(MrpackParser parser, GameData gameData, CancellationToken token)

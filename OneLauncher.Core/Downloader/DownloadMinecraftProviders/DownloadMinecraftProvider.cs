@@ -243,7 +243,7 @@ public partial class DownloadMinecraft
             }
         }, cancelToken);
     }
-    private async Task UnityModsInstallTasker(List<NdDowItem> modNds, IModLoaderConcreteProviders modProvider)
+    private async Task UnityModsInstallTasker(List<NdDowItem> modNds, IModLoaderConcreteProviders modProvider,Task javaInstallTask)
     {
         // 先把依赖库下载了
         await info.DownloadTool.DownloadListAsync(
@@ -254,11 +254,12 @@ public partial class DownloadMinecraft
             }),
             modNds, maxDownloadThreads, cancelToken);
         // 然后执行安装器
+        await javaInstallTask;
         await modProvider.RunInstaller(
             new Progress<string>(p =>
             {
                 progress?.Report((DownProgress.DownAndInstModFiles,alls,dones,p));
-            }));
+            }),cancelToken);
     }
     private Task LogginInstallTasker(NdDowItem log4j2_xml)
     {

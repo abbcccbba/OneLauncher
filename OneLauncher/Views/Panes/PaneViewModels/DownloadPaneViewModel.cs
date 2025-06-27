@@ -137,29 +137,20 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
                         Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
                 }
-                /* 下面的工作将由 DownloadInfo 取代 */
-                //// 检查版本是否已经存在
-                //// 深入贯彻学习全局单版本实例思想
-                //var existingUserVersion = Init.ConfigManger.config.VersionList
-                //    .FirstOrDefault(v => v.VersionID == newUserVersion.VersionID);
-
-                //if (existingUserVersion == null)
-                //    Init.ConfigManger.config.VersionList.Add(newUserVersion);
-                //else
-                //{
-                //    // 如果已存在，则正确地更新其 modType 结构体
-                //    ModType updatedModType = existingUserVersion.modType;
-                //    if (newUserVersion.modType.IsFabric) updatedModType.IsFabric = true;
-                //    if (newUserVersion.modType.IsNeoForge) updatedModType.IsNeoForge = true;
-                //    if (newUserVersion.modType.IsForge) updatedModType.IsForge = true;
-                //    existingUserVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
-                //}
-
-                //// 添加游戏实例并设为默认，因为是全局单例我也没做删除功能
-                //await Init.GameDataManger.AddGameDataAsync(newGameData);
-                //await Init.GameDataManger.SetDefaultInstanceAsync(newGameData);
-
-                //await Init.ConfigManger.Save();
+                var mayInstalledVersion = Init.ConfigManger.config.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
+                if (mayInstalledVersion == null)
+                    Init.ConfigManger.config.VersionList.Add(content.VersionInstallInfo);
+                else
+                {
+                    var updatedModType = mayInstalledVersion.modType;
+                    if (content.VersionInstallInfo.modType.IsFabric) updatedModType.IsFabric = true;
+                    if (content.VersionInstallInfo.modType.IsNeoForge) updatedModType.IsNeoForge = true;
+                    if (content.VersionInstallInfo.modType.IsForge) updatedModType.IsForge = true;
+                    mayInstalledVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
+                }
+                await Init.GameDataManger.AddGameDataAsync(content.UserInfo);
+                await Init.GameDataManger.SetDefaultInstanceAsync(content.UserInfo);
+                await Init.ConfigManger.Save();
                 MainWindow.mainwindow.ShowFlyout($"“{content.UserInfo.Name}”已成功创建并设为默认启动项。");
             }
             catch (OperationCanceledException)

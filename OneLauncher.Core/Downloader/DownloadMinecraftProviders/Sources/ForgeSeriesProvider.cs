@@ -63,7 +63,7 @@ internal class ForgeSeriesProvider : IModLoaderConcreteProviders
         return versionLibs.Concat(installerLibs).ToList();
     }
 
-    public async Task RunInstaller(IProgress<string> Put)
+    public async Task RunInstaller(IProgress<string> Put,CancellationToken token)
     {
         if (_clientLzmaTempPath == null)
             throw new OlanException("内部错误","无法执行安装器，无法得到补丁文件");
@@ -78,7 +78,7 @@ internal class ForgeSeriesProvider : IModLoaderConcreteProviders
             _context.VersionMojangInfo.GetMainFile().path,
             Tools.IsUseOlansJreOrOssJdk(_context.VersionMojangInfo.GetJavaVersion()),
             _clientLzmaTempPath,
-            _context.CancellationToken,
+            token,
             isForge: _context.UserInfo.ModLoader == ModEnum.forge
         );
 

@@ -26,6 +26,8 @@ public partial class DownloadMinecraft
         // 依赖库和资源文件
         var libraryFiles = new List<NdDowItem>(mation.GetLibraries());
         var assetsIndex = mation.GetAssets();
+        if (!File.Exists(assetsIndex.path))
+            await info.DownloadTool.DownloadFile(assetsIndex.url,assetsIndex.path,cancelToken);
         var assetFiles = VersionAssetIndex.ParseAssetsIndex(
             await File.ReadAllTextAsync(assetsIndex.path, cancelToken),
             info.GameRootPath

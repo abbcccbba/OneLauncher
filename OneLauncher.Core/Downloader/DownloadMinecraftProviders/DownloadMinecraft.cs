@@ -52,6 +52,12 @@ public partial class DownloadMinecraft
         // 4. 执行核心下载任务
 
         await DownloadClientTasker(plan.ClientMainFile, useBMLCAPI);
+        // 模组加载器的下载和安装是后台任务
+        Task modInstallTasker = 
+            plan.ModProviders != null && info.UserInfo.ModLoader != ModEnum.none 
+            ? UnityModsInstallTasker(plan.ModLoaderFiles, plan.ModProviders,javaInstallTask)
+            : Task.CompletedTask;
+        
         await DownloadLibrariesSupportTasker(plan.LibraryFiles, useBMLCAPI);
         await DownloadAssetsSupportTasker(plan.AssetFiles, useBMLCAPI);
 
@@ -59,24 +65,18 @@ public partial class DownloadMinecraft
         if (plan.LoggingFile.HasValue)
             await LogginInstallTasker(plan.LoggingFile.Value);
 
-
-        // 5. 如果有Mod加载器，则执行其依赖下载与安装
-        if (plan.ModProviders != null && plan.ModLoaderFiles != null && plan.ModLoaderFiles.Count > 0)
-        {
-            await UnityModsInstallTasker(plan.ModLoaderFiles, plan.ModProviders);
-        }
-
-        // 6. 等待Java安装完成
+        // 5. 等待后台任务完成
+        await modInstallTasker;
         await javaInstallTask;
 
-        // 7. (可选)校验所有文件
+        // 6. (可选)校验所有文件
         if (IsSha1)
         {
             progress?.Report((DownProgress.Verify, alls, alls, "校验中...")); 
             await info.DownloadTool.CheckAllSha1(plan.AllFilesGoVerify, maxSha1Threads, cancelToken);
         }
 
-        // 8. 报告最终完成
+        // 7. 报告最终完成
         progress?.Report((DownProgress.Done, alls, alls, "下载完毕！"));
     }
 }

@@ -24,8 +24,10 @@ internal class FabricProvider : IModLoaderConcreteProviders
             _context.VersionInstallInfo.VersionPath,
             "version.fabric.json"
         );
+        if(!File.Exists(fabricMetaFilePath))
+            await _context.DownloadTool.DownloadFile(
+                  $"https://meta.fabricmc.net/v2/versions/loader/{_context.ID}/", fabricMetaFilePath);
         await using var fileStream = new FileStream(fabricMetaFilePath, FileMode.Open, FileAccess.Read);
-
         // 预留，自定义版本
         var parser = string.IsNullOrEmpty(_context.SpecifiedFabricVersion)
             ? FabricVJParser.ParserAuto(fileStream, _context.GameRootPath)

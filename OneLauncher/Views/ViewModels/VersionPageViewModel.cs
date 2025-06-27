@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Compatible.ImportPCL2Version;
 using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.ImportPCL2Version;
@@ -76,8 +77,7 @@ internal partial class VersionPageViewModel : BaseViewModel
                 new VersionItem(new UserVersion() 
                 {
                     VersionID="1.21.5",
-                    AddTime=DateTime.Now,
-                    preferencesLaunchMode = new PreferencesLaunchMode(){LaunchModType = ModEnum.neoforge}
+                    AddTime=DateTime.Now
                 },0)
             };
         }
