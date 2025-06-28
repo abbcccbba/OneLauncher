@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.ConnectToolPower;
@@ -34,9 +35,9 @@ public static class Init
             var services = new ServiceCollection();
             
             // 先把最重要的基本配置信息初始化了，然后初始化别的
-            var configManger = new DBManger(Path.Combine(BasePath,"config.json"));
+            var configManger = new DBManager(Path.Combine(BasePath,"config.json"));
             await configManger.InitializeAsync();
-            services.AddSingleton<DBManger>(configManger);
+            services.AddSingleton<DBManager>(configManger);
 
             InstalledPath = configManger.Data.OlanSettings.InstallPath ?? Path.Combine(BasePath,"installed");
             GameRootPath = InstalledPath == null ? Path.Combine(BasePath, "installed", ".minecraft") : Path.Combine(InstalledPath, ".minecraft");
@@ -52,6 +53,10 @@ public static class Init
             var gameDataManger = new GameDataManager(Path.Combine(GameRootPath, "instance", "instance.json"));
             await gameDataManger.InitializeAsync();
             services.AddSingleton<GameDataManager>(gameDataManger);
+
+            var downloadTool = new Download();
+            services.AddSingleton<Download>(downloadTool);
+            OnApplicationClosingReleaseSourcesList.Add(downloadTool);
 
             var msrl = await MsalAuthenticator.CreateAsync(AzureApplicationID);
             services.AddSingleton<MsalAuthenticator>(msrl);

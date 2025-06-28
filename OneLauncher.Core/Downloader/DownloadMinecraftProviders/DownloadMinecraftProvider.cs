@@ -271,13 +271,13 @@ public partial class DownloadMinecraft
     }
     private Task JavaInstallTasker() => Task.Run(async () =>
     {
-        if (!Init.ConfigManger.config.AvailableJavaList.Contains(info.VersionMojangInfo.GetJavaVersion()))
+        if (!_configManager.Data.AvailableJavaList.Contains(info.VersionMojangInfo.GetJavaVersion()))
         {
             await AdoptiumAPI.JavaReleaser(
               info.VersionMojangInfo.GetJavaVersion().ToString(),
               Path.Combine(Path.GetDirectoryName(info.GameRootPath), "runtimes"), Init.SystemType);
-            Init.ConfigManger.config.AvailableJavaList.Add(info.VersionMojangInfo.GetJavaVersion());
-            await Init.ConfigManger.Save();
+            _configManager.Data.AvailableJavaList.Add(info.VersionMojangInfo.GetJavaVersion());
+            await _configManager.Save();
         }
     });
 }

@@ -164,7 +164,8 @@ internal partial class GameDataPageViewModel : BaseViewModel
         };
 
         GameDataList = orderedList;
-        _gameDataManger.Data.Instances = GameDataList.Select(x => x.data).ToDictionary();
+        _gameDataManger.Data.Instances = GameDataList.Select(x => x.data)
+                                                     .ToDictionary(x => x.InstanceId,x => x);
         _=_gameDataManger.Save();
     }
     private PowerPlayPane powerPlayGo = new PowerPlayPane();

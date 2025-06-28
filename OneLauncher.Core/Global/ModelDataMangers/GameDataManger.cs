@@ -29,7 +29,7 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
     /// 获取或创建一个指定版本的游戏数据实例。
     /// 查找逻辑：1. 默认实例 -> 2. 第一个可用实例 -> 3. 创建新实例。
     /// </summary>
-    public async Task<GameData> GetOrCreateInstanceAsync(UserVersion userVersion)
+    public async Task<GameData> GetOrCreateInstanceAsync(UserVersion userVersion,AccountManager? accountManager)
     {
         // 尝试获取该版本的默认实例
         var gameData = GetDefaultInstance(userVersion.VersionID);
@@ -47,6 +47,8 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
 
         // 如果完全没有任何实例，则创建一个新的
         // 确定默认游戏数据名称
+        if (accountManager == null)
+            throw new OlanException("内部错误","未持有AccountManager实例，无法修改用户数据");
         string modLoaderName = userVersion.modType.ToModEnum() switch
         {
             ModEnum.fabric => "Fabric",
@@ -55,12 +57,11 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
             _ => "原版"
         };
         string gameDataName = $"{userVersion.VersionID} - {modLoaderName}";
-
         var newGameData = new GameData(
             name: gameDataName,
             versionId: userVersion.VersionID,
             loader: userVersion.modType.ToModEnum(),
-            userModel: Init.AccountManager.GetDefaultUser().UserID
+            userModel: accountManager.GetDefaultUser().UserID
         );
 
         // 添加并设为默认

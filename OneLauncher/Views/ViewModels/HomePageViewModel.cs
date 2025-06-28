@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -13,12 +14,17 @@ namespace OneLauncher.Views.ViewModels;
 
 internal partial class HomePageViewModel : BaseViewModel
 {
-    [ObservableProperty] private List<GameData> launchItems = Init.GameDataManger.AllGameData;
-    [ObservableProperty] private GameData selectedGameData = 
-        Init.GameDataManger.AllGameData.FirstOrDefault(x => x.InstanceId == Init.ConfigManger.config.DefaultInstanceID);
+    private readonly GameDataManager _gameDataManager;
+    private readonly DBManager _configManager;
+    [ObservableProperty] private List<GameData> launchItems;
+    [ObservableProperty] private GameData? selectedGameData;
     [ObservableProperty] private bool isShowServerOption;
-    public HomePageViewModel()
+    public HomePageViewModel(GameDataManager gameDataManager,DBManager configManager)
     {
+        this._configManager = configManager;
+        this._gameDataManager = gameDataManager;
+        LaunchItems = _gameDataManager.Data.Instances.Select(x => x.Value).ToList();
+        SelectedGameData = _gameDataManager.Data.Instances.GetValueOrDefault(_configManager.Data.DefaultInstanceID);
 #if DEBUG
         if (Design.IsDesignMode)
             return;

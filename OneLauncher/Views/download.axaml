@@ -12,7 +12,8 @@
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
                DisplayMode="Overlay"
                OpenPaneLength="650"
-               PanePlacement="Right">
+               PanePlacement="Right"
+			   >
 		<SplitView.Pane>
 			<TransitioningContentControl
 				Background="{DynamicResource PaneBackgound}"
@@ -20,36 +21,38 @@
 			</TransitioningContentControl>
 		</SplitView.Pane>
 		<!-- 版本列表 -->
-		<ScrollViewer>
-			<StackPanel 
-						Margin="48"
-						HorizontalAlignment="Left"
-						VerticalAlignment="Center"
-						Spacing="4">
-				<TextBlock FontSize="42" Text="选择下载版本"/>
-				<AutoCompleteBox
-					Watermark="搜索版本..."
-					Width="300"
-					CornerRadius="6"
-					ItemsSource="{Binding AutoVersionList}"
-					SelectedItem="{Binding SelectedItem}">
-					<AutoCompleteBox.ItemTemplate>
-						<DataTemplate x:DataType="models:VersionBasicInfo">
-							<TextBlock Text="{Binding ID}"/>
-						</DataTemplate>
-					</AutoCompleteBox.ItemTemplate>
-				</AutoCompleteBox>
-				<ListBox ItemsSource="{Binding ReleaseItems}" MaxHeight="350" >
-					<ListBox.ItemTemplate>
-						<DataTemplate x:DataType="models:VersionBasicInfo">
-							<Grid ColumnDefinitions="*,Auto" >
-								<TextBlock Text="{Binding ID}" Grid.Column="0"/>
-								<Button Grid.Column="1" Margin="8,0,8,0" HorizontalAlignment="Right" Content="下载" Command="{Binding $parent[ListBox].DataContext.ToDownloadCommand}" CommandParameter="{Binding}"/>
-							</Grid>
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-			</StackPanel>
-		</ScrollViewer>
+		<Panel IsEnabled="{Binding IsLoaded}">
+			<ScrollViewer>
+				<StackPanel 
+							Margin="48"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Center"
+							Spacing="4">
+					<TextBlock FontSize="42" Text="选择下载版本"/>
+					<AutoCompleteBox
+						Watermark="搜索版本..."
+						Width="300"
+						CornerRadius="6"
+						ItemsSource="{Binding AutoVersionList}"
+						SelectedItem="{Binding SelectedItem}">
+						<AutoCompleteBox.ItemTemplate>
+							<DataTemplate x:DataType="models:VersionBasicInfo">
+								<TextBlock Text="{Binding ID}"/>
+							</DataTemplate>
+						</AutoCompleteBox.ItemTemplate>
+					</AutoCompleteBox>
+					<ListBox ItemsSource="{Binding ReleaseItems}" MaxHeight="350" >
+						<ListBox.ItemTemplate>
+							<DataTemplate x:DataType="models:VersionBasicInfo">
+								<Grid ColumnDefinitions="*,Auto" >
+									<TextBlock Text="{Binding ID}" Grid.Column="0"/>
+									<Button Grid.Column="1" Margin="8,0,8,0" HorizontalAlignment="Right" Content="下载" Command="{Binding $parent[ListBox].DataContext.ToDownloadCommand}" CommandParameter="{Binding}"/>
+								</Grid>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+				</StackPanel>
+			</ScrollViewer>
+		</Panel>
 	</SplitView>
 </UserControl>

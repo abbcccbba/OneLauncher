@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModLoader.fabric;
@@ -9,6 +10,7 @@ using OneLauncher.Core.Net.ModService.Modrinth;
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 public partial class DownloadMinecraft
 {
+    private readonly DBManager _configManager;
     internal DownloadInfo info;
 
     public readonly CancellationToken cancelToken;
@@ -20,10 +22,12 @@ public partial class DownloadMinecraft
 
     public DownloadMinecraft(
         DownloadInfo info,
+        DBManager configManager,
         IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
         CancellationToken? cancelToken = null
         )
     {
+        this._configManager = configManager;
         this.info = info;
         this.progress = progress;
         this.cancelToken = cancelToken ?? CancellationToken.None;

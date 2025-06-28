@@ -33,13 +33,13 @@ public class GameData
         InstanceId = instanceId;
         CustomIconPath = customIconPath;
     }
-    public GameData(string name, string versionId, ModEnum loader, Guid? userModel,string? customIconPath = null)
+    public GameData(string name, string versionId, ModEnum loader, Guid userModel,string? customIconPath = null)
     {
         Name = name;
         VersionId = versionId;
         ModLoader = loader;
         CustomIconPath = customIconPath;
-        DefaultUserModelID = userModel ?? Init.AccountManager.GetDefaultUser().UserID;
+        DefaultUserModelID = userModel;
         CreationTime = DateTime.Now;
         InstanceId = Guid.NewGuid().ToString()[..8]; // 避免路径过长
     }

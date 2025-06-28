@@ -30,9 +30,9 @@ public class AppConfig
     public List<int> AvailableJavaList { get; set; } = new ();
     public AppSettings OlanSettings { get; set; } = new AppSettings();
 }
-public class DBManger : BasicDataManager<AppConfig>
+public class DBManager : BasicDataManager<AppConfig>
 {
-    public DBManger(string configPath)
+    public DBManager(string configPath)
         :base(configPath)
     {
     }
