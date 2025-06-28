@@ -25,9 +25,7 @@ public partial class version : UserControl
     public version()
     {
         InitializeComponent();
-        this.DataContext = viewmodel = new VersionPageViewModel();
     }
-    internal readonly VersionPageViewModel viewmodel;
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);

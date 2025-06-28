@@ -25,6 +25,7 @@ public partial class MainWindow : Window
     public gamedata gamedataPage;
     public static MainWindow mainwindow;
     bool IsError;
+    IServiceCollection servises;
     IServiceProvider provider;
     public MainWindow()
     {
@@ -32,6 +33,15 @@ public partial class MainWindow : Window
         mainwindow = this;
         try
         {
+            servises = Init.InitTask.GetAwaiter().GetResult();
+            servises.AddSingleton<AccountPageViewModel>();
+            servises.AddSingleton<DownloadPageViewModel>();
+            servises.AddSingleton<GameDataPageViewModel>();
+            servises.AddSingleton<HomePageViewModel>();
+            servises.AddSingleton<ModsBrowserViewModel>();
+            servises.AddSingleton<SettingsPageViewModel>();
+            servises.AddSingleton<VersionPageViewModel>();
+            provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();
         }
         catch(OlanException e)
@@ -40,20 +50,27 @@ public partial class MainWindow : Window
             OlanExceptionWorker.ForOlanException(e);
         }
     }
-    protected async override void OnOpened(EventArgs e)
+    protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
         if (!IsError)
         {
             try
             {
-                HomePage = (Home)PageContent.Content;
-                versionPage = new version();
-                accountPage = new account();
-                modsBrowserPage = new ModsBrowser();
-                downloadPage = new download();
-                settingsPage = new settings();
-                gamedataPage = new gamedata();
+                HomePage = new Home()
+                { DataContext = provider.GetRequiredService<HomePageViewModel>()};
+                versionPage = new version() 
+                { DataContext = provider.GetRequiredService<VersionPageViewModel>() }; 
+                accountPage = new account()
+                { DataContext = provider.GetRequiredService<AccountPageViewModel>() };
+                modsBrowserPage = new ModsBrowser()
+                { DataContext = provider.GetRequiredService<ModsBrowserViewModel>() };
+                downloadPage = new download()
+                { DataContext = provider.GetRequiredService<DownloadPageViewModel>() };
+                settingsPage = new settings()
+                { DataContext = provider.GetRequiredService<SettingsPageViewModel>() };
+                gamedataPage = new gamedata()
+                { DataContext = provider.GetRequiredService<GameDataPageViewModel>() };
             }
             catch (OlanException ex)
             {
@@ -65,8 +82,9 @@ public partial class MainWindow : Window
     {
         base.OnClosing(e);
         Debug.WriteLine("释放残余资源...");
-        Init.MMA.Dispose();
-        await Init.ConfigManger.ShutdownAsync();
+        foreach(var dis in Init.OnApplicationClosingReleaseSourcesList)
+            dis.Dispose();
+        // 发送关闭消息
         WeakReferenceMessenger.Default.Send(new ApplicationClosingMessage());
     }
     public enum MainPage

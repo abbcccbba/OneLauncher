@@ -11,6 +11,5 @@ public partial class settings : UserControl
     public settings()
     {
         InitializeComponent();
-        this.DataContext = new SettingsPageViewModel();
     }
 }

@@ -18,8 +18,5 @@ public partial class account : UserControl
     public account()
     {
         InitializeComponent();
-        viewmodel = new AccountPageViewModel();
-        this.DataContext = viewmodel;
     }
-    internal AccountPageViewModel viewmodel;
 }

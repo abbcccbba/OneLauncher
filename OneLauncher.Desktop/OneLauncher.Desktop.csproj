@@ -30,7 +30,7 @@
 		<TrimmerRootAssembly Include="Avalonia.Controls" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Desktop" Version="11.3.1" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
 	</ItemGroup>
 	<ItemGroup>

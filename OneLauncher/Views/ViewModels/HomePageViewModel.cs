@@ -23,10 +23,6 @@ internal partial class HomePageViewModel : BaseViewModel
         if (Design.IsDesignMode)
             return;
 #endif
-        // 确保在访问 Init 之前，它的初始化任务已经完成
-        var initResult = Init.InitTask.Result;
-        if (initResult != null)
-            throw initResult;
     }
     [RelayCommand]
     public void Launch()

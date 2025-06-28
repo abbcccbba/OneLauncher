@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.Panes;
@@ -28,13 +29,15 @@ internal partial class UserItem
 }
 internal partial class AccountPageViewModel : BaseViewModel
 {
+    private AccountManager _accountManager;
+    private MsalAuthenticator _msalAuthenticator;
     // 刷新
     public void RefList()
     {
         // 在刷新列表时，判断每一项是否为默认用户
-        UserModel? defaultUser = Init.AccountManager.GetDefaultUser();
+        UserModel? defaultUser = _accountManager.GetDefaultUser();
 
-        UserModelList = Init.AccountManager.GetAllUsers()
+        UserModelList = _accountManager.GetAllUsers()
             .Select(user => new UserItem()
             {
                 um = user,
@@ -66,8 +69,10 @@ internal partial class AccountPageViewModel : BaseViewModel
             OlanExceptionWorker.ForUnknowException(ex);
         }
     }
-    public AccountPageViewModel()
+    public AccountPageViewModel(AccountManager manager,MsalAuthenticator msalAuthenticator)
     {
+        this._accountManager = manager;
+        this._msalAuthenticator = msalAuthenticator;
 #if DEBUG
         if (Design.IsDesignMode)
             UserModelList = new List<UserItem>()
@@ -104,39 +109,39 @@ internal partial class AccountPageViewModel : BaseViewModel
     [ObservableProperty]
     public List<UserItem> _UserModelList;
     [ObservableProperty]
-    public bool _IsPaneShow= false;
+    private bool _IsPaneShow= false;
     [ObservableProperty]
     public UserControl _AccountPane;
 
     [RelayCommand]
-    public void NewUserModel()
+    private void NewUserModel()
     {
         IsPaneShow = true;
         AccountPane = new UserModelLoginPane(this);
     }
     [RelayCommand]
-    public void SkinManger(UserModel userModel)
+    private void SkinManger(UserModel userModel)
     {
         IsPaneShow = true;
         AccountPane = new SkinMangerPane(this,userModel);
     }
     
     [RelayCommand]
-    public void SetDefault(UserItem user)
+    private void SetDefault(UserItem user)
     {
         UserModelList.Select(x => x.IsDefault = false);
         user.IsDefault = true;
-        Init.AccountManager.SetDefaultAsync(user.um.UserID);
+        _accountManager.SetDefault(user.um.UserID);
         RefList();
         MainWindow.mainwindow.ShowFlyout($"已将默认用户模型设置为{user.um.Name}");
     }
     [RelayCommand]
-    public void DeleteUser(UserModel user)
+    private void DeleteUser(UserModel user)
     {
         if (user.IsMsaUser)
-            Init.MMA.RemoveAccount(
+            _msalAuthenticator.RemoveAccount(
                 Tools.UseAccountIDToFind(user.AccountID).Result);
-        Init.AccountManager.RemoveUserAsync(user.UserID);
+        _accountManager.RemoveUser(user.UserID);
         RefList();
         MainWindow.mainwindow.ShowFlyout($"已移除用户模型{user.Name}", true);
     }

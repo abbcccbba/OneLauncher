@@ -5,6 +5,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModPack;
@@ -54,6 +55,7 @@ internal partial class GameDataItem : BaseViewModel
 }
 internal partial class GameDataPageViewModel : BaseViewModel
 {
+    private readonly GameDataManager _gameDataManger;
     [ObservableProperty] public List<GameDataItem> gameDataList = new();
     [ObservableProperty] public string type;
     [ObservableProperty] public UserControl paneContent;
@@ -61,7 +63,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
     // 刷新列表
     public void RefList()
     {
-        GameDataList = Init.GameDataManger.AllGameData.Select(x => new GameDataItem(x)).ToList();
+        GameDataList = _gameDataManger.AllGameData.Select(x => new GameDataItem(x)).ToList();
     }
     // 修改特定的游戏数据实例
     public void UpdateGameData(GameData updatedData)
@@ -72,8 +74,9 @@ internal partial class GameDataPageViewModel : BaseViewModel
             Init.GameDataManger.AllGameData[index] = updatedData;
         }
     }
-    public GameDataPageViewModel()
+    public GameDataPageViewModel(GameDataManager gameDataManager)
     {
+        this._gameDataManger = gameDataManager;
 #if DEBUG
         // 造密码的Avalonia设计器天天报错
         // 设计时数据
@@ -106,7 +109,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
 #endif
         {
             // 把配置文件的游戏数据列表显示到UI
-            GameDataList = Init.GameDataManger.AllGameData.Select(x => new GameDataItem(x)).ToList();
+            GameDataList = _gameDataManger.Data.Instances.Select(x => new GameDataItem(x)).ToList();
         }
     }
     [RelayCommand]
@@ -125,7 +128,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
     public void DeleteInstance(GameData data)
     {
         // 未来可以加一个对话框确认
-        _=Init.GameDataManger.RemoveGameDataAsync(data);
+        _=_gameDataManger.RemoveGameDataAsync(data);
 
         try
         {
@@ -144,7 +147,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
     private async Task SetAsDefaultInstance(GameData targetData)
     {
         if (targetData == null) return;
-        await Init.GameDataManger.SetDefaultInstanceAsync(targetData);
+        await _gameDataManger.SetDefaultInstanceAsync(targetData);
         RefList();
         MainWindow.mainwindow.ShowFlyout($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。");
     }
@@ -161,8 +164,8 @@ internal partial class GameDataPageViewModel : BaseViewModel
         };
 
         GameDataList = orderedList;
-        Init.GameDataManger.AllGameData = GameDataList.Select(x => x.data).ToList();
-        Init.ConfigManger.Save();
+        _gameDataManger.Data.Instances = GameDataList.Select(x => x.data).ToDictionary();
+        _=_gameDataManger.Save();
     }
     private PowerPlayPane powerPlayGo = new PowerPlayPane();
     [RelayCommand]

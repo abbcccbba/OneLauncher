@@ -35,7 +35,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             MainWindow.mainwindow.ShowFlyout("用户名包含非法字符！", true);
             return;
         }
-        Init.AccountManager.AddUserAsync(new UserModel(
+        Init.AccountManager.AddUser(new UserModel(
             UserID : Guid.NewGuid(),
             name : UserName,
             uuid : Guid.NewGuid()
@@ -100,7 +100,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
                     await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenOnSystemBrowser()
                     ?? throw new OlanException("认证失败", "无法认证你的微软账号");
             }
-            await Init.AccountManager.AddUserAsync(um);
+            await Init.AccountManager.AddUser(um);
             using (var task = new MojangProfile(um))
                 await task.GetSkinHeadImage();
             accountPageViewModel.RefList();
