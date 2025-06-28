@@ -25,109 +25,109 @@ public class ModpackImporter : IDisposable
         string gameRoot,
         CancellationToken token = default)
     {
-        using var downloader = new Download();
-        using var importer = new ModpackImporter(downloader, gameRoot);
-        await importer.RunImportAsync(packPath, token);
+        //using var downloader = new Download();
+        //using var importer = new ModpackImporter(downloader, gameRoot);
+        //await importer.RunImportAsync(packPath, token);
     }
 
-    private async Task RunImportAsync(string packPath, CancellationToken token)
-    {
-        // 解压与解析
-        tempWorkDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        Directory.CreateDirectory(tempWorkDir);
-        Download.ExtractFile(packPath, tempWorkDir); 
-        token.ThrowIfCancellationRequested();
+    //private async Task RunImportAsync(string packPath, CancellationToken token)
+    //{
+    //    // 解压与解析
+    //    tempWorkDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+    //    Directory.CreateDirectory(tempWorkDir);
+    //    Download.ExtractFile(packPath, tempWorkDir);
+    //    token.ThrowIfCancellationRequested();
 
-        string manifestPath = Path.Combine(tempWorkDir, "modrinth.index.json");
-        if (!File.Exists(manifestPath))
-            throw new OlanException("整合包无效", "压缩包内未找到 modrinth.index.json 文件。", OlanExceptionAction.Error); //
+    //    string manifestPath = Path.Combine(tempWorkDir, "modrinth.index.json");
+    //    if (!File.Exists(manifestPath))
+    //        throw new OlanException("整合包无效", "压缩包内未找到 modrinth.index.json 文件。", OlanExceptionAction.Error); //
 
-        await using var manifestStream = new FileStream(manifestPath, FileMode.Open, FileAccess.Read);
-        var parser = new MrpackParser(manifestStream); 
+    //    await using var manifestStream = new FileStream(manifestPath, FileMode.Open, FileAccess.Read);
+    //    var parser = new MrpackParser(manifestStream);
 
-        // 获取整合包信息
-        string mcVersion = parser.GetMinecraftVersion(); 
-        (ModEnum loaderType, string loaderVersion) = parser.GetLoaderInfo(); 
+    //    // 获取整合包信息
+    //    string mcVersion = parser.GetMinecraftVersion();
+    //    (ModEnum loaderType, string loaderVersion) = parser.GetLoaderInfo();
 
-        var packGameData = new GameData( 
-            parser.GetName(), 
-            mcVersion,
-            loaderType,
-            null // 默认
-        );
+    //    var packGameData = new GameData(
+    //        parser.GetName(),
+    //        mcVersion,
+    //        loaderType,
+    //        null // 默认
+    //    );
 
-        Directory.CreateDirectory(packGameData.InstancePath);
+    //    Directory.CreateDirectory(packGameData.InstancePath);
 
-        await InstallBaseGameAsync(packGameData, token);
-        token.ThrowIfCancellationRequested();
+    //    await InstallBaseGameAsync(packGameData, token);
+    //    token.ThrowIfCancellationRequested();
 
-        await InstallModpackFilesAsync(parser, packGameData, token);
-        token.ThrowIfCancellationRequested();
+    //    await InstallModpackFilesAsync(parser, packGameData, token);
+    //    token.ThrowIfCancellationRequested();
 
-        await Init.GameDataManger.AddGameDataAsync(packGameData); 
-    }
+    //    await Init.GameDataManger.AddGameDataAsync(packGameData);
+    //}
 
-    private async Task InstallBaseGameAsync(GameData gameData, CancellationToken token)
-    {
-        using var downTool = new Download();
-        var loaderType = gameData.ModLoader;
-        var mcVersion = gameData.VersionId;
+    //private async Task InstallBaseGameAsync(GameData gameData, CancellationToken token)
+    //{
+    //    using var downTool = new Download();
+    //    var loaderType = gameData.ModLoader;
+    //    var mcVersion = gameData.VersionId;
 
-        var downInfo = await DownloadInfo.Create(
-                mcVersion,new ModType()
-                {
-                    IsFabric = loaderType == ModEnum.fabric,
-                    IsNeoForge = loaderType == ModEnum.neoforge,
-                    IsForge = loaderType == ModEnum.forge
-                }, downTool, false, true, true, true, null, gameData
-            );
+    //    var downInfo = await DownloadInfo.Create(
+    //            mcVersion, new ModType()
+    //            {
+    //                IsFabric = loaderType == ModEnum.fabric,
+    //                IsNeoForge = loaderType == ModEnum.neoforge,
+    //                IsForge = loaderType == ModEnum.forge
+    //            }, downTool, false, true, true, true, null, gameData
+    //        );
 
-        var mcDownloader = new DownloadMinecraft(
-            downInfo,
-            null,
-            token
-        );
+    //    var mcDownloader = new DownloadMinecraft(
+    //        downInfo,
+    //        null,
+    //        token
+    //    );
 
-        await mcDownloader.MinecraftBasic(
-            maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-            maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
-            IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
-            useBMLCAPI:Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI
-        );
-        await Init.ConfigManger.Save();
-    }
+    //    await mcDownloader.MinecraftBasic(
+    //        maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
+    //        maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
+    //        IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
+    //        useBMLCAPI: Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI
+    //    );
+    //    await Init.ConfigManger.Save();
+    //}
 
-    private async Task InstallModpackFilesAsync(MrpackParser parser, GameData gameData, CancellationToken token)
-    {
-        string modsDir = Path.Combine(gameData.InstancePath, "mods"); 
-        Directory.CreateDirectory(modsDir);
-        var filesToDownload = parser.GetLibraries(gameData.Name, modsDir); 
+    //private async Task InstallModpackFilesAsync(MrpackParser parser, GameData gameData, CancellationToken token)
+    //{
+    //    string modsDir = Path.Combine(gameData.InstancePath, "mods");
+    //    Directory.CreateDirectory(modsDir);
+    //    var filesToDownload = parser.GetLibraries(gameData.Name, modsDir);
 
-        if (filesToDownload.Any())
-        {
-            await downloadTool.DownloadListAsync(null, filesToDownload, Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, token); //
-        }
+    //    if (filesToDownload.Any())
+    //    {
+    //        await downloadTool.DownloadListAsync(null, filesToDownload, Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, token); //
+    //    }
 
-        string overridesSourceDir = Path.Combine(tempWorkDir, "overrides");
-        if (Directory.Exists(overridesSourceDir))
-        {
-            await Tools.CopyDirectoryAsync(overridesSourceDir, gameData.InstancePath, token); //
-        }
-    }
+    //    string overridesSourceDir = Path.Combine(tempWorkDir, "overrides");
+    //    if (Directory.Exists(overridesSourceDir))
+    //    {
+    //        await Tools.CopyDirectoryAsync(overridesSourceDir, gameData.InstancePath, token); //
+    //    }
+    //}
 
     public void Dispose()
     {
-        if (!string.IsNullOrEmpty(tempWorkDir) && Directory.Exists(tempWorkDir))
-        {
-            try
-            {
-                Directory.Delete(tempWorkDir, true);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"清理整合包临时目录 '{tempWorkDir}' 失败: {ex.Message}");
-            }
-        }
-        downloadTool?.Dispose();
+        //if (!string.IsNullOrEmpty(tempWorkDir) && Directory.Exists(tempWorkDir))
+        //{
+        //    try
+        //    {
+        //        Directory.Delete(tempWorkDir, true);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine($"清理整合包临时目录 '{tempWorkDir}' 失败: {ex.Message}");
+        //    }
+        //}
+        //downloadTool?.Dispose();
     }
 }

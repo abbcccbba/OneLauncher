@@ -5,15 +5,28 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
+using OneLauncher.Views.Panes;
+using OneLauncher.Views.Panes.PaneViewModels;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views;
-public class ApplicationClosingMessage { }
+internal class ApplicationClosingMessage { }
+internal class MainWindowShowFlyoutMessage
+{
+    public readonly string Context;
+    public readonly bool IsWarn;
+    public MainWindowShowFlyoutMessage(string context,bool isWarn = false)
+    {
+        this.Context = context;
+        this.IsWarn = isWarn;
+    }
+}
 public partial class MainWindow : Window
 {
     public Home HomePage;
@@ -34,6 +47,7 @@ public partial class MainWindow : Window
         try
         {
             servises = Init.InitTask.GetAwaiter().GetResult();
+
             servises.AddSingleton<AccountPageViewModel>();
             servises.AddSingleton<DownloadPageViewModel>();
             servises.AddSingleton<GameDataPageViewModel>();
@@ -41,8 +55,13 @@ public partial class MainWindow : Window
             servises.AddSingleton<ModsBrowserViewModel>();
             servises.AddSingleton<SettingsPageViewModel>();
             servises.AddSingleton<VersionPageViewModel>();
+
+            servises.AddTransient<NewGameDataPaneViewModel>();
+
             provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();
+            // 注册消息
+            WeakReferenceMessenger.Default.Register<MainWindowShowFlyoutMessage>(this, (re, message) => ShowFlyout(message.Context, message.IsWarn));
         }
         catch(OlanException e)
         {

@@ -42,7 +42,7 @@ public partial class DownloadInfo
             ? "forge"
             : "原版";
         string defaultInstanceName = $"{versionId} - {defaultInstanceModLoaderDisplayName}";
-        GameData gameData = gameDataD ?? new GameData(defaultInstanceName, versionId, modEnum, null);
+        GameData gameData = gameDataD ?? new GameData(defaultInstanceName, versionId, modEnum, Init.AccountManager.GetDefaultUser().UserID);
 
         // 确定下载信息
         VersionBasicInfo versionDownloadInfo =

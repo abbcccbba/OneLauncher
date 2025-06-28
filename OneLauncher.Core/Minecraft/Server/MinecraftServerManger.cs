@@ -53,7 +53,7 @@ public class MinecraftServerManger
             serverProcess.StartInfo = new ProcessStartInfo()
             {
                 FileName = Tools.IsUseOlansJreOrOssJdk(java),
-                Arguments = Global.Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(java).Trim() + 
+                Arguments = Global.Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(java).Trim() + 
                             $" -jar {(Path.Combine(versionPath, "server.jar"))}",
                 WorkingDirectory =
                 (IsVI)

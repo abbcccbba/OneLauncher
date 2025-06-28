@@ -4,12 +4,14 @@ using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;
+using OneLauncher.Views.Panes.PaneViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,6 +22,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
+internal class GameDataPageClosePaneControlMessage { public bool value = false;}
+internal class GameDataPageDisplayListRefreshMessage { }
 internal partial class GameDataItem : BaseViewModel
 {
     public GameData data { get; set; }
@@ -56,6 +60,7 @@ internal partial class GameDataItem : BaseViewModel
 internal partial class GameDataPageViewModel : BaseViewModel
 {
     private readonly GameDataManager _gameDataManger;
+    private readonly NewGameDataPaneViewModel _newVM;
     [ObservableProperty] public List<GameDataItem> gameDataList = new();
     [ObservableProperty] public string type;
     [ObservableProperty] public UserControl paneContent;
@@ -63,7 +68,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
     // 刷新列表
     public void RefList()
     {
-        GameDataList = _gameDataManger.AllGameData.Select(x => new GameDataItem(x)).ToList();
+        GameDataList = _gameDataManger.Data.Instances.Select(x => new GameDataItem(x.Value)).ToList();
     }
     // 修改特定的游戏数据实例
     public void UpdateGameData(GameData updatedData)
@@ -74,8 +79,9 @@ internal partial class GameDataPageViewModel : BaseViewModel
             Init.GameDataManger.AllGameData[index] = updatedData;
         }
     }
-    public GameDataPageViewModel(GameDataManager gameDataManager)
+    public GameDataPageViewModel(GameDataManager gameDataManager,NewGameDataPaneViewModel NewVM)
     {
+        this._newVM = NewVM;
         this._gameDataManger = gameDataManager;
 #if DEBUG
         // 造密码的Avalonia设计器天天报错
@@ -109,14 +115,18 @@ internal partial class GameDataPageViewModel : BaseViewModel
 #endif
         {
             // 把配置文件的游戏数据列表显示到UI
-            GameDataList = _gameDataManger.Data.Instances.Select(x => new GameDataItem(x)).ToList();
+            GameDataList = _gameDataManger.Data.Instances.Select(x => new GameDataItem(x.Value)).ToList();
+            // 注册消息
+            WeakReferenceMessenger.Default.Register<GameDataPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
+            WeakReferenceMessenger.Default.Register<GameDataPageDisplayListRefreshMessage>(this, (re, message) => RefList());
         }
     }
     [RelayCommand]
     public void NewGameData()
     {
         IsPaneShow = true;
-        PaneContent = new NewGameDataPane();
+        PaneContent = new NewGameDataPane()
+        { DataContext =  _newVM};
     }
     [RelayCommand]
     public void ShowEditPane(GameData data)

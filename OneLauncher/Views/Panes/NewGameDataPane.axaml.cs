@@ -10,6 +10,5 @@ public partial class NewGameDataPane : UserControl
     public NewGameDataPane()
     {
         InitializeComponent();
-        this.DataContext = new NewGameDataPaneViewModel();
     }
 }

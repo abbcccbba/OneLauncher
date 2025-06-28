@@ -5,6 +5,7 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.ConnectToolPower;
 using OneLauncher.Core.Net.msa;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace OneLauncher.Core.Global;
@@ -26,6 +27,12 @@ public static class Init
     public static SystemType SystemType { get; private set; }
     public static List<VersionBasicInfo> MojangVersionList = null;
     public static List<IDisposable> OnApplicationClosingReleaseSourcesList;
+    // 必要的时候还是得耦合一下的，啥都得传递那他妈的写起来太难受了
+    internal static DBManager ConfigManger { get; private set; }
+    internal static AccountManager AccountManager { get; private set; }
+    internal static GameDataManager GameDataManager { get; private set; }
+    internal static MsalAuthenticator MsalAuthenticator { get; private set; }
+    internal static Download Download { get; private set; }
     public static async Task<IServiceCollection> Initialize(bool isCommandMode = false)
     {
         try
@@ -38,6 +45,7 @@ public static class Init
             var configManger = new DBManager(Path.Combine(BasePath,"config.json"));
             await configManger.InitializeAsync();
             services.AddSingleton<DBManager>(configManger);
+            ConfigManger = configManger;
 
             InstalledPath = configManger.Data.OlanSettings.InstallPath ?? Path.Combine(BasePath,"installed");
             GameRootPath = InstalledPath == null ? Path.Combine(BasePath, "installed", ".minecraft") : Path.Combine(InstalledPath, ".minecraft");
@@ -49,18 +57,22 @@ public static class Init
             var accountManger = new AccountManager(Path.Combine(BasePath,"playerdata","account.json"));
             await accountManger.InitializeAsync();
             services.AddSingleton<AccountManager>(accountManger);
+            AccountManager = accountManger; 
 
             var gameDataManger = new GameDataManager(Path.Combine(GameRootPath, "instance", "instance.json"));
             await gameDataManger.InitializeAsync();
             services.AddSingleton<GameDataManager>(gameDataManger);
+            GameDataManager = gameDataManger;
 
             var downloadTool = new Download();
             services.AddSingleton<Download>(downloadTool);
             OnApplicationClosingReleaseSourcesList.Add(downloadTool);
+            Download = downloadTool;
 
             var msrl = await MsalAuthenticator.CreateAsync(AzureApplicationID);
             services.AddSingleton<MsalAuthenticator>(msrl);
             OnApplicationClosingReleaseSourcesList.Add(msrl);
+            MsalAuthenticator = msrl;
 
             return services; 
         }

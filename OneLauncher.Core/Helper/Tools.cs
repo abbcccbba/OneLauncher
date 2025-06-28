@@ -1,5 +1,6 @@
 ﻿using Microsoft.Identity.Client;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Net.msa;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -86,7 +87,7 @@ public static class Tools
     }
     public static async Task<IAccount?> UseAccountIDToFind(string accountID)
     {
-        return (await Init.MMA.GetCachedAccounts())
+        return (await Init.MsalAuthenticator.GetCachedAccounts())
             .FirstOrDefault(a => a.HomeAccountId.Identifier == accountID);
     }
     public static void OpenFolder(string folderPath)
@@ -124,7 +125,7 @@ public static class Tools
     public static string IsUseOlansJreOrOssJdk(int javaVersion)
     {
         var t = Path.Combine(Init.BasePath,"installed","runtimes", javaVersion.ToString());
-        if (Init.ConfigManger.config.AvailableJavaList.Contains(javaVersion))
+        if (Init.ConfigManger.Data.AvailableJavaList.Contains(javaVersion))
             return Init.SystemType == SystemType.osx
                 ? Path.Combine(t, Directory.GetDirectories(t)[0], "Contents", "Home", "bin", "java")
                 : Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
