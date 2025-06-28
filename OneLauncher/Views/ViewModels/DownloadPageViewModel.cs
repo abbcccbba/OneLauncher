@@ -42,28 +42,23 @@ internal partial class DownloadPageViewModel : BaseViewModel
                     );
                 vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException ex)
             {
-                await OlanExceptionWorker.ForOlanException(
-                    new OlanException("无法加载下载版本列表", "无法进行网络请求，且本地文件不存在", OlanExceptionAction.Error),
-                    () => _=VersionManifestReader()
-                        );
-                return;
+                throw new OlanException(
+                    "无法加载下载版本列表", 
+                    "无法进行网络请求，且本地文件不存在", 
+                    OlanExceptionAction.Error,
+                    ex,
+                    () => _=VersionManifestReader());
             }
         }
-        // 路径（3）
         vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
-        // 提前缓存避免UI线程循环卡顿
-        List<VersionBasicInfo> releaseVersions = Init.MojangVersionList = vl.GetReleaseVersionList();
-        await Dispatcher.UIThread.InvokeAsync(() =>
-        viewmodel = new DownloadPageViewModel(releaseVersions));
-        this.DataContext = viewmodel;
+        ReleaseItems = Init.MojangVersionList = vl.GetReleaseVersionList();
+        IsLoaded = true;
     }
-    public DownloadPageViewModel (List<VersionBasicInfo> ReleaseVersionList)
+    public DownloadPageViewModel()
     {
-        IsAllowDownloading = true;
-        ReleaseItems = ReleaseVersionList;
-        
+        _=VersionManifestReader(); 
     }
     [ObservableProperty] private bool isLoaded = false;
     [ObservableProperty] private List<VersionBasicInfo> releaseItems;
