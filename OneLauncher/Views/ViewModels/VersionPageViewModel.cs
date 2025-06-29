@@ -2,6 +2,7 @@
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Compatible.ImportPCL2Version;
 using OneLauncher.Core.Downloader;
@@ -21,6 +22,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
+internal class VersionPageClosePaneControlMessage { public bool value = false; }
 internal partial class VersionItem : BaseViewModel
 {
     /// <param Name="a">UserVersion实例</param>
@@ -52,7 +54,6 @@ internal partial class VersionItem : BaseViewModel
             Tools.OpenFolder(path);
     }
 }
-
 internal partial class VersionPageViewModel : BaseViewModel
 {
     private readonly DBManager _dBManager;
@@ -101,6 +102,7 @@ internal partial class VersionPageViewModel : BaseViewModel
                        Init.Initialize();
                    });
             }
+            WeakReferenceMessenger.Default.Register<VersionPageClosePaneControlMessage>(this, (re, message) =>IsPaneShow = message.value);
         } 
     }
     [ObservableProperty]

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.ModService.Modrinth;
 using OneLauncher.Core.Net.ModService.Modrinth.JsonModelSearch;
@@ -17,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace OneLauncher.Views.ViewModels;
+internal class ModsBrowserClosePaneControlMessage { public bool value = false; }
 internal partial class ModItem : BaseViewModel
 {
     public static List<ModItem> Create(ModrinthSearch info)
@@ -68,13 +70,13 @@ internal partial class ModItem : BaseViewModel
     public ModType SupportModType { get; set; }
     public DateTime time { get; set; }
 }
-
 internal partial class ModsBrowserViewModel : BaseViewModel
 {
     public ModsBrowserViewModel()
     {
         // 初始搜索显示热门结果
-        ToSearch();
+        _=ToSearch(); // 失败就不显示任何结果
+        WeakReferenceMessenger.Default.Register<ModsBrowserClosePaneControlMessage>(this, (r, m) =>IsPaneShow = m.value);
     }
     [ObservableProperty]
     public bool _IsPaneShow = false;

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.ConnectToolPower;
 using OneLauncher.Views.ViewModels;
@@ -21,9 +22,11 @@ namespace OneLauncher.Views.Panes.PaneViewModels;
 public enum PowerPlayMode { Host, Join }
 public partial class PowerPlayPaneViewModel : BaseViewModel
 {
+    private readonly GameDataManager _gameDataManager;
     ~PowerPlayPaneViewModel() => Stop(); // 销毁时停止核心进程
-    private PowerPlayPaneViewModel(IConnectService connectService,MCTPower mainPower)
+    public PowerPlayPaneViewModel(IConnectService connectService,MCTPower mainPower,GameDataManager gameDataManager)
     {
+        this._gameDataManager = gameDataManager;
         PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(IsHostModeChecked) && IsHostModeChecked)
@@ -40,15 +43,10 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
             mainPower.Dispose();
             Debug.WriteLine("核心已停止");
         });
-        AvailableGameData = Init.GameDataManger.AllGameData;
+        AvailableGameData = _gameDataManager.AllGameData;
         mainPower.CoreLog += OnCoreLogReceived;
         this.mainPower = mainPower;
         this.connectService = connectService;
-    }
-    public static async Task<PowerPlayPaneViewModel> CreateAsync()
-    {
-        var mctPower = await MCTPower.InitializationAsync();
-        return new PowerPlayPaneViewModel(new P2PMode(mctPower),mctPower);
     }
     private readonly MCTPower mainPower;
     private readonly IConnectService connectService;
@@ -158,9 +156,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
             }
             else
             {
-                var allInstancesForVersion = Init.GameDataManger.AllGameData
-                    .Where(gd => gd.VersionId == versionId)
-                    .ToList();
+                var allInstancesForVersion = _gameDataManager.AllGameData;
 
                 if (!allInstancesForVersion.Any())
                 {

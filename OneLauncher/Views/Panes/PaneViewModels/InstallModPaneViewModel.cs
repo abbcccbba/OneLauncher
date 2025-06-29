@@ -2,6 +2,7 @@
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
@@ -35,7 +36,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
         modItem = item;
         ModName = item.Title;
         SupportVersions = item.SupportVersions;
-        AvailableGameData = _gameDataManager.Data.Instances.Select(x => x.Value).ToList();
+        AvailableGameData = _gameDataManager.AllGameData;
         this.SupportModType = item.SupportModType;
     }
     private ModType SupportModType;
@@ -58,19 +59,25 @@ internal partial class InstallModPaneViewModel : BaseViewModel
         // 验证是否选择了实例
         if (SelectedGameData == null)
         {
-            MainWindow.mainwindow.ShowFlyout("请先选择一个游戏实例！", true);
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage("请先选择一个游戏实例！"));
+            //MainWindow.mainwindow.ShowFlyout("请先选择一个游戏实例！", true);
             return;
         }
         // 检查加载器是否匹配
         if (SupportModType != SelectedGameData.ModLoader)
         {
-            MainWindow.mainwindow.ShowFlyout($"此 Mod 不支持 {SelectedGameData.ModLoader} 加载器。", true);
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage($"此 Mod 不支持 {SelectedGameData.ModLoader} 加载器。"));
+            //MainWindow.mainwindow.ShowFlyout($"此 Mod 不支持 {SelectedGameData.ModLoader} 加载器。", true);
             return;
         }
         // 检查游戏版本是否受支持
         if (!SupportVersions.Contains(SelectedGameData.VersionId))
         {
-            MainWindow.mainwindow.ShowFlyout($"此 Mod 不支持游戏版本 {SelectedGameData.VersionId}。", true);
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage($"此 Mod 不支持游戏版本 {SelectedGameData.VersionId}。"));
+            //MainWindow.mainwindow.ShowFlyout($"此 Mod 不支持游戏版本 {SelectedGameData.VersionId}。", true);
             return;
         }
         // 4. 所有检查通过，开始下载
@@ -96,19 +103,22 @@ internal partial class InstallModPaneViewModel : BaseViewModel
                     modsPath,
                     SelectedGameData.VersionId,
                     IsIncludeDependencies: IsICS,
-                    IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled
+                    // 先凑合用，未来再重写
+                    IsSha1: Init.ConfigManger.Data.OlanSettings.IsSha1Enabled
                 );
             }
-            MainWindow.mainwindow.ShowFlyout($"{ModName} 安装成功！");
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage($"{ModName} 安装成功！"));
+            //MainWindow.mainwindow.ShowFlyout($"{ModName} 安装成功！");
         }
         catch (OlanException ex)
         {
-            OlanExceptionWorker.ForOlanException(ex);
+            await OlanExceptionWorker.ForOlanException(ex);
             IsShowMoreInfo = true; // 失败后恢复界面
         }
         catch (Exception ex)
         {
-            OlanExceptionWorker.ForUnknowException(ex);
+            await OlanExceptionWorker.ForUnknowException(ex);
             IsShowMoreInfo = true; // 失败后恢复界面
         }
     }
@@ -128,6 +138,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     [RelayCommand]
     public void ClosePane()
     {
-        MainWindow.mainwindow.modsBrowserPage.viewmodel.IsPaneShow = false;
+        WeakReferenceMessenger.Default.Send(new ModsBrowserClosePaneControlMessage());
+        //MainWindow.mainwindow.modsBrowserPage.viewmodel.IsPaneShow = false;
     }
 }

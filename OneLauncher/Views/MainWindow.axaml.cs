@@ -62,6 +62,7 @@ public partial class MainWindow : Window
             // Pane ViewModel本身是单例的，但工厂模式可以保证每次获取都是新的实例
             servises.AddSingleton<DownloadPaneViewModelFactory>();
             servises.AddSingleton<EditGameDataPaneViewModelFactory>();
+            servises.AddSingleton<PowerPlayPaneViewModelFactory>();
 
             provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();

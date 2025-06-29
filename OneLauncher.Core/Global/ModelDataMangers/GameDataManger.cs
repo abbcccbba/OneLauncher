@@ -25,6 +25,9 @@ public partial class GameDataJsonContext : JsonSerializerContext { }
 
 public class GameDataManager : BasicDataManager<GameDataRoot>
 {
+    //public List<GameData> AllGameData => Data.Instances.Select(x => x.Value).ToList();
+    //public GameDataRoot Data => base.Data;
+    public List<GameData> AllGameData => Data.Instances.Values.ToList();
     /// <summary>
     /// 获取或创建一个指定版本的游戏数据实例。
     /// 查找逻辑：1. 默认实例 -> 2. 第一个可用实例 -> 3. 创建新实例。

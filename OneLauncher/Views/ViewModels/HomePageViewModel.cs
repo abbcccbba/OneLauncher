@@ -23,7 +23,7 @@ internal partial class HomePageViewModel : BaseViewModel
     {
         this._configManager = configManager;
         this._gameDataManager = gameDataManager;
-        LaunchItems = _gameDataManager.Data.Instances.Select(x => x.Value).ToList();
+        LaunchItems = _gameDataManager.AllGameData;
         SelectedGameData = _gameDataManager.Data.Instances.GetValueOrDefault(_configManager.Data.DefaultInstanceID);
 #if DEBUG
         if (Design.IsDesignMode)
