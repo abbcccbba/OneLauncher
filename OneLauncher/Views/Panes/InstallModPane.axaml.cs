@@ -13,13 +13,5 @@ internal partial class InstallModPane : UserControl
     public InstallModPane()
     {
         InitializeComponent();
-#if DEBUG
-        this.DataContext = new InstallModPaneViewModel();
-#endif
-    }
-    public InstallModPane(ModItem item)
-    {
-        InitializeComponent();
-        this.DataContext = new InstallModPaneViewModel(item);
     }
 }

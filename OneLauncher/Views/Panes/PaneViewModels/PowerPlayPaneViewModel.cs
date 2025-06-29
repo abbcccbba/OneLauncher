@@ -50,7 +50,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
     }
     private readonly MCTPower mainPower;
     private readonly IConnectService connectService;
-
+    #region 模型定义
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStart))]
     [NotifyPropertyChangedFor(nameof(CanStop))]
@@ -80,7 +80,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
 
     public bool CanStart => !isConnected;
     public bool CanStop => isConnected;
-
+    #endregion
     [RelayCommand]
     private async Task Host()
     {
@@ -165,7 +165,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
 
                 // 查找或设置要启动的实例
                 GameData instanceToLaunch; 
-                var defaultInstance = Init.GameDataManger.GetDefaultInstance(versionId);
+                var defaultInstance = _gameDataManager.GetDefaultInstance(versionId);
 
                 if (defaultInstance != null)
                 {
@@ -175,8 +175,10 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
                 {
                     // 如果没有默认项，自动设置第一个并通知用户
                     instanceToLaunch = allInstancesForVersion.First();
-                    await Init.GameDataManger.SetDefaultInstanceAsync(instanceToLaunch);
-                    MainWindow.mainwindow.ShowFlyout($"已自动将'{instanceToLaunch.Name}'设为版本{versionId}的默认实例");
+                    await _gameDataManager.SetDefaultInstanceAsync(instanceToLaunch);
+                    WeakReferenceMessenger.Default.Send(
+                        new MainWindowShowFlyoutMessage($"已自动将'{instanceToLaunch.Name}'设为版本{versionId}的默认实例"));
+                    //MainWindow.mainwindow.ShowFlyout($"已自动将'{instanceToLaunch.Name}'设为版本{versionId}的默认实例");
                 }
 
                 // 启动P2P

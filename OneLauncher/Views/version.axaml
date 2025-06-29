@@ -8,7 +8,14 @@
 			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
 			 x:CompileBindings="True"
 			 x:DataType="vm:VersionPageViewModel"
+			 xmlns:i="using:Avalonia.Xaml.Interactivity"
+             xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
 			 >
+	<i:Interaction.Behaviors>
+		<ia:EventTriggerBehavior EventName="Loaded">
+			<ia:InvokeCommandAction Command="{Binding PageLoadedCommand}" />
+		</ia:EventTriggerBehavior>
+	</i:Interaction.Behaviors>
 	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
                DisplayMode="Overlay"
                OpenPaneLength="650"

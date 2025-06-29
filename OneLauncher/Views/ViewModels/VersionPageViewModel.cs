@@ -105,6 +105,27 @@ internal partial class VersionPageViewModel : BaseViewModel
             WeakReferenceMessenger.Default.Register<VersionPageClosePaneControlMessage>(this, (re, message) =>IsPaneShow = message.value);
         } 
     }
+    [RelayCommand]
+    protected void PageLoaded()
+    {
+        try
+        {
+            RefList();
+        }
+        catch (NullReferenceException ex)
+        {
+            throw new OlanException(
+                "内部异常",
+                "配置文件特定部分版本列表部分为空，这可能是新版和旧版配置文件不兼容导致的",
+                OlanExceptionAction.FatalError,
+                ex,
+               () =>
+               {
+                   File.Delete(Path.Combine(Init.BasePath, "config.json"));
+                   Init.Initialize().GetAwaiter().GetResult();
+               });
+        }
+    }
     [ObservableProperty]
     public List<VersionItem> _versionList;
     [ObservableProperty]

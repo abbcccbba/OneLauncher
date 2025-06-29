@@ -26,40 +26,6 @@ public partial class version : UserControl
     {
         InitializeComponent();
     }
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-#if DEBUG
-        if (Design.IsDesignMode)
-            return;
-#endif
-        try
-        {
-            var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
-            for (int i = 0; i < Init.ConfigManger.config.VersionList.Count; i++)
-            {
-                tempVersoinList.Add(new VersionItem(
-                    Init.ConfigManger.config.VersionList[i],
-                    i
-                    ));
-            }
-            navVL.ItemsSource = tempVersoinList;
-        }
-        catch (NullReferenceException ex)
-        {
-            throw new OlanException(
-                "内部异常",
-                "配置文件特定部分版本列表部分为空，这可能是新版和旧版配置文件不兼容导致的",
-                OlanExceptionAction.FatalError,
-                ex,
-               () =>
-               {
-                   File.Delete(Path.Combine(Init.BasePath, "config.json"));
-                   Init.Initialize();
-               }
-                );
-        }
-    }
     /// <summary>
     /// 真·一键启动游戏函数
     /// </summary>

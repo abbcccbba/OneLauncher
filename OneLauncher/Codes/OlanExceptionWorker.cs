@@ -1,4 +1,5 @@
 ﻿using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Global;
 using OneLauncher.Views;
 using OneLauncher.Views.Windows;
@@ -19,7 +20,7 @@ internal class OlanExceptionWorker
         return Dispatcher.UIThread.InvokeAsync(async () => 
         {
             if (exception.Action == OlanExceptionAction.Warning)
-                MainWindow.mainwindow.ShowFlyout(exception.Message,true);
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage(exception.Message,true));
             if (exception.Action == OlanExceptionAction.Error)
                 await new ExceptionTip(exception).ShowDialog(MainWindow.mainwindow);
             if (exception.Action == OlanExceptionAction.FatalError)
