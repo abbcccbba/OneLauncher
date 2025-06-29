@@ -32,6 +32,20 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         LoadCurrentIcon();
     }
 
+    private void UpdateGameData()
+    {
+        try
+        {
+            _gameDataManager.Data.Instances[editingGameData.InstanceId] = editingGameData;
+        }
+        catch(KeyNotFoundException e)
+        {
+            throw new OlanException(
+                "无法更新游戏数据",
+                "尝试更新一个不存在的游戏数据实例",
+                OlanExceptionAction.Error, e);
+        }
+    }
     private void LoadCurrentIcon()
     {
         if (!string.IsNullOrEmpty(editingGameData.CustomIconPath) && File.Exists(editingGameData.CustomIconPath))
@@ -48,6 +62,26 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
             _ => "avares://OneLauncher/Assets/Imgs/basic.png",
         };
         CurrentIcon = new Bitmap(AssetLoader.Open(new Uri(iconUri)));
+    }
+    private void DeleteGameData()
+    {
+        // 未来可以加一个对话框确认
+        _ = _gameDataManager.RemoveGameDataAsync(editingGameData);
+
+        try
+        {
+            if (Directory.Exists(editingGameData.InstancePath))
+                Directory.Delete(editingGameData.InstancePath, true);
+        }
+        catch (Exception ex)
+        {
+            MainWindow.mainwindow.ShowFlyout($"删除文件夹失败: {ex.Message}", true);
+        }
+
+        WeakReferenceMessenger.Default.Send(
+            new GameDataPageDisplayListRefreshMessage()); // 重新加载列表
+        WeakReferenceMessenger.Default.Send(
+            new MainWindowShowFlyoutMessage($"已删除实例“{editingGameData.Name}”！"));
     }
 
     [RelayCommand]
@@ -78,11 +112,13 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
 
         editingGameData.CustomIconPath = destPath;
         CurrentIcon = new Bitmap(destPath); // 显示预览
-        parentViewModel.UpdateGameData(editingGameData);
+        UpdateGameData();
 
-        parentViewModel.RefList();
+        WeakReferenceMessenger.Default.Send(
+            new GameDataPageDisplayListRefreshMessage());
 
-        MainWindow.mainwindow.ShowFlyout("图标已更新！");
+        WeakReferenceMessenger.Default.Send(
+            new MainWindowShowFlyoutMessage($"已更改实例“{editingGameData.Name}”的图标！"));
     }
 
     [RelayCommand]
@@ -109,10 +145,11 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     private void Save()
     {
         editingGameData.Name = InstanceName;
-        parentViewModel.UpdateGameData(editingGameData);
+        //parentViewModel.UpdateGameData(editingGameData);
+        _gameDataManager.Data.Instances.GetValueOrDefault(editingGameData.InstanceId);
         _=_gameDataManager.Save();
 
-        parentViewModel.RefList();
+        WeakReferenceMessenger.Default.Send(new GameDataPageDisplayListRefreshMessage());
         WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage($"实例“{InstanceName}”已保存"));
@@ -120,8 +157,8 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     [RelayCommand]
     private void DeleteInstance()
     {
-        MainWindow.mainwindow.gamedataPage.viewmodel.DeleteInstance(editingGameData);
-        MainWindow.mainwindow.gamedataPage.viewmodel.IsPaneShow = false;
+        DeleteGameData();
+        WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
     }
 
     [RelayCommand]

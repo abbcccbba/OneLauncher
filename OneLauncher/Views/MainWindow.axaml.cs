@@ -47,6 +47,7 @@ public partial class MainWindow : Window
         mainwindow = this;
         try
         {
+            // 等待基本组件初始化完成，并在后续注册ViewModel
             servises = Init.InitTask.GetAwaiter().GetResult();
 
             servises.AddSingleton<AccountPageViewModel>();
@@ -58,7 +59,9 @@ public partial class MainWindow : Window
             servises.AddSingleton<VersionPageViewModel>();
 
             servises.AddTransient<NewGameDataPaneViewModel>();
-            servises.AddTransient<DownloadPaneViewModelFactory>();
+            // Pane ViewModel本身是单例的，但工厂模式可以保证每次获取都是新的实例
+            servises.AddSingleton<DownloadPaneViewModelFactory>();
+            servises.AddSingleton<EditGameDataPaneViewModelFactory>();
 
             provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();
@@ -107,41 +110,6 @@ public partial class MainWindow : Window
             dis.Dispose();
         // 发送关闭消息
         WeakReferenceMessenger.Default.Send(new ApplicationClosingMessage());
-    }
-    public enum MainPage
-    {
-        HomePage,VersionPage,AccountPage,DownloadPage,SettingsPage, ModsBrowserPage,GameDataPage //, ServerPage
-    }
-    /// <summary>
-    /// 手动管理页面切换
-    /// </summary>
-    /// <param ID="page">主页面</param>
-    public void MainPageControl(MainPage page)
-    {
-        switch(page)
-        {
-            case MainPage.HomePage:
-                SplitListBox.SelectedItem = HomeListBoxItem;
-                break;
-            case MainPage.VersionPage:
-                SplitListBox.SelectedItem = VersionListBoxItem;
-                break;
-            case MainPage.AccountPage:
-                SplitListBox.SelectedItem = AccountListBoxItem;
-                break;
-            case MainPage.ModsBrowserPage:
-                SplitListBox.SelectedItem = ModsBrowserListBoxItem;
-                break;
-            case MainPage.DownloadPage:
-                SplitListBox.SelectedItem = DownloadListBoxItem;
-                break;
-            case MainPage.SettingsPage:
-                SplitListBox.SelectedItem = SettingsListBoxItem;
-                break;
-            case MainPage.GameDataPage:
-                SplitListBox.SelectedItem = GameDataListBoxItem;
-                break;
-        }
     }
     /// <summary>
     /// 在右下角显示提示信息

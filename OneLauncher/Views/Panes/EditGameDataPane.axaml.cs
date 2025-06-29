@@ -12,9 +12,4 @@ public partial class EditGameDataPane : UserControl
     {
         InitializeComponent();
     }
-    public EditGameDataPane(GameData gameData)
-    {
-        InitializeComponent();
-        this.DataContext = new EditGameDataPaneViewModel(gameData);
-    }
 }

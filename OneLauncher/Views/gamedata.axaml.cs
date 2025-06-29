@@ -20,32 +20,4 @@ public partial class gamedata : UserControl
     {
         InitializeComponent();
     }
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-#if DEBUG
-        if (Design.IsDesignMode)
-            return;
-#endif
-        try
-        {
-            navVL.ItemsSource = 
-                MainWindow.mainwindow.provider.GetRequiredService<GameDataManager>()
-                .Data.Instances.Select(x => new GameDataItem(x.Value)).ToList();
-        }
-        catch (NullReferenceException ex)
-        {
-            throw new OlanException(
-                "内部异常",
-                "配置文件特定部分版本列表部分为空，这可能是新版和旧版配置文件不兼容导致的",
-                OlanExceptionAction.FatalError,
-                ex,
-               () =>
-               {
-                   File.Delete(Path.Combine(Init.BasePath, "config.json"));
-                   Init.Initialize();
-               }
-                );
-        }
-    }
 }

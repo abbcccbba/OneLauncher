@@ -12,6 +12,7 @@ using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;
 using OneLauncher.Views.Panes.PaneViewModels;
+using OneLauncher.Views.Panes.PaneViewModels.Factories;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,14 +34,14 @@ internal partial class GameDataItem : BaseViewModel
     [RelayCommand]
     public void Launch(GameData gameData)
     {
-        version.EasyGameLauncher(gameData,IsUseDebugModLaunch);
+        _=version.EasyGameLauncher(gameData,IsUseDebugModLaunch);
     }
-    public GameDataItem(GameData gameData)
+    public GameDataItem(GameData gameData,GameDataManager gameDataManager)
     {
         data = gameData;
 
         // 检查自己是否是其对应版本的默认实例
-        var defaultInstance = Init.GameDataManger.GetDefaultInstance(gameData.VersionId);
+        var defaultInstance = gameDataManager.GetDefaultInstance(gameData.VersionId);
         IsDefault = (defaultInstance != null && defaultInstance.InstanceId == gameData.InstanceId);
         if (!string.IsNullOrEmpty(data.CustomIconPath) && File.Exists(data.CustomIconPath))
         {
@@ -59,8 +60,9 @@ internal partial class GameDataItem : BaseViewModel
 }
 internal partial class GameDataPageViewModel : BaseViewModel
 {
-    private readonly GameDataManager _gameDataManger;
+    private readonly GameDataManager _gameDataManager;
     private readonly NewGameDataPaneViewModel _newVM;
+    private readonly EditGameDataPaneViewModelFactory _editVMFactory;
     [ObservableProperty] public List<GameDataItem> gameDataList = new();
     [ObservableProperty] public string type;
     [ObservableProperty] public UserControl paneContent;
@@ -68,21 +70,27 @@ internal partial class GameDataPageViewModel : BaseViewModel
     // 刷新列表
     public void RefList()
     {
-        GameDataList = _gameDataManger.Data.Instances.Select(x => new GameDataItem(x.Value)).ToList();
+        GameDataList = _gameDataManager.Data.Instances.Select(x => new GameDataItem(x.Value,_gameDataManager)).ToList();
     }
-    // 修改特定的游戏数据实例
-    public void UpdateGameData(GameData updatedData)
+    /* 由PaneViewModel实现 */
+    //// 修改特定的游戏数据实例
+    //public void UpdateGameData(GameData updatedData)
+    //{
+    //    var index = Init.GameDataManger.AllGameData.FindIndex(gd => gd.InstanceId == updatedData.InstanceId);
+    //    if (index != -1)
+    //    {
+    //        Init.GameDataManger.AllGameData[index] = updatedData;
+    //    }
+    //}
+    public GameDataPageViewModel(
+        GameDataManager gameDataManager,
+        NewGameDataPaneViewModel NewVM,
+        EditGameDataPaneViewModelFactory editGameDataPaneViewModelFactory
+        )
     {
-        var index = Init.GameDataManger.AllGameData.FindIndex(gd => gd.InstanceId == updatedData.InstanceId);
-        if (index != -1)
-        {
-            Init.GameDataManger.AllGameData[index] = updatedData;
-        }
-    }
-    public GameDataPageViewModel(GameDataManager gameDataManager,NewGameDataPaneViewModel NewVM)
-    {
+        this._editVMFactory = editGameDataPaneViewModelFactory;
         this._newVM = NewVM;
-        this._gameDataManger = gameDataManager;
+        this._gameDataManager = gameDataManager;
 #if DEBUG
         // 造密码的Avalonia设计器天天报错
         // 设计时数据
@@ -107,18 +115,40 @@ internal partial class GameDataPageViewModel : BaseViewModel
             // 将创建好的 GameData 包装成 GameDataItem 并添加到列表
             GameDataList = new List<GameDataItem>()
         {
-            new GameDataItem(gameData1),
-            new GameDataItem(gameData2)
+            new GameDataItem(gameData1,_gameDataManager),
+            new GameDataItem(gameData2,_gameDataManager)
         };
         }
         else
 #endif
         {
             // 把配置文件的游戏数据列表显示到UI
-            GameDataList = _gameDataManger.Data.Instances.Select(x => new GameDataItem(x.Value)).ToList();
+            OnPageLoaded();
             // 注册消息
             WeakReferenceMessenger.Default.Register<GameDataPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
             WeakReferenceMessenger.Default.Register<GameDataPageDisplayListRefreshMessage>(this, (re, message) => RefList());
+        }
+    }
+    [RelayCommand]
+    void OnPageLoaded()
+    {
+        try
+        {
+            RefList();
+        }
+        catch (NullReferenceException ex)
+        {
+            throw new OlanException(
+                "无法初始化",
+                "在游戏数据管理器页面读取配置文件时失败",
+                OlanExceptionAction.FatalError,
+                ex,
+               () =>
+               {
+                   File.Delete(Path.Combine(Init.GameRootPath, "instance", "instance.json"));
+                   Init.Initialize().Wait();
+               }
+                );
         }
     }
     [RelayCommand]
@@ -132,34 +162,18 @@ internal partial class GameDataPageViewModel : BaseViewModel
     public void ShowEditPane(GameData data)
     {
         IsPaneShow = true;
-        PaneContent = new EditGameDataPane(data);
-    }
-    [RelayCommand]
-    public void DeleteInstance(GameData data)
-    {
-        // 未来可以加一个对话框确认
-        _=_gameDataManger.RemoveGameDataAsync(data);
-
-        try
-        {
-            if (Directory.Exists(data.InstancePath))
-                Directory.Delete(data.InstancePath, true);
-        }
-        catch (Exception ex)
-        {
-            MainWindow.mainwindow.ShowFlyout($"删除文件夹失败: {ex.Message}", true);
-        }
-
-        RefList(); // 重新加载列表
-        MainWindow.mainwindow.ShowFlyout($"已删除: {data.Name}");
+        PaneContent = new EditGameDataPane()
+        { DataContext = _editVMFactory.Create(data) };
     }
     [RelayCommand]
     private async Task SetAsDefaultInstance(GameData targetData)
     {
         if (targetData == null) return;
-        await _gameDataManger.SetDefaultInstanceAsync(targetData);
+        await _gameDataManager.SetDefaultInstanceAsync(targetData);
         RefList();
-        MainWindow.mainwindow.ShowFlyout($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。");
+        WeakReferenceMessenger.Default.Send(
+            new MainWindowShowFlyoutMessage($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。"));
+        //MainWindow.mainwindow.ShowFlyout($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。");
     }
     [RelayCommand]
     public void Sorting(SortingType type)
@@ -174,9 +188,9 @@ internal partial class GameDataPageViewModel : BaseViewModel
         };
 
         GameDataList = orderedList;
-        _gameDataManger.Data.Instances = GameDataList.Select(x => x.data)
+        _gameDataManager.Data.Instances = GameDataList.Select(x => x.data)
                                                      .ToDictionary(x => x.InstanceId,x => x);
-        _=_gameDataManger.Save();
+        _=_gameDataManager.Save();
     }
     private PowerPlayPane powerPlayGo = new PowerPlayPane();
     [RelayCommand]
@@ -210,9 +224,11 @@ internal partial class GameDataPageViewModel : BaseViewModel
                 return;
 
             string filePath = selectedFile.Path.LocalPath;
-            MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("正在导入。。。（这可能需要较长时间）"));
+            //MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
             await ModpackImporter.ImportFromMrpackAsync(filePath, Init.GameRootPath, CancellationToken.None);
-            MainWindow.mainwindow.ShowFlyout("导入完成！");
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("导入完成！"));
+            //MainWindow.mainwindow.ShowFlyout("导入完成！");
             RefList();
         }
     }

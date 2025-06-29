@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
 using System;
@@ -18,6 +19,7 @@ namespace OneLauncher.Views.Panes.PaneViewModels;
 
 internal partial class InstallModPaneViewModel : BaseViewModel
 {
+    private readonly GameDataManager _gameDataManager;
 #if DEBUG
     // 给设计器预览的
     public InstallModPaneViewModel()
@@ -27,13 +29,13 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     }
 #endif
     private readonly ModItem modItem;
-    public InstallModPaneViewModel(ModItem item)
+    public InstallModPaneViewModel(ModItem item,GameDataManager gameDataManager)
     {
+        this._gameDataManager = gameDataManager;
         modItem = item;
         ModName = item.Title;
         SupportVersions = item.SupportVersions;
-        // 修改点 1：直接从 GameDataManger 获取所有实例
-        AvailableGameData = Init.GameDataManger.AllGameData;
+        AvailableGameData = _gameDataManager.Data.Instances.Select(x => x.Value).ToList();
         this.SupportModType = item.SupportModType;
     }
     private ModType SupportModType;

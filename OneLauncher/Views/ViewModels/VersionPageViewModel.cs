@@ -7,6 +7,7 @@ using OneLauncher.Core.Compatible.ImportPCL2Version;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.ImportPCL2Version;
 using OneLauncher.Core.Minecraft.Server;
@@ -24,17 +25,15 @@ internal partial class VersionItem : BaseViewModel
 {
     /// <param Name="a">UserVersion实例</param>
     /// <param Name="IndexInInit">UserVsersion实例在整个Init.ConfigManager.config.VersionList中的索引值</param>
-    public VersionItem(UserVersion a,int IndexInInit)
+    public VersionItem(UserVersion a)
     {
         versionExp = a;
-        index = IndexInInit;
     }
-    int index;
     public UserVersion versionExp { get; set; }
     [RelayCommand]
     public async Task LaunchGame()
     {
-        GameData gameData = await Init.GameDataManger.GetOrCreateInstanceAsync(versionExp);
+        GameData gameData = await Init.GameDataManager.GetOrCreateInstanceAsync(versionExp);
         _=new Game().LaunchGame(gameData,null,true);
     }
     [RelayCommand]
@@ -56,18 +55,20 @@ internal partial class VersionItem : BaseViewModel
 
 internal partial class VersionPageViewModel : BaseViewModel
 {
+    private readonly DBManager _dBManager;
     private void RefList()
     {
-        var tempVersoinList = new List<VersionItem>(Init.ConfigManger.config.VersionList.Count);
-        for (int i = 0; i < tempVersoinList.Count; i++)
-        {
-            tempVersoinList.Add(new VersionItem(
-                Init.ConfigManger.config.VersionList[i], i));
-        }
-        VersionList = tempVersoinList;
+        //var tempVersoinList = new List<VersionItem>(_dBManager.Data.VersionList.Count);
+        //for (int i = 0; i < tempVersoinList.Count; i++)
+        //{
+        //    tempVersoinList.Add(new VersionItem(
+        //        Init.ConfigManger.Data.VersionList[i], i));
+        //}
+        VersionList = _dBManager.Data.VersionList.Select(x => new VersionItem(x)).ToList();
     }
-    public VersionPageViewModel()
+    public VersionPageViewModel(DBManager dBManager)
     {
+        this._dBManager = dBManager;
 #if DEBUG
         // 设计时数据
         if (Design.IsDesignMode)
@@ -78,7 +79,7 @@ internal partial class VersionPageViewModel : BaseViewModel
                 {
                     VersionID="1.21.5",
                     AddTime=DateTime.Now
-                },0)
+                })
             };
         }
         else
@@ -121,8 +122,8 @@ internal partial class VersionPageViewModel : BaseViewModel
         };
 
         VersionList = orderedList; 
-        Init.ConfigManger.config.VersionList = VersionList.Select(x => x.versionExp).ToList();
-        Init.ConfigManger.Save();
+        _dBManager.Data.VersionList = VersionList.Select(x => x.versionExp).ToList();
+        _=_dBManager.Save();
     }
     [RelayCommand]
     public async Task OpenServer(UserVersion versionExp)
@@ -196,11 +197,6 @@ internal partial class VersionPageViewModel : BaseViewModel
         //    }
         //    MainWindow.mainwindow.ShowFlyout("这不是有效的PCL版本文件夹",true);
         //}
-    }
-    [RelayCommand]
-    public void GoToDownload()
-    {
-        MainWindow.mainwindow.MainPageControl(MainWindow.MainPage.DownloadPage);
     }
 }
 
