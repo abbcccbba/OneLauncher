@@ -8,6 +8,7 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.ModService.Modrinth;
 using OneLauncher.Core.Net.ModService.Modrinth.JsonModelSearch;
 using OneLauncher.Views.Panes;
+using OneLauncher.Views.Panes.PaneViewModels.Factories;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -72,10 +73,12 @@ internal partial class ModItem : BaseViewModel
 }
 internal partial class ModsBrowserViewModel : BaseViewModel
 {
-    public ModsBrowserViewModel()
+    private readonly InstallModPaneViewModelFactory _paneVMFactory;
+    public ModsBrowserViewModel(InstallModPaneViewModelFactory installModPaneViewModelFactory)
     {
+        this._paneVMFactory = installModPaneViewModelFactory;   
         // 初始搜索显示热门结果
-        _=ToSearch(); // 失败就不显示任何结果
+        _ =ToSearch(); // 失败就不显示任何结果
         WeakReferenceMessenger.Default.Register<ModsBrowserClosePaneControlMessage>(this, (r, m) =>IsPaneShow = m.value);
     }
     [ObservableProperty]
@@ -98,6 +101,7 @@ internal partial class ModsBrowserViewModel : BaseViewModel
     public void ToInstallMod(ModItem item)
     {
         IsPaneShow = true;
-        InstallModPaneContent = new InstallModPane(item);
+        InstallModPaneContent = new InstallModPane()
+        { DataContext = _paneVMFactory.Create(item) };
     }
 }

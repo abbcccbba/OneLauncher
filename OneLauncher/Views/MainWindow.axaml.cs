@@ -63,6 +63,7 @@ public partial class MainWindow : Window
             servises.AddSingleton<DownloadPaneViewModelFactory>();
             servises.AddSingleton<EditGameDataPaneViewModelFactory>();
             servises.AddSingleton<PowerPlayPaneViewModelFactory>();
+            servises.AddSingleton<InstallModPaneViewModelFactory>();
 
             provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();

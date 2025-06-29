@@ -70,7 +70,7 @@ internal partial class DownloadPageViewModel : BaseViewModel
     }
     [ObservableProperty] private bool isLoaded = false;
     [ObservableProperty] private List<VersionBasicInfo> releaseItems;
-    [ObservableProperty] public VersionBasicInfo selectedItem;
+    [ObservableProperty] private VersionBasicInfo? selectedItem;
     partial void OnSelectedItemChanged(VersionBasicInfo value)
     {
         if(value != null)
@@ -79,7 +79,6 @@ internal partial class DownloadPageViewModel : BaseViewModel
     [ObservableProperty] public UserControl _DownloadPaneContent;
     [ObservableProperty] public bool _IsPaneShow = false;
     [ObservableProperty] public bool _IsAllowDownloading;
-    public List<VersionBasicInfo> _AutoVersionList => ReleaseItems;
 
     [RelayCommand]
     private void ToDownload(VersionBasicInfo vbi)

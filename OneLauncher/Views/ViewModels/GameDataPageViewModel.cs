@@ -5,6 +5,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
@@ -18,6 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,6 +65,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
     private readonly GameDataManager _gameDataManager;
     private readonly NewGameDataPaneViewModel _newVM;
     private readonly EditGameDataPaneViewModelFactory _editVMFactory;
+    private readonly PowerPlayPaneViewModelFactory _mctVMFactory;
     [ObservableProperty] public List<GameDataItem> gameDataList = new();
     [ObservableProperty] public string type;
     [ObservableProperty] public UserControl paneContent;
@@ -85,9 +88,11 @@ internal partial class GameDataPageViewModel : BaseViewModel
     public GameDataPageViewModel(
         GameDataManager gameDataManager,
         NewGameDataPaneViewModel NewVM,
-        EditGameDataPaneViewModelFactory editGameDataPaneViewModelFactory
+        EditGameDataPaneViewModelFactory editGameDataPaneViewModelFactory,
+        PowerPlayPaneViewModelFactory powerPlayPaneViewModelFactory
         )
     {
+        this._mctVMFactory = powerPlayPaneViewModelFactory;
         this._editVMFactory = editGameDataPaneViewModelFactory;
         this._newVM = NewVM;
         this._gameDataManager = gameDataManager;
@@ -124,6 +129,8 @@ internal partial class GameDataPageViewModel : BaseViewModel
         {
             // 把配置文件的游戏数据列表显示到UI
             OnPageLoaded();
+            // 提前初始化联机模块
+            _connentServiceInitializationTasker = _mctVMFactory.CreateAsync();
             // 注册消息
             WeakReferenceMessenger.Default.Register<GameDataPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
             WeakReferenceMessenger.Default.Register<GameDataPageDisplayListRefreshMessage>(this, (re, message) => RefList());
@@ -191,12 +198,40 @@ internal partial class GameDataPageViewModel : BaseViewModel
         _gameDataManager.Data.Instances = GameDataList.ToDictionary(x => x.data.InstanceId,x => x.data);
         _=_gameDataManager.Save();
     }
-    private PowerPlayPane powerPlayGo = new PowerPlayPane();
+    private PowerPlayPane? _powerPlayGo;
+    private Task<PowerPlayPaneViewModel> _connentServiceInitializationTasker;
     [RelayCommand]
-    public void PowerPlay()
+    public async Task PowerPlay()
     {
+        // 只有当第一次点击时才创建
+        if (_powerPlayGo == null)
+        {
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage("正在加载联机模块，请稍后..."));
+
+            try
+            {
+                // 外部创建好
+                var viewModel = await _connentServiceInitializationTasker;
+                _powerPlayGo = new PowerPlayPane { DataContext = viewModel };
+            }
+            catch (OlanException ex)
+            {
+                await OlanExceptionWorker.ForOlanException(ex);
+                IsPaneShow = false; // 出错时隐藏Pane
+                return;
+            }
+            catch (Exception ex)
+            {
+                await OlanExceptionWorker.ForUnknowException(ex);
+                IsPaneShow = false; // 出错时隐藏Pane
+                return;
+            }
+        }
+
+        // 将已经创建好的、包含完整数据的Pane设置为内容并显示
+        PaneContent = _powerPlayGo;
         IsPaneShow = true;
-        PaneContent = powerPlayGo;
     }
     [RelayCommand]
     public async Task Import()

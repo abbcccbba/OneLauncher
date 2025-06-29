@@ -33,7 +33,7 @@
 						Watermark="搜索版本..."
 						Width="300"
 						CornerRadius="6"
-						ItemsSource="{Binding AutoVersionList}"
+						ItemsSource="{Binding ReleaseItems}"
 						SelectedItem="{Binding SelectedItem}">
 						<AutoCompleteBox.ItemTemplate>
 							<DataTemplate x:DataType="models:VersionBasicInfo">

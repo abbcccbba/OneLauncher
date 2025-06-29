@@ -16,26 +16,26 @@ public partial class PowerPlayPane : UserControl
     public PowerPlayPane()
     {
         InitializeComponent();
-        _=InitializationAsync();
+        //_=InitializationAsync();
     }
-    private async Task InitializationAsync()
-    {
-        {
-            if(!File.Exists(Path.Combine(Init.BasePath,"installed","main.exe")))
-                MainWindow.mainwindow.ShowFlyout("正在初始化联机模块...");
-            try
-            {
-                var viewmodel = await PowerPlayPaneViewModel.CreateAsync();
-                this.DataContext = viewmodel;
-            }
-            catch (OlanException ex)
-            {
-                await OlanExceptionWorker.ForOlanException(ex);
-            }
-            catch (Exception ex)
-            {
-                await OlanExceptionWorker.ForUnknowException(ex);
-            }
-        }
-    }
+    //private async Task InitializationAsync()
+    //{
+    //    {
+    //        if(!File.Exists(Path.Combine(Init.BasePath,"installed","main.exe")))
+    //            MainWindow.mainwindow.ShowFlyout("正在初始化联机模块...");
+    //        try
+    //        {
+    //            var viewmodel = await PowerPlayPaneViewModel.CreateAsync();
+    //            this.DataContext = viewmodel;
+    //        }
+    //        catch (OlanException ex)
+    //        {
+    //            await OlanExceptionWorker.ForOlanException(ex);
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            await OlanExceptionWorker.ForUnknowException(ex);
+    //        }
+    //    }
+    //}
 }

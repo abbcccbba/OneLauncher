@@ -26,7 +26,7 @@ public static class Init
     public static string InstalledPath { get; private set; }
     public static SystemType SystemType { get; private set; }
     public static List<VersionBasicInfo> MojangVersionList = null;
-    public static List<IDisposable> OnApplicationClosingReleaseSourcesList;
+    public static List<IDisposable> OnApplicationClosingReleaseSourcesList = new();
     // 必要的时候还是得耦合一下的，啥都得传递那他妈的写起来太难受了
     public static DBManager ConfigManger => ConfigManager;
     public static MsalAuthenticator MMA => MsalAuthenticator;

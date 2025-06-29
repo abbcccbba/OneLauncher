@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OneLauncher.Core.Global.ModelDataMangers;
+using OneLauncher.Views.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,4 +10,13 @@ namespace OneLauncher.Views.Panes.PaneViewModels.Factories;
 
 internal class InstallModPaneViewModelFactory
 {
+    private readonly GameDataManager _gameDataManager;
+    public InstallModPaneViewModelFactory(GameDataManager gameDataManager)
+    {
+        _gameDataManager = gameDataManager;
+    }
+    public InstallModPaneViewModel Create(ModItem item)
+    {
+        return new InstallModPaneViewModel(item, _gameDataManager);
+    }
 }

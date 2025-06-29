@@ -52,7 +52,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     private List<GameData> _AvailableGameData;
 
     [ObservableProperty]
-    private GameData _SelectedGameData; 
+    private GameData? _SelectedGameData; 
     [RelayCommand]
     public async Task ToInstall()
     {

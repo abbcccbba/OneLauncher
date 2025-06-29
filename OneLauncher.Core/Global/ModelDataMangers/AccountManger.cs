@@ -25,7 +25,7 @@ public class AccountData
 public class AccountManager : BasicDataManager<AccountData>
 {
     public AccountManager(string basePath)
-        : base(Path.Combine(basePath, "playerdata", "account.json"))
+        : base(basePath)
     {
     }
 

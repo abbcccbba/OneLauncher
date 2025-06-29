@@ -9,8 +9,7 @@
 			 xmlns:i="using:Avalonia.Xaml.Interactivity"
              xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
 			 x:CompileBindings="True"
-			 x:DataType="vm:GameDataPageViewModel"
-			 >
+			 x:DataType="vm:GameDataPageViewModel">
 	<i:Interaction.Behaviors>
 		<ia:EventTriggerBehavior EventName="Loaded">
 			<ia:InvokeCommandAction Command="{Binding PageLoadedCommand}" />
