@@ -2,10 +2,12 @@
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
 using OneLauncher.Views.Windows;
@@ -19,6 +21,8 @@ using System.Threading.Tasks;
 namespace OneLauncher.Views.Panes.PaneViewModels;
 internal partial class DownloadPaneViewModel : BaseViewModel
 {
+    private readonly DBManager _configManager;
+    private readonly GameDataManager _gameDataManager;
 #if DEBUG
     // 供设计器预览
     public DownloadPaneViewModel()
@@ -28,8 +32,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         IsAllowFabric = true;
     }
 #endif
-    public DownloadPaneViewModel(VersionBasicInfo Version)
+    public DownloadPaneViewModel(VersionBasicInfo Version,DBManager dBManager,GameDataManager gameDataManager)
     {
+        this._configManager = dBManager;
+        this._gameDataManager = gameDataManager;
         VersionName = Version.ID.ToString();
         thisVersionBasicInfo = Version;
         // 这个版本以下不支持模组加载器
@@ -124,17 +130,18 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         }));
                     // 执行下载
                     await new DownloadMinecraft(
+                        _configManager,
                         content,
                         progressReporter,
                         cts.Token
                     ).MinecraftBasic(
-                        Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-                        Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
-                        Init.ConfigManger.config.OlanSettings.IsSha1Enabled);
+                        _configManager.Data.OlanSettings.MaximumDownloadThreads,
+                        _configManager.Data.OlanSettings.MaximumSha1Threads,
+                        _configManager.Data.OlanSettings.IsSha1Enabled);
                 }
-                var mayInstalledVersion = Init.ConfigManger.config.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
+               UserVersion? mayInstalledVersion = _configManager.Data.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
                 if (mayInstalledVersion == null)
-                    Init.ConfigManger.config.VersionList.Add(content.VersionInstallInfo);
+                    _configManager.Data.VersionList.Add(content.VersionInstallInfo);
                 else
                 {
                     var updatedModType = mayInstalledVersion.modType;
@@ -143,10 +150,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     if (content.VersionInstallInfo.modType.IsForge) updatedModType.IsForge = true;
                     mayInstalledVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
                 }
-                await Init.GameDataManger.AddGameDataAsync(content.UserInfo);
-                await Init.GameDataManger.SetDefaultInstanceAsync(content.UserInfo);
-                await Init.ConfigManger.Save();
-                MainWindow.mainwindow.ShowFlyout($"“{content.UserInfo.Name}”已成功创建并设为默认启动项。");
+                await _gameDataManager.AddGameDataAsync(content.UserInfo);
+                await _gameDataManager.SetDefaultInstanceAsync(content.UserInfo);
+                await _configManager.Save();
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"“{content.UserInfo.Name}”已成功创建并设为默认启动项。"));
             }
             catch (OperationCanceledException)
             {
@@ -174,7 +181,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public void ClosePane()
     {
-        MainWindow.mainwindow.downloadPage.viewmodel.IsPaneShow = false;
+        WeakReferenceMessenger.Default.Send(new DownloadPageClosePaneControlMessage());
     }
     [RelayCommand]
     public void PopUp()
@@ -183,7 +190,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         if (Design.IsDesignMode)
             return;
 #endif
-        new PopUpPane(new DownloadPane(thisVersionBasicInfo,this)).Show();
+        //new PopUpPane(new DownloadPane(thisVersionBasicInfo,this)).Show();
     }
     //public void CheckOnWeb()
     //{

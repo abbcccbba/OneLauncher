@@ -21,10 +21,15 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-namespace OneLauncher.Views.ViewModels;
+using OneLauncher.Views.Panes.PaneViewModels;
+using OneLauncher.Views.Panes.PaneViewModels.Factories;
+using CommunityToolkit.Mvvm.Messaging;
 
+namespace OneLauncher.Views.ViewModels;
+internal class DownloadPageClosePaneControlMessage { public bool value = false; }
 internal partial class DownloadPageViewModel : BaseViewModel
 {
+    private readonly DownloadPaneViewModelFactory _viewFactory;
     // 这里要异步初始化的，但是屎山懒得修了
     private async Task VersionManifestReader()
     {
@@ -56,9 +61,12 @@ internal partial class DownloadPageViewModel : BaseViewModel
         ReleaseItems = Init.MojangVersionList = vl.GetReleaseVersionList();
         IsLoaded = true;
     }
-    public DownloadPageViewModel()
+    public DownloadPageViewModel(DownloadPaneViewModelFactory viewFactory)
     {
-        _=VersionManifestReader(); 
+        this._viewFactory = viewFactory;
+        _=VersionManifestReader();
+        // 
+        WeakReferenceMessenger.Default.Register<DownloadPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
     }
     [ObservableProperty] private bool isLoaded = false;
     [ObservableProperty] private List<VersionBasicInfo> releaseItems;
@@ -77,6 +85,7 @@ internal partial class DownloadPageViewModel : BaseViewModel
     private void ToDownload(VersionBasicInfo vbi)
     {
         IsPaneShow = true;
-        DownloadPaneContent = new DownloadPane(vbi);
+        DownloadPaneContent = new DownloadPane()
+        {DataContext = _viewFactory.Create(vbi)};
     }
 }

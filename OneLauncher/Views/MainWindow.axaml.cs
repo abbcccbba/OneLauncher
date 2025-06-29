@@ -10,6 +10,7 @@ using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Views.Panes;
 using OneLauncher.Views.Panes.PaneViewModels;
+using OneLauncher.Views.Panes.PaneViewModels.Factories;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Diagnostics;
@@ -39,7 +40,7 @@ public partial class MainWindow : Window
     public static MainWindow mainwindow;
     bool IsError;
     IServiceCollection servises;
-    IServiceProvider provider;
+    public readonly IServiceProvider provider;
     public MainWindow()
     {
         InitializeComponent();
@@ -57,6 +58,7 @@ public partial class MainWindow : Window
             servises.AddSingleton<VersionPageViewModel>();
 
             servises.AddTransient<NewGameDataPaneViewModel>();
+            servises.AddTransient<DownloadPaneViewModelFactory>();
 
             provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();

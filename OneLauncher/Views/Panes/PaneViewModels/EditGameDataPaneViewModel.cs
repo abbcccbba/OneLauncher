@@ -4,10 +4,13 @@ using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,13 +19,14 @@ namespace OneLauncher.Views.Panes.PaneViewModels;
 
 internal partial class EditGameDataPaneViewModel : BaseViewModel
 {
-    private GameData editingGameData;
-    private GameDataPageViewModel parentViewModel = MainWindow.mainwindow.gamedataPage.viewmodel;
+    private readonly GameDataManager _gameDataManager;
+    private readonly GameData editingGameData;
     [ObservableProperty] private string instanceName;
     [ObservableProperty] private Bitmap currentIcon;
 
-    public EditGameDataPaneViewModel(GameData gameData)
+    public EditGameDataPaneViewModel(GameData gameData,GameDataManager gameDataManager)
     {
+        this._gameDataManager = gameDataManager;
         editingGameData = gameData;
         InstanceName = gameData.Name;
         LoadCurrentIcon();
@@ -106,11 +110,12 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     {
         editingGameData.Name = InstanceName;
         parentViewModel.UpdateGameData(editingGameData);
-        Init.GameDataManger.SaveAsync();
+        _=_gameDataManager.Save();
 
         parentViewModel.RefList();
-        parentViewModel.IsPaneShow = false;
-        MainWindow.mainwindow.ShowFlyout("保存成功！");
+        WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
+        WeakReferenceMessenger.Default.Send(
+            new MainWindowShowFlyoutMessage($"实例“{InstanceName}”已保存"));
     }
     [RelayCommand]
     private void DeleteInstance()
@@ -122,6 +127,6 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     [RelayCommand]
     private void Cancel()
     {
-        parentViewModel.IsPaneShow = false;
+        WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
     }
 }

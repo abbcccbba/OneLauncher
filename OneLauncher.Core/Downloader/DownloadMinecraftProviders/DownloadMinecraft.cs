@@ -21,8 +21,9 @@ public partial class DownloadMinecraft
     public int dones = 0;
 
     public DownloadMinecraft(
-        DownloadInfo info,
         DBManager configManager,
+        DownloadInfo info,
+        
         IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
         CancellationToken? cancelToken = null
         )

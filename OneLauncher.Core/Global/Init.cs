@@ -28,9 +28,12 @@ public static class Init
     public static List<VersionBasicInfo> MojangVersionList = null;
     public static List<IDisposable> OnApplicationClosingReleaseSourcesList;
     // 必要的时候还是得耦合一下的，啥都得传递那他妈的写起来太难受了
-    internal static DBManager ConfigManger { get; private set; }
-    internal static AccountManager AccountManager { get; private set; }
-    internal static GameDataManager GameDataManager { get; private set; }
+    public static DBManager ConfigManger => ConfigManager;
+    public static MsalAuthenticator MMA => MsalAuthenticator;
+    //public static Ac
+    internal static DBManager ConfigManager { get; private set; }
+    public static AccountManager AccountManager { get; private set; }
+    public static GameDataManager GameDataManager { get; private set; }
     internal static MsalAuthenticator MsalAuthenticator { get; private set; }
     internal static Download Download { get; private set; }
     public static async Task<IServiceCollection> Initialize(bool isCommandMode = false)
@@ -45,7 +48,7 @@ public static class Init
             var configManger = new DBManager(Path.Combine(BasePath,"config.json"));
             await configManger.InitializeAsync();
             services.AddSingleton<DBManager>(configManger);
-            ConfigManger = configManger;
+            ConfigManager = configManger;
 
             InstalledPath = configManger.Data.OlanSettings.InstallPath ?? Path.Combine(BasePath,"installed");
             GameRootPath = InstalledPath == null ? Path.Combine(BasePath, "installed", ".minecraft") : Path.Combine(InstalledPath, ".minecraft");

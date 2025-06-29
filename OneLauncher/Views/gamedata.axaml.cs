@@ -2,7 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Views.ViewModels;
 using System;
@@ -27,7 +29,9 @@ public partial class gamedata : UserControl
 #endif
         try
         {
-            navVL.ItemsSource = Init.GameDataManger.AllGameData.Select(x => new GameDataItem(x)).ToList();
+            navVL.ItemsSource = 
+                MainWindow.mainwindow.provider.GetRequiredService<GameDataManager>()
+                .Data.Instances.Select(x => new GameDataItem(x.Value)).ToList();
         }
         catch (NullReferenceException ex)
         {

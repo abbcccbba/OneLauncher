@@ -121,13 +121,13 @@
 //        #endregion
 //        #region 下载可选信息
 //        // 下载Java运行时环境
-//        if (AndJava && !Init.ConfigManger.config.JavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
+//        if (AndJava && !Init.ConfigManager.config.JavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
 //        {
 //            await AutoJavaGetter.JavaReleaser(
 //                versionInfomations.GetJavaVersion().ToString(), 
 //                Path.Combine(Path.GetDirectoryName(GameRootPath), "JavaRuntimes"), OsType);
-//            Init.ConfigManger.config.JavaList.Add(versionInfomations.GetJavaVersion());
-//            Init.ConfigManger.Save();
+//            Init.ConfigManager.config.JavaList.Add(versionInfomations.GetJavaVersion());
+//            Init.ConfigManager.Save();
 //        }//);
 
 //        // 下载Mod相关资源索引

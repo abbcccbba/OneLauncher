@@ -42,7 +42,7 @@ internal class Game
             await File.WriteAllTextAsync(
                 launchArgumentsPath,
                 (await Builder.BuildCommand(
-                     Init.ConfigManger.config.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()),useRootLaunch))
+                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()),useRootLaunch))
 #if WINDOWS
                 // 避免微软万年屎山导致的找不到路径问题
                 .Replace("\\",@"\\")

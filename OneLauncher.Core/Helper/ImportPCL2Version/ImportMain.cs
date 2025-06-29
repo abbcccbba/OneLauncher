@@ -136,16 +136,16 @@
 //            await _downloader.DownloadListAsync(new Progress<(int completed, string fileName)>(p =>
 //            {
 //                ProcessReporter?.Report((DownProgress.DownLibs, downloadList.Count, p.completed, p.fileName));
-//            }), downloadList, Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, Token);
+//            }), downloadList, Init.ConfigManager.config.OlanSettings.MaximumDownloadThreads, Token);
 //        }
 
 //        // 最后，完整地执行一次安装流程（主要为了运行处理器和生成最终的json）
 //        ProcessReporter?.Report((DownProgress.DownAndInstModFiles, 0, 0, "正在配置 Mod 加载器..."));
 //        await downloadPlanner.MinecraftBasic(
-//            Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-//            Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
-//            Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
-//            Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI
+//            Init.ConfigManager.config.OlanSettings.MaximumDownloadThreads,
+//            Init.ConfigManager.config.OlanSettings.MaximumSha1Threads,
+//            Init.ConfigManager.config.OlanSettings.IsSha1Enabled,
+//            Init.ConfigManager.config.OlanSettings.IsAllowToDownloadUseBMLCAPI
 //        );
 //    }
 //    private string FindAuthoritativeJsonFile(string versionPath)
@@ -178,10 +178,10 @@
 //    //    //gameData, Init.GameRootPath,
 //    //    //process, 
 //    //    //token).MinecraftBasic(
-//    //    //    Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-//    //    //    Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
-//    //    //    Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
-//    //    //    Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);
+//    //    //    Init.ConfigManager.config.OlanSettings.MaximumDownloadThreads,
+//    //    //    Init.ConfigManager.config.OlanSettings.MaximumSha1Threads,
+//    //    //    Init.ConfigManager.config.OlanSettings.IsSha1Enabled,
+//    //    //    Init.ConfigManager.config.OlanSettings.IsAllowToDownloadUseBMLCAPI);
 //    //}
 //    private async Task MigrateUserDataAsync(string sourcePath, string destinationPath)
 //    {

@@ -89,12 +89,12 @@ public class ModpackImporter : IDisposable
     //    );
 
     //    await mcDownloader.MinecraftBasic(
-    //        maxDownloadThreads: Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads,
-    //        maxSha1Threads: Init.ConfigManger.config.OlanSettings.MaximumSha1Threads,
-    //        IsSha1: Init.ConfigManger.config.OlanSettings.IsSha1Enabled,
-    //        useBMLCAPI: Init.ConfigManger.config.OlanSettings.IsAllowToDownloadUseBMLCAPI
+    //        maxDownloadThreads: Init.ConfigManager.config.OlanSettings.MaximumDownloadThreads,
+    //        maxSha1Threads: Init.ConfigManager.config.OlanSettings.MaximumSha1Threads,
+    //        IsSha1: Init.ConfigManager.config.OlanSettings.IsSha1Enabled,
+    //        useBMLCAPI: Init.ConfigManager.config.OlanSettings.IsAllowToDownloadUseBMLCAPI
     //    );
-    //    await Init.ConfigManger.Save();
+    //    await Init.ConfigManager.Save();
     //}
 
     //private async Task InstallModpackFilesAsync(MrpackParser parser, GameData gameData, CancellationToken token)
@@ -105,7 +105,7 @@ public class ModpackImporter : IDisposable
 
     //    if (filesToDownload.Any())
     //    {
-    //        await downloadTool.DownloadListAsync(null, filesToDownload, Init.ConfigManger.config.OlanSettings.MaximumDownloadThreads, token); //
+    //        await downloadTool.DownloadListAsync(null, filesToDownload, Init.ConfigManager.config.OlanSettings.MaximumDownloadThreads, token); //
     //    }
 
     //    string overridesSourceDir = Path.Combine(tempWorkDir, "overrides");

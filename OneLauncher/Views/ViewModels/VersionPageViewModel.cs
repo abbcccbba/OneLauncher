@@ -23,7 +23,7 @@ namespace OneLauncher.Views.ViewModels;
 internal partial class VersionItem : BaseViewModel
 {
     /// <param Name="a">UserVersion实例</param>
-    /// <param Name="IndexInInit">UserVsersion实例在整个Init.ConfigManger.config.VersionList中的索引值</param>
+    /// <param Name="IndexInInit">UserVsersion实例在整个Init.ConfigManager.config.VersionList中的索引值</param>
     public VersionItem(UserVersion a,int IndexInInit)
     {
         versionExp = a;

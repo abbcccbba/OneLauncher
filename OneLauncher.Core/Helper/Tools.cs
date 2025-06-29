@@ -125,7 +125,7 @@ public static class Tools
     public static string IsUseOlansJreOrOssJdk(int javaVersion)
     {
         var t = Path.Combine(Init.BasePath,"installed","runtimes", javaVersion.ToString());
-        if (Init.ConfigManger.Data.AvailableJavaList.Contains(javaVersion))
+        if (Init.ConfigManager.Data.AvailableJavaList.Contains(javaVersion))
             return Init.SystemType == SystemType.osx
                 ? Path.Combine(t, Directory.GetDirectories(t)[0], "Contents", "Home", "bin", "java")
                 : Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
