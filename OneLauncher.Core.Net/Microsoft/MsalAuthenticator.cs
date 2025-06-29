@@ -1,7 +1,6 @@
 ﻿using Duende.IdentityModel.OidcClient;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
-using OneLauncher.Core.Helper;
 using OneLauncher.Core.Net.msa.JsonModels;
 using System.Diagnostics;
 using System.Net.Http;
@@ -9,6 +8,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper.Models;
+
 
 #if WINDOWS
 using Microsoft.Identity.Client.Broker;

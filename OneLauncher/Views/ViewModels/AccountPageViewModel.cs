@@ -7,6 +7,7 @@ using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.Panes;
 using System;

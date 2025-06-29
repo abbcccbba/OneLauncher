@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Helper;
+namespace OneLauncher.Core.Helper.Models;
 /// <summary>
 /// 游戏数据，基于版本（UserVersion）
 /// </summary>

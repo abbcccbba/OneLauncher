@@ -1,6 +1,7 @@
 ﻿using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http;

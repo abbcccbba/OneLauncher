@@ -1,5 +1,6 @@
 ﻿using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;

@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace OneLauncher.Core.Helper;
+namespace OneLauncher.Core.Helper.Models;
 
 public enum SortingType
 {
@@ -136,22 +136,22 @@ public class UserModel
         int? accessTokenExpiration = null)
     {
         this.UserID = UserID;
-        this.Name = name;
+        Name = name;
         this.uuid = uuid;
 
         if (string.IsNullOrEmpty(accessToken) || accessToken == nullToken)
         {
-            this.AccessToken = nullToken;
+            AccessToken = nullToken;
             IsMsaUser = false;
             AccountID = null;
-            this.AccessTokenExpiration = null;
+            AccessTokenExpiration = null;
         }
         else
         {
             IsMsaUser = true;
-            this.AccessToken = accessToken;
+            AccessToken = accessToken;
             AccountID = accountID;
-            this.AccessTokenExpiration = DateTimeOffset.UtcNow.AddSeconds((double)(accessTokenExpiration ?? 86400));
+            AccessTokenExpiration = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpiration ?? 86400);
         }
     }
     [JsonConstructor] 
@@ -168,7 +168,7 @@ public class UserModel
         this.UserID = UserID;
         this.Name = Name;
         this.uuid = uuid;
-        this.AccessToken = accessToken;
+        AccessToken = accessToken;
         this.IsMsaUser = IsMsaUser;
         this.AccountID = AccountID;
         this.AccessTokenExpiration = AccessTokenExpiration;
@@ -183,7 +183,7 @@ public class UserModel
     public async Task<UserModel> IntelligentLogin(MsalAuthenticator authenticator)
     {
         // 如果不是正版用户，或令牌未过期，则直接返回自身，无需任何操作。
-        if (!IsMsaUser || (AccessTokenExpiration.HasValue && AccessTokenExpiration.Value > DateTimeOffset.UtcNow))
+        if (!IsMsaUser || AccessTokenExpiration.HasValue && AccessTokenExpiration.Value > DateTimeOffset.UtcNow)
         {
             return this;
         }

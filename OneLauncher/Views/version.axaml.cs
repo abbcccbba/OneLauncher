@@ -6,7 +6,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views.ViewModels;
 using OneLauncher.Views.Windows;

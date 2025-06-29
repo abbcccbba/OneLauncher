@@ -1,4 +1,4 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Mod.ModLoader.fabric;
 using OneLauncher.Core.Net.ModService.Modrinth;
 using System;

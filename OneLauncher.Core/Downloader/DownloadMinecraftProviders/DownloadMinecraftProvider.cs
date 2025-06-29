@@ -1,6 +1,6 @@
 ﻿using OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 using OneLauncher.Core.Global;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using OneLauncher.Core.Net;
 using System;

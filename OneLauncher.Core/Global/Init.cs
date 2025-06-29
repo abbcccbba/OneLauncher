@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global.ModelDataMangers;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.ConnectToolPower;
 using OneLauncher.Core.Net.msa;
 using System.Diagnostics;
@@ -35,7 +35,7 @@ public static class Init
     public static AccountManager AccountManager { get; private set; }
     public static GameDataManager GameDataManager { get; private set; }
     internal static MsalAuthenticator MsalAuthenticator { get; private set; }
-    internal static Download Download { get; private set; }
+    public static Download Download { get; private set; }
     public static async Task<IServiceCollection> Initialize(bool isCommandMode = false)
     {
         try

@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Minecraft.JsonModels;
 using System.Data;
 using System.Diagnostics;

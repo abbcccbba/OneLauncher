@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Helper;
+namespace OneLauncher.Core.Helper.Models;
 
 public enum OptimizationMode
 {
@@ -183,7 +183,7 @@ public class JvmArguments
         else // 自动计算初始值
         {
             // 激进模式下设为与最大值相同，其他模式为最大值一半（但不小于1024MB）
-            finalInitialHeapSize = (mode == OptimizationMode.Aggressive)
+            finalInitialHeapSize = mode == OptimizationMode.Aggressive
                 ? finalMaxHeapSize
                 : Math.Clamp(finalMaxHeapSize / 2, 1024, finalMaxHeapSize);
         }

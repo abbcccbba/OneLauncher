@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
-using OneLauncher.Core.Helper;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Views;
 using OneLauncher.Views.Panes;
@@ -24,6 +23,7 @@ using System.Windows.Input;
 using OneLauncher.Views.Panes.PaneViewModels;
 using OneLauncher.Views.Panes.PaneViewModels.Factories;
 using CommunityToolkit.Mvvm.Messaging;
+using OneLauncher.Core.Helper.Models;
 
 namespace OneLauncher.Views.ViewModels;
 internal class DownloadPageClosePaneControlMessage { public bool value = false; }

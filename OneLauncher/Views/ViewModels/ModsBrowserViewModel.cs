@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.ModService.Modrinth;
 using OneLauncher.Core.Net.ModService.Modrinth.JsonModelSearch;
 using OneLauncher.Views.Panes;

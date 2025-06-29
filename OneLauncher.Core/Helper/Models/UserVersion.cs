@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Helper;
+namespace OneLauncher.Core.Helper.Models;
 public class UserVersion
 {
     public string VersionID { get; set; }

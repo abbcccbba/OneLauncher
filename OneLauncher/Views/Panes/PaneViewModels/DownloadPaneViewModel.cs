@@ -8,7 +8,7 @@ using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Views.ViewModels;
 using OneLauncher.Views.Windows;
 using System;

@@ -1,6 +1,6 @@
 ﻿using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.msa.JsonModels;
 using System.Buffers.Binary;
 using System.Diagnostics;

@@ -1,6 +1,6 @@
 ﻿using Avalonia.Data.Converters;
 using CommunityToolkit.Mvvm.ComponentModel;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

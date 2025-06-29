@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;

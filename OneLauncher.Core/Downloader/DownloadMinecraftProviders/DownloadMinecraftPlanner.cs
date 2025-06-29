@@ -1,5 +1,5 @@
 ﻿using OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Minecraft;
 using System;
 using System.Collections.Generic;

@@ -1,13 +1,18 @@
 ﻿using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
-using OneLauncher.Core.Minecraft.JsonModels;
+using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModLoader.fabric;
 using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-namespace OneLauncher.Core.Minecraft;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
+namespace OneLauncher.Core.Launcher;
 /// <summary>
 /// Minecraft 启动命令构造器，提供一个简单的方法来生成启动命令。
 /// </summary>
@@ -47,7 +52,7 @@ public partial class LaunchCommandBuilder
     }
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
-    public async Task<string> BuildCommand(string OtherArgs = "",bool useRootLaunch = false)
+    public async Task<string> BuildCommand(string OtherArgs = "", bool useRootLaunch = false)
     {
         string MainClass;
         if (modType == ModEnum.fabric)
@@ -59,8 +64,8 @@ public partial class LaunchCommandBuilder
         else if (modType == ModEnum.quilt)
         {
             quiltParser = QuiltNJParser.ParserAuto(
-                File.OpenRead(Path.Combine(VersionPath,$"version.quilt.json")), basePath);
-            MainClass=quiltParser.GetMainClass();
+                File.OpenRead(Path.Combine(VersionPath, $"version.quilt.json")), basePath);
+            MainClass = quiltParser.GetMainClass();
         }
         else if (modType == ModEnum.neoforge || modType == ModEnum.forge)
         {
@@ -72,39 +77,5 @@ public partial class LaunchCommandBuilder
         string Args = $"{OtherArgs} {BuildJvmArgs()} {MainClass} {BuildGameArgs(useRootLaunch)}";
         Debug.WriteLine(Args);
         return Args;
-    }
-    private string BuildGameArgs(bool useRootLaunch)
-    {
-        var userModel = Init.AccountManager.GetUser(gameData.DefaultUserModelID);
-        string serverArgs = string.Empty;
-        if(serverInfo != null)
-        {
-            serverArgs = $"--server \"{((ServerInfo)serverInfo).Ip}\" --port\"{((ServerInfo)serverInfo).Port}\" ";
-            if(new Version(version) > new Version("1.20"))
-            {
-                serverArgs += $"--quickPlayMultiplayer \"{serverInfo.Value.Ip}:{serverInfo.Value.Port}\" ";
-            }
-        }
-        string GameArgs =
-            $"--username \"{userModel.Name}\" " +
-            $"--version \"{version}\" " +
-            $"--gameDir \"{(useRootLaunch ? basePath : gameData.InstancePath)}\" " +
-            $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\" " +
-            // 1.7版本及以上启用新用户验证机制
-            (new Version(version) > new Version("1.7") ?
-            $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
-            $"--uuid \"{userModel.uuid}\" " +
-            $"--accessToken \"{userModel.AccessToken.ToString()}\" " +
-            $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
-            $"--versionType \"OneLauncher\" " +
-            serverArgs+
-            "--userProperties {} "
-            // 针对旧版用户验证机制
-            : $"--session \"{userModel.AccessToken}\" ");
-        if (modType == ModEnum.neoforge || modType == ModEnum.forge)
-            GameArgs +=
-                string.Join(" ", neoForgeParser.info.Arguments.Game);
-        Debug.WriteLine(GameArgs);
-        return GameArgs;
     }
 }

@@ -1,4 +1,4 @@
-﻿using OneLauncher.Core.Helper;
+﻿using OneLauncher.Core.Helper.Models;
 using System.Data;
 using System.Text.Json;
 using System.Text.Json.Serialization;

@@ -8,7 +8,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;

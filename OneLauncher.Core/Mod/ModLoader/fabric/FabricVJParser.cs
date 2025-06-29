@@ -1,5 +1,5 @@
 ﻿using OneLauncher.Core.Global;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.ModLoader.fabric.JsonModels;
 using System.Text.Json;
 namespace OneLauncher.Core.Mod.ModLoader.fabric;

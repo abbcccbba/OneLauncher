@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
-using OneLauncher.Core.Helper;
+using OneLauncher.Core.Helper.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
