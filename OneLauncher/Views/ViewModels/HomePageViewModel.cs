@@ -17,14 +17,18 @@ internal partial class HomePageViewModel : BaseViewModel
     private readonly GameDataManager _gameDataManager;
     private readonly DBManager _configManager;
     [ObservableProperty] private List<GameData> launchItems;
-    [ObservableProperty] private GameData? selectedGameData;
+    [ObservableProperty] private GameData? selectedGameData = null;
     [ObservableProperty] private bool isShowServerOption;
     public HomePageViewModel(GameDataManager gameDataManager,DBManager configManager)
     {
         this._configManager = configManager;
         this._gameDataManager = gameDataManager;
         LaunchItems = _gameDataManager.AllGameData;
-        SelectedGameData = _gameDataManager.Data.Instances.GetValueOrDefault(_configManager.Data.DefaultInstanceID);
+        if (_configManager.Data.DefaultInstanceID != null)
+            SelectedGameData = _gameDataManager.Data.Instances.GetValueOrDefault(_configManager.Data.DefaultInstanceID);
+        //SelectedGameData = 
+        //    _gameDataManager.Data.Instances
+        //    .TryGetValue(_configManager.Data.DefaultInstanceID, out var gameData) ? gameData : null;
 #if DEBUG
         if (Design.IsDesignMode)
             return;

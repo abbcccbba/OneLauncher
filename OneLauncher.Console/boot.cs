@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Launcher;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,7 +21,7 @@ public class boot
             switch (args[0])
             {
                 case "--quicklyPlay":
-                    await QuicklyPlay.GameLauncher.Launch(args[1]);
+                    await new GameLauncher().Play(args[1]);
                     break;
             }
         }
