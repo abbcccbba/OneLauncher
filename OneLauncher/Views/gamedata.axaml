@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OneLauncher.Views.gamedata"
 			 xmlns:vm="using:OneLauncher.Views.ViewModels"
-			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
+			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper.Models;assembly=OneLauncher.Core"
 			 xmlns:i="using:Avalonia.Xaml.Interactivity"
              xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
 			 x:CompileBindings="True"

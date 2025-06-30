@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
-			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
+			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper.Models;assembly=OneLauncher.Core"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
 			 x:DataType="vm:NewGameDataPaneViewModel"
 			 x:CompileBindings="True"

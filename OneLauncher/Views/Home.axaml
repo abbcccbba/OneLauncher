@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.ViewModels"
-             xmlns:lo="using:OneLauncher.Core.Helper" mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
+             xmlns:lo="using:OneLauncher.Core.Helper.Models" mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Home"
              x:DataType="vm:HomePageViewModel"
              x:CompileBindings="True">

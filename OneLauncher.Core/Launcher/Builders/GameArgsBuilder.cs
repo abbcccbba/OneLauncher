@@ -1,5 +1,6 @@
 ﻿using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Launcher.Strategys;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,38 +11,43 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
-    private string BuildGameArgs(bool useRootLaunch)
+    private IEnumerable<string> BuildGameArgs(string gamePath,IModStrategy? strategy)
     {
         var userModel = Init.AccountManager.GetUser(gameData.DefaultUserModelID);
-        string serverArgs = string.Empty;
+        List<string> Args = new List<string>();
         if (serverInfo != null)
         {
-            serverArgs = $"--server \"{((ServerInfo)serverInfo).Ip}\" --port\"{((ServerInfo)serverInfo).Port}\" ";
+            Args.Add($"--server");
+            Args.Add($"\"{((ServerInfo)serverInfo).Ip}\"");
+            Args.Add($"--port");
+            Args.Add($"\"{((ServerInfo)serverInfo).Port}\"");
             if (new Version(version) > new Version("1.20"))
             {
-                serverArgs += $"--quickPlayMultiplayer \"{serverInfo.Value.Ip}:{serverInfo.Value.Port}\" ";
+                Args.Add($"--quickPlayMultiplayer");
+                Args.Add($"\"{serverInfo.Value.Ip}:{serverInfo.Value.Port}\"");
             }
         }
-        string GameArgs =
-            $"--username \"{userModel.Name}\" " +
-            $"--version \"{version}\" " +
-            $"--gameDir \"{(useRootLaunch ? basePath : gameData.InstancePath)}\" " +
-            $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\" " +
-            // 1.7版本及以上启用新用户验证机制
-            (new Version(version) > new Version("1.7") ?
-            $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
-            $"--uuid \"{userModel.uuid}\" " +
-            $"--accessToken \"{userModel.AccessToken.ToString()}\" " +
-            $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
-            $"--versionType \"OneLauncher\" " +
-            serverArgs +
-            "--userProperties {} "
-            // 针对旧版用户验证机制
-            : $"--session \"{userModel.AccessToken}\" ");
-        if (modType == ModEnum.neoforge || modType == ModEnum.forge)
-            GameArgs +=
-                string.Join(" ", neoForgeParser.info.Arguments.Game);
-        Debug.WriteLine(GameArgs);
-        return GameArgs;
+        // 添加基本的
+        Args.AddRange([
+            $"--username \"{userModel.Name}\"",
+            $"--version \"{version}\"",
+            $"--gameDir \"{gamePath}\"",
+            $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\""
+            ]);
+        if(new Version(version) > new Version("1.7"))
+            Args.AddRange([
+                $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\"",
+                $"--uuid \"{userModel.uuid}\"",
+                $"--accessToken \"{userModel.AccessToken.ToString()}\"",
+                $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\"",
+                $"--versionType \"OneLauncher\"",
+                "--userProperties {}"
+            ]);
+        else
+            Args.Add($"--session \"{userModel.AccessToken}\"");
+        if(strategy != null)
+            Args.AddRange(strategy.GetAdditionalGameArgs());
+
+        return Args;
     }
 }

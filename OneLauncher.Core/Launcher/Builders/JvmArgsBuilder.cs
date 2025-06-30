@@ -1,5 +1,6 @@
 ﻿using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
 using System;
@@ -13,7 +14,7 @@ namespace OneLauncher.Core.Launcher;
 
 public partial class LaunchCommandBuilder
 {
-    private string BuildJvmArgs()
+    private IEnumerable<string> BuildJvmArgs(IModStrategy? strategy)
     {
         string osName;
 #if WINDOWS
@@ -33,7 +34,7 @@ public partial class LaunchCommandBuilder
             { "natives_directory", Path.Combine(basePath,"versions",version,"natives") },
             { "launcher_name", "OneLauncher" },
             { "launcher_version", Init.OneLauncherVersoin },
-            { "classpath","\""+BuildClassPath()+"\"" },
+            { "classpath","\""+BuildClassPath(strategy)+"\"" },
             // 一些仅限NeoForge的
             { "version_name" , version},
             { "library_directory" ,"\""+Path.Combine(basePath, "libraries")+"\""},
@@ -44,31 +45,25 @@ public partial class LaunchCommandBuilder
         {
             return
                 // 针对 1.6.x 版本不存在log4j2的情况
-                (versionInfo.GetLoggingConfigPath() != null ?
-                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " : " ") +
+                [(versionInfo.GetLoggingConfigPath() != null ?
+                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\"" : ""),
                 // 处理特定平台要求的参数
-                (osName == "windows" ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump "
-                : osName == "osx" ? "-XstartOnFirstThread " : "") +
+                (osName == "windows" ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump"
+                : osName == "osx" ? "-XstartOnFirstThread" : "") ,
                 // 标准JVM参数
-                $"-Djava.library.path={placeholders["natives_directory"]} " +
-                $"-Djna.tmpdir={placeholders["natives_directory"]} " +
-                $"-Dorg.lwjgl.system.SharedLibraryExtractPath={placeholders["natives_directory"]} " +
-                $"-Dio.netty.native.workdir={placeholders["natives_directory"]} " +
-                $"-Dminecraft.launcher.brand={placeholders["launcher_name"]} " +
-                $"-Dminecraft.launcher.version={placeholders["launcher_version"]} " +
-                $"-cp {placeholders["classpath"]} ";
+                $"-Djava.library.path={placeholders["natives_directory"]}" ,
+                $"-Djna.tmpdir={placeholders["natives_directory"]}" ,
+                $"-Dorg.lwjgl.system.SharedLibraryExtractPath={placeholders["natives_directory"]}" ,
+                $"-Dio.netty.native.workdir={placeholders["natives_directory"]}" ,
+                $"-Dminecraft.launcher.brand={placeholders["launcher_name"]}" ,
+                $"-Dminecraft.launcher.version={placeholders["launcher_version"]}" ,
+                $"-cp {placeholders["classpath"]}"];
         }
         else
         {
             var jvmArgs = new List<string>();
-            if (modType == ModEnum.neoforge || modType == ModEnum.forge)
-            {
-                foreach (var item in neoForgeParser.info.Arguments.Jvm)
-                {
-                    string replaced = ReplacePlaceholders(item, placeholders);
-                    jvmArgs.Add(replaced);
-                }
-            }
+            if (strategy != null)
+                jvmArgs.AddRange(strategy.GetAdditionalJvmArgs());
             foreach (var item in versionInfo.info.Arguments.Jvm)
             {
                 // 判断是规则套字符串还是简单字符串
@@ -97,10 +92,8 @@ public partial class LaunchCommandBuilder
                     }
                 }
             }
-
-            return $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " +
-              // 打上空格和双引号
-              string.Join(" ", jvmArgs);
+            jvmArgs.Add($"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\"");
+            return jvmArgs;
         }
     }
     private bool EvaluateRules(List<MinecraftRule> rules, string osName, string arch)

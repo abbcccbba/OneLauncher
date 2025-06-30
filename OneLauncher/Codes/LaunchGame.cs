@@ -28,7 +28,6 @@ internal class Game
         bool useRootLaunch = false)
     {
         #region 初始化基本游戏构建类
-        await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MMA);
         var Builder = new LaunchCommandBuilder
                         (
                             Init.GameRootPath,
@@ -42,8 +41,9 @@ internal class Game
             string launchArgumentsPath = Path.GetTempFileName();
             await File.WriteAllTextAsync(
                 launchArgumentsPath,
-                (await Builder.BuildCommand(
-                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()),useRootLaunch))
+                (
+                string.Join(" " ,await Builder.BuildCommand(
+                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()),useRootLaunch)))
 #if WINDOWS
                 // 避免微软万年屎山导致的找不到路径问题
                 .Replace("\\",@"\\")
