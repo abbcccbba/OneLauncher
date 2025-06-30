@@ -8,8 +8,8 @@ namespace OneLauncher.Core.Launcher.Strategys;
 
 internal interface IModStrategy
 {
-    IEnumerable<string> GetJvmArgsAfrerVanilla();
-    IEnumerable<string> GetClassPathBeforeVanilla();
-    IEnumerable<string> GetGameArgsAfterVanilla();
-    string GetMainClass();
+    string GetMainClassOverride();
+    IEnumerable<(string key,string path)> GetModLibraries();
+    IEnumerable<string> GetAdditionalJvmArgs();
+    IEnumerable<string> GetAdditionalGameArgs();
 }

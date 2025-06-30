@@ -121,12 +121,4 @@ public partial class LaunchCommandBuilder
         }
         return allowed;
     }
-    private string ReplacePlaceholders(string input, Dictionary<string, string> placeholders)
-    {
-        foreach (var kvp in placeholders)
-        {
-            input = input.Replace("${" + kvp.Key + "}", kvp.Value);
-        }
-        return input;
-    }
 }

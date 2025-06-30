@@ -7,26 +7,33 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
+
 internal class FabricStrategy : IModStrategy
 {
-    private FabricVJParser fabricParser;
-    public FabricStrategy(string versionPath)
+    private readonly FabricVJParser _fabricParser;
+
+    public FabricStrategy(string versionPath, string basePath)
     {
-        using var fs = File.OpenRead(Path.Combine(versionPath, "version.fabric.json")); // 同步方法就这么写
-        this.fabricParser = FabricVJParser.ParserAuto(fs,Init.GameRootPath);
-    }
-    public IEnumerable<string> GetClassPathBeforeVanilla()
-    {
-        throw new Exception("还没写完，消除编译器报错用的");
+        string fabricJsonPath = Path.Combine(versionPath, "version.fabric.json");
+        using var fs = File.OpenRead(fabricJsonPath);
+        _fabricParser = FabricVJParser.ParserAuto(fs, basePath);
     }
 
-    public IEnumerable<string> GetGameArgsAfterVanilla()
-        => Array.Empty<string>(); // Fabric没这个东西
+    public string? GetMainClassOverride() => _fabricParser.GetMainClass();
 
-    public IEnumerable<string> GetJvmArgsAfrerVanilla()
-        => Array.Empty<string>(); // Fabric没这个东西
-    public string GetMainClass()
-    {
-        return fabricParser.GetMainClass();
-    }
+    // Fabric需要优先加载自己的库
+    //public IEnumerable<(string key, string path)> GetModLibraries()=> _fabricParser.GetLibrariesForUsing().Select(x => (string.Join(string.Empty, x.name.Split(':')[..^1]), x.path));
+    public IEnumerable<(string key, string path)> GetModLibraries()
+       => _fabricParser.GetLibrariesForUsing().Select(lib =>
+          {
+              var parts = lib.name.Split(':');
+              var key = string.Join(":", parts[..^1]);
+              return (key, lib.path);
+          });
+    
+
+    // Fabric本身不添加额外的JVM和游戏参数
+    public IEnumerable<string> GetAdditionalJvmArgs() => Enumerable.Empty<string>();
+    public IEnumerable<string> GetAdditionalGameArgs() => Enumerable.Empty<string>();
 }
+
