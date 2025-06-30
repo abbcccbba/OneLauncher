@@ -50,7 +50,7 @@ public partial class LaunchCommandBuilder
     public async Task<IEnumerable<string>> BuildCommand(string OtherArgs = "", bool useRootLaunch = false)
     {
         // 等启动器重写完了再把这个逻辑丢过去
-        await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
+        //await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
         IModStrategy? strategy = null; // 策略可以是null，代表原版
         if (modType != ModEnum.none)
             strategy = await CreateAndInitStrategy();

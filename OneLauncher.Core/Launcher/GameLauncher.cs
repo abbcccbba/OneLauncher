@@ -1,174 +1,133 @@
-﻿//using OneLauncher.Core.Global;
-//using OneLauncher.Core.Helper.Models;
-//using System.Diagnostics;
-//using System.IO;
-//using System.Text;
-//using System.Threading;
-//using System.Threading.Tasks;
-//using System;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper.Models;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System;
 
-//namespace OneLauncher.Core.Launcher;
-//public class GameLauncher : IGameLauncher, IDisposable
-//{
-//    public event Action? GameStartedEvent;
-//    public event Action? GameClosedEvent;
-//    public event Action<string>? GameOutputEvent;
+namespace OneLauncher.Core.Launcher;
+public class GameLauncher : IGameLauncher
+{
+    public event Action? GameStartedEvent;
+    public event Action? GameClosedEvent;
+    public event Action<string>? GameOutputEvent;
+    public CancellationToken CancellationToken = CancellationToken.None; // 外部可以设置
 
-//    private Process? _gameProcess;
-//    public CancellationToken CancellationToken = CancellationToken.None; // 外部可以设置
+    private Process? _gameProcess;
+    private string? _launchArgumentsPath;
+    private async Task<Task> BasicLaunch(GameData gameData,ServerInfo? serverInfo = null,bool useRootMode = false)
+    {
+        // 先把令牌刷新了
+        await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
+        var commandBuilder = new LaunchCommandBuilder(
+                Init.GameRootPath,
+                gameData,
+                serverInfo
+            );
+        // 写进文件
+        _launchArgumentsPath = Path.GetTempFileName();
+        await File.WriteAllTextAsync(_launchArgumentsPath, 
+            string.Join(" ",
+                await commandBuilder.BuildCommand(
+                    Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments
+                        .ToString(commandBuilder.versionInfo.GetJavaVersion()), // 传入优化的JVM参数
+                    useRootLaunch: useRootMode
+                    )
+                )
+#if WINDOWS
+        .Replace("\\",@"\\") // Windows 路径特别转义
+#endif
+        ,
+        CancellationToken);
 
-//    /// <summary>
-//    /// 根据提供的 GameData 启动游戏。
-//    /// </summary>
-//    public async Task Play(GameData gameData, ServerInfo? serverInfo = null)
-//    {
-//        try
-//        {
-//            // 刷新令牌
-//            Task refreshTokenTask =  Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MMA);
+        // 4. 配置并启动游戏进程
+        try
+        {
+            _gameProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = commandBuilder.GetJavaPath(),
+                    Arguments = $"@{_launchArgumentsPath}", // 从文件读取参数
+                    WorkingDirectory = Init.GameRootPath,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8
+                },
+                EnableRaisingEvents = true
+            };
 
-//            var commandBuilder = new LaunchCommandBuilder(
-//                Init.GameRootPath,
-//                gameData,
-//                serverInfo
-//            );
+            _gameProcess.OutputDataReceived += OnOutputDataReceived;
+            _gameProcess.ErrorDataReceived += OnErrorDataReceived;
+            _gameProcess.Exited += OnGameProcessExited;
 
-//            // 写进文件
-//            string launchArgumentsPath = Path.GetTempFileName();
-//            string arguments = await commandBuilder.BuildCommand(
-//                Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(commandBuilder.versionInfo.GetJavaVersion()),
-//                useRootLaunch: false // 根据你的需要调整
-//            );
+            _gameProcess.Start();
+            _gameProcess.BeginOutputReadLine();
+            _gameProcess.BeginErrorReadLine();
 
-//            // 针对Windows平台的路径特殊处理
-//#if WINDOWS
-//            arguments = arguments.Replace("\\", @"\\");
-//#endif
-//            await File.WriteAllTextAsync(launchArgumentsPath, arguments, _cancellationTokenSource.Token);
+            return _gameProcess.WaitForExitAsync(CancellationToken); // 调用方可以自由决定是否等待游戏结束
+        }
+        catch (OperationCanceledException)
+        {
+            return Stop();
+        }
+    }
+    public Task Play(string InstanceID)
+    {
+        GameData? gameData = Init.GameDataManager.Data.Instances.GetValueOrDefault(InstanceID);
+        if (gameData == null)
+            throw new OlanException("启动失败",$"没有找到匹配的且已安装的实例{Environment.NewLine}请检查你的输入{InstanceID}是否正确");
+        return BasicLaunch(gameData);
+    }
+    public async Task Play(GameData gameData, ServerInfo? serverInfo = null)
+    {
+        await await BasicLaunch(gameData, serverInfo);
+    }
+    public async Task Play(UserVersion userVersion, ServerInfo? serverInfo = null, bool useRootMode = false)
+    {
+        GameData finded = await Init.GameDataManager.GetOrCreateInstanceAsync(userVersion);
+        await await BasicLaunch(finded, serverInfo, useRootMode);
+    }
+    public Task Stop()
+    {
+        if (_gameProcess != null && !_gameProcess.HasExited)
+        {
+            _gameProcess.Kill(true); // 强制结束进程树
+            File.Delete(_launchArgumentsPath!); // 删除临时文件
+            return _gameProcess.WaitForExitAsync(CancellationToken); // 调用方可以选择等待游戏进程结束
+        }
+        else return Task.CompletedTask;
+    }
 
-//            // 4. 配置并启动游戏进程
-//            _gameProcess = new Process
-//            {
-//                StartInfo = new ProcessStartInfo
-//                {
-//                    FileName = commandBuilder.GetJavaPath(),
-//                    Arguments = $"@{launchArgumentsPath}", // 从文件读取参数
-//                    WorkingDirectory = Init.GameRootPath,
-//                    RedirectStandardOutput = true,
-//                    RedirectStandardError = true,
-//                    UseShellExecute = false,
-//                    CreateNoWindow = true,
-//                    StandardOutputEncoding = Encoding.UTF8,
-//                    StandardErrorEncoding = Encoding.UTF8
-//                },
-//                EnableRaisingEvents = true 
-//            };
+    #region 事件处理
+    private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Data)) return;
+        GameOutputEvent?.Invoke($"[STDOUT] {e.Data}{Environment.NewLine}");
+        // 咱就是，其实没有什么真正好的判断游戏已经启动的方法
+        if (e.Data.Contains("Backend library: LWJGL version"))
+            GameStartedEvent?.Invoke();
+        
+    }
+    private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Data)) return;
+        GameOutputEvent?.Invoke($"[ERROR] {e.Data}{Environment.NewLine}");
 
-//            _gameProcess.OutputDataReceived += OnOutputDataReceived;
-//            _gameProcess.ErrorDataReceived += OnErrorDataReceived;
-//            _gameProcess.Exited += OnGameProcessExited;
-
-//            _gameProcess.Start();
-//            _gameProcess.BeginOutputReadLine();
-//            _gameProcess.BeginErrorReadLine();
-
-//            await _gameProcess.WaitForExitAsync(_cancellationTokenSource.Token);
-//        }
-//        catch (OperationCanceledException)
-//        {
-//            GameOutputEvent?.Invoke("[INFO] Game launch was cancelled." + Environment.NewLine);
-//        }
-//        finally
-//        {
-//            // 确保资源得到释放
-//            CleanupAfterGame();
-//        }
-//    }
-
-//    // 实现接口中的其他 Play 方法
-//    public Task Play(string InstanceOrVersionId, bool isVersionLauncherMode)
-//    {
-//        // 你需要在这里实现通过ID查找 GameData 或 UserVersion 的逻辑
-//        // 然后调用 Play(gameData)
-//        throw new NotImplementedException();
-//    }
-
-//    public Task Play(UserVersion userVersion, ServerInfo? serverInfo = null, bool useRootMode = false)
-//    {
-//        // 你需要在这里实现通过 UserVersion 查找或创建 GameData 的逻辑
-//        // 然后调用 Play(gameData)
-//        throw new NotImplementedException();
-//    }
-
-//    /// <summary>
-//    /// 强制停止正在运行的游戏进程。
-//    /// </summary>
-//    public Task Stop()
-//    {
-//        if (_gameProcess != null && !_gameProcess.HasExited)
-//        {
-//            _cancellationTokenSource?.Cancel(); // 取消等待
-//            _gameProcess.Kill(true); // 强制结束进程树
-//            GameOutputEvent?.Invoke("[INFO] Game process has been terminated by the user." + Environment.NewLine);
-//        }
-//        return Task.CompletedTask;
-//    }
-
-//    #region 事件处理
-//    private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-//    {
-//        if (string.IsNullOrEmpty(e.Data)) return;
-//        GameOutputEvent?.Invoke($"[STDOUT] {e.Data}{Environment.NewLine}");
-//        // 在游戏启动后触发事件
-//        if (e.Data.Contains("Backend library: LWJGL version"))
-//        {
-//            GameStartedEvent?.Invoke();
-//        }
-//    }
-
-//    private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
-//    {
-//        if (string.IsNullOrEmpty(e.Data)) return;
-//        GameOutputEvent?.Invoke($"[ERROR] {e.Data}{Environment.NewLine}");
-
-//        // 可以在这里添加更复杂的错误识别和处理逻辑
-//    }
-
-//    private void OnGameProcessExited(object? sender, EventArgs e)
-//    {
-//        if (_gameProcess != null)
-//        {
-//            GameOutputEvent?.Invoke($"[INFO] Game process exited with code: {_gameProcess.ExitCode}{Environment.NewLine}");
-//        }
-
-//        GameClosedEvent?.Invoke();
-//    }
-//    #endregion
-
-//    /// <summary>
-//    /// 清理游戏进程相关的资源。
-//    /// </summary>
-//    private void CleanupAfterGame()
-//    {
-//        if (_gameProcess != null)
-//        {
-//            _gameProcess.OutputDataReceived -= OnOutputDataReceived;
-//            _gameProcess.ErrorDataReceived -= OnErrorDataReceived;
-//            _gameProcess.Exited -= OnGameProcessExited;
-//            _gameProcess.Dispose();
-//            _gameProcess = null;
-//        }
-
-//        if (_cancellationTokenSource != null)
-//        {
-//            _cancellationTokenSource.Dispose();
-//            _cancellationTokenSource = null;
-//        }
-//    }
-
-//    public void Dispose()
-//    {
-//        Stop().Wait(); // 等待停止操作完成
-//        CleanupAfterGame();
-//    }
-//}
+        if(e.Data.Contains("java.lang.ClassNotFoundException"))
+            throw new OlanException("启动失败", "JVM无法找到主类，请确保你的游戏资源完整性", OlanExceptionAction.Error);
+        
+    }
+    private void OnGameProcessExited(object? sender, EventArgs e)
+    {
+        GameClosedEvent?.Invoke();
+        if(_gameProcess.ExitCode != 0)
+            throw new OlanException("启动失败", "未知错误，请尝试以调试模式启动游戏以查找出错原因", OlanExceptionAction.Error);
+    }
+    #endregion
+}

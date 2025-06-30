@@ -1,85 +1,4 @@
-﻿【代码拼接器】文件路径: /Code/ConsoleTest/Program.cs
-【代码拼接器】文件内容开始
-using System;
-using System.IO;
-using System.Text;
-using System.Linq;
-
-class Program
-{
-    static void Main(string[] args)
-    {
-        try
-        {
-            // 获取当前工作目录作为根路径
-            string rootPath = @"E:\OneLauncherProject\OneLauncher";
-            // 输出文件的保存路径
-            string outputFile = @"E:\OneLauncherProject\OneLauncher\CombinedCode.txt";
-            // 存储拼接后的内容
-            StringBuilder combinedContent = new StringBuilder();
-            // 要排除的目录（不处理这些目录及其子目录）
-            string[] excludedDirs = { "obj", "bin" };
-
-            // 递归获取所有.cs和.axaml文件
-            ProcessDirectory(rootPath, rootPath, combinedContent, excludedDirs);
-
-            // 将结果写入文件
-            File.WriteAllText(outputFile, combinedContent.ToString(), Encoding.UTF8);
-            Console.WriteLine($"文件已成功生成：{outputFile}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"发生错误：{ex.Message}");
-        }
-    }
-
-    static void ProcessDirectory(string targetDirectory, string rootPath, StringBuilder combinedContent, string[] excludedDirs)
-    {
-        try
-        {
-            // 检查当前目录是否在排除列表中
-            string dirName = Path.GetFileName(targetDirectory);
-            if (excludedDirs.Any(excluded => dirName.Equals(excluded, StringComparison.OrdinalIgnoreCase)))
-            {
-                Console.WriteLine($"跳过排除的目录：{targetDirectory}");
-                return;
-            }
-
-            // 获取目录下所有.cs和.axaml文件
-            string[] fileExtensions = { "*.cs", "*.axaml" };
-            foreach (string extension in fileExtensions)
-            {
-                string[] files = Directory.GetFiles(targetDirectory, extension);
-                foreach (string file in files)
-                {
-                    // 计算相对路径
-                    string relativePath = Path.GetRelativePath(rootPath, file).Replace('\\', '/');
-                    // 读取文件内容
-                    string content = File.ReadAllText(file, Encoding.UTF8);
-                    // 添加文件路径和内容的中文分隔符
-                    combinedContent.AppendLine($"【代码拼接器】文件路径: /Code/{relativePath}");
-                    combinedContent.AppendLine($"【代码拼接器】文件内容开始");
-                    combinedContent.AppendLine(content);
-                    combinedContent.AppendLine($"【代码拼接器】文件内容结束\n");
-                }
-            }
-
-            // 递归处理子目录
-            string[] subDirectories = Directory.GetDirectories(targetDirectory);
-            foreach (string subDir in subDirectories)
-            {
-                ProcessDirectory(subDir, rootPath, combinedContent, excludedDirs);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"处理目录 {targetDirectory} 时出错：{ex.Message}");
-        }
-    }
-}
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher/App.axaml.cs
+﻿【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/App.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -108,7 +27,7 @@ public partial class App : Application
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/App.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/App.axaml
 【代码拼接器】文件内容开始
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -145,7 +64,7 @@ public partial class App : Application
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Codes/LaunchGame.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Codes/LaunchGame.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls.Documents;
 using Avalonia.Data;
@@ -177,7 +96,6 @@ internal class Game
         bool useRootLaunch = false)
     {
         #region 初始化基本游戏构建类
-        await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MMA);
         var Builder = new LaunchCommandBuilder
                         (
                             Init.GameRootPath,
@@ -191,8 +109,9 @@ internal class Game
             string launchArgumentsPath = Path.GetTempFileName();
             await File.WriteAllTextAsync(
                 launchArgumentsPath,
-                (await Builder.BuildCommand(
-                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()),useRootLaunch))
+                (
+                string.Join(" " ,await Builder.BuildCommand(
+                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(Builder.versionInfo.GetJavaVersion()),useRootLaunch)))
 #if WINDOWS
                 // 避免微软万年屎山导致的找不到路径问题
                 .Replace("\\",@"\\")
@@ -268,7 +187,7 @@ internal class Game
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Codes/OlanExceptionWorker.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Codes/OlanExceptionWorker.cs
 【代码拼接器】文件内容开始
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Messaging;
@@ -313,7 +232,7 @@ internal class OlanExceptionWorker
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/account.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/account.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -339,7 +258,7 @@ public partial class account : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/download.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/download.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -374,7 +293,7 @@ public partial class download : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/gamedata.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/gamedata.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -401,7 +320,7 @@ public partial class gamedata : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Home.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Home.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -425,7 +344,7 @@ public partial class Home : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/MainWindow.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/MainWindow.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -613,7 +532,7 @@ public partial class MainWindow : Window
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ModsBrowser.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ModsBrowser.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -631,7 +550,7 @@ public partial class ModsBrowser : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/settings.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/settings.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -650,7 +569,7 @@ public partial class settings : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/version.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/version.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -716,7 +635,7 @@ public partial class version : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/account.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/account.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -863,7 +782,7 @@ public partial class version : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/download.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/download.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -872,7 +791,7 @@ public partial class version : UserControl
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Views.download"
 			 xmlns:vm="using:OneLauncher.Views.ViewModels"
-			 xmlns:models="using:OneLauncher.Core.Helper"
+			 xmlns:models="using:OneLauncher.Core.Helper.Models"
 			 x:CompileBindings="True"
 			 x:DataType="vm:DownloadPageViewModel"
 			 >
@@ -925,7 +844,7 @@ public partial class version : UserControl
 </UserControl>
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/gamedata.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/gamedata.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -934,7 +853,7 @@ public partial class version : UserControl
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OneLauncher.Views.gamedata"
 			 xmlns:vm="using:OneLauncher.Views.ViewModels"
-			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
+			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper.Models;assembly=OneLauncher.Core"
 			 xmlns:i="using:Avalonia.Xaml.Interactivity"
              xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
 			 x:CompileBindings="True"
@@ -1108,14 +1027,14 @@ public partial class version : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Home.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Home.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.ViewModels"
-             xmlns:lo="using:OneLauncher.Core.Helper" mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
+             xmlns:lo="using:OneLauncher.Core.Helper.Models" mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
              x:Class="OneLauncher.Home"
              x:DataType="vm:HomePageViewModel"
              x:CompileBindings="True">
@@ -1155,7 +1074,7 @@ public partial class version : UserControl
 </UserControl>
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/MainWindow.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/MainWindow.axaml
 【代码拼接器】文件内容开始
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -1325,7 +1244,7 @@ public partial class version : UserControl
 </Window>
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ModsBrowser.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ModsBrowser.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -1434,7 +1353,7 @@ public partial class version : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/settings.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/settings.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -1497,7 +1416,7 @@ public partial class version : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/version.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/version.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -1506,7 +1425,7 @@ public partial class version : UserControl
              mc:Ignorable="d" d:DesignWidth="1070" d:DesignHeight="620"
              x:Class="OneLauncher.Views.version"
 			 xmlns:vm="clr-namespace:OneLauncher.Views.ViewModels;assembly=OneLauncher"
-			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
+			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper.Models;assembly=OneLauncher.Core"
 			 x:CompileBindings="True"
 			 x:DataType="vm:VersionPageViewModel"
 			 xmlns:i="using:Avalonia.Xaml.Interactivity"
@@ -1680,7 +1599,7 @@ public partial class version : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/DownloadPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/DownloadPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1704,7 +1623,7 @@ internal partial class DownloadPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/EditGameDataPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/EditGameDataPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1723,7 +1642,7 @@ public partial class EditGameDataPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/InitServerPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/InitServerPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1750,7 +1669,7 @@ public partial class InitServerPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/InstallModPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/InstallModPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1771,7 +1690,7 @@ internal partial class InstallModPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/NewGameDataPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/NewGameDataPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1789,7 +1708,7 @@ public partial class NewGameDataPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PowerPlayPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PowerPlayPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1834,7 +1753,7 @@ public partial class PowerPlayPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/SkinMangerPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/SkinMangerPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1862,7 +1781,7 @@ internal partial class SkinMangerPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/UserModelLoginPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/UserModelLoginPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -1890,7 +1809,7 @@ internal partial class UserModelLoginPane : UserControl
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/DownloadPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/DownloadPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -1976,7 +1895,7 @@ internal partial class UserModelLoginPane : UserControl
 </UserControl>
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/EditGameDataPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/EditGameDataPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -2028,7 +1947,7 @@ internal partial class UserModelLoginPane : UserControl
 </UserControl>
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/InitServerPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/InitServerPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -2073,13 +1992,13 @@ internal partial class UserModelLoginPane : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/InstallModPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/InstallModPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-			 xmlns:lo="using:OneLauncher.Core.Helper"
+			 xmlns:lo="using:OneLauncher.Core.Helper.Models"
              mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="620"
              x:Class="OneLauncher.Views.Panes.InstallModPane"
 			 xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
@@ -2151,14 +2070,14 @@ internal partial class UserModelLoginPane : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/NewGameDataPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/NewGameDataPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
-			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper;assembly=OneLauncher.Core"
+			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper.Models;assembly=OneLauncher.Core"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="500"
 			 x:DataType="vm:NewGameDataPaneViewModel"
 			 x:CompileBindings="True"
@@ -2210,7 +2129,7 @@ internal partial class UserModelLoginPane : UserControl
 </UserControl>
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PowerPlayPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PowerPlayPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -2281,7 +2200,7 @@ internal partial class UserModelLoginPane : UserControl
 </UserControl>
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/SkinMangerPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/SkinMangerPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -2325,7 +2244,7 @@ internal partial class UserModelLoginPane : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/UserModelLoginPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/UserModelLoginPane.axaml
 【代码拼接器】文件内容开始
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -2366,7 +2285,7 @@ internal partial class UserModelLoginPane : UserControl
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/DownloadPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/DownloadPaneViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -2573,7 +2492,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/EditGameDataPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/EditGameDataPaneViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -2747,7 +2666,7 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/InitServerPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/InitServerPaneViewModel.cs
 【代码拼接器】文件内容开始
 using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -2801,7 +2720,7 @@ internal partial class InitServerPaneViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/InstallModPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/InstallModPaneViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -2949,7 +2868,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/NewGameDataPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/NewGameDataPaneViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
@@ -3063,7 +2982,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/PowerPlayPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/PowerPlayPaneViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -3293,7 +3212,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/SkinMangerPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/SkinMangerPaneViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -3441,7 +3360,7 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/UserModelLoginPaneViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/UserModelLoginPaneViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -3562,7 +3481,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/Factories/DownloadPaneViewModelFactory.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/Factories/DownloadPaneViewModelFactory.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
@@ -3601,7 +3520,7 @@ internal class DownloadPaneViewModelFactory
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/Factories/EditGameDataPaneViewModelFactory.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/Factories/EditGameDataPaneViewModelFactory.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
@@ -3628,7 +3547,7 @@ internal class EditGameDataPaneViewModelFactory
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/Factories/InstallModPaneViewModelFactory.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/Factories/InstallModPaneViewModelFactory.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Views.ViewModels;
@@ -3655,7 +3574,7 @@ internal class InstallModPaneViewModelFactory
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Panes/PaneViewModels/Factories/PowerPlayPaneViewModelFactory.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Panes/PaneViewModels/Factories/PowerPlayPaneViewModelFactory.cs
 【代码拼接器】文件内容开始
 using Avalonia.Platform;
 using OneLauncher.Core.Global.ModelDataMangers;
@@ -3686,7 +3605,7 @@ internal class PowerPlayPaneViewModelFactory
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/AccountPageViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/AccountPageViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -3840,7 +3759,7 @@ internal partial class AccountPageViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/BaseViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/BaseViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Data.Converters;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -3884,7 +3803,7 @@ public class BaseViewModel : ObservableObject
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/DownloadPageViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/DownloadPageViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -3978,7 +3897,7 @@ internal partial class DownloadPageViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/GameDataPageViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/GameDataPageViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -4252,7 +4171,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/HomePageViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/HomePageViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -4299,7 +4218,7 @@ internal partial class HomePageViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/ModsBrowserViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/ModsBrowserViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -4412,7 +4331,7 @@ internal partial class ModsBrowserViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/SettingsPageViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/SettingsPageViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -4579,7 +4498,7 @@ internal partial class SettingsPageViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/ViewModels/VersionPageViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/ViewModels/VersionPageViewModel.cs
 【代码拼接器】文件内容开始
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -4810,7 +4729,7 @@ internal partial class VersionPageViewModel : BaseViewModel
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Windows/ExceptionTip.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Windows/ExceptionTip.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -4846,7 +4765,7 @@ public partial class ExceptionTip : Window
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Windows/GameTasker.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Windows/GameTasker.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -4865,7 +4784,7 @@ public partial class GameTasker : Window
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Windows/PopUpPane.axaml.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Windows/PopUpPane.axaml.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Avalonia.Controls;
@@ -4883,7 +4802,7 @@ public partial class PopUpPane : Window
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Windows/ExceptionTip.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Windows/ExceptionTip.axaml
 【代码拼接器】文件内容开始
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -4915,7 +4834,7 @@ public partial class PopUpPane : Window
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Windows/GameTasker.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Windows/GameTasker.axaml
 【代码拼接器】文件内容开始
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -4938,7 +4857,7 @@ public partial class PopUpPane : Window
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Windows/PopUpPane.axaml
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Windows/PopUpPane.axaml
 【代码拼接器】文件内容开始
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -4953,7 +4872,7 @@ public partial class PopUpPane : Window
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher/Views/Windows/WindowViewModels/GameTaskerViewModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher/Views/Windows/WindowViewModels/GameTaskerViewModel.cs
 【代码拼接器】文件内容开始
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -5008,7 +4927,7 @@ internal partial class GameTaskerViewModel : BaseViewModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Console/boot.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Console/boot.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using System;
@@ -5044,7 +4963,7 @@ public class boot
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Console/QuicklyPlay/GameLauncher.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Console/QuicklyPlay/GameLauncher.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
@@ -5103,7 +5022,7 @@ internal class GameLauncher
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/Download.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/Download.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
@@ -5602,7 +5521,7 @@ public partial class Download : IDisposable
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadInfo.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadInfo.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
@@ -5643,7 +5562,7 @@ public partial class DownloadInfo
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadInfoCreater.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadInfoCreater.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
@@ -5739,7 +5658,7 @@ public partial class DownloadInfo
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadMinecraft.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadMinecraft.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
@@ -5830,7 +5749,7 @@ public partial class DownloadMinecraft
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadMinecraftPlanner.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadMinecraftPlanner.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 using OneLauncher.Core.Helper.Models;
@@ -5914,7 +5833,7 @@ public partial class DownloadMinecraft
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadMinecraftProvider.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/DownloadMinecraftProvider.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 using OneLauncher.Core.Global;
@@ -6202,7 +6121,7 @@ public partial class DownloadMinecraft
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/FabricProvider.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/FabricProvider.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Mod.ModLoader.fabric;
@@ -6260,7 +6179,7 @@ internal class FabricProvider : IModLoaderConcreteProviders
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/ForgeProvider.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/ForgeProvider.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
 using OneLauncher.Core.Global;
@@ -6348,7 +6267,7 @@ internal class ForgeProvider : IModLoaderConcreteProviders
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/IModLoaderConcreteProviders.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/IModLoaderConcreteProviders.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using System;
@@ -6371,7 +6290,7 @@ internal interface IModLoaderConcreteProviders
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/NeoforgeProvider.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Downloader/DownloadMinecraftProviders/Sources/NeoforgeProvider.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
@@ -6459,7 +6378,7 @@ internal class NeoforgeProvider : IModLoaderConcreteProviders
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Global/Init.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Global/Init.cs
 【代码拼接器】文件内容开始
 using Microsoft.Extensions.DependencyInjection;
 using OneLauncher.Core.Downloader;
@@ -6581,7 +6500,7 @@ public static class Init
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Global/OlanException.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Global/OlanException.cs
 【代码拼接器】文件内容开始
 namespace OneLauncher.Core.Global;
 /// <summary>
@@ -6629,7 +6548,7 @@ public class OlanException : Exception
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Global/ModelDataMangers/AccountManger.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Global/ModelDataMangers/AccountManger.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
@@ -6724,7 +6643,7 @@ public class AccountManager : BasicDataManager<AccountData>
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Global/ModelDataMangers/BasicDataManger.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Global/ModelDataMangers/BasicDataManger.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -6810,7 +6729,7 @@ public abstract class BasicDataManager<T> where T : class, new()
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Global/ModelDataMangers/DBManager.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Global/ModelDataMangers/DBManager.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using System.Text.Json;
@@ -6856,7 +6775,7 @@ public class DBManager : BasicDataManager<AppConfig>
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Global/ModelDataMangers/GameDataManger.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Global/ModelDataMangers/GameDataManger.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using System.Data;
@@ -6974,7 +6893,7 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/ReleaseMemory.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/ReleaseMemory.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Diagnostics;
@@ -7178,7 +7097,7 @@ public static class ReleaseMemory
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/SystemMemoryHelper.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/SystemMemoryHelper.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -7375,7 +7294,7 @@ public static class SystemMemoryHelper
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/TextHelper.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/TextHelper.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -7403,7 +7322,7 @@ public static class TextHelper
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/Tools.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/Tools.cs
 【代码拼接器】文件内容开始
 using Microsoft.Identity.Client;
 using OneLauncher.Core.Global;
@@ -7630,7 +7549,7 @@ public static class Tools
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/ImportPCL2Version/ImportMain.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/ImportPCL2Version/ImportMain.cs
 【代码拼接器】文件内容开始
 //using OneLauncher.Core.Compatible.ImportPCL2Version;
 //using OneLauncher.Core.Downloader;
@@ -7852,7 +7771,7 @@ public static class Tools
 //}
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/ImportPCL2Version/JsonModels.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/ImportPCL2Version/JsonModels.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -7876,7 +7795,7 @@ public class PCL2VersionJsonModels
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/ImportPCL2Version/SetupFucker.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/ImportPCL2Version/SetupFucker.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using System;
@@ -7913,7 +7832,7 @@ public class PCL2SetupFucker
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/Models/GameData.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/Models/GameData.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using System;
@@ -7966,7 +7885,7 @@ public class GameData
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/Models/JvmArgument.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/Models/JvmArgument.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -8227,7 +8146,7 @@ public class JvmArguments
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/Models/SomeClasses.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/Models/SomeClasses.cs
 【代码拼接器】文件内容开始
 using Microsoft.Identity.Client;
 using OneLauncher.Core.Net.msa;
@@ -8348,6 +8267,20 @@ public enum SystemType
     osx,
     linux
 }
+【代码拼接器】文件内容结束
+
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/Models/UserModel.cs
+【代码拼接器】文件内容开始
+using OneLauncher.Core.Global;
+using OneLauncher.Core.Net.msa;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
+namespace OneLauncher.Core.Helper.Models;
 public class UserModel
 {
     public const string nullToken = "00000000-0000-0000-0000-000000000000";
@@ -8385,7 +8318,7 @@ public class UserModel
             AccessTokenExpiration = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpiration ?? 86400);
         }
     }
-    [JsonConstructor] 
+    [JsonConstructor]
     public UserModel(
         Guid UserID,
         string Name,
@@ -8393,7 +8326,7 @@ public class UserModel
         string accessToken,
         bool IsMsaUser,
         string? AccountID,
-        DateTimeOffset? AccessTokenExpiration 
+        DateTimeOffset? AccessTokenExpiration
         )
     {
         this.UserID = UserID;
@@ -8411,6 +8344,9 @@ public class UserModel
     /// 【新】智能登录方法。
     /// 检查自身令牌是否过期，如果过期则尝试刷新，并返回一个包含最新状态的新实例。
     /// </summary>
+    /// <returns>
+    /// 【警告】此方法返回一个新的实例，而不是修改我自己
+    /// </returns>
     public async Task<UserModel> IntelligentLogin(MsalAuthenticator authenticator)
     {
         // 如果不是正版用户，或令牌未过期，则直接返回自身，无需任何操作。
@@ -8439,8 +8375,9 @@ public class UserModel
             UserModel r = await authenticator.TryToGetMinecraftMojangAccessTokenForLoginedAccounts(accountToRefresh) ?? this;
 
             // 如果刷新成功，返回那个全新的 UserModel并更改自身；如果失败（返回null），则返回当前的（已过期的）实例。
-            AccessToken= r.AccessToken;
-            AccessTokenExpiration=r.AccessTokenExpiration;
+            AccessToken = r.AccessToken;
+            AccessTokenExpiration = r.AccessTokenExpiration;
+            _=Init.AccountManager.Save();
             return r;
         }
         catch (Exception)
@@ -8466,7 +8403,7 @@ public class UserModel
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Helper/Models/UserVersion.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Helper/Models/UserVersion.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using System;
@@ -8491,29 +8428,185 @@ public class UserVersion
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/GameLauncher.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/GameLauncher.cs
 【代码拼接器】文件内容开始
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+//using OneLauncher.Core.Global;
+//using OneLauncher.Core.Helper.Models;
+//using System.Diagnostics;
+//using System.IO;
+//using System.Text;
+//using System.Threading;
+//using System.Threading.Tasks;
+//using System;
 
-namespace OneLauncher.Core.Launcher;
-public class GameLauncher
-{
-    public event Action? GameStartedEvent;
-    public event Action? GameClosedEvent;
-    public event Action<string>? GamePutEvent;
-    public GameLauncher()
-    { 
-    
-    }
-}
+//namespace OneLauncher.Core.Launcher;
+//public class GameLauncher : IGameLauncher, IDisposable
+//{
+//    public event Action? GameStartedEvent;
+//    public event Action? GameClosedEvent;
+//    public event Action<string>? GameOutputEvent;
 
+//    private Process? _gameProcess;
+//    public CancellationToken CancellationToken = CancellationToken.None; // 外部可以设置
+
+//    /// <summary>
+//    /// 根据提供的 GameData 启动游戏。
+//    /// </summary>
+//    public async Task Play(GameData gameData, ServerInfo? serverInfo = null)
+//    {
+//        try
+//        {
+//            // 刷新令牌
+//            Task refreshTokenTask =  Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MMA);
+
+//            var commandBuilder = new LaunchCommandBuilder(
+//                Init.GameRootPath,
+//                gameData,
+//                serverInfo
+//            );
+
+//            // 写进文件
+//            string launchArgumentsPath = Path.GetTempFileName();
+//            string arguments = await commandBuilder.BuildCommand(
+//                Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments.ToString(commandBuilder.versionInfo.GetJavaVersion()),
+//                useRootLaunch: false // 根据你的需要调整
+//            );
+
+//            // 针对Windows平台的路径特殊处理
+//#if WINDOWS
+//            arguments = arguments.Replace("\\", @"\\");
+//#endif
+//            await File.WriteAllTextAsync(launchArgumentsPath, arguments, _cancellationTokenSource.Token);
+
+//            // 4. 配置并启动游戏进程
+//            _gameProcess = new Process
+//            {
+//                StartInfo = new ProcessStartInfo
+//                {
+//                    FileName = commandBuilder.GetJavaPath(),
+//                    Arguments = $"@{launchArgumentsPath}", // 从文件读取参数
+//                    WorkingDirectory = Init.GameRootPath,
+//                    RedirectStandardOutput = true,
+//                    RedirectStandardError = true,
+//                    UseShellExecute = false,
+//                    CreateNoWindow = true,
+//                    StandardOutputEncoding = Encoding.UTF8,
+//                    StandardErrorEncoding = Encoding.UTF8
+//                },
+//                EnableRaisingEvents = true 
+//            };
+
+//            _gameProcess.OutputDataReceived += OnOutputDataReceived;
+//            _gameProcess.ErrorDataReceived += OnErrorDataReceived;
+//            _gameProcess.Exited += OnGameProcessExited;
+
+//            _gameProcess.Start();
+//            _gameProcess.BeginOutputReadLine();
+//            _gameProcess.BeginErrorReadLine();
+
+//            await _gameProcess.WaitForExitAsync(_cancellationTokenSource.Token);
+//        }
+//        catch (OperationCanceledException)
+//        {
+//            GameOutputEvent?.Invoke("[INFO] Game launch was cancelled." + Environment.NewLine);
+//        }
+//        finally
+//        {
+//            // 确保资源得到释放
+//            CleanupAfterGame();
+//        }
+//    }
+
+//    // 实现接口中的其他 Play 方法
+//    public Task Play(string InstanceOrVersionId, bool isVersionLauncherMode)
+//    {
+//        // 你需要在这里实现通过ID查找 GameData 或 UserVersion 的逻辑
+//        // 然后调用 Play(gameData)
+//        throw new NotImplementedException();
+//    }
+
+//    public Task Play(UserVersion userVersion, ServerInfo? serverInfo = null, bool useRootMode = false)
+//    {
+//        // 你需要在这里实现通过 UserVersion 查找或创建 GameData 的逻辑
+//        // 然后调用 Play(gameData)
+//        throw new NotImplementedException();
+//    }
+
+//    /// <summary>
+//    /// 强制停止正在运行的游戏进程。
+//    /// </summary>
+//    public Task Stop()
+//    {
+//        if (_gameProcess != null && !_gameProcess.HasExited)
+//        {
+//            _cancellationTokenSource?.Cancel(); // 取消等待
+//            _gameProcess.Kill(true); // 强制结束进程树
+//            GameOutputEvent?.Invoke("[INFO] Game process has been terminated by the user." + Environment.NewLine);
+//        }
+//        return Task.CompletedTask;
+//    }
+
+//    #region 事件处理
+//    private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+//    {
+//        if (string.IsNullOrEmpty(e.Data)) return;
+//        GameOutputEvent?.Invoke($"[STDOUT] {e.Data}{Environment.NewLine}");
+//        // 在游戏启动后触发事件
+//        if (e.Data.Contains("Backend library: LWJGL version"))
+//        {
+//            GameStartedEvent?.Invoke();
+//        }
+//    }
+
+//    private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
+//    {
+//        if (string.IsNullOrEmpty(e.Data)) return;
+//        GameOutputEvent?.Invoke($"[ERROR] {e.Data}{Environment.NewLine}");
+
+//        // 可以在这里添加更复杂的错误识别和处理逻辑
+//    }
+
+//    private void OnGameProcessExited(object? sender, EventArgs e)
+//    {
+//        if (_gameProcess != null)
+//        {
+//            GameOutputEvent?.Invoke($"[INFO] Game process exited with code: {_gameProcess.ExitCode}{Environment.NewLine}");
+//        }
+
+//        GameClosedEvent?.Invoke();
+//    }
+//    #endregion
+
+//    /// <summary>
+//    /// 清理游戏进程相关的资源。
+//    /// </summary>
+//    private void CleanupAfterGame()
+//    {
+//        if (_gameProcess != null)
+//        {
+//            _gameProcess.OutputDataReceived -= OnOutputDataReceived;
+//            _gameProcess.ErrorDataReceived -= OnErrorDataReceived;
+//            _gameProcess.Exited -= OnGameProcessExited;
+//            _gameProcess.Dispose();
+//            _gameProcess = null;
+//        }
+
+//        if (_cancellationTokenSource != null)
+//        {
+//            _cancellationTokenSource.Dispose();
+//            _cancellationTokenSource = null;
+//        }
+//    }
+
+//    public void Dispose()
+//    {
+//        Stop().Wait(); // 等待停止操作完成
+//        CleanupAfterGame();
+//    }
+//}
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/IGameLauncher.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/IGameLauncher.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using System;
@@ -8537,11 +8630,12 @@ internal interface IGameLauncher
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/LaunchCommandBuilder.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/LaunchCommandBuilder.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModLoader.fabric;
 using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
@@ -8552,11 +8646,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace OneLauncher.Core.Launcher;
-/// <summary>
-/// Minecraft 启动命令构造器，提供一个简单的方法来生成启动命令。
-/// </summary>
 public partial class LaunchCommandBuilder
 {
     public VersionInfomations versionInfo;
@@ -8564,12 +8654,11 @@ public partial class LaunchCommandBuilder
     private readonly string version;
     private readonly string basePath;
     private readonly ModEnum modType;
-    private FabricVJParser fabricParser;
-    private ForgeSeriesUsing neoForgeParser;
-    private QuiltNJParser quiltParser;
     private readonly string separator;
     private readonly string VersionPath;
     private readonly ServerInfo? serverInfo;
+
+    // 构造函数保持不变
     public LaunchCommandBuilder(
         string basePath,
         GameData gameData,
@@ -8581,51 +8670,57 @@ public partial class LaunchCommandBuilder
         this.serverInfo = serverInfo;
         this.gameData = gameData;
         this.VersionPath = Path.Combine(this.basePath, "versions", this.version);
-#if WINDOWS
-        separator = ";";
-#else
-        separator = ":";
-#endif
+        this.separator = Path.PathSeparator.ToString();
+
         versionInfo = new VersionInfomations(
             File.ReadAllText(Path.Combine(VersionPath, "version.json")),
             this.basePath
         );
     }
+
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
-    public async Task<string> BuildCommand(string OtherArgs = "", bool useRootLaunch = false)
+
+    public async Task<IEnumerable<string>> BuildCommand(string OtherArgs = "", bool useRootLaunch = false)
     {
-        string MainClass;
-        if (modType == ModEnum.fabric)
+        // 等启动器重写完了再把这个逻辑丢过去
+        await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
+        IModStrategy? strategy = null; // 策略可以是null，代表原版
+        if (modType != ModEnum.none)
+            strategy = await CreateAndInitStrategy();
+        
+
+        // 确定主类：如果策略提供了覆盖，则使用策略的；否则用原版的
+        string mainClass = strategy?.GetMainClassOverride() ?? versionInfo.GetMainClass();
+
+        // 将策略传递给各个构建器
+        List<string> rargs = new List<string>();
+        rargs.AddRange(BuildJvmArgs(strategy));
+        rargs.Add(strategy?.GetMainClassOverride() ?? versionInfo.GetMainClass()); // 别把主类忘了
+        rargs.AddRange(BuildGameArgs(useRootLaunch ? basePath : gameData.InstancePath ,strategy));
+        return rargs;
+    }
+
+    // 策略方法
+    private async Task<IModStrategy?> CreateAndInitStrategy()
+    {
+        IModStrategy strategy = modType switch
         {
-            fabricParser = FabricVJParser.ParserAuto(
-              File.OpenRead(Path.Combine(VersionPath, $"version.fabric.json")), basePath);
-            MainClass = fabricParser.GetMainClass();
-        }
-        else if (modType == ModEnum.quilt)
-        {
-            quiltParser = QuiltNJParser.ParserAuto(
-                File.OpenRead(Path.Combine(VersionPath, $"version.quilt.json")), basePath);
-            MainClass = quiltParser.GetMainClass();
-        }
-        else if (modType == ModEnum.neoforge || modType == ModEnum.forge)
-        {
-            neoForgeParser = new ForgeSeriesUsing();
-            await neoForgeParser.Init(basePath, version, (modType == ModEnum.forge ? true : false));
-            MainClass = neoForgeParser.info.MainClass;
-        }
-        else MainClass = versionInfo.GetMainClass();
-        string Args = $"{OtherArgs} {BuildJvmArgs()} {MainClass} {BuildGameArgs(useRootLaunch)}";
-        Debug.WriteLine(Args);
-        return Args;
+            ModEnum.fabric => new FabricStrategy(VersionPath, basePath),
+            ModEnum.quilt => new QuiltStrategy(VersionPath, basePath),
+            ModEnum.neoforge => await NeoForgeStrategy.CreateAsync(VersionPath, basePath, version),
+            ModEnum.forge => await ForgeStrategy.CreateAsync(VersionPath, basePath, version),
+            _ => throw new OlanException("内部异常",$"不支持的模组加载器 {modType}")
+        };
+        return strategy;
     }
 }
-
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/Builders/ClassPathBuilder.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Builders/ClassPathBuilder.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Launcher.Strategys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8639,76 +8734,41 @@ public partial class LaunchCommandBuilder
     /// <summary>
     /// 拼接类路径，不包含-p参数
     /// </summary>
-    private string BuildClassPath()
+    private string BuildClassPath(IModStrategy? strategy) 
     {
         var libraryMap = new Dictionary<string, string>();
-        if (modType == ModEnum.fabric)
-        {
-            foreach (var lib in fabricParser.GetLibrariesForUsing())
-            {
-                // 从 "org.ow2.asm:asm:9.5" 中提取 "org.ow2.asm:asm" 作为key
-                var parts = lib.name.Split(':');
-                if (parts.Length >= 2)
-                {
-                    var libKey = $"{parts[0]}:{parts[1]}";
-                    libraryMap[libKey] = lib.path;
-                }
-            }
-        }
-        else if (modType == ModEnum.quilt) // 假设你的 ModEnum 枚举中已添加 quilt
-        {
-            foreach (var lib in quiltParser.GetLibrariesForUsing())
-            {
-                var parts = lib.name.Split(':');
-                if (parts.Length >= 2)
-                {
-                    var libKey = $"{parts[0]}:{parts[1]}";
-                    libraryMap[libKey] = lib.path;
-                }
-            }
-        }
-        else if (modType == ModEnum.neoforge || modType == ModEnum.forge)
-        {
-            foreach (var lib in neoForgeParser.GetLibrariesForLaunch(basePath))
-            {
-                var parts = lib.name.Split(':');
-                if (parts.Length >= 2)
-                {
-                    var libKey = $"{parts[0]}:{parts[1]}";
-                    libraryMap[libKey] = lib.path;
-                }
-            }
-        }
+
+        // 如果是Mod，优先添加Mod的库
+        if (strategy != null)
+            strategy.GetModLibraries()
+                .ToList()
+                .ForEach(lib => libraryMap[lib.key] = lib.path);
+
+        // 添加原版库（如果不存在于map中）
         foreach (var lib in versionInfo.GetLibraryiesForUsing())
         {
             var parts = lib.name.Split(':');
             if (parts.Length >= 2)
             {
                 var libKey = $"{parts[0]}:{parts[1]}";
-                if (!libraryMap.ContainsKey(libKey)) // 如果不存在，才添加
-                {
-                    libraryMap[libKey] = lib.path;
-                }
+                libraryMap.TryAdd(libKey, lib.path); // TryAdd 简洁高效
             }
         }
+
         var finalClassPathLibs = libraryMap.Values.ToList();
         finalClassPathLibs.Add(versionInfo.GetMainFile().path);
 
-        return string.Join(
-            separator,
-            finalClassPathLibs
-                .Where(p => !string.IsNullOrEmpty(p))
-                .Distinct()
-        );
+        return string.Join(separator, finalClassPathLibs.Where(p => !string.IsNullOrEmpty(p)).Distinct());
     }
 }
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/Builders/GameArgsBuilder.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Builders/GameArgsBuilder.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Launcher.Strategys;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8719,48 +8779,77 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
-    private string BuildGameArgs(bool useRootLaunch)
+    private IEnumerable<string> BuildGameArgs(string gamePath,IModStrategy? strategy)
     {
         var userModel = Init.AccountManager.GetUser(gameData.DefaultUserModelID);
-        string serverArgs = string.Empty;
+        List<string> Args = new List<string>();
         if (serverInfo != null)
         {
-            serverArgs = $"--server \"{((ServerInfo)serverInfo).Ip}\" --port\"{((ServerInfo)serverInfo).Port}\" ";
+            Args.Add($"--server");
+            Args.Add($"\"{((ServerInfo)serverInfo).Ip}\"");
+            Args.Add($"--port");
+            Args.Add($"\"{((ServerInfo)serverInfo).Port}\"");
             if (new Version(version) > new Version("1.20"))
             {
-                serverArgs += $"--quickPlayMultiplayer \"{serverInfo.Value.Ip}:{serverInfo.Value.Port}\" ";
+                Args.Add($"--quickPlayMultiplayer");
+                Args.Add($"\"{serverInfo.Value.Ip}:{serverInfo.Value.Port}\"");
             }
         }
-        string GameArgs =
-            $"--username \"{userModel.Name}\" " +
-            $"--version \"{version}\" " +
-            $"--gameDir \"{(useRootLaunch ? basePath : gameData.InstancePath)}\" " +
-            $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\" " +
-            // 1.7版本及以上启用新用户验证机制
-            (new Version(version) > new Version("1.7") ?
-            $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\" " +
-            $"--uuid \"{userModel.uuid}\" " +
-            $"--accessToken \"{userModel.AccessToken.ToString()}\" " +
-            $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\" " +
-            $"--versionType \"OneLauncher\" " +
-            serverArgs +
-            "--userProperties {} "
-            // 针对旧版用户验证机制
-            : $"--session \"{userModel.AccessToken}\" ");
-        if (modType == ModEnum.neoforge || modType == ModEnum.forge)
-            GameArgs +=
-                string.Join(" ", neoForgeParser.info.Arguments.Game);
-        Debug.WriteLine(GameArgs);
-        return GameArgs;
+        // 添加基本的
+        Args.AddRange([
+            $"--username \"{userModel.Name}\"",
+            $"--version \"{version}\"",
+            $"--gameDir \"{gamePath}\"",
+            $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\""
+            ]);
+        if(new Version(version) > new Version("1.7"))
+            Args.AddRange([
+                $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\"",
+                $"--uuid \"{userModel.uuid}\"",
+                $"--accessToken \"{userModel.AccessToken.ToString()}\"",
+                $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\"",
+                $"--versionType \"OneLauncher\"",
+                "--userProperties {}"
+            ]);
+        else
+            Args.Add($"--session \"{userModel.AccessToken}\"");
+        if(strategy != null)
+            Args.AddRange(strategy.GetAdditionalGameArgs());
+
+        return Args;
     }
 }
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/Builders/JvmArgsBuilder.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Builders/Helper.cs
+【代码拼接器】文件内容开始
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OneLauncher.Core.Launcher;
+public partial class  LaunchCommandBuilder
+{
+    internal static string ReplacePlaceholders(string input, Dictionary<string, string> placeholders)
+    {
+        foreach (var kvp in placeholders)
+        {
+            input = input.Replace("${" + kvp.Key + "}", kvp.Value);
+        }
+        return input;
+    }
+}
+
+【代码拼接器】文件内容结束
+
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Builders/JvmArgsBuilder.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft.JsonModels;
 using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
 using System;
@@ -8774,7 +8863,7 @@ namespace OneLauncher.Core.Launcher;
 
 public partial class LaunchCommandBuilder
 {
-    private string BuildJvmArgs()
+    private IEnumerable<string> BuildJvmArgs(IModStrategy? strategy)
     {
         string osName;
 #if WINDOWS
@@ -8794,7 +8883,7 @@ public partial class LaunchCommandBuilder
             { "natives_directory", Path.Combine(basePath,"versions",version,"natives") },
             { "launcher_name", "OneLauncher" },
             { "launcher_version", Init.OneLauncherVersoin },
-            { "classpath","\""+BuildClassPath()+"\"" },
+            { "classpath","\""+BuildClassPath(strategy)+"\"" },
             // 一些仅限NeoForge的
             { "version_name" , version},
             { "library_directory" ,"\""+Path.Combine(basePath, "libraries")+"\""},
@@ -8805,31 +8894,25 @@ public partial class LaunchCommandBuilder
         {
             return
                 // 针对 1.6.x 版本不存在log4j2的情况
-                (versionInfo.GetLoggingConfigPath() != null ?
-                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " : " ") +
+                [(versionInfo.GetLoggingConfigPath() != null ?
+                $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\"" : ""),
                 // 处理特定平台要求的参数
-                (osName == "windows" ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump "
-                : osName == "osx" ? "-XstartOnFirstThread " : "") +
+                (osName == "windows" ? "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump"
+                : osName == "osx" ? "-XstartOnFirstThread" : "") ,
                 // 标准JVM参数
-                $"-Djava.library.path={placeholders["natives_directory"]} " +
-                $"-Djna.tmpdir={placeholders["natives_directory"]} " +
-                $"-Dorg.lwjgl.system.SharedLibraryExtractPath={placeholders["natives_directory"]} " +
-                $"-Dio.netty.native.workdir={placeholders["natives_directory"]} " +
-                $"-Dminecraft.launcher.brand={placeholders["launcher_name"]} " +
-                $"-Dminecraft.launcher.version={placeholders["launcher_version"]} " +
-                $"-cp {placeholders["classpath"]} ";
+                $"-Djava.library.path={placeholders["natives_directory"]}" ,
+                $"-Djna.tmpdir={placeholders["natives_directory"]}" ,
+                $"-Dorg.lwjgl.system.SharedLibraryExtractPath={placeholders["natives_directory"]}" ,
+                $"-Dio.netty.native.workdir={placeholders["natives_directory"]}" ,
+                $"-Dminecraft.launcher.brand={placeholders["launcher_name"]}" ,
+                $"-Dminecraft.launcher.version={placeholders["launcher_version"]}" ,
+                $"-cp {placeholders["classpath"]}"];
         }
         else
         {
             var jvmArgs = new List<string>();
-            if (modType == ModEnum.neoforge || modType == ModEnum.forge)
-            {
-                foreach (var item in neoForgeParser.info.Arguments.Jvm)
-                {
-                    string replaced = ReplacePlaceholders(item, placeholders);
-                    jvmArgs.Add(replaced);
-                }
-            }
+            if (strategy != null)
+                jvmArgs.AddRange(strategy.GetAdditionalJvmArgs());
             foreach (var item in versionInfo.info.Arguments.Jvm)
             {
                 // 判断是规则套字符串还是简单字符串
@@ -8858,10 +8941,8 @@ public partial class LaunchCommandBuilder
                     }
                 }
             }
-
-            return $"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\" " +
-              // 打上空格和双引号
-              string.Join(" ", jvmArgs);
+            jvmArgs.Add($"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\"");
+            return jvmArgs;
         }
     }
     private bool EvaluateRules(List<MinecraftRule> rules, string osName, string arch)
@@ -8882,19 +8963,11 @@ public partial class LaunchCommandBuilder
         }
         return allowed;
     }
-    private string ReplacePlaceholders(string input, Dictionary<string, string> placeholders)
-    {
-        foreach (var kvp in placeholders)
-        {
-            input = input.Replace("${" + kvp.Key + "}", kvp.Value);
-        }
-        return input;
-    }
 }
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/Strategys/FabricStrategy.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Strategys/FabricStrategy.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Mod.ModLoader.fabric;
@@ -8905,33 +8978,104 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
+
 internal class FabricStrategy : IModStrategy
 {
-    private FabricVJParser fabricParser;
-    public FabricStrategy(string versionPath)
+    private readonly FabricVJParser _fabricParser;
+
+    public FabricStrategy(string versionPath, string basePath)
     {
-        using var fs = File.OpenRead(Path.Combine(versionPath, "version.fabric.json")); // 同步方法就这么写
-        this.fabricParser = FabricVJParser.ParserAuto(fs,Init.GameRootPath);
-    }
-    public IEnumerable<string> GetClassPathBeforeVanilla()
-    {
-        throw new Exception("还没写完，消除编译器报错用的");
+        string fabricJsonPath = Path.Combine(versionPath, "version.fabric.json");
+        using var fs = File.OpenRead(fabricJsonPath);
+        _fabricParser = FabricVJParser.ParserAuto(fs, basePath);
     }
 
-    public IEnumerable<string> GetGameArgsAfterVanilla()
-        => Array.Empty<string>(); // Fabric没这个东西
+    public string? GetMainClassOverride() => _fabricParser.GetMainClass();
 
-    public IEnumerable<string> GetJvmArgsAfrerVanilla()
-        => Array.Empty<string>(); // Fabric没这个东西
-    public string GetMainClass()
-    {
-        return fabricParser.GetMainClass();
-    }
+    // Fabric需要优先加载自己的库
+    //public IEnumerable<(string key, string path)> GetModLibraries()=> _fabricParser.GetLibrariesForUsing().Select(x => (string.Join(string.Empty, x.name.Split(':')[..^1]), x.path));
+    public IEnumerable<(string key, string path)> GetModLibraries()
+       => _fabricParser.GetLibrariesForUsing().Select(lib =>
+          {
+              var parts = lib.name.Split(':');
+              var key = string.Join(":", parts[..^1]);
+              return (key, lib.path);
+          });
+    
+
+    // Fabric本身不添加额外的JVM和游戏参数
+    public IEnumerable<string> GetAdditionalJvmArgs() => Enumerable.Empty<string>();
+    public IEnumerable<string> GetAdditionalGameArgs() => Enumerable.Empty<string>();
 }
+
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Launcher/Strategys/IModStrategy.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Strategys/ForgeStrategy.cs
+【代码拼接器】文件内容开始
+using OneLauncher.Core.Global;
+using OneLauncher.Core.Mod.ModLoader.forgeseries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OneLauncher.Core.Launcher.Strategys;
+
+internal class ForgeStrategy : IModStrategy
+{
+    private readonly ForgeSeriesUsing _parser;
+    private readonly string _basePath;
+    private readonly string _versionID;
+    private ForgeStrategy(string basePath,string versionID)
+    {
+        _parser = new ForgeSeriesUsing();
+        _basePath = basePath;
+        _versionID = versionID;
+    }
+    public static async Task<ForgeStrategy> CreateAsync(string versionPath, string basePath,string versionID)
+    {
+        var strategy = new ForgeStrategy(basePath,versionID);
+        string jsonPath = Path.Combine(versionPath, "version.forge.json");
+        await strategy._parser.Init(basePath, versionPath, true);
+        return strategy;
+    }
+
+    public string? GetMainClassOverride() => _parser.info.MainClass;
+
+    public IEnumerable<(string key, string path)> GetModLibraries()
+        => _parser.GetLibrariesForLaunch(Init.GameRootPath).Select(lib =>
+        {
+            var parts = lib.name.Split(':');
+            var key = string.Join(':', parts[..^1]);
+            return (key, lib.path);
+        });
+
+    public IEnumerable<string> GetAdditionalJvmArgs()
+    {
+        var placeholders = new Dictionary<string, string>
+        {
+            // Forge/NeoForge 的 jvm 参数需要这两个占位符
+            { "library_directory", Path.Combine(_basePath, "libraries") },
+            { "version_name", _versionID },
+#if WINDOWS
+            { "classpath_separator" , ";" }
+#else
+            { "classpath_separator" , ":" }
+#endif
+        };
+
+        return _parser.info.Arguments.Jvm.Select(arg => LaunchCommandBuilder.ReplacePlaceholders(arg, placeholders));
+    }
+
+    // Game 参数通常是固定的，但以防万一也加上替换逻辑
+    public IEnumerable<string> GetAdditionalGameArgs() => _parser.info.Arguments.Game;
+}
+【代码拼接器】文件内容结束
+
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Strategys/IModStrategy.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -8943,15 +9087,116 @@ namespace OneLauncher.Core.Launcher.Strategys;
 
 internal interface IModStrategy
 {
-    IEnumerable<string> GetJvmArgsAfrerVanilla();
-    IEnumerable<string> GetClassPathBeforeVanilla();
-    IEnumerable<string> GetGameArgsAfterVanilla();
-    string GetMainClass();
+    string GetMainClassOverride();
+    IEnumerable<(string key,string path)> GetModLibraries();
+    IEnumerable<string> GetAdditionalJvmArgs();
+    IEnumerable<string> GetAdditionalGameArgs();
 }
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Minecraft/JsonModels.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Strategys/NeoForgeStrategy.cs
+【代码拼接器】文件内容开始
+using OneLauncher.Core.Global;
+using OneLauncher.Core.Mod.ModLoader.forgeseries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OneLauncher.Core.Launcher.Strategys;
+internal class NeoForgeStrategy : IModStrategy
+{
+    private readonly ForgeSeriesUsing _parser;
+    private readonly string _basePath;
+    private readonly string _versionID;
+    private NeoForgeStrategy(string basePath, string versionID)
+    {
+        _parser = new ForgeSeriesUsing();
+        _basePath = basePath;
+        _versionID = versionID;
+    }
+
+    public static async Task<NeoForgeStrategy> CreateAsync(string versionPath, string basePath, string versionID)
+    {
+        var strategy = new NeoForgeStrategy(basePath, versionID);
+        string jsonPath = Path.Combine(versionPath, "version.neoforge.json"); // 关键区别文件名
+        // isForge 参数为 false
+        await strategy._parser.Init(basePath, Path.GetFileName(versionPath), false);
+        return strategy;
+    }
+
+    public string? GetMainClassOverride() => _parser.info.MainClass;
+
+    public IEnumerable<(string key, string path)> GetModLibraries()
+        => _parser.GetLibrariesForLaunch(Init.GameRootPath).Select(lib =>
+        {
+            var parts = lib.name.Split(':');
+            var key = string.Join(':', parts[..^1]);
+            return (key, lib.path);
+        });
+
+    public IEnumerable<string> GetAdditionalJvmArgs()
+    {
+        var placeholders = new Dictionary<string, string>
+            {
+                { "library_directory", Path.Combine(_basePath, "libraries") },
+                { "version_name", _versionID },
+#if WINDOWS
+                { "classpath_separator" , ";" }
+#else
+                { "classpath_separator" , ":" }
+#endif
+            };
+        return _parser.info.Arguments.Jvm.Select(arg => LaunchCommandBuilder.ReplacePlaceholders(arg, placeholders));
+    }
+
+    public IEnumerable<string> GetAdditionalGameArgs() => _parser.info.Arguments.Game;
+}
+
+【代码拼接器】文件内容结束
+
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Launcher/Strategys/QuiltStrategy.cs
+【代码拼接器】文件内容开始
+using OneLauncher.Core.Global;
+using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace OneLauncher.Core.Launcher.Strategys;
+internal class QuiltStrategy : IModStrategy
+{
+    private readonly QuiltNJParser _quiltParser;
+
+    public QuiltStrategy(string versionPath, string basePath)
+    {
+        string quiltJsonPath = Path.Combine(versionPath, "version.quilt.json");
+        using var fs = File.OpenRead(quiltJsonPath);
+        _quiltParser = QuiltNJParser.ParserAuto(fs, basePath);
+    }
+
+    public string GetMainClassOverride() => _quiltParser.GetMainClass();
+
+    public IEnumerable<(string key, string path)> GetModLibraries()
+        => _quiltParser.GetLibrariesForUsing().Select(lib =>
+        {
+            var parts = lib.name.Split(':');
+            var key = string.Join(":", parts[..^1]); // 不要考虑兼容性，考虑性能
+            return (key, lib.path);
+        });
+    
+
+    public IEnumerable<string> GetAdditionalJvmArgs() => Enumerable.Empty<string>();
+    public IEnumerable<string> GetAdditionalGameArgs() => Enumerable.Empty<string>();
+}
+
+【代码拼接器】文件内容结束
+
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Minecraft/JsonModels.cs
 【代码拼接器】文件内容开始
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9297,7 +9542,7 @@ public class MinecraftAllVersionInfomations
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Minecraft/VersionAssetIndex.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Minecraft/VersionAssetIndex.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using System.Text.Json;
@@ -9341,7 +9586,7 @@ public class VersionAssetIndex
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Minecraft/VersionInfomations.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Minecraft/VersionInfomations.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
@@ -9613,7 +9858,7 @@ public class VersionInfomations
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Minecraft/VersionsList.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Minecraft/VersionsList.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
@@ -9653,7 +9898,7 @@ public class VersionsList
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Minecraft/Server/MinecraftServerManger.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Minecraft/Server/MinecraftServerManger.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
@@ -9724,7 +9969,7 @@ public class MinecraftServerManger
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModLoader/fabric/FabricVJParser.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModLoader/fabric/FabricVJParser.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
@@ -9921,7 +10166,7 @@ public class FabricVJParser
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModLoader/fabric/JsonModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModLoader/fabric/JsonModel.cs
 【代码拼接器】文件内容开始
 using System.Text.Json.Serialization;
 
@@ -10007,7 +10252,7 @@ public class FabricMainClass
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModLoader/fabric/quilt/QuiltNJParser.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModLoader/fabric/quilt/QuiltNJParser.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
@@ -10244,7 +10489,7 @@ public class QuiltNJParser
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModLoader/forgeseries/ForgeSeriesInstallTasker.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModLoader/forgeseries/ForgeSeriesInstallTasker.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
@@ -10597,7 +10842,7 @@ namespace OneLauncher.Core.Mod.ModLoader.forgeseries
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModLoader/forgeseries/ForgeSeriesUsing.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModLoader/forgeseries/ForgeSeriesUsing.cs
 【代码拼接器】文件内容开始
 using System.Text;
 using System.Text.Json;
@@ -10627,7 +10872,7 @@ public class ForgeSeriesUsing
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModLoader/forgeseries/ForgeVersionListGetter.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModLoader/forgeseries/ForgeVersionListGetter.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using System.Net.Http;
@@ -10770,7 +11015,7 @@ public class ForgeVersionListGetter
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModLoader/forgeseries/JsonModel.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModLoader/forgeseries/JsonModel.cs
 【代码拼接器】文件内容开始
 using System.Text.Json.Serialization;
 using static OneLauncher.Core.Mod.ModLoader.forgeseries.ForgeVersionListGetter;
@@ -10924,7 +11169,7 @@ public class ForgeSeriesArtifact
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModPack/JsonModes.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModPack/JsonModes.cs
 【代码拼接器】文件内容开始
 using System.Text.Json.Serialization;
 
@@ -10986,7 +11231,7 @@ namespace OneLauncher.Core.Mod.ModPack.JsonModels
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModPack/ModpackImporter.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModPack/ModpackImporter.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
@@ -11123,7 +11368,7 @@ public class ModpackImporter : IDisposable
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/Mod/ModPack/MrpackParser.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core/Mod/ModPack/MrpackParser.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
@@ -11188,2047 +11433,7 @@ public class MrpackParser
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/Download.old.cs
-【代码拼接器】文件内容开始
-//using System.Diagnostics;
-//using System.IO.Compression;
-//using System.Security.Cryptography;
-
-//namespace OneLauncher.Core;
-//public enum DownProgress
-//{
-//    DownMain,  
-//    DownLibs,
-//    DownAndInstModFiles,
-//    DownAssets,
-//    DownLog4j2,
-//    Verify,
-//    Done
-//}
-//public class Download : IDisposable
-//{
-//    /// <summary>
-//    /// 解压 ZIP 结构文件到指定目录
-//    /// </summary>
-//    /// <param ID="filePath">待解压的文件路径（例如 .docx 或其他 ZIP 结构文件）</param>
-//    /// <param ID="extractPath">解压到的目标目录</param>
-//    /// <exception cref="IOException">文件访问或解压失败</exception>
-//    /// <exception cref="InvalidDataException">文件不是有效的 ZIP 格式</exception>
-//    public static void ExtractFile(string filePath, string extractPath)
-//    {
-//        try
-//        {
-//            // 确保输出目录存在
-//            Directory.CreateDirectory(extractPath);
-
-//            // 打开 ZIP 文件
-//            using (ZipArchive archive = ZipFile.OpenRead(filePath))
-//            {
-//                // 遍历 ZIP 条目
-//                foreach (ZipArchiveEntry entry in archive.Entries)
-//                {
-//                    // 确定解压路径
-//                    string destinationPath = Path.Combine(extractPath, entry.FullName);
-
-//                    // 确保目录存在
-//                    string destinationDir = Path.GetDirectoryName(destinationPath);
-//                    if (!string.IsNullOrEmpty(destinationDir))
-//                    {
-//                        Directory.CreateDirectory(destinationDir);
-//                    }
-
-//                    // 仅处理文件（跳过目录）
-//                    if (!string.IsNullOrEmpty(entry.Name))
-//                    {
-//                        // 提取文件
-//                        entry.ExtractToFile(destinationPath, overwrite: true);
-//                    }
-//                }
-//            }
-//        }
-//        catch (Exception ex)
-//        {
-//            throw;
-//        }
-//    }
-//    public Download()
-//    {
-//        UnityClient = new HttpClient(new HttpClientHandler
-//        {
-//            MaxConnectionsPerServer = 32 
-//        })
-//        {
-//            Timeout = TimeSpan.FromSeconds(60) 
-//        };
-//    }
-//    public readonly HttpClient UnityClient;
-//    public VersionInfomations versionInfomations;
-//    /// <summary>
-//    /// 开始异步下载
-//    /// </summary>
-//    /// <param name="DownloadVersion">需要下载的版本</param>
-//    /// <param name="GameRootPath">游戏根路径</param>
-//    /// <param name="OsType">系统类型</param>
-//    /// <param name="progress">进度回调</param>
-//    /// <param name="modType">模组类型</param>
-//    /// <param name="fS">对于Fabric，是否在此阶段一并下载Fabric API？</param>
-//    /// <param name="nS">对于Neoforge，是否允许下载Beta版本？</param>
-//    /// <param name="IsVersionIsolation">是否需要启用版本隔离</param>
-//    /// <param name="maxConcurrentDownloads">最大下载线程</param>
-//    /// <param name="maxConcurrentSha1">最大Sha1校验线程</param>
-//    /// <param name="IsSha1">是否校验Sha1</param>
-//    /// <param name="AndJava">下载时是否带合适java？</param>
-//    public async Task StartAsync(
-//        VersionBasicInfo DownloadVersion,
-//        string GameRootPath,
-//        SystemType OsType,
-//        IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)> progress,
-//        ModType modType,
-//        bool fS = false,
-//        bool nS = false,
-//        bool IsVersionIsolation = false,
-//        int maxConcurrentDownloads = 16,
-//        int maxConcurrentSha1 = 16,
-//        bool IsSha1 = true,
-//        bool AndJava = false)
-//    {
-//        string VersionPath = Path.Combine(GameRootPath, "versions", DownloadVersion.ID.ToString());
-//        #region 下载原信息
-//        {
-//            // 下载 version.json
-//            var versionjsonpath =
-//                Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}.json");
-//            if (!System.IO.File.Exists(versionjsonpath))
-//                await DownloadFile(DownloadVersion.Url, versionjsonpath);
-
-//            // 实例化版本信息解析器
-//            versionInfomations = new VersionInfomations
-//                (await System.IO.File.ReadAllTextAsync(versionjsonpath), GameRootPath, OsType, IsVersionIsolation);
-
-//            // 下载资源文件索引
-//            var assetsIndex = versionInfomations.GetAssets();
-//            if (!System.IO.File.Exists(assetsIndex.path))
-//                await DownloadFile(assetsIndex.url, assetsIndex.path);
-//        }
-//        #endregion
-//        #region 下载可选信息
-//        // 下载Java运行时环境
-//        if (AndJava && !Init.ConfigManager.config.JavaList.Contains(versionInfomations.GetJavaVersion())) //_=Task.Run(async () =>
-//        {
-//            await AutoJavaGetter.JavaReleaser(
-//                versionInfomations.GetJavaVersion().ToString(), 
-//                Path.Combine(Path.GetDirectoryName(GameRootPath), "JavaRuntimes"), OsType);
-//            Init.ConfigManager.config.JavaList.Add(versionInfomations.GetJavaVersion());
-//            Init.ConfigManager.Save();
-//        }//);
-
-//        // 下载Mod相关资源索引
-//        string modpath = Path.Combine(VersionPath, $"{DownloadVersion.ID.ToString()}-fabric.json");
-//        if (modType.IsFabric)
-//        {
-//            // 加载器
-//            if (!File.Exists(modpath))
-//                await DownloadFile(
-//                    $"https://meta.fabricmc.net/v2/versions/loader/{DownloadVersion.ID.ToString()}/", modpath);
-//        }
-//        #endregion
-//        #region 声明一些信息和下载主文件
-//        List<NdDowItem> AllNd = new List<NdDowItem>();
-//        List<NdDowItem> NdLibs = CheckFilesExists(versionInfomations.GetLibrarys());
-//        List<NdDowItem> NdAssets = CheckFilesExists(VersionAssetIndex.ParseAssetsIndex(await File.ReadAllTextAsync(versionInfomations.GetAssets().path), GameRootPath));
-//        NdDowItem mainFile = versionInfomations.GetMainFile();
-//        NdDowItem? log4j2;
-//        NdDowItem modApi;
-//        List<NdDowItem> modLibs;
-        
-//        AllNd.AddRange(NdLibs);
-//        AllNd.AddRange(NdAssets);
-//        AllNd.Add(mainFile);
-        
-//        int FileCount = AllNd.Count;
-//        int Filed = 0;
-        
-//        Interlocked.Increment(ref Filed);
-//        progress.Report((DownProgress.DownMain, FileCount, Filed, mainFile.path));
-//        if (!File.Exists(mainFile.path))
-//            await DownloadFile(mainFile.url, mainFile.path);
-//        #endregion
-        
-//        await DownloadListAsync(
-//            new Progress<(int donecount, string filename)>(p =>
-//            {
-//                Interlocked.Increment(ref Filed);
-//                progress.Report((DownProgress.DownLibs, FileCount, p.donecount, p.filename)); 
-//            }), 
-//            CheckFilesExists(NdLibs),
-//            maxConcurrentDownloads);
-//        // 释放本地库文件
-//        await Task.Run(() =>
-//        {
-//            foreach (var i in versionInfomations.NativesLibs)
-//                ExtractFile(Path.Combine(GameRootPath, "libraries", i), Path.Combine(VersionPath, "natives"));
-//        });
-//        #region 下载mod相关依赖
-//        if (modType.IsFabric)
-//        {
-//            // 获取 Fabric 加载器下载信息
-//            modLibs = CheckFilesExists(new fabric.FabricVJParser(modpath, GameRootPath).GetLibraries());
-//            // 获取Fabric API下载信息
-//            if (fS)
-//            {
-//                var a = new Modrinth.GetModrinth(
-//                   "fabric-api", DownloadVersion.ID.ToString(),
-//                    ((!IsVersionIsolation)
-//                    ? Path.Combine(GameRootPath, "mods")
-//                    : Path.Combine(VersionPath, "mods")));
-//                await a.Init();
-//                modApi = (NdDowItem)a!.GetDownloadInfos();
-//                AllNd.Add(modApi);
-//                Interlocked.Increment(ref Filed);
-//                progress.Report((DownProgress.DownAndInstModFiles, FileCount, Filed, ((NdDowItem)modApi).path));
-//                await DownloadFile(((NdDowItem)modApi).url, ((NdDowItem)modApi).path);
-//            }
-
-//            AllNd.AddRange(modLibs);
-//            FileCount = AllNd.Count;
-
-//            await DownloadListAsync(
-//            new Progress<(int donecount, string filename)>(p =>
-//            {
-//                Interlocked.Increment(ref Filed);
-//                progress.Report((DownProgress.DownAndInstModFiles, FileCount, p.donecount, p.filename));
-//            }),
-//            modLibs,
-//            maxConcurrentDownloads); 
-//        }
-//        if (modType.IsNeoForge)
-//        {
-//            NeoForgeInstallTasker installTasker = new NeoForgeInstallTasker
-//                (
-//                    this,
-//                    Path.Combine(GameRootPath, "libraries"),
-//                    Path.Combine(GameRootPath, "versions", DownloadVersion.ID),
-//                    DownloadVersion.ID
-//                );
-//            // 下载依赖库和工具依赖库文件
-//            string neoForgeActualVersion = await new NeoForgeVersionListGetter(UnityClient)
-//                // 调用Gemini写的名字贼长的方法来获取NeoForge安装程序的url
-//                .GetLatestSuitableNeoForgeVersionStringAsync(DownloadVersion.ID,nS);
-//            string installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neoForgeActualVersion}/neoforge-{neoForgeActualVersion}-installer.jar";
-//            (List<NdDowItem> NdModLibs,List<NdDowItem> NdModToolsLibs,string BDFilePath) = await installTasker.StartReady(installerUrl);
-//            await DownloadListAsync(
-//            new Progress<(int donecount, string filename)>(p =>
-//            {
-//                Interlocked.Increment(ref Filed);
-//                progress.Report((DownProgress.DownAndInstModFiles, FileCount, p.donecount, p.filename));
-//            }),
-//            CheckFilesExists(NdModLibs.Concat(NdModToolsLibs).ToList()),
-//            maxConcurrentDownloads
-//            );
-
-//            FileCount = AllNd.Count;
-//            // 执行NeoForge处理器
-//            installTasker.ProcessorsOutEvent += (int a, int b, string c) =>
-//            {
-//                if (a == -1 && b == -1)
-//                    throw new OlanException("NeoForge安装失败",$"执行处理器时报错。信息：{c}",OlanExceptionAction.Error);
-//                progress.Report((DownProgress.DownAndInstModFiles,FileCount,Filed,$"[执行处理器({b}/{a})]{Environment.NewLine}{c}"));
-//            };
-//            await installTasker.ToRunProcessors
-//                (
-//                    Path.Combine(GameRootPath, "versions", DownloadVersion.ID, $"{DownloadVersion.ID}.jar"),
-//                    Tools.IsUseOlansJreOrOssJdk(versionInfomations.GetJavaVersion(), Path.GetDirectoryName(GameRootPath)),
-//                    BDFilePath,OsType
-//                );
-//        }
-//        #endregion
-//        // 下载资源文件
-//        await DownloadListAsync(
-//            new Progress<(int donecount, string filename)>(p =>
-//            {
-//                Interlocked.Increment(ref Filed);
-//                progress.Report((DownProgress.DownAssets, FileCount, p.donecount, p.filename));
-//            }),
-//            CheckFilesExists(NdAssets),
-//            maxConcurrentDownloads
-//        );
-//        // 下载日志配置文件
-//        if (new Version(DownloadVersion.ID) > new Version("1.7"))
-//        {
-//            log4j2 = (NdDowItem)versionInfomations.GetLoggingConfig();
-//            FileCount = AllNd.Count;
-//            if (log4j2.HasValue)
-//            {
-//                AllNd.Add((NdDowItem)log4j2);
-//                Interlocked.Increment(ref Filed);
-//                progress.Report((DownProgress.DownLog4j2, FileCount, Filed, ((NdDowItem)log4j2).path));
-//                if (!File.Exists(((NdDowItem)log4j2).path))
-//                    await DownloadFile(((NdDowItem)log4j2).url, ((NdDowItem)log4j2).path);
-//            }
-//        }
-//        // 校验所有文件
-//        if (IsSha1)
-//        {
-//            progress.Report((DownProgress.Verify, FileCount, Filed, "All Files"));
-//            await CheckAllSha1(AllNd, maxConcurrentSha1);
-//        }
-//        progress.Report((DownProgress.Done,FileCount,Filed,"OK"));
-//    }
-//    /// <summary>
-//    /// 开始异步下载Mod（可选是否下载依赖项）
-//    /// </summary>
-//    /// <param name="progress">进度回调：总字节数，已经下载的字节数，当前正在操作的文件名</param>
-//    /// <param name="ModID">Mod ID （Modrinth）</param>
-//    /// <param name="ModPath">Mods文件夹路径</param>
-//    /// <param name="version">需要安装Mod的版本的版本号</param>
-//    /// <param name="IsIncludeDependencies">是否下载依赖</param>
-//    /// <param name="maxConcurrentDownloads">最大下载线程</param>
-//    /// <param name="maxConcurrentSha1">最大Sha1校验线程</param>
-//    /// <param name="IsSha1">是否校验Sha1</param>
-//    /// <returns></returns>
-//    public async Task StartDownloadMod(
-//        IProgress<(long AllSizes, long DownedSizes, string DowingFileName)> progress,
-//        string ModID,
-//        string ModPath,
-//        string version,
-//        bool IsIncludeDependencies = true,
-//        int maxConcurrentDownloads = 8,
-//        int maxConcurrentSha1 = 4,
-//        bool IsSha1 = true
-//        )
-//    {
-//        var GetTask = new GetModrinth(ModID, version, ModPath);
-//        await GetTask.Init();
-
-//        // 获取主 Mod 文件信息
-//        NdDowItem? mainMod = GetTask.GetDownloadInfos();
-//        if (!mainMod.HasValue)
-//            return;
-
-//        List<NdDowItem> filesToProcess = new List<NdDowItem> { (NdDowItem)mainMod };
-
-//        // 如果需要下载依赖项，则获取依赖项信息并添加到下载列表
-//        if (IsIncludeDependencies)
-//        {
-//            List<NdDowItem> dependencies = GetTask.GetDependenciesInfos();
-//            filesToProcess.AddRange(dependencies);
-//        }
-
-//        // 过滤掉已经存在的文件
-//        filesToProcess = CheckFilesExists(filesToProcess);
-
-//        // 计算总下载文件大小
-//        long totalBytesToDownload = filesToProcess.Sum(item => (long)item.size);
-//        // 用于累积已下载字节数，将在 DownloadListAsync 报告文件完成时更新
-//        long accumulatedDownloadedBytes = 0;
-
-//        // 创建一个内部进度报告器，用于适配 DownloadListAsync 的进度到 StartDownloadMod 的进度
-//        var fileCompletionProgress = new Progress<(int completedFiles, string FilesName)>(p =>
-//        {
-//            // 当 DownloadListAsync 报告一个文件完成时，我们会在这里接收到通知
-//            // p.FilesName 是刚刚完成下载的文件的完整路径
-//            NdDowItem? completedItem = filesToProcess.FirstOrDefault(item => item.path == p.FilesName);
-//            if (completedItem.HasValue)
-//            {
-//                Interlocked.Add(ref accumulatedDownloadedBytes, ((NdDowItem)completedItem).size);
-//                progress?.Report(((int)totalBytesToDownload, (int)accumulatedDownloadedBytes, Path.GetFileName(p.FilesName)));
-//            }
-//        });
-
-//        progress?.Report(((int)totalBytesToDownload, 0, "开始下载Mod文件..."));
-//        await DownloadListAsync(fileCompletionProgress, filesToProcess, maxConcurrentDownloads);
-
-//        if (IsSha1)
-//        {
-//            progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "正在校验文件..."));
-//            await CheckAllSha1(filesToProcess, maxConcurrentSha1);
-//        }
-
-//        progress?.Report(((int)totalBytesToDownload, (int)totalBytesToDownload, "下载完成！"));
-//    }
-
-//    public async Task DownloadListAsync(IProgress<(int completedFiles,string FilesName)> progress, List<NdDowItem> downloadNds,int maxConcurrentDownloads)
-//    {
-//        // 初始化已完成文件数
-//        int completedFiles = 0;
-
-//        // 使用信号量控制并发数
-//        var semaphore = new SemaphoreSlim(maxConcurrentDownloads);
-//        var downloadTasks = new List<Task>(downloadNds.Count);
-
-//        // 遍历下载列表，创建并发任务
-//        foreach (var item in downloadNds)
-//        {
-//            await semaphore.WaitAsync();
-//            downloadTasks.Add(Task.Run(async () =>
-//            {
-//                try
-//                {
-//                    // 原子递增已完成文件数
-//                    Interlocked.Increment(ref completedFiles);
-//                    // 报告进度
-//                    progress?.Report((completedFiles, item.path));
-//                    // 执行下载操作
-//                    await DownloadFile(item.url,item.path); 
-//                }
-//                catch (Exception ex)
-//                {
-//                    for (int attempt = 0; attempt < 3; attempt++)
-//                    {
-//                        await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)));
-//                        try
-//                        {
-//                            await DownloadFile(item.url, item.path);
-//                            break;
-//                        }
-//                        catch (Exception ex2)
-//                        {
-//                            Debug.WriteLine($"重试下载失败: {ex2.Message}, URL: {item.url}");
-//                            continue;
-//                        }
-//                    }
-//                    throw new OlanException("下载失败","重试到达阈值抛出",OlanExceptionAction.Error,ex);
-//                }
-//                finally
-//                {
-//                    // 释放信号量
-//                    semaphore.Release();
-//                }
-//            }));
-//        }
-
-//        // 等待所有任务完成
-//        await Task.WhenAll(downloadTasks);
-//    }
-//    public List<NdDowItem> CheckFilesExists(List<NdDowItem> FDI)
-//    {
-//        List<NdDowItem> filesToDownload = new List<NdDowItem>(FDI.Count);
-//        foreach (var item in FDI)
-//        {
-//            if (File.Exists(item.path))
-//                continue;
-//            filesToDownload.Add(item);
-//        }
-//        return filesToDownload;
-//    }
-//    public async Task DownloadFile(string url,string savepath)
-//    {
-//        try
-//        {
-//            using (var response = await UnityClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead))
-//            {
-//                response.EnsureSuccessStatusCode();
-//                using (var httpStream = await response.Content.ReadAsStreamAsync())
-//                {
-//                    var directory = Path.GetDirectoryName(savepath);
-//                    if (!string.IsNullOrEmpty(directory))
-//                        Directory.CreateDirectory(directory);
-//                    using (var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
-//                    {
-//                        await httpStream.CopyToAsync(fileStream, 8192);
-//                    }
-//                }
-//            }
-//        }
-//        catch (Exception ex)
-//        {
-//            Debug.WriteLine($"下载失败: {ex.Message}, URL: {url}");
-//            throw;
-//        }
-//    }
-//    public async Task CheckAllSha1(List<NdDowItem> FDI, int maxConcurrentSha1)
-//    {
-//        var semaphore = new SemaphoreSlim(maxConcurrentSha1);
-//        var sha1Tasks = new List<Task>(FDI.Count);
-//        foreach (var item in FDI)
-//        {
-//            if (item.sha1 == null)
-//                continue;
-//            await semaphore.WaitAsync();
-//            sha1Tasks.Add(Task.Run(async () =>
-//            {
-//                using (var stream = new FileStream(item.path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 8192, useAsync: true))
-//                using (var sha1Hash = SHA1.Create())
-//                {
-//                    byte[] hash = await sha1Hash.ComputeHashAsync(stream);
-//                    string calculatedSha1 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-//                    if (!string.Equals(calculatedSha1, item.sha1, StringComparison.OrdinalIgnoreCase))
-//                    {
-//                        throw new OlanException(
-//                            "下载失败",
-//                            $"无法校验文件({item.path})Sha1，实际：{calculatedSha1}预期：{item.sha1}",
-//                            OlanExceptionAction.Warning);
-//                    }
-//                }
-                
-//                semaphore.Release();
-//            }));
-//        }
-//        await Task.WhenAll(sha1Tasks);
-//    }
-//    public void Dispose() => UnityClient.Dispose();
-//}
-
-
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/zDownloadIntelligent.cs
-【代码拼接器】文件内容开始
-using Microsoft.Win32.SafeHandles;
-using OneLauncher.Core.Helper;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OneLauncher.Core._archive;
-// 此代码已暂时弃用
-/*
-    public async Task DownloadFileBig(
-    string url,
-    string savepath,
-    long? size,
-    int maxSegments,
-    CancellationToken token)
-    {
-        long filesize;
-
-        if (size != null)
-            filesize = size.Value;
-        else
-        {
-            using var requestForSize = new HttpRequestMessage(HttpMethod.Head, url);
-            using var responseForSize = await unityClient.SendAsync(requestForSize, token);
-            responseForSize.EnsureSuccessStatusCode();
-
-            filesize = responseForSize.Content.Headers.ContentLength
-                       ?? throw new OlanException("下载失败", "无法知道文件大小");
-        }
-
-        Directory.CreateDirectory(Path.GetDirectoryName(savepath));
-
-        using var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true);
-        fs.SetLength(filesize);
-        var fileHandle = fs.SafeFileHandle;
-
-        var segments = Tools.GetSegments(filesize, filesize / maxSegments);
-        var semaphore = new SemaphoreSlim(maxSegments);
-
-        await Parallel.ForEachAsync(segments,
-        new ParallelOptions
-        {
-            MaxDegreeOfParallelism = maxSegments,
-            CancellationToken = token
-        },
-        async (segment, ct) =>
-        {
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
-
-            using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
-            response.EnsureSuccessStatusCode();
-
-            using var httpStream = await response.Content.ReadAsStreamAsync(ct);
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(81920); 
-            try
-            {
-                int bytesRead;
-                long viewWritePosition = segment.startBit;
-
-                while ((bytesRead = await httpStream.ReadAsync(buffer, ct)) > 0)
-                {
-                    await RandomAccess.WriteAsync(fileHandle, buffer.AsMemory(0, bytesRead), viewWritePosition, ct);
-                    viewWritePosition += bytesRead;
-                }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
-        });
-        
-    }
-    public async Task DownloadFileBigMoreUrl(
-    string[] urls,
-    string savepath,
-    long? size,
-    int maxSegments,
-    CancellationToken token)
-    {
-        long filesize;
-
-        if (size != null)
-        {
-            filesize = size.Value;
-        }
-        else
-        {
-            using var requestForSize = new HttpRequestMessage(HttpMethod.Head, urls[0]);
-            using var responseForSize = await unityClient.SendAsync(requestForSize, token);
-            responseForSize.EnsureSuccessStatusCode();
-
-            filesize = responseForSize.Content.Headers.ContentLength
-                       ?? throw new OlanException("下载失败", "无法知道文件大小");
-        }
-
-        Directory.CreateDirectory(Path.GetDirectoryName(savepath));
-
-        using var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 8192, useAsync: true);
-        fs.SetLength(filesize);
-        var fileHandle = fs.SafeFileHandle;
-
-        var segments = Tools.GetSegments(filesize, filesize / maxSegments);
-
-        // 3. 用于线程安全地轮询URL的计数器
-        int urlIndexCounter = -1;
-
-        await Parallel.ForEachAsync(segments,
-        new ParallelOptions
-        {
-            MaxDegreeOfParallelism = maxSegments,
-            CancellationToken = token
-        },
-        async (segment, ct) =>
-        {
-            int urlIndex = Interlocked.Increment(ref urlIndexCounter) % urls.Length;
-            string urlToUse = urls[urlIndex];
-
-            using var request = new HttpRequestMessage(HttpMethod.Get, urlToUse);
-            request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
-
-            using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
-            response.EnsureSuccessStatusCode();
-
-            using var httpStream = await response.Content.ReadAsStreamAsync(ct);
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(81920);
-            try
-            {
-                int bytesRead;
-                long viewWritePosition = segment.startBit;
-
-                while ((bytesRead = await httpStream.ReadAsync(buffer, ct)) > 0)
-                {
-                    await RandomAccess.WriteAsync(fileHandle, buffer.AsMemory(0, bytesRead), viewWritePosition, ct);
-                    viewWritePosition += bytesRead;
-                }
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(buffer);
-            }
-        });
-        
-    }
-    */
-/*
-public partial class Download
-{
-    /// <summary>
-    /// 定义下载器的工作模式
-    /// </summary>
-    public enum DownloadStrategy
-    {
-        /// <summary>
-        /// 自动模式：探测网络，在单线程和并行故障转移模式间自动选择最优策略 (推荐，默认)
-        /// </summary>
-        Auto,
-        /// <summary>
-        /// 单线程模式：最简单的顺序下载，在网络极好时速度最快。
-        /// </summary>
-        SingleThread,
-        /// <summary>
-        /// 并行故障转移模式：第一个URL为主力，其余为备用。适合主源稳定，备用源不稳定的情况。
-        /// </summary>
-        ParallelFailover,
-        /// <summary>
-        /// 并行协同模式：所有URL一视同仁，共同下载。适合所有源都很稳定的情况。
-        /// </summary>
-        ParallelConcurrent
-    }
-
-    /// <summary>
-    /// 下载选项
-    /// </summary>
-    public struct DownloadOptions
-    {
-        public DownloadOptions() { }
-        /// <summary>
-        /// 下载策略，默认为自动选择。
-        /// </summary>
-        public DownloadStrategy Strategy { get; set; } = DownloadStrategy.Auto;
-
-        /// <summary>
-        /// 预先知道的文件大小（字节），可避免一次HEAD请求。
-        /// </summary>
-        public long? FileSize { get; set; } = null;
-
-        /// <summary>
-        /// 并行下载时的最大工作线程数。
-        /// </summary>
-        public int MaxWorkers { get; set; } = 36;
-
-        /// <summary>
-        /// (仅用于 ParallelFailover 模式) 分配为备用下载的线程比例。
-        /// </summary>
-        public double FailoverWorkerRatio { get; set; } = 0.2;
-
-        /// <summary>
-        /// (仅用于 Auto 模式) 判断为“快速连接”的阈值（毫秒），用于下载1MB探测数据。
-        /// </summary>
-        public int FastConnectionThresholdMs { get; set; } = 500;
-    }
-    /// <summary>
-    /// 通用文件下载方法，支持多种下载策略。
-    /// </summary>
-    /// <param Name="urls">下载URL列表。在Failover模式下，第一个URL是主URL。</param>
-    /// <param Name="savepath">文件保存路径。</param>
-    /// <param Name="options">下载选项，不提供则使用默认值。</param>
-    /// <param Name="token">取消令牌。</param>
-    public async Task DownloadFileIntelligent(
-        string[] urls,
-        string savepath,
-        DownloadOptions options = default,
-        CancellationToken? token = null)
-    {
-        var cancelToken = token ?? CancellationToken.None;
-        long filesize;
-        if(options.MaxWorkers == 0)
-            options = new DownloadOptions();
-        if (options.FileSize.HasValue)
-        {
-            filesize = options.FileSize.Value;
-        }
-        else
-        {
-            using var requestForSize = new HttpRequestMessage(HttpMethod.Head, urls[0]);
-            using var responseForSize = await unityClient.SendAsync(requestForSize, cancelToken);
-            responseForSize.EnsureSuccessStatusCode();
-
-            filesize = responseForSize.Content.Headers.ContentLength
-                       ?? throw new OlanException("下载失败", "无法获知文件大小。");
-        }
-        Directory.CreateDirectory(Path.GetDirectoryName(savepath));
-
-        switch (options.Strategy)
-        {
-            case DownloadStrategy.Auto:
-                await AutoStrategy(urls, savepath, filesize, options, cancelToken);
-                break;
-            case DownloadStrategy.SingleThread:
-                await this.DownloadFile(urls[0],savepath,cancelToken);
-                break;
-            case DownloadStrategy.ParallelFailover:
-                await FailoverStrategy(urls, savepath, filesize, options, cancelToken);
-                break;
-            case DownloadStrategy.ParallelConcurrent:
-                await ConcurrentStrategy(urls, savepath, filesize, options, cancelToken);
-                break;
-        }
-    }
-
-    #region 内部逻辑
-
-    private async Task AutoStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancellationToken token)
-    {
-        // 文件过小直接进度单线程
-        var probeSize = 1 * 1024 * 1024;
-        if (filesize < probeSize)
-        {
-            await this.DownloadFile(urls[0], savepath, token);
-            return;
-        }
-
-        using var request = new HttpRequestMessage(HttpMethod.Get, urls[0]);
-        using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
-        response.EnsureSuccessStatusCode();
-        using var httpStream = await response.Content.ReadAsStreamAsync(token);
-
-        byte[] buffer = new byte[probeSize];
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        var bytesRead = await httpStream.ReadAtLeastAsync(buffer, probeSize, false, token);
-        stopwatch.StopCore();
-
-        if (stopwatch.ElapsedMilliseconds < options.FastConnectionThresholdMs)
-        {
-            using var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
-            await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead), token);
-            await httpStream.CopyToAsync(fileStream, token);
-        }
-        else
-            await FailoverStrategy(urls, savepath, filesize, options, token);
-        
-    }
-    private async Task ConcurrentStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancellationToken token)
-    {
-        using var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true);
-        fs.SetLength(filesize);
-        var fileHandle = fs.SafeFileHandle;
-        var segments = Tools.GetSegments(filesize, options.MaxWorkers);
-        var segmentPool = new System.Collections.Concurrent.ConcurrentBag<(long start, long end)>(segments);
-        var workerTasks = new List<Task>();
-
-        for (int i = 0; i < options.MaxWorkers; i++)
-        {
-            string assignedUrl = urls[i % urls.Length]; // 使用 .Length 替代 .Count
-            workerTasks.Add(Task.Run(async () => {
-                while (segmentPool.TryTake(out var segment))
-                {
-                    if (!await TryDownloadSegment(fileHandle, assignedUrl, segment, 3, token))
-                    {
-                        segmentPool.Add(segment);
-                    }
-                }
-            }, token));
-        }
-        await Task.WhenAll(workerTasks);
-    }
-    private async Task FailoverStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancellationToken token)
-    {
-        // 实现 "FinalBoss" (主备分离) 逻辑
-        var primaryUrl = urls[0];
-        var failoverUrls = urls.Skip(1).ToArray();
-
-        if (failoverUrls.Length == 0)
-        { 
-            await ConcurrentStrategy(urls, savepath, filesize, options, token);
-            return;
-        }
-
-        using var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, 8129,useAsync: true);
-        fs.SetLength(filesize);
-        var fileHandle = fs.SafeFileHandle;
-
-        var segments = Tools.GetSegments(filesize, options.MaxWorkers);
-        var primaryPool = new System.Collections.Concurrent.ConcurrentBag<(long start, long end)>(segments);
-        var failoverPool = new System.Collections.Concurrent.ConcurrentBag<(long start, long end)>();
-
-        var failoverWorkerCount = (int)Math.Max(1, Math.Round(options.MaxWorkers * options.FailoverWorkerRatio));
-        var primaryWorkerCount = options.MaxWorkers - failoverWorkerCount;
-
-        var allWorkers = new List<Task>();
-
-        // --- 补完的主力线程逻辑 ---
-        for (int i = 0; i < primaryWorkerCount; i++)
-        {
-            allWorkers.Add(Task.Run(async () =>
-            {
-                while (primaryPool.TryTake(out var segment))
-                {
-                    // 尝试用主URL下载，如果多次重试后仍失败
-                    if (!await TryDownloadSegment(fileHandle, primaryUrl, segment, 3, token))
-                    {
-                        // 将这个“硬骨头”分片扔到备用池
-                        failoverPool.Add(segment);
-                    }
-                }
-            }, token));
-        }
-
-        // --- 补完的备用线程逻辑 ---
-        for (int i = 0; i < failoverWorkerCount; i++)
-        {
-            allWorkers.Add(Task.Run(async () =>
-            {
-                // 只要主池或备用池里还有任务，就继续工作
-                while (!primaryPool.IsEmpty || !failoverPool.IsEmpty)
-                {
-                    if (failoverPool.TryTake(out var segment))
-                    {
-                        bool success = false;
-                        // 轮流尝试所有备用URL
-                        foreach (var url in failoverUrls)
-                        {
-                            if (await TryDownloadSegment(fileHandle, url, segment, 2, token))
-                            {
-                                success = true;
-                                break; // 这个备用URL成功了，不用再试别的
-                            }
-                        }
-                        if (!success)
-                        {
-                            // 如果所有备用源都搞不定，可以选择抛出异常或记录日志
-                            // 为了健壮性，我们暂时只记录，也可以选择重新放回主池做最后一搏
-                            Console.WriteLine($"CRITICAL: Segment {segment.start} failed on all failover URLs.");
-                        }
-                    }
-                    else
-                    {
-                        // 备用池暂时没任务，稍等一下，避免CPU空转
-                        await Task.Delay(200, token);
-                    }
-                }
-            }, token));
-        }
-
-        await Task.WhenAll(allWorkers);
-    }
-
-    #endregion
-    #region 实现逻辑
-    /// <summary>
-    /// 尝试下载单个分片，内部包含重试逻辑。
-    /// </summary>
-    /// <returns>成功返回 true，失败返回 false。</returns>
-    private async Task<bool> TryDownloadSegment(SafeFileHandle fileHandle, string url, (long start, long end) segment, int maxRetries, CancellationToken token)
-    {
-        int attempts = 0;
-        while (attempts < maxRetries)
-        {
-            try
-            {
-                await DownloadSegmentAsync(fileHandle, url, segment, token);
-                return true; // 下载成功
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                attempts++;
-                if (attempts < maxRetries)
-                {
-                    // 简单的延迟后重试
-                    await Task.Delay(500 * attempts, token);
-                }
-            }
-        }
-        return false; // 所有重试均失败
-    }
-
-    /// <summary>
-    /// 执行单个分片的下载和写入操作。
-    /// </summary>
-    private async Task DownloadSegmentAsync(SafeFileHandle fileHandle, string url, (long startBit, long endBit) segment, CancellationToken ct)
-    {
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
-
-        using var response = await unityClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
-        response.EnsureSuccessStatusCode();
-
-        using var httpStream = await response.Content.ReadAsStreamAsync(ct);
-        // 使用 ArrayPool 减少内存分配
-        byte[] buffer = ArrayPool<byte>.Shared.Rent(81920);
-        try
-        {
-            int bytesRead;
-            long viewWritePosition = segment.startBit;
-
-            while ((bytesRead = await httpStream.ReadAsync(buffer, ct)) > 0)
-            {
-                await RandomAccess.WriteAsync(fileHandle, buffer.AsMemory(0, bytesRead), viewWritePosition, ct);
-                viewWritePosition += bytesRead;
-            }
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
-    #endregion
-}
-*/
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/zmsa.cs
-【代码拼接器】文件内容开始
-/*
-public class MicrosoftAuthenticator : IDisposable
-{
-    private readonly string clientId;
-    private readonly HttpClient httpClient;
-
-    public MicrosoftAuthenticator()
-    {
-        // 确保 Init.AzureApplicationID 可访问
-        this.clientId = Init.AzureApplicationID;
-        httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    }
-
-    /// <summary>
-    /// 使用旧的刷新令牌获取新的访问令牌和刷新令牌，并完成后续的 Minecraft 登录流程。
-    /// </summary>
-    /// <param Name="oldRefreshToken">旧的刷新令牌。</param>
-    /// <returns>包含更新用户信息的 UserModel，如果刷新失败则为 null。</returns>
-    public async Task<UserModel?> RefreshToken(string oldRefreshTokenID)
-    {
-        string oldRefreshToken = Init.Security.GetRefreshToken(oldRefreshTokenID);
-        try
-        {
-            var content = new StringContent(
-                $"client_id={clientId}&refresh_token={oldRefreshToken}&grant_type=refresh_token&scope=XboxLive.signin%20offline_access",
-                Encoding.UTF8, "application/x-www-form-urlencoded");
-
-            var response = await httpClient.PostAsync("https://login.microsoftonline.com/consumers/oauth2/v2.0/token", content);
-            response.EnsureSuccessStatusCode();
-
-            var json = await response.Content.ReadAsStringAsync();
-            var tokenResponse = JsonSerializer.Deserialize(json, MsaJsonContext.Default.TokenResponse);
-
-            if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken) || string.IsNullOrEmpty(tokenResponse.RefreshToken))
-            {
-                // 抛出 OlanException
-                throw new OlanException(
-                    "刷新令牌失败",
-                    "返回的令牌信息不完整，无法刷新您的Microsoft账户令牌。",
-                    OlanExceptionAction.Error
-                );
-            }
-
-            return await ToLoandauth(tokenResponse.AccessToken, tokenResponse.RefreshToken,oldRefreshTokenID);
-        }
-        catch (HttpRequestException ex)
-        {
-            // 捕获网络请求异常
-            throw new OlanException(
-                "网络请求失败",
-                $"在刷新Microsoft令牌时发生网络错误: {ex.Message}",
-                OlanExceptionAction.Error,
-                ex
-            );
-        }
-        catch (JsonException ex)
-        {
-            // 捕获 JSON 解析异常
-            throw new OlanException(
-                "数据解析失败",
-                $"无法解析Microsoft令牌响应，数据格式不正确: {ex.Message}",
-                OlanExceptionAction.Error,
-                ex
-            );
-        }
-        catch (Exception ex)
-        {
-            // 捕获其他未知异常
-            throw new OlanException(
-                "刷新令牌异常",
-                $"刷新Microsoft令牌时发生未知错误: {ex.Message}",
-                OlanExceptionAction.Error,
-                ex
-            );
-        }
-    }
-
-    public static bool IsExpired(DateTime lastTime)
-    {
-        return Math.Abs((DateTime.UtcNow - lastTime).TotalHours) > 23;
-    }
-
-    private async Task<UserModel?> ToLoandauth(string microsoftAccessToken, string microsoftRefreshToken,string oldID = null)
-    {
-        try
-        {
-            // 3. Xbox Live 身份验证
-            var xblAuthResponse = await AuthInXboxLive(microsoftAccessToken);
-
-            // 4. XSTS 身份验证
-            var xstsAuthResponse = await AuthInXSTS(xblAuthResponse.Token, xblAuthResponse.DisplayClaims.Xui[0].Uhs);
-            if (xstsAuthResponse == null) // XSTSAuth 内部已处理错误并返回 null
-            {
-                throw new OlanException(
-                    "Xbox Live 认证失败",
-                    "无法通过XSTS验证Xbox Live令牌。这通常表示您的Xbox档案有问题，例如需要家长同意或未完成资料设置。",
-                    OlanExceptionAction.Error
-                );
-            }
-
-            // 5. 获取 Minecraft 访问令牌
-            var mcLoginResponse = await LoginWithXboxAsync(xstsAuthResponse.Token, xstsAuthResponse.DisplayClaims.Xui[0].Uhs);
-            if (mcLoginResponse == null)
-            {
-                throw new OlanException(
-                    "Minecraft 登录失败",
-                    "无法使用Xbox凭据登录Minecraft服务。",
-                    OlanExceptionAction.Error
-                );
-            }
-
-            // 6. 检查游戏拥有情况
-            var entitlementsResponse = await CheckGameEntitlementsAsync(mcLoginResponse.AccessToken);
-            if (entitlementsResponse == null || entitlementsResponse.Items == null || entitlementsResponse.Items.Length == 0)
-            {
-                Debug.WriteLine("该账号未拥有 Minecraft 游戏。");
-                throw new OlanException(
-                    "未拥有Minecraft",
-                    "该Microsoft账号未拥有Minecraft游戏。请确保您已购买游戏。",
-                    OlanExceptionAction.Error
-                );
-            }
-
-            // 7. 获取玩家 UUID 和用户名
-            var profileResponse = await GetMinecraftProfileAsync(mcLoginResponse.AccessToken);
-            if (profileResponse == null)
-            {
-                throw new OlanException(
-                    "获取Minecraft档案失败",
-                    "无法获取Minecraft玩家档案。这可能意味着您的Minecraft账号未设置玩家名称或UUID。",
-                    OlanExceptionAction.Error
-                );
-            }
-
-            // 所有步骤成功后，创建并返回 UserModel
-            return new UserModel(
-                profileResponse.Name,
-                Guid.Parse(profileResponse.Id),
-                mcLoginResponse.AccessToken,
-                Init.Security.SetRefreshToken(microsoftRefreshToken, oldID ?? null)
-            );
-        }
-        catch (OlanException)
-        {
-            // 如果是 OlanException，直接抛出
-            throw;
-        }
-        catch (Exception ex)
-        {
-            // 捕获其他未知异常
-            throw new OlanException(
-                "Minecraft认证流程异常",
-                $"在Minecraft认证流程中发生未知错误: {ex.Message}",
-                OlanExceptionAction.Error,
-                ex
-            );
-        }
-    }
-
-    /// <summary>
-    /// 使用设备代码流进行 Minecraft 认证。
-    /// </summary>
-    /// <param Name="OnUserNeedAction">用于报告用户需要执行的操作的回调。</param>
-    /// <param Name="pollIntervalSeconds">轮询用户授权状态的间隔时间（秒）。</param>
-    /// <returns>包含用户信息的 UserModel，如果认证失败则为 null。</returns>
-    public async Task<UserModel?> AuthUseCode(IProgress<(string VerityUrl, string UserCode)> OnUserNeedAction, int pollIntervalSeconds = 5)
-    {
-        try
-        {
-            // 1. 获取设备代码对
-            var deviceCodeResponse = await GetDeviceCode();
-            if (deviceCodeResponse == null)
-            {
-                throw new OlanException(
-                    "获取设备代码失败",
-                    "无法从Microsoft获取设备代码，请检查网络连接。",
-                    OlanExceptionAction.Error
-                );
-            }
-
-            OnUserNeedAction.Report((deviceCodeResponse.VerificationUri, deviceCodeResponse.UserCode));
-
-            // 2. 轮询用户授权状态
-            var tokenResponse = await PollAutoState(
-                deviceCodeResponse.DeviceCode,
-                Math.Max(pollIntervalSeconds, deviceCodeResponse.Interval),
-                deviceCodeResponse.ExpiresIn);
-            if (tokenResponse == null)
-            {
-                throw new OlanException(
-                    "用户未完成授权",
-                    "您未在指定时间内完成Microsoft设备代码授权。",
-                    OlanExceptionAction.Error
-                );
-            }
-
-            return await ToLoandauth(tokenResponse.AccessToken, tokenResponse.RefreshToken);
-        }
-        catch (OperationCanceledException ex)
-        {
-            // 用户取消了授权操作
-            throw new OlanException(
-                "操作取消",
-                "用户取消了Microsoft账户的授权操作。",
-                OlanExceptionAction.Warning, // 这是一个警告，而不是致命错误
-                ex
-            );
-        }
-        catch (OlanException)
-        {
-            // 如果是 OlanException，直接抛出
-            throw;
-        }
-        catch (Exception ex)
-        {
-            // 捕获其他未知异常
-            throw new OlanException(
-                "设备代码认证异常",
-                $"在使用设备代码流进行认证时发生未知错误: {ex.Message}",
-                OlanExceptionAction.Error,
-                ex
-            );
-        }
-    }
-
-    /// <summary>
-    /// 以代码流验证方式请求用户授权。
-    /// </summary>
-    private async Task<DeviceCodeResponse?> GetDeviceCode()
-    {
-        var response = await httpClient.PostAsync(
-            "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode",
-            new StringContent(
-                $"client_id={clientId}&scope=XboxLive.signin%20offline_access",
-                Encoding.UTF8, "application/x-www-form-urlencoded"));
-        response.EnsureSuccessStatusCode(); // 如果失败会抛出 HttpRequestException
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.DeviceCodeResponse);
-    }
-
-    /// <summary>
-    /// 轮询，以检测用户是否完成授权。
-    /// </summary>
-    /// <param Name="deviceCode">设备代码</param>
-    /// <param Name="interval">最小轮询间隔</param>
-    /// <param Name="expiresIn">超时时间</param>
-    private async Task<TokenResponse?> PollAutoState(string deviceCode, int interval, int expiresIn)
-    {
-        var startTime = DateTime.UtcNow;
-        while (DateTime.UtcNow - startTime < TimeSpan.FromSeconds(expiresIn))
-        {
-            var response = await httpClient.PostAsync("https://login.microsoftonline.com/consumers/oauth2/v2.0/token",
-                new StringContent(
-                    $"grant_type=urn:ietf:params:oauth:grant-type:device_code&client_id={clientId}&device_code={deviceCode}",
-                    Encoding.UTF8, "application/x-www-form-urlencoded"));
-            var json = await response.Content.ReadAsStringAsync();
-
-            if (response.IsSuccessStatusCode)
-                return JsonSerializer.Deserialize(json, MsaJsonContext.Default.TokenResponse);
-            else
-            {
-                var errorResponse = JsonSerializer.Deserialize(json, MsaJsonContext.Default.ErrorResponse);
-                switch (errorResponse?.Error)
-                {
-                    case "authorization_pending":
-                        // 继续轮询
-                        break;
-                    case "authorization_declined":
-                        Debug.WriteLine("用户拒绝了授权。");
-                        return null; // 用户明确拒绝
-                    case "expired_token":
-                        Debug.WriteLine("授权已过期。");
-                        return null; // 授权已过期
-                    default:
-                        Debug.WriteLine($"认证轮询错误: {errorResponse?.Error} - {errorResponse?.ErrorDescription}");
-                        // 对于其他未知错误，也返回null，让上层抛出OlanException
-                        return null;
-                }
-            }
-            await Task.Delay(TimeSpan.FromSeconds(interval));
-        }
-        Debug.WriteLine("轮询超时，用户未在规定时间内完成授权。");
-        return null; // 轮询超时
-    }
-
-    /// <summary>
-    /// 进行 Xbox Live 身份验证。
-    /// </summary>
-    /// <param Name="AccessToken">上一步中获取的accessToken</param>
-    private async Task<XboxLiveAuthResponse?> AuthInXboxLive(string AccessToken)
-    {
-        var requestBody = new XboxLiveAuthRequest
-        {
-            Properties = new XboxLiveAuthRequestProperties
-            {
-                AuthMethod = "RPS",
-                SiteName = "user.auth.xboxlive.com",
-                RpsTicket = $"d={AccessToken}"
-            },
-            RelyingParty = "http://auth.xboxlive.com",
-            TokenType = "JWT"
-        };
-        var content = new StringContent(JsonSerializer.Serialize(requestBody, MsaJsonContext.Default.XboxLiveAuthRequest), Encoding.UTF8, "application/json");
-        var response = await httpClient.PostAsync("https://user.auth.xboxlive.com/user/authenticate", content);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.XboxLiveAuthResponse);
-    }
-
-    /// <summary>
-    /// XSTS 身份验证。
-    /// </summary>
-    private async Task<XSTSAuthResponse?> AuthInXSTS(string xblToken, string uhs)
-    {
-        var requestBody = new XSTSAuthRequest
-        {
-            Properties = new XSTSAuthRequestProperties
-            {
-                SandboxId = "RETAIL",
-                UserTokens = new[] { xblToken }
-            },
-            RelyingParty = "rp://api.minecraftservices.com/",
-            TokenType = "JWT"
-        };
-        var content = new StringContent(JsonSerializer.Serialize(requestBody, MsaJsonContext.Default.XSTSAuthRequest), Encoding.UTF8, "application/json");
-        var response = await httpClient.PostAsync("https://xsts.auth.xboxlive.com/xsts/authorize", content);
-        var json = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorResponse = JsonSerializer.Deserialize(json, MsaJsonContext.Default.XSTSErrorResponse);
-            if (errorResponse?.XErr == "214891605")
-            {
-                Debug.WriteLine("XSTS 认证失败: 该 Xbox Live 账号需要完成资料设置或家长同意。");
-                // 返回 null，让上层统一抛 OlanException
-            }
-            else if (errorResponse?.XErr == "214891606")
-            {
-                Debug.WriteLine("XSTS 认证失败: 该微软账号未关联 Xbox Live 档案。请确保您已登录过 Xbox.com。");
-                // 返回 null，让上层统一抛 OlanException
-            }
-            else
-            {
-                Debug.WriteLine($"XSTS 认证失败: {errorResponse?.Message} (XErr: {errorResponse?.XErr})");
-                // 返回 null，让上层统一抛 OlanException
-            }
-            return null; // 返回 null，表示认证失败，上层会统一抛出 OlanException
-        }
-
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.XSTSAuthResponse);
-    }
-
-    /// <summary>
-    /// 使用 Xbox 凭据登录 Minecraft。
-    /// </summary>
-    private async Task<MinecraftLoginResponse?> LoginWithXboxAsync(string xstsToken, string uhs)
-    {
-        var requestBody = new MinecraftLoginRequest
-        {
-            IdentityToken = $"XBL3.0 x={uhs};{xstsToken}"
-        };
-        var content = new StringContent(JsonSerializer.Serialize(requestBody, MsaJsonContext.Default.MinecraftLoginRequest), Encoding.UTF8, "application/json");
-        var response = await httpClient.PostAsync("https://api.minecraftservices.com/authentication/login_with_xbox", content);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.MinecraftLoginResponse);
-    }
-
-    /// <summary>
-    /// 检查用户是否拥有 Minecraft 游戏。
-    /// </summary>
-    private async Task<EntitlementsResponse?> CheckGameEntitlementsAsync(string minecraftAccessToken)
-    {
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minecraftAccessToken);
-        var response = await httpClient.GetAsync("https://api.minecraftservices.com/entitlements/mcstore");
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.EntitlementsResponse);
-    }
-
-    /// <summary>
-    /// 获取 Minecraft 玩家档案（包含 UUID 和用户名）。
-    /// </summary>
-    private async Task<MinecraftProfileResponse?> GetMinecraftProfileAsync(string minecraftAccessToken)
-    {
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minecraftAccessToken);
-        var response = await httpClient.GetAsync("https://api.minecraftservices.com/minecraft/profile");
-        var json = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
-        {
-            Debug.WriteLine("获取 Minecraft 档案失败。可能此账号没有设置 Minecraft 档案（例如首次启动游戏时）。");
-            return null; // 返回 null，让上层统一抛 OlanException
-        }
-        return JsonSerializer.Deserialize(json, MsaJsonContext.Default.MinecraftProfileResponse);
-    }
-
-    public void Dispose()
-    {
-        httpClient.Dispose();
-    }
-}
-*/
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/z/DownloadMinecraftForgeSeriesInstallerUrlGetter.cs
-【代码拼接器】文件内容开始
-//using OneLauncher.Core.Helper;
-//using OneLauncher.Core.Mod.ModLoader.forgeseries;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-
-//namespace OneLauncher.Core.Downloader;
-
-////public partial class DownloadMinecraft
-//{
-//    /// <summary>
-//    /// 一个封装了所有 Forge/NeoForge 下载和安装步骤的入口方法。
-//    /// </summary>
-//    /// <param name="isForge">为 true 时安装 Forge，为 false 时安装 NeoForge。</param>
-//    /// <param name="allowBeta">对于 NeoForge，是否允许安装 Beta 版本。</param>
-//    /// <param name="useRecommended">对于 Forge，是否优先安装官方推荐版。</param>
-//    private async Task InstallForgeSeriesAsync(bool isForge, bool allowBeta, bool useRecommended)
-//    {
-//        var modType = isForge ? ForgeSeriesType.Forge : ForgeSeriesType.NeoForge;
-//        string modTypeName = isForge ? "Forge" : "NeoForge";
-
-//        // --- 1. 获取最新版本和安装器 URL ---
-//        progress?.Report((DownProgress.Meta, alls, dones, $"正在获取最新的 {modTypeName} 版本..."));
-//        var versionGetter = new ForgeVersionListGetter(downloadTool.unityClient);
-//        string fullVersion = await versionGetter.GetLatestVersionStringAsync(modType, ID, allowBeta, useRecommended);
-
-//        string installerUrl;
-//        if (isForge)
-//        {
-//            installerUrl = $"https://maven.minecraftforge.net/net/minecraftforge/forge/{fullVersion}/forge-{fullVersion}-installer.jar";
-//        }
-//        else // NeoForge
-//        {
-//            installerUrl = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{fullVersion}/neoforge-{fullVersion}-installer.jar";
-//        }
-
-//        // --- 2. 准备安装任务器 ---
-//        var installTasker = new ForgeSeriesInstallTasker(
-//            downloadTool,
-//            Path.Combine(GameRootPath, "libraries"),
-//            GameRootPath // 确保这里是 .minecraft 根目录
-//        );
-
-//        // 监听处理器输出事件
-//        installTasker.ProcessorsOutEvent += (a, b, c) =>
-//        {
-//            if (a == -1 && b == -1) // 这是一个我们定义的错误信号
-//                throw new OlanException($"{modTypeName} 安装失败", $"执行处理器时报错: {c}", OlanExceptionAction.Error);
-
-//            // 将处理器日志转发到主进度报告器
-//            progress?.Report((DownProgress.DownAndInstModFiles, alls, dones, $"[处理器({b}/{a})] {c}"));
-//        };
-
-//        // --- 3. 调用准备阶段，获取需要下载的文件列表 ---
-//        progress?.Report((DownProgress.Meta, alls, dones, $"正在解析 {modTypeName} 安装器..."));
-//        var (versionLibs, installerLibs, lzmaPath) = await installTasker.StartReadyAsync(installerUrl, modTypeName, ID);
-
-//        // --- 4. 将库文件加入总下载列表 ---
-//        // 注意：你可能需要调整 AllNdListSha1 和 dones/alls 的计算逻辑
-//        var modLibsToDownload = downloadTool.CheckFilesExists(versionLibs.Concat(installerLibs).ToList(), cancelToken);
-//        if (modLibsToDownload.Any())
-//        {
-//            AllNdListSha1.AddRange(modLibsToDownload);
-//            Interlocked.Add(ref alls, modLibsToDownload.Count);
-//        }
-
-//        // --- 5. 执行下载 ---
-//        // 假设你有一个统一的下载方法来处理这些库文件
-//        if (modLibsToDownload.Any())
-//        {
-//            await UnityModsInstallTasker(modLibsToDownload);
-//        }
-
-//        // --- 6. 运行处理器 ---
-//        // 确保原版 Jar 已经下载完成
-//        if (main.url != null)
-//            await DownloadClientTasker((NdDowItem)main, UseBMLCAPI);
-
-//        // 确保 Java 也准备好了
-//        await javaInstallTask;
-
-//        // 运行安装处理器
-//        await installTasker.RunProcessorsAsync(
-//            mations.GetMainJarPath(), // 获取主jar的路径
-//            Tools.IsUseOlansJreOrOssJdk(mations.GetJavaVersion()), // 获取Java路径
-//            lzmaPath,
-//            cancelToken
-//        );
-
-//        // --- 7. 清理临时文件 ---
-//        try
-//        {
-//            if (File.Exists(lzmaPath))
-//            {
-//                File.Delete(lzmaPath);
-//            }
-//        }
-//        catch (Exception ex)
-//        {
-//            // 忽略清理失败，只记录一个调试信息
-//            System.Diagnostics.Debug.WriteLine($"[InstallForgeSeries] 清理临时文件 {lzmaPath} 失败: {ex.Message}");
-//        }
-//    }
-//}
-
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/z/ForgeInstallProfileJsonModels.cs
-【代码拼接器】文件内容开始
-//using OneLauncher.Core.ModLoader.forgeseries.JsonModels;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Text.Json.Serialization;
-//using System.Threading.Tasks;
-
-//namespace OneLauncher.Core.Mod.ModLoader.forgeseries;
-
-//[JsonSerializable(typeof(ForgeInstallProfile))]
-//[JsonSerializable(typeof(ForgeData))]
-//[JsonSerializable(typeof(NeoforgeSideEntry))]
-//// 下面是Neoforge JsonModels的
-//[JsonSerializable(typeof(NeoForgeVersionJson))]
-//[JsonSerializable(typeof(NeoforgeArguments))]
-//[JsonSerializable(typeof(ForgeSeriesLibrary))]
-//[JsonSerializable(typeof(ForgeSeriesDownloads))]
-//[JsonSerializable(typeof(ForgeSeriesArtifact))]
-//[JsonSerializable(typeof(NeoforgeSideEntry))]
-//[JsonSerializable(typeof(NeoforgeData))]
-//[JsonSerializable(typeof(NeoforgeProcessor))]
-//[JsonSerializable(typeof(ForgeSeriesInstallProfileRoot))]
-//public partial class ForgeJsonContext : JsonSerializerContext { }
-//public class ForgeInstallProfile
-//{
-//    [JsonPropertyName("data")]
-//    public ForgeData Data { get; set; }
-
-//    [JsonPropertyName("processors")]
-//    public List<NeoforgeProcessor> Processors { get; set; } // 复用你的模型
-
-//    [JsonPropertyName("libraries")]
-//    public List<ForgeSeriesLibrary> Libraries { get; set; } // 复用你的模型
-//}
-
-//public class ForgeData
-//{
-//    [JsonExtensionData]
-//    public Dictionary<string, object> AdditionalData { get; set; }
-//}
-
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/z/ForgeProcessorsRuner.cs
-【代码拼接器】文件内容开始
-//using OneLauncher.Core.Helper;
-//using OneLauncher.Core.ModLoader.forgeseries.JsonModels; 
-//using System.Diagnostics;
-//using System.IO.Compression;
-//using System.Text;
-//using System.Text.Json;
-
-//namespace OneLauncher.Core.Mod.ModLoader.forgeseries;
-
-//// 这是你现有类的另一部分，共享所有成员
-//public partial class ForgeSeriesInstallTasker
-//{
-//    public async Task RunForgeProcessors(
-//        ForgeSeriesInstallProfileRoot profile,
-//        string mainJarPath,
-//        //string javaPath,
-//        string clientLzmaPath,
-//        SystemType osType,
-//        CancellationToken token)
-//    {
-//        // 1. 动态构建占位符字典
-//        var placeholderDict = BuildForgePlaceholderDictionary(profile, this.librariesPath, this.gamePath, mainJarPath, clientLzmaPath);
-
-//        // 2. 准备所有需要运行的处理器进程
-//        var processorsToRun = new List<Process>();
-
-//        // 过滤出所有 client 端的处理器
-//        var clientProcessors = profile.Processors
-//            .Where(p => p.Sides == null || p.Sides.Contains("client"))
-//            .ToList();
-
-//        int alls = clientProcessors.Count;
-//        int dones = 0;
-
-//        ProcessorsOutEvent?.Invoke(alls, 0, "正在准备安装处理器...");
-
-//        foreach (var procDef in clientProcessors)
-//        {
-//            token.ThrowIfCancellationRequested();
-
-//            // a. 构建 Classpath
-//            var cpBuilder = new StringBuilder();
-//            foreach (var cpEntry in procDef.Classpath)
-//            {
-//                cpBuilder.Append(Tools.MavenToPath(this.librariesPath, cpEntry));
-//                cpBuilder.Append(osType == SystemType.windows ? ";" : ":");
-//            }
-//            string cpArgs = $"-cp \"{cpBuilder.ToString().TrimEnd(';', ':')}\"";
-
-//            // b. 找到主类
-//            string mainClass = await GetMainClassFromJar(Tools.MavenToPath(this.librariesPath, procDef.Jar), procDef.Jar);
-//            if (string.IsNullOrEmpty(mainClass))
-//            {
-//                // 如果找不到主类，直接抛出异常中断安装
-//                throw new InvalidOperationException($"处理器 {procDef.Jar} 在 MANIFEST.MF 中未定义 Main-Class 或无法读取。");
-//            }
-
-//            // c. 解析标准参数，并替换占位符
-//            string stdArgs = BuildProcessorArguments(procDef.Args, placeholderDict, this.librariesPath, alls, dones + 1);
-
-//            // d. 创建 Process 对象
-//            var process = new Process
-//            {
-//                StartInfo = new ProcessStartInfo
-//                {
-//                    FileName = javaPath,
-//                    Arguments = $"{cpArgs} {mainClass} {stdArgs}",
-//                    RedirectStandardOutput = true,
-//                    RedirectStandardError = true,
-//                    UseShellExecute = false,
-//                    CreateNoWindow = true,
-//                    WorkingDirectory = this.gamePath // 使用类成员设置工作目录
-//                }
-//            };
-//            processorsToRun.Add(process);
-//        }
-
-//        // 3. 依次执行所有处理器
-//        foreach (var process in processorsToRun)
-//        {
-//            token.ThrowIfCancellationRequested();
-//            dones++;
-
-//            ProcessorsOutEvent?.Invoke(alls, dones, $"正在运行处理器 {dones}/{alls}: {Path.GetFileName(process.StartInfo.FileName)}...");
-
-//            try
-//            {
-//                // 将事件处理器放在循环内部，确保 dones 是最新的
-//                process.OutputDataReceived += (sender, e) => { if (!string.IsNullOrWhiteSpace(e.Data)) ProcessorsOutEvent?.Invoke(alls, dones, e.Data); };
-//                process.ErrorDataReceived += (sender, e) => { if (!string.IsNullOrWhiteSpace(e.Data)) ProcessorsOutEvent?.Invoke(alls, dones, $"[错误] {e.Data}"); };
-
-//                process.Start();
-//                process.BeginOutputReadLine();
-//                process.BeginErrorReadLine();
-
-//                await process.WaitForExitAsync(token);
-
-//                if (process.ExitCode != 0)
-//                {
-//                    string errorMsg = $"处理器 {dones}/{alls} 执行失败，退出代码: {process.ExitCode}。请检查日志获取详细信息。";
-//                    ProcessorsOutEvent?.Invoke(-1, -1, errorMsg);
-//                    throw new Exception(errorMsg);
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                ProcessorsOutEvent?.Invoke(-1, -1, $"处理器 {dones} 调用时出错: {ex.Message}");
-//                throw; // 将异常继续向上抛出
-//            }
-//        }
-//        ProcessorsOutEvent?.Invoke(alls, alls, "所有安装处理器已成功运行！");
-//    }
-
-//    /// <summary>
-//    /// 私有辅助方法：从 JAR 文件的 MANIFEST.MF 中异步读取 Main-Class。
-//    /// </summary>
-//    private async Task<string> GetMainClassFromJar(string jarPath, string jarIdentifier)
-//    {
-//        try
-//        {
-//            using (var fs = new FileStream(jarPath, FileMode.Open, FileAccess.Read))
-//            using (var archive = new ZipArchive(fs, ZipArchiveMode.Read))
-//            {
-//                var manifestEntry = archive.GetEntry("META-INF/MANIFEST.MF");
-//                if (manifestEntry == null)
-//                {
-//                    ProcessorsOutEvent?.Invoke(-1, -1, $"错误: 在 {jarIdentifier} 中无法找到 MANIFEST.MF");
-//                    return null;
-//                }
-//                using (var reader = new StreamReader(manifestEntry.Open()))
-//                {
-//                    string line;
-//                    while ((line = await reader.ReadLineAsync()) != null)
-//                    {
-//                        if (line.StartsWith("Main-Class: "))
-//                        {
-//                            return line.Substring("Main-Class: ".Length).Trim();
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        catch (IOException ex)
-//        {
-//            ProcessorsOutEvent?.Invoke(-1, -1, $"错误: 读取 {jarIdentifier} 文件失败: {ex.Message}");
-//        }
-//        return null;
-//    }
-
-//    /// <summary>
-//    /// 私有辅助方法：构建处理器的命令行参数字符串。
-//    /// </summary>
-//    private string BuildProcessorArguments(List<string> argsTemplate, Dictionary<string, string> placeholders, string librariesPath, int all, int done)
-//    {
-//        var stdArgsBuilder = new StringBuilder();
-//        foreach (var arg in argsTemplate)
-//        {
-//            try
-//            {
-//                if (arg.StartsWith("{") && arg.EndsWith("}"))
-//                {
-//                    string key = arg.TrimStart('{').TrimEnd('}');
-//                    if (placeholders.TryGetValue(key, out string value))
-//                    {
-//                        stdArgsBuilder.Append($"\"{value}\" ");
-//                    }
-//                    else
-//                    {
-//                        ProcessorsOutEvent?.Invoke(all, done, $"警告：未找到占位符 {arg}，将忽略此参数。");
-//                    }
-//                }
-//                else if (arg.StartsWith("["))
-//                {
-//                    stdArgsBuilder.Append($"\"{Tools.MavenToPath(librariesPath, arg)}\" ");
-//                }
-//                else
-//                {
-//                    // 对于普通参数（如 --task），不需要加引号
-//                    stdArgsBuilder.Append($"{arg} ");
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                ProcessorsOutEvent?.Invoke(-1, -1, $"解析参数 {arg} 时出错: {ex.Message}");
-//            }
-//        }
-//        return stdArgsBuilder.ToString().Trim();
-//    }
-
-//    /// <summary>
-//    /// 私有辅助方法：动态构建 Forge 安装处理器所需的占位符字典。
-//    /// </summary>
-//    private Dictionary<string, string> BuildForgePlaceholderDictionary(
-//        ForgeSeriesInstallProfileRoot profile,
-//        string librariesPath,
-//        string gamePath,
-//        string minecraftJarPath,
-//        string clientLzmaPath)
-//    {
-//        var placeholders = new Dictionary<string, string>
-//        {
-//            { "SIDE", "client" },
-//            { "MINECRAFT_JAR", minecraftJarPath },
-//            { "LIBRARY_DIR", librariesPath },
-//            { "ROOT", gamePath },
-//        };
-
-//        if (profile.Data?.AdditionalData == null)
-//        {
-//            return placeholders;
-//        }
-
-//        foreach (var entry in profile.Data.)
-//        {
-//            string key = entry.Key;
-//            if (entry.Value is not JsonElement element) continue;
-
-//            string rawValue = "";
-//            if (element.ValueKind == JsonValueKind.Object && element.TryGetProperty("client", out JsonElement clientElement))
-//            {
-//                rawValue = clientElement.GetString() ?? "";
-//            }
-//            else if (element.ValueKind == JsonValueKind.String)
-//            {
-//                rawValue = element.GetString() ?? "";
-//            }
-
-//            if (string.IsNullOrEmpty(rawValue)) continue;
-
-//            string processedValue;
-//            if (rawValue.StartsWith("[") && rawValue.EndsWith("]"))
-//            {
-//                processedValue = Tools.MavenToPath(librariesPath, rawValue);
-//            }
-//            else if (rawValue.StartsWith("'") && rawValue.EndsWith("'"))
-//            {
-//                processedValue = rawValue.Trim('\'');
-//            }
-//            else
-//            {
-//                processedValue = rawValue;
-//            }
-//            placeholders[key] = processedValue;
-//        }
-
-//        if (placeholders.ContainsKey("BINPATCH"))
-//        {
-//            placeholders["BINPATCH"] = clientLzmaPath;
-//        }
-
-//        return placeholders;
-//    }
-//}
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/z/NeoForgeVersionListGetter.cs
-【代码拼接器】文件内容开始
-//using System.Xml.Linq;
-
-//namespace OneLauncher.Core.Mod.ModLoader.forgeseries.z;
-
-//// NeoForgeVersionInfo 类的定义保持不变 (来自你之前的代码)
-//public class NeoForgeVersionInfo : IComparable<NeoForgeVersionInfo>
-//{
-//    public string FullVersionString { get; }
-//    public Version ParsedNumericVersion { get; }
-//    public bool IsBeta { get; }
-//    public string Suffix { get; }
-//    public int McMajorEquivalent { get; }
-//    public int McMinorPatchEquivalent { get; }
-//    public int NeoForgeBuild { get; }
-//    public int NeoForgeRevision { get; }
-
-//    public NeoForgeVersionInfo(string versionStr)
-//    {
-//        FullVersionString = versionStr ?? throw new ArgumentNullException(nameof(versionStr));
-
-//        string tempSuffix = "";
-//        string numericPart = versionStr;
-
-//        int suffixIndex = versionStr.IndexOf('-');
-//        if (suffixIndex > 0)
-//        {
-//            numericPart = versionStr.Substring(0, suffixIndex);
-//            tempSuffix = versionStr.Substring(suffixIndex + 1);
-//        }
-//        Suffix = tempSuffix;
-//        IsBeta = Suffix.Equals("beta", StringComparison.OrdinalIgnoreCase);
-
-//        string[] numComponents = numericPart.Split('.');
-//        if (numComponents.Length < 3)
-//        {
-//            throw new ArgumentException($"版本字符串 '{versionStr}' 在后缀前至少需要3个数字部分。");
-//        }
-
-//        if (!int.TryParse(numComponents[0], out int n1) ||
-//            !int.TryParse(numComponents[1], out int n2) ||
-//            !int.TryParse(numComponents[2], out int n3))
-//        {
-//            throw new ArgumentException($"无法解析版本字符串 '{versionStr}' 中的数字部分。");
-//        }
-
-//        McMajorEquivalent = n1;
-//        McMinorPatchEquivalent = n2;
-//        NeoForgeBuild = n3;
-
-//        if (numComponents.Length >= 4 && int.TryParse(numComponents[3], out int n4))
-//        {
-//            NeoForgeRevision = n4;
-//            ParsedNumericVersion = new Version(n1, n2, n3, n4);
-//        }
-//        else
-//        {
-//            NeoForgeRevision = 0;
-//            ParsedNumericVersion = new Version(n1, n2, n3);
-//        }
-//    }
-
-//    public int CompareTo(NeoForgeVersionInfo other)
-//    {
-//        if (other == null) return 1;
-//        int numericCompare = ParsedNumericVersion.CompareTo(other.ParsedNumericVersion);
-//        if (numericCompare != 0) return numericCompare;
-//        if (IsBeta != other.IsBeta) return IsBeta ? -1 : 1;
-//        return string.Compare(Suffix, other.Suffix, StringComparison.OrdinalIgnoreCase);
-//    }
-
-//    public override string ToString() => FullVersionString;
-//}
-
-//public class NeoForgeVersionListGetter
-//{
-//    private readonly HttpClient _httpClient;
-//    private const string NeoForgeMetadataUrl = "https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml";
-
-//    public NeoForgeVersionListGetter(HttpClient httpClient)
-//    {
-//        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-//    }
-
-//    public async Task<string> GetLatestSuitableNeoForgeVersionStringAsync(string mcVersion, bool allowBeta)
-//    {
-//        NeoForgeVersionInfo latestVersionInfo = await GetLatestSuitableNeoForgeVersionAsync(mcVersion, allowBeta);
-//        // 如果 GetLatestSuitableNeoForgeVersionAsync 抛出异常，这里不会执行
-//        // 它现在应该在找不到版本时抛出异常，而不是返回null
-//        return latestVersionInfo.FullVersionString; // 直接访问，因为预期非null或已抛出异常
-//    }
-
-//    public async Task<NeoForgeVersionInfo> GetLatestSuitableNeoForgeVersionAsync(string mcVersion, bool allowBeta)
-//    {
-//        string neoForgeVersionPrefix = ConvertMcVersionToNeoForgePrefix(mcVersion);
-//        if (string.IsNullOrEmpty(neoForgeVersionPrefix))
-//        {
-//            throw new OlanException("无效的Minecraft版本",
-//                                    $"无法为提供的Minecraft版本 '{mcVersion}' 生成有效的NeoForge版本前缀。请检查版本号格式 (例如 '1.20.2' 或 '1.21')。",
-//                                    OlanExceptionAction.Warning);
-//        }
-//        System.Diagnostics.Debug.WriteLine($"[NeoForgeVersionListGetter] Minecraft版本 '{mcVersion}' 对应的NeoForge前缀: '{neoForgeVersionPrefix}', 允许Beta: {allowBeta}");
-
-//        List<NeoForgeVersionInfo> allParsedVersions = await FetchAndParseAllVersionsAsync();
-//        // FetchAndParseAllVersionsAsync 现在应该在失败时抛出OlanException
-
-//        List<NeoForgeVersionInfo> suitableVersions = allParsedVersions
-//            .Where(v => v.FullVersionString.StartsWith(neoForgeVersionPrefix))
-//            .Where(v => allowBeta || !v.IsBeta)
-//            .ToList();
-
-//        if (!suitableVersions.Any())
-//        {
-//            throw new OlanException("未找到兼容版本",
-//                                    $"未能找到与Minecraft版本 '{mcVersion}' (NeoForge前缀: '{neoForgeVersionPrefix}', 允许Beta: {allowBeta}) 兼容的NeoForge版本。这可能意味着该Minecraft版本暂无NeoForge支持，或者您可以尝试调整Beta版本选项。",
-//                                    OlanExceptionAction.Warning);
-//        }
-
-//        NeoForgeVersionInfo bestVersion = suitableVersions.Max(); // Max() 使用 NeoForgeVersionInfo.CompareTo
-//        if (bestVersion == null) // 以防万一 Max() 在空列表上返回 null 而不是抛错 (通常Linq.Max会抛错)
-//        {
-//            throw new OlanException("版本选择失败",
-//                                   $"在筛选后的版本中未能确定最新版本，Minecraft版本 '{mcVersion}'。",
-//                                   OlanExceptionAction.Error);
-//        }
-//        return bestVersion;
-//    }
-
-//    private string ConvertMcVersionToNeoForgePrefix(string mcVersion)
-//    {
-//        if (string.IsNullOrWhiteSpace(mcVersion) || !mcVersion.StartsWith("1."))
-//        {
-//            return null;
-//        }
-//        string versionPart = mcVersion.Substring(2);
-//        string[] mcParts = versionPart.Split('.');
-//        if (mcParts.Length == 1)
-//        {
-//            if (int.TryParse(mcParts[0], out _)) return $"{mcParts[0]}.0.";
-//        }
-//        else if (mcParts.Length >= 2)
-//        {
-//            if (int.TryParse(mcParts[0], out _) && int.TryParse(mcParts[1], out _)) return $"{mcParts[0]}.{mcParts[1]}.";
-//        }
-//        return null;
-//    }
-
-//    private async Task<List<NeoForgeVersionInfo>> FetchAndParseAllVersionsAsync()
-//    {
-//        string xmlContent;
-//        try
-//        {
-//            xmlContent = await _httpClient.GetStringAsync(NeoForgeMetadataUrl);
-//        }
-//        catch (HttpRequestException ex)
-//        {
-//            System.Diagnostics.Debug.WriteLine($"[NeoForgeVersionListGetter] 请求NeoForge metadata失败: {ex.Message}");
-//            // 若要提供重试功能，可以在Download.cs捕获此异常后，构造新的OlanException时加入TryAgainFunction
-//            throw new OlanException("网络连接错误",
-//                                    $"无法从NeoForge官方源获取版本列表。请检查您的网络连接。\n错误详情: {ex.Message}",
-//                                    OlanExceptionAction.Error,
-//                                    ex);
-//        }
-//        catch (Exception ex) // 其他例如 TaskCanceledException (超时)
-//        {
-//            throw new OlanException("网络请求失败",
-//                                    $"获取NeoForge版本列表时发生网络相关错误。\n错误详情: {ex.Message}",
-//                                    OlanExceptionAction.Error,
-//                                    ex);
-//        }
-
-//        try
-//        {
-//            XDocument doc = XDocument.Parse(xmlContent);
-//            List<NeoForgeVersionInfo> versions = new List<NeoForgeVersionInfo>();
-//            foreach (XElement versionElement in doc.Descendants("version"))
-//            {
-//                try
-//                {
-//                    versions.Add(new NeoForgeVersionInfo(versionElement.Value));
-//                }
-//                catch (ArgumentException ex) // NeoForgeVersionInfo构造函数可能抛出
-//                {
-//                    System.Diagnostics.Debug.WriteLine($"[NeoForgeVersionListGetter] 解析版本号 '{versionElement.Value}' 失败: {ex.Message}。已跳过此版本。");
-//                    // 选择不为单个错误版本号抛出致命异常，而是记录并继续
-//                }
-//            }
-//            if (!versions.Any() && doc.Descendants("version").Any()) // 如果存在version标签但没有一个成功解析
-//            {
-//                throw new OlanException("元数据解析不完整",
-//                                   "NeoForge版本列表中所有版本条目均无法成功解析，请检查元数据格式或联系开发者。",
-//                                   OlanExceptionAction.Error);
-//            }
-//            return versions;
-//        }
-//        catch (System.Xml.XmlException ex)
-//        {
-//            System.Diagnostics.Debug.WriteLine($"[NeoForgeVersionListGetter] 解析NeoForge metadata XML时发生错误: {ex.Message}");
-//            throw new OlanException("元数据格式错误",
-//                                    $"NeoForge版本列表的XML元数据格式无效或已损坏。\n错误详情: {ex.Message}",
-//                                    OlanExceptionAction.Error,
-//                                    ex);
-//        }
-//        catch (Exception ex) // 其他未知解析错误
-//        {
-//            System.Diagnostics.Debug.WriteLine($"[NeoForgeVersionListGetter] 处理NeoForge metadata时发生未知错误: {ex.Message}");
-//            throw new OlanException("元数据处理错误",
-//                                    $"处理NeoForge版本列表时发生未知错误。\n错误详情: {ex.Message}",
-//                                    OlanExceptionAction.Error,
-//                                    ex);
-//        }
-//    }
-//}
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core/_archive/zQuStellar/oauth.cs
-【代码拼接器】文件内容开始
-using Duende.IdentityModel.OidcClient.Browser;
-using System.Diagnostics;
-using System.Net;
-using System.Text;
-
-public class QOauth : IBrowser
-{
-    private readonly string redirectUri;
-
-    // 构造函数接收一个端口号
-    public QOauth(int port)
-    {
-        // 使用传入的端口号来构建回调地址
-        this.redirectUri = $"http://127.0.0.1:{port}/";
-    }
-
-    // InvokeAsync 方法和你写的一样，无需改动
-    public async Task<BrowserResult> InvokeAsync(BrowserOptions options, CancellationToken cancellationToken = default)
-    {
-        using var listener = new HttpListener();
-        listener.Prefixes.Add(redirectUri);
-        listener.Start();
-
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = options.StartUrl,
-                UseShellExecute = true
-            });
-
-            var context = await listener.GetContextAsync();
-            var result = new BrowserResult
-            {
-                Response = context.Request.Url.ToString(),
-                ResultType = BrowserResultType.Success
-            };
-
-            var buffer = Encoding.UTF8.GetBytes("<html><body>授权成功! 请返回应用程序。</body></html>");
-            context.Response.ContentLength64 = buffer.Length;
-            await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
-            context.Response.OutputStream.Close();
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            return new BrowserResult { ResultType = BrowserResultType.HttpError, Error = ex.Message };
-        }
-        finally
-        {
-            listener.Stop();
-        }
-    }
-}
-【代码拼接器】文件内容结束
-
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/AdoptiumAPI.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/AdoptiumAPI.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Helper.Models;
@@ -13339,7 +11544,7 @@ public class AdoptiumAPI
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/ConnectToolPower/IConnectService.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/ConnectToolPower/IConnectService.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -13365,7 +11570,7 @@ public interface IConnectService
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/ConnectToolPower/MCTPower.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/ConnectToolPower/MCTPower.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
@@ -13506,7 +11711,7 @@ public class MCTPower : IDisposable
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/ConnectToolPower/P2PMode.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/ConnectToolPower/P2PMode.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper;
@@ -13563,7 +11768,7 @@ public class P2PMode : IConnectService
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/Microsoft/JsonModels.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/Microsoft/JsonModels.cs
 【代码拼接器】文件内容开始
 using System;
 using System.Collections.Generic;
@@ -13798,7 +12003,7 @@ public class Metadata
 public partial class MojangProfileJsonContext : JsonSerializerContext { }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/Microsoft/MojangProfile.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/Microsoft/MojangProfile.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
@@ -14027,7 +12232,7 @@ public class MojangProfile : IDisposable
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/Microsoft/MsalAuthenticator.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/Microsoft/MsalAuthenticator.cs
 【代码拼接器】文件内容开始
 using Duende.IdentityModel.OidcClient;
 using Microsoft.Identity.Client;
@@ -14339,7 +12544,7 @@ public class MsalAuthenticator : IDisposable
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/ModService/Modrinth/GetModrinth.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/ModService/Modrinth/GetModrinth.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.ModService.Modrinth.JsonModelGet;
@@ -14443,7 +12648,7 @@ public class GetModrinth
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/ModService/Modrinth/JsonModelGet.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/ModService/Modrinth/JsonModelGet.cs
 【代码拼接器】文件内容开始
 using System.Text.Json.Serialization;
 
@@ -14494,7 +12699,7 @@ public class ModJarHashes
 }
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/ModService/Modrinth/jsonModelSearch.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/ModService/Modrinth/jsonModelSearch.cs
 【代码拼接器】文件内容开始
 using System.Text.Json.Serialization;
 
@@ -14535,7 +12740,7 @@ public class ModrinthProjectHit
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Core.Net/ModService/Modrinth/SearchModrinth.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Core.Net/ModService/Modrinth/SearchModrinth.cs
 【代码拼接器】文件内容开始
 using OneLauncher.Core.Net.ModService.Modrinth.JsonModelSearch;
 using System.Diagnostics;
@@ -14574,7 +12779,7 @@ public class SearchModrinth : IDisposable
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Desktop/Program.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Desktop/Program.cs
 【代码拼接器】文件内容开始
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
@@ -14625,7 +12830,7 @@ class Program
 
 【代码拼接器】文件内容结束
 
-【代码拼接器】文件路径: /Code/OneLauncher.Desktop/_db_.cs
+【代码拼接器】文件路径: /Code/OneLauncher-master/OneLauncher.Desktop/_db_.cs
 【代码拼接器】文件内容开始
 /*
  *                        _oo0oo_

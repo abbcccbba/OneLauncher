@@ -10,7 +10,7 @@ class Program
         try
         {
             // 获取当前工作目录作为根路径
-            string rootPath = @"E:\OneLauncherProject\OneLauncher";
+            string rootPath = @"F:\code\codeshare";
             // 输出文件的保存路径
             string outputFile = @"E:\OneLauncherProject\OneLauncher\CombinedCode.txt";
             // 存储拼接后的内容

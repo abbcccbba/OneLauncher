@@ -64,6 +64,7 @@ public partial class MainWindow : Window
             servises.AddSingleton<EditGameDataPaneViewModelFactory>();
             servises.AddSingleton<PowerPlayPaneViewModelFactory>();
             servises.AddSingleton<InstallModPaneViewModelFactory>();
+            servises.AddSingleton<UserModelLoginPaneViewModelFactory>();
 
             provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();

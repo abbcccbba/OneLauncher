@@ -35,28 +35,5 @@ public partial class version : UserControl
         bool UseGameTasker = false,
         ServerInfo? serverInfo = null
         )
-    {
-        if (gameData.InstanceId == null)
-            return Task.CompletedTask;
-        // 用多线程而不是异步，否则某些特定版本会阻塞
-        var optionsPath = Path.Combine(gameData.InstancePath, "options.txt");
-        if (!File.Exists(optionsPath))
-            await File.WriteAllTextAsync(optionsPath, $"lang:zh_CN");
-        if (UseGameTasker)
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                var gameTasker = new GameTasker();
-                gameTasker.Show();
-            });
-
-        MainWindow.mainwindow.ShowFlyout("正在启动游戏...");
-        var game = new Game();
-        if(UseGameTasker)
-            game.GamePutEvent += (string Message) => WeakReferenceMessenger.Default.Send(new GameMessage(Message));
-        game.GameStartedEvent += () => MainWindow.mainwindow.ShowFlyout("游戏已启动！");
-        game.GameClosedEvent += () => MainWindow.mainwindow.ShowFlyout("游戏已关闭！");
-
-       return Task.Run(() => game.LaunchGame(
-            gameData,serverInfo));
-    }
+            => Game.EasyGameLauncher(gameData, serverInfo, UseGameTasker);
 }

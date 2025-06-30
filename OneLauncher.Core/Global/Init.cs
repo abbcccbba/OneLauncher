@@ -29,8 +29,6 @@ public static class Init
     public static List<IDisposable> OnApplicationClosingReleaseSourcesList = new();
     // 必要的时候还是得耦合一下的，啥都得传递那他妈的写起来太难受了
     public static DBManager ConfigManger => ConfigManager;
-    public static MsalAuthenticator MMA => MsalAuthenticator;
-    //public static Ac
     internal static DBManager ConfigManager { get; private set; }
     public static AccountManager AccountManager { get; private set; }
     public static GameDataManager GameDataManager { get; private set; }

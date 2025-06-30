@@ -3,6 +3,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
@@ -10,6 +11,7 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.Panes;
+using OneLauncher.Views.Panes.PaneViewModels.Factories;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,6 +23,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
+internal class AccountPageClosePaneControlMessage { public bool value = false; }
+internal class AccountPageDisplayListRefreshMessage { }
 internal partial class UserItem
 {
     public UserModel um { get; set; }
@@ -32,6 +36,7 @@ internal partial class AccountPageViewModel : BaseViewModel
 {
     private AccountManager _accountManager;
     private MsalAuthenticator _msalAuthenticator;
+    private UserModelLoginPaneViewModelFactory _userModelLoginPaneFactory;
     // 刷新
     public void RefList()
     {
@@ -70,8 +75,9 @@ internal partial class AccountPageViewModel : BaseViewModel
             OlanExceptionWorker.ForUnknowException(ex);
         }
     }
-    public AccountPageViewModel(AccountManager manager,MsalAuthenticator msalAuthenticator)
+    public AccountPageViewModel(AccountManager manager,MsalAuthenticator msalAuthenticator, UserModelLoginPaneViewModelFactory userModelLoginPaneFactory)
     {
+        this._userModelLoginPaneFactory = userModelLoginPaneFactory;
         this._accountManager = manager;
         this._msalAuthenticator = msalAuthenticator;
 #if DEBUG
@@ -105,6 +111,8 @@ internal partial class AccountPageViewModel : BaseViewModel
                    }
                     );
             }
+            WeakReferenceMessenger.Default.Register<AccountPageClosePaneControlMessage>(this, (re,message) => IsPaneShow = false);
+            WeakReferenceMessenger.Default.Register<AccountPageDisplayListRefreshMessage>(this, (re, message) => RefList());
         }
     }
     [ObservableProperty]
@@ -118,7 +126,8 @@ internal partial class AccountPageViewModel : BaseViewModel
     private void NewUserModel()
     {
         IsPaneShow = true;
-        AccountPane = new UserModelLoginPane(this);
+        AccountPane = new UserModelLoginPane()
+        { DataContext  = _userModelLoginPaneFactory.Create()};
     }
     [RelayCommand]
     private void SkinManger(UserModel userModel)

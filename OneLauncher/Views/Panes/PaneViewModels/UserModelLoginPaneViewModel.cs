@@ -2,8 +2,10 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.ViewModels;
@@ -19,10 +21,12 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
 #if DEBUG
     public UserModelLoginPaneViewModel() { }
 #endif
-    private AccountPageViewModel accountPageViewModel;
-    public UserModelLoginPaneViewModel(AccountPageViewModel accountPageViewModel)
+    private readonly MsalAuthenticator _accountManager;
+    private readonly AccountManager ac;
+    public UserModelLoginPaneViewModel(MsalAuthenticator accountManager, AccountManager ma)
     {
-        this.accountPageViewModel = accountPageViewModel;
+        _accountManager = accountManager;
+        ac = ma;
     }
     [ObservableProperty]
     public string _UserName;
@@ -40,15 +44,15 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             name : UserName,
             uuid : Guid.NewGuid()
         ));
-        accountPageViewModel.RefList();
-        accountPageViewModel.IsPaneShow = false;
-        MainWindow.mainwindow.ShowFlyout($"已新建用户:{UserName}");
+        WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
+        WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已添加账号:{UserName}"));
     }
     [RelayCommand]
     public void Back()
     {
-        accountPageViewModel.IsPaneShow = false;
-        MainWindow.mainwindow.ShowFlyout("已暂存修改！");
+        WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("数据已销毁",true));
     }
 
     [ObservableProperty]
@@ -89,27 +93,27 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             if (Init.SystemType == SystemType.windows)
             {
                 um = 
-                    await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenUseWindowsWebAccountManger(
+                    await _accountManager.LoginNewAccountToGetMinecraftMojangAccessTokenUseWindowsWebAccountManger(
                         (MainWindow.mainwindow.TryGetPlatformHandle().Handle))
-                    ?? throw new OlanException("认证失败", "无法认证你的微软账号"); ;
+                    ?? throw new OlanException("认证失败", "无法认证你的微软账号"); 
             }
             else
 #endif
             {
                 um =
-                    await Init.MMA.LoginNewAccountToGetMinecraftMojangAccessTokenOnSystemBrowser()
+                    await _accountManager.LoginNewAccountToGetMinecraftMojangAccessTokenOnSystemBrowser()
                     ?? throw new OlanException("认证失败", "无法认证你的微软账号");
             }
-            await Init.AccountManager.AddUser(um);
+            await ac.AddUser(um);
             using (var task = new MojangProfile(um))
                 await task.GetSkinHeadImage();
-            accountPageViewModel.RefList();
-            accountPageViewModel.IsPaneShow = false;
-            MainWindow.mainwindow.ShowFlyout($"已登入账号:{UserName}");
+            WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
+            WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已登入账号:{um.Name}"));
         }
         catch (OlanException ex)
         {
-            OlanExceptionWorker.ForOlanException(ex);
+            await OlanExceptionWorker.ForOlanException(ex);
             return;
         }
     }

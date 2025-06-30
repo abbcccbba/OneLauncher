@@ -12,13 +12,6 @@ internal partial class UserModelLoginPane : UserControl
     public UserModelLoginPane()
     {
         InitializeComponent();
-#if DEBUG
-        this.DataContext = new UserModelLoginPaneViewModel();
-#endif
-    }
-    public UserModelLoginPane(AccountPageViewModel accountPageViewModel)
-    {
-        InitializeComponent();
-        this.DataContext = new UserModelLoginPaneViewModel(accountPageViewModel);
+
     }
 }
