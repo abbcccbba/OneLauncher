@@ -20,14 +20,20 @@ public class GameLauncher : IGameLauncher
     private async Task<Task> BasicLaunch(GameData gameData,ServerInfo? serverInfo = null,bool useRootMode = false)
     {
         // 先把令牌刷新了
-        await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
+        Task resh = Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
+        
+        // 写进文件
+        _launchArgumentsPath = Path.GetTempFileName();
+        // 帮用户设置一下语言
+        var optionsPath = Path.Combine(gameData.InstancePath, "options.txt");
+        if (!File.Exists(optionsPath))
+            await File.WriteAllTextAsync(optionsPath, "lang:zh_CN");
         var commandBuilder = new LaunchCommandBuilder(
                 Init.GameRootPath,
                 gameData,
                 serverInfo
             );
-        // 写进文件
-        _launchArgumentsPath = Path.GetTempFileName();
+        await resh;
         await File.WriteAllTextAsync(_launchArgumentsPath, 
             string.Join(" ",
                 await commandBuilder.BuildCommand(

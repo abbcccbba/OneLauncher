@@ -1,9 +1,12 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Mod.ModLoader.fabric;
 using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
+using OneLauncher.Core.ModLoader.fabric.JsonModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
@@ -15,7 +18,8 @@ internal class QuiltStrategy : IModStrategy
     {
         string quiltJsonPath = Path.Combine(versionPath, "version.quilt.json");
         using var fs = File.OpenRead(quiltJsonPath);
-        _quiltParser = QuiltNJParser.ParserAuto(fs, basePath);
+        _quiltParser = new QuiltNJParser(
+            JsonSerializer.Deserialize<FabricRoot>(fs, FabricJsonContext.Default.FabricRoot), basePath);
     }
 
     public string GetMainClassOverride() => _quiltParser.GetMainClass();

@@ -148,11 +148,18 @@ internal partial class AccountPageViewModel : BaseViewModel
     [RelayCommand]
     private void DeleteUser(UserModel user)
     {
-        if (user.IsMsaUser)
-            _msalAuthenticator.RemoveAccount(
-                Tools.UseAccountIDToFind(user.AccountID).Result);
-        _accountManager.RemoveUser(user.UserID);
-        RefList();
-        MainWindow.mainwindow.ShowFlyout($"已移除用户模型{user.Name}", true);
+        try
+        {
+            if (user.IsMsaUser)
+                _msalAuthenticator.RemoveAccount(
+                    Tools.UseAccountIDToFind(user.AccountID).Result);
+            _accountManager.RemoveUser(user.UserID);
+            RefList();
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已移除用户模型{user.Name}",true));
+            //MainWindow.mainwindow.ShowFlyout($"已移除用户模型{user.Name}", true);
+        }
+        catch (OlanException ex) { 
+            OlanExceptionWorker.ForOlanException(ex);
+        }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using OneLauncher.Core.Global;
 using OneLauncher.Core.Mod.ModLoader.fabric;
+using OneLauncher.Core.ModLoader.fabric.JsonModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
@@ -16,7 +18,8 @@ internal class FabricStrategy : IModStrategy
     {
         string fabricJsonPath = Path.Combine(versionPath, "version.fabric.json");
         using var fs = File.OpenRead(fabricJsonPath);
-        _fabricParser = FabricVJParser.ParserAuto(fs, basePath);
+        _fabricParser = new FabricVJParser(
+            JsonSerializer.Deserialize<FabricRoot>(fs,FabricJsonContext.Default.FabricRoot),basePath);
     }
 
     public string? GetMainClassOverride() => _fabricParser.GetMainClass();

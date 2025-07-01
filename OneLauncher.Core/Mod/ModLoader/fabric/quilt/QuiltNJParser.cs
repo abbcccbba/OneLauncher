@@ -14,22 +14,22 @@ public class QuiltNJParser
     public readonly FabricRoot info;
     private readonly string basePath;
 
-    private QuiltNJParser(FabricRoot json, string BasePath)
+    public QuiltNJParser(FabricRoot json, string BasePath)
     {
         basePath = BasePath;
         info = json;
     }
-    public static QuiltNJParser ParserAuto(Stream json, string basePath)
-    {
-        using JsonDocument document = JsonDocument.Parse(json);
+    //public static QuiltNJParser ParserAuto(Stream json, string basePath)
+    //{
+    //    using JsonDocument document = JsonDocument.Parse(json);
 
-        JsonElement firstElement = document.RootElement[0];
+    //    JsonElement firstElement = document.RootElement[0];
 
-        var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
-            ?? throw new OlanException("内部错误", "无法解析Quilt文本");
-        return new QuiltNJParser(info, basePath);
+    //    var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
+    //        ?? throw new OlanException("内部错误", "无法解析Quilt文本");
+    //    return new QuiltNJParser(info, basePath);
 
-    }
+    //}
     //public static FabricVJParser ParserUseVersion(Stream json, string basePath, string version)
     //{
     //    using JsonDocument document = JsonDocument.Parse(json);

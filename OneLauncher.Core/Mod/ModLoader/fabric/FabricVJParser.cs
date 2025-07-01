@@ -9,36 +9,36 @@ public class FabricVJParser
     public readonly FabricRoot info;
     private readonly string basePath;
 
-    private FabricVJParser(FabricRoot json, string BasePath)
+    public FabricVJParser(FabricRoot json, string BasePath)
     {
         basePath = BasePath;
         info = json;
     }
-    public static FabricVJParser ParserAuto(Stream json,string basePath)
-    {
-        using JsonDocument document = JsonDocument.Parse(json);
+    //public static FabricVJParser ParserAuto(Stream json,string basePath)
+    //{
+    //    using JsonDocument document = JsonDocument.Parse(json);
         
-        JsonElement firstElement = document.RootElement[0];
+    //    JsonElement firstElement = document.RootElement[0];
 
-        var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
-            ?? throw new OlanException("内部错误","无法解析Fabric文本");
-        return new FabricVJParser(info, basePath);  
+    //    var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
+    //        ?? throw new OlanException("内部错误","无法解析Fabric文本");
+    //    return new FabricVJParser(info, basePath);  
         
-    }
-    public static FabricVJParser ParserUseVersion(Stream json, string basePath,string version)
-    {
-        using JsonDocument document = JsonDocument.Parse(json);
-        var element = document.RootElement;
-        for(int i = 0;i < element.GetArrayLength();i++)
-        {
-            if (element[i].GetProperty("loader").GetProperty("version").GetString() == version)
-                return new FabricVJParser(
-                    JsonSerializer.Deserialize(element[i].GetRawText(),FabricJsonContext.Default.FabricRoot),
-                    basePath
-                    );
-        }
-        throw new OlanException("内部错误","无法找到对应的Fabric版本");
-    }
+    //}
+    //public static FabricVJParser ParserUseVersion(Stream json, string basePath,string version)
+    //{
+    //    using JsonDocument document = JsonDocument.Parse(json);
+    //    var element = document.RootElement;
+    //    for(int i = 0;i < element.GetArrayLength();i++)
+    //    {
+    //        if (element[i].GetProperty("loader").GetProperty("version").GetString() == version)
+    //            return new FabricVJParser(
+    //                JsonSerializer.Deserialize(element[i].GetRawText(),FabricJsonContext.Default.FabricRoot),
+    //                basePath
+    //                );
+    //    }
+    //    throw new OlanException("内部错误","无法找到对应的Fabric版本");
+    //}
     public string GetMainClass()
     {
         return info.LauncherMeta.MainClass.Client;

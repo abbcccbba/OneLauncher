@@ -1,11 +1,14 @@
-﻿using OneLauncher.Core.Helper.Models;
+﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Mod.ModLoader.fabric;
+using OneLauncher.Core.ModLoader.fabric.JsonModels;
 using OneLauncher.Core.Net.ModService.Modrinth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
@@ -24,14 +27,19 @@ internal class FabricProvider : IModLoaderConcreteProviders
             _context.VersionInstallInfo.VersionPath,
             "version.fabric.json"
         );
-        if(!File.Exists(fabricMetaFilePath))
-            await _context.DownloadTool.DownloadFile(
-                  $"https://meta.fabricmc.net/v2/versions/loader/{_context.ID}/", fabricMetaFilePath);
-        await using var fileStream = new FileStream(fabricMetaFilePath, FileMode.Open, FileAccess.Read);
+
+        // 下载时提取第一个元素
+        using Stream rep = await Init.Download.unityClient
+            .GetStreamAsync($"https://meta.fabricmc.net/v2/versions/loader/{_context.ID}");
+        using JsonDocument document = JsonDocument.Parse(rep);
+        JsonElement firstElement = document.RootElement[0];
+        var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
+        ?? throw new OlanException("内部错误", "无法解析Fabric文本");
+        // 写入到文件
+        using (FileStream fs = new FileStream(fabricMetaFilePath, FileMode.Create, FileAccess.Write,FileShare.None,0,true))
+            await JsonSerializer.SerializeAsync<FabricRoot>(fs,info,FabricJsonContext.Default.FabricRoot);
         // 预留，自定义版本
-        var parser = string.IsNullOrEmpty(_context.SpecifiedFabricVersion)
-            ? FabricVJParser.ParserAuto(fileStream, _context.GameRootPath)
-            : FabricVJParser.ParserUseVersion(fileStream, _context.GameRootPath, _context.SpecifiedFabricVersion);
+        var parser = new FabricVJParser(info,_context.GameRootPath);
 
         fabricDependencies = parser.GetLibraries();
 
