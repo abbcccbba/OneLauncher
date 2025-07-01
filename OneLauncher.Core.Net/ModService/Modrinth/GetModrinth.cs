@@ -22,7 +22,7 @@ public class GetModrinth
     {
         using (HttpClient client = new HttpClient())
         {
-            var Url = $"https://api.modrinth.com/v2/project/{ModID}/version?game_versions=[\"{version}\"]&loaders=[\"fabric\"]";
+            var Url = $"https://api.modrinth.com/v2/project/{ModID}/version?game_versions=[\"{version}\"]";
             Debug.WriteLine(Url);
             HttpResponseMessage response = await client.GetAsync(Url);
             response.EnsureSuccessStatusCode();

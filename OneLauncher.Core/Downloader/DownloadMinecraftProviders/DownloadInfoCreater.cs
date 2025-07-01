@@ -23,6 +23,7 @@ public partial class DownloadInfo
         bool isUseRecommendedToInstallForge = false,
         bool isDownloadFabricWithAPI = true,
         bool isDownloadWithJavaRuntime = true,
+        bool isDownloadQuiltWhitQSL = true,
         // 下面是一些可传递可不传递的参数，不传递会自动获取
         VersionBasicInfo? versionBasic = null,
         GameData? gameDataD = null,
@@ -40,6 +41,8 @@ public partial class DownloadInfo
             ? "neoforge"
             : modEnum == ModEnum.forge
             ? "forge"
+            : modEnum == ModEnum.quilt
+            ? "quilt"
             : "原版";
         string defaultInstanceName = $"{versionId} - {defaultInstanceModLoaderDisplayName}";
         GameData gameData = gameDataD ?? new GameData(defaultInstanceName, versionId, modEnum, Init.AccountManager.GetDefaultUser().UserID);
@@ -83,6 +86,7 @@ public partial class DownloadInfo
             IsAllowToUseBetaNeoforge = isAllowToUseBetaNeoforge,
             IsDownloadFabricWithAPI = isDownloadFabricWithAPI,
             IsUseRecommendedToInstallForge = isUseRecommendedToInstallForge,
+            ISDownloadQuiltWhitQSL = isDownloadQuiltWhitQSL,
             AndJava = isDownloadWithJavaRuntime,
 
             GameRootPath = gameRootPath,

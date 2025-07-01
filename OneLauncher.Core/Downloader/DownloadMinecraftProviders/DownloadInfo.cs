@@ -33,5 +33,6 @@ public partial class DownloadInfo
     public bool IsAllowToUseBetaNeoforge { get; init; }
     public bool IsUseRecommendedToInstallForge { get; init; }
     public bool IsDownloadFabricWithAPI { get; init; }
+    public bool ISDownloadQuiltWhitQSL { get; init; }
     public bool AndJava { get; init; }
 }

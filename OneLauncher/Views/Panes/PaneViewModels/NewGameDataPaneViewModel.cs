@@ -58,6 +58,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
 
         var loaders = new List<ModEnum> { ModEnum.none };
         if (value.modType.IsFabric) loaders.Add(ModEnum.fabric);
+        if (value.modType.IsQuilt) loaders.Add(ModEnum.quilt);
         if (value.modType.IsNeoForge) loaders.Add(ModEnum.neoforge);
         if (value.modType.IsForge) loaders.Add(ModEnum.forge);
         AvailableModLoaders = loaders;

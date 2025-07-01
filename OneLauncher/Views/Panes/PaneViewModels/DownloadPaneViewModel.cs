@@ -42,6 +42,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         IsAllowFabric = new Version(Version.ID) < new System.Version("1.14") ? false : true;
         IsAllowNeoforge = new Version(Version.ID) < new System.Version("1.20.2") ? false : true;
         IsAllowForge = new Version(Version.ID) < new System.Version("1.2") ? false : true;
+        IsAllowQuilt = new Version(Version.ID) < new System.Version("1.14") ? false : true;
     }
     ~DownloadPaneViewModel()
     {
@@ -50,6 +51,9 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     }
     private CancellationTokenSource cts;
     #region 数据绑定区
+    [ObservableProperty] public bool _IsQuilt;
+    [ObservableProperty] public bool _IsDownloadQuiltWithQSL = true;
+    [ObservableProperty] public bool _IsAllowQuilt;
     [ObservableProperty] public bool _IsForge;
     [ObservableProperty] public bool _IsAllowForge;
     [ObservableProperty] public bool _IsUseRecommendedToInstallForge = true;
@@ -77,6 +81,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             IsFabric = IsMod,
             IsNeoForge = IsNeoForge,
             IsForge = IsForge,
+            IsQuilt = IsQuilt
         };
         DateTime lastUpdateTime = DateTime.MinValue;
         TimeSpan _updateInterval = TimeSpan.FromMilliseconds(50);
@@ -98,7 +103,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         IsAllowToUseBetaNeoforge, 
                         IsUseRecommendedToInstallForge, 
                         IsDownloadFabricWithAPI, 
-                        IsJava
+                        IsJava,
+                        IsDownloadQuiltWithQSL
                         );
                     // 创建进度回调
                     var progressReporter = new Progress<(DownProgress d, int a, int b, string c)>(p =>
@@ -148,6 +154,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     if (content.VersionInstallInfo.modType.IsFabric) updatedModType.IsFabric = true;
                     if (content.VersionInstallInfo.modType.IsNeoForge) updatedModType.IsNeoForge = true;
                     if (content.VersionInstallInfo.modType.IsForge) updatedModType.IsForge = true;
+                    if (content.VersionInstallInfo.modType.IsQuilt) updatedModType.IsQuilt = true;
                     mayInstalledVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
                 }
                 await _gameDataManager.AddGameDataAsync(content.UserInfo);

@@ -53,6 +53,7 @@ internal partial class GameDataItem : BaseViewModel
         string iconUri = data.ModLoader switch
         {
             ModEnum.fabric => "avares://OneLauncher/Assets/Imgs/fabric.png",
+            ModEnum.quilt => "avares://OneLauncher/Assets/Imgs/quilt.png", 
             ModEnum.neoforge => "avares://OneLauncher/Assets/Imgs/neoforge.png",
             ModEnum.forge => "avares://OneLauncher/Assets/Imgs/forge.jpg",
             _ => "avares://OneLauncher/Assets/Imgs/basic.png", // 草方块

@@ -19,6 +19,7 @@ public class ModEnumToStringConverter : IValueConverter
             {
                 ModEnum.none => "原版",
                 ModEnum.fabric => "Fabric",
+                ModEnum.quilt => "Quilt",
                 ModEnum.neoforge => "NeoForge",
                 ModEnum.forge => "Forge",
                 _ => value.ToString() // 作为备用，显示原始名称

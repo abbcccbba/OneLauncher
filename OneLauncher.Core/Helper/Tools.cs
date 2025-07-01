@@ -25,6 +25,7 @@ public static class Tools
         {
             "cpw.mods.bootstraplauncher.BootstrapLauncher" => ModEnum.neoforge,
             "net.fabricmc.loader.impl.launch.knot.KnotClient" => ModEnum.fabric,
+            "org.quiltmc.loader.impl.launch.knot.KnotClient" => ModEnum.quilt,
             "net.minecraft.client.main.Main" => ModEnum.none,
             _ => ModEnum.none
         };

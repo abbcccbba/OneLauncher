@@ -54,30 +54,24 @@ public class QuiltNJParser
     }
     public List<NdDowItem> GetLibraries()
     {
-        const string defaultBaseUrl = "https://maven.quiltmc.org/repository/release/";
+        const string quiltBaseUrl = "https://maven.quiltmc.org/repository/release/";
+        const string fabricBaseUrl = "https://maven.fabricmc.net/"; // [!code ++]
         List<NdDowItem> dowItems = new List<NdDowItem>(info.LauncherMeta.Libraries.Common.Count + 3);
+
+        // 处理通用库 (通常在 quilt launcherMeta 中定义，应使用 quilt 源)
         foreach (var item in info.LauncherMeta.Libraries.Common)
         {
             string[] parts = item.Name.Split(':');
-            // 包
             string groupId = parts[0];
-            // 名
             string artifactId = parts[1];
-            // 版本
             string version = parts[2];
-            // 后缀
-            string? suffix = parts.Length > 3 ? parts[3] : null;
 
-            // 构造 Url
-            // org.ow2.asm:asm:9.8 -> org/ow2/asm/asm/9.8/asm-9.8.jar
             string urlPathSegments = Path.Combine(groupId.Replace('.', Path.DirectorySeparatorChar),
                                                   artifactId,
                                                   version,
                                                   $"{artifactId}-{version}.jar");
-            string url = $"{defaultBaseUrl}{urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
+            string url = $"{quiltBaseUrl}{urlPathSegments.Replace('\\', '/')}";
 
-            // 构造 Path
-            // Path.Combine(basePath,"libraries", "org","ow2","asm","asm","9.8","asm-9.8.jar");
             string fullPath = Path.Combine(basePath,
                                                 "libraries",
                                                 groupId.Replace('.', Path.DirectorySeparatorChar),
@@ -86,147 +80,64 @@ public class QuiltNJParser
                                                 $"{artifactId}-{version}.jar");
             dowItems.Add(new NdDowItem(url, fullPath, item.Size, item.Sha1));
         }
-        // 额外添加三个特殊的
-        string[] _parts;
-        _parts = info.Loader.DownName.Split(':');
-        string _groupId = _parts[0], _artifactId = _parts[1], _version = _parts[2];
-        string _urlPathSegments = Path.Combine(_groupId.Replace('.', Path.DirectorySeparatorChar),
-                                                  _artifactId,
-                                                  _version,
-                                                  $"{_artifactId}-{_version}.jar");
-        string _url = $"{defaultBaseUrl}{_urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
-        string _fullPath = Path.Combine(basePath,
-                                            "libraries",
-                                            _groupId.Replace('.', Path.DirectorySeparatorChar),
-                                            _artifactId,
-                                            _version,
-                                            $"{_artifactId}-{_version}.jar");
-        dowItems.Add(new NdDowItem(_url, _fullPath, 0));
 
-        _parts = info.Intermediary.DownName.Split(':');
-        _groupId = _parts[0]; _artifactId = _parts[1]; _version = _parts[2];
-        _urlPathSegments = Path.Combine(_groupId.Replace('.', Path.DirectorySeparatorChar),
-                                                  _artifactId,
-                                                  _version,
-                                                  $"{_artifactId}-{_version}.jar");
-        _url = $"{defaultBaseUrl}{_urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
-        _fullPath = Path.Combine(basePath,
-                                            "libraries",
-                                            _groupId.Replace('.', Path.DirectorySeparatorChar),
-                                            _artifactId,
-                                            _version,
-                                            $"{_artifactId}-{_version}.jar");
-        dowItems.Add(new NdDowItem(_url, _fullPath, 0));
+        // 统一处理3个核心库：loader, intermediary, hashed
+        // 使用一个辅助函数来减少重复代码
+        Action<string, string> addCoreLibrary = (mavenName, baseUrl) =>
+        {
+            var parts = mavenName.Split(':');
+            var groupId = parts[0];
+            var artifactId = parts[1];
+            var version = parts[2];
+            var urlPathSegments = Path.Combine(groupId.Replace('.', Path.DirectorySeparatorChar),
+                                               artifactId,
+                                               version,
+                                               $"{artifactId}-{version}.jar");
+            var url = $"{baseUrl}{urlPathSegments.Replace('\\', '/')}";
+            var fullPath = Path.Combine(basePath, "libraries",
+                                        groupId.Replace('.', Path.DirectorySeparatorChar),
+                                        artifactId, version, $"{artifactId}-{version}.jar");
+            dowItems.Add(new NdDowItem(url, fullPath, 0));
+        };
 
-        _parts = info.QuiltHashed.DownName.Split(':');
-        _groupId = _parts[0]; _artifactId = _parts[1]; _version = _parts[2];
-        _urlPathSegments = Path.Combine(_groupId.Replace('.', Path.DirectorySeparatorChar),
-                                                  _artifactId,
-                                                  _version,
-                                                  $"{_artifactId}-{_version}.jar");
-        _url = $"{defaultBaseUrl}{_urlPathSegments.Replace('\\', '/')}"; // 确保是正斜杠
-        _fullPath = Path.Combine(basePath,
-                                            "libraries",
-                                            _groupId.Replace('.', Path.DirectorySeparatorChar),
-                                            _artifactId,
-                                            _version,
-                                            $"{_artifactId}-{_version}.jar");
-        dowItems.Add(new NdDowItem(_url, _fullPath, 0));
+        // 添加 Quilt Loader (来自 Quilt 源)
+        addCoreLibrary(info.Loader.DownName, quiltBaseUrl);
+
+        // [!code focus-start]
+        // 添加 Intermediary (来自 Fabric 源) - 这是关键的修复
+        addCoreLibrary(info.Intermediary.DownName, fabricBaseUrl);
+        // [!code focus-end]
+
+        // 添加 Quilt Hashed (来自 Quilt 源)
+        addCoreLibrary(info.QuiltHashed.DownName, quiltBaseUrl);
+
         return dowItems;
     }
+
     public List<(string name, string path)> GetLibrariesForUsing()
     {
-        // 初始化库列表，预分配容量以优化性能
-        var libraries = new List<(string name, string path)>(info.LauncherMeta.Libraries.Common.Count + 2);
+        var libraries = new List<(string name, string path)>(info.LauncherMeta.Libraries.Common.Count + 3);
 
-        // 处理 Common 库
-        foreach (var item in info.LauncherMeta.Libraries.Common)
+        // 统一处理，减少重复
+        Action<string> addLibraryPath = (mavenName) =>
         {
-            // 解析 Maven 坐标（格式如 org.ow2.asm:asm:9.8）
-            string[] parts = item.Name.Split(':');
-            if (parts.Length < 3) continue; // 跳过无效格式
+            var parts = mavenName.Split(':');
+            if (parts.Length < 3) return;
+            var groupId = parts[0];
+            var artifactId = parts[1];
+            var version = parts[2];
+            var fileName = $"{artifactId}-{version}.jar";
+            var fullPath = Path.Combine(basePath, "libraries",
+                                        groupId.Replace('.', Path.DirectorySeparatorChar),
+                                        artifactId, version, fileName);
+            libraries.Add((mavenName, fullPath));
+        };
 
-            string groupId = parts[0]; // 例如 org.ow2.asm
-            string artifactId = parts[1]; // 例如 asm
-            string version = parts[2]; // 例如 9.8
+        info.LauncherMeta.Libraries.Common.ForEach(lib => addLibraryPath(lib.Name));
+        addLibraryPath(info.Loader.DownName);
+        addLibraryPath(info.Intermediary.DownName);
+        addLibraryPath(info.QuiltHashed.DownName);
 
-            // 构造本地路径
-            string fileName = $"{artifactId}-{version}.jar";
-            string fullPath = Path.Combine(
-                basePath,
-                "libraries",
-                groupId.Replace('.', Path.DirectorySeparatorChar),
-                artifactId,
-                version,
-                fileName);
-
-            libraries.Add((item.Name, fullPath));
-        }
-
-        // 处理 Loader 库
-        {
-            string[] parts = info.Loader.DownName.Split(':');
-            if (parts.Length >= 3)
-            {
-                string groupId = parts[0];
-                string artifactId = parts[1];
-                string version = parts[2];
-
-                string fileName = $"{artifactId}-{version}.jar";
-                string fullPath = Path.Combine(
-                    basePath,
-                    "libraries",
-                    groupId.Replace('.', Path.DirectorySeparatorChar),
-                    artifactId,
-                    version,
-                    fileName);
-
-                libraries.Add((info.Loader.DownName, fullPath));
-            }
-        }
-
-        // 处理 Intermediary 库
-        {
-            string[] parts = info.Intermediary.DownName.Split(':');
-            if (parts.Length >= 3)
-            {
-                string groupId = parts[0];
-                string artifactId = parts[1];
-                string version = parts[2];
-
-                string fileName = $"{artifactId}-{version}.jar";
-                string fullPath = Path.Combine(
-                    basePath,
-                    "libraries",
-                    groupId.Replace('.', Path.DirectorySeparatorChar),
-                    artifactId,
-                    version,
-                    fileName);
-
-                libraries.Add((info.Intermediary.DownName, fullPath));
-            }
-        }
-        // 处理 hasd 库
-        {
-            string[] parts = info.QuiltHashed.DownName.Split(':');
-            if (parts.Length >= 3)
-            {
-                string groupId = parts[0];
-                string artifactId = parts[1];
-                string version = parts[2];
-
-                string fileName = $"{artifactId}-{version}.jar";
-                string fullPath = Path.Combine(
-                    basePath,
-                    "libraries",
-                    groupId.Replace('.', Path.DirectorySeparatorChar),
-                    artifactId,
-                    version,
-                    fileName);
-
-                libraries.Add((info.QuiltHashed.DownName, fullPath));
-            }
-        }
         return libraries;
     }
 }

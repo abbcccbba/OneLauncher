@@ -57,6 +57,10 @@
 					<CheckBox IsEnabled="{Binding IsAllowFabric}" IsChecked="{Binding IsMod}" >是否带Fabric</CheckBox>
 					<CheckBox IsVisible="{Binding IsMod}" IsChecked="{Binding IsDownloadFabricWithAPI}">同时下载Fabric API</CheckBox>
 				</StackPanel>
+				<StackPanel Orientation="Horizontal" Spacing="61">
+					<CheckBox IsEnabled="{Binding IsAllowFabric}" IsChecked="{Binding IsQuilt}" >是否带Quilt</CheckBox>
+					<CheckBox IsVisible="{Binding IsQuilt}" IsChecked="{Binding IsDownloadQuiltWithQSL}">同时下载QSL</CheckBox>
+				</StackPanel>
 				<StackPanel Orientation="Horizontal" Spacing="36">
 					<CheckBox IsEnabled="{Binding IsAllowNeoforge}" IsChecked="{Binding IsNeoForge}" >是否带NeoForge</CheckBox>
 					<CheckBox IsVisible="{Binding IsNeoForge}" IsChecked="{Binding IsAllowToUseBetaNeoforge}">允许下载Beta版</CheckBox>

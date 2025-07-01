@@ -46,6 +46,8 @@ public partial class DownloadMinecraft
             providers.Add(new NeoforgeProvider(info));
         if (info.VersionInstallInfo.modType.IsForge)
             providers.Add(new ForgeProvider(info));
+        if (info.VersionInstallInfo.modType.IsQuilt) 
+            providers.Add(new QuiltProvider(info));
 
         List<NdDowItem>? modFiles = new();
         #endregion
