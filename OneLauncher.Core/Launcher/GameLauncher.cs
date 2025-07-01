@@ -20,7 +20,9 @@ public class GameLauncher : IGameLauncher
     private async Task<Task> BasicLaunch(GameData gameData,ServerInfo? serverInfo = null,bool useRootMode = false)
     {
         // 先把令牌刷新了
-        Task resh = Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
+        Task resh = 
+            Init.AccountManager.GetUser(gameData.DefaultUserModelID)?.IntelligentLogin(Init.MsalAuthenticator)
+            ?? throw new OlanException("启动失败","你正在尝试刷洗一个不存在账户，请尝试删除此实例并重新添加");
         
         // 写进文件
         _launchArgumentsPath = Path.GetTempFileName();
