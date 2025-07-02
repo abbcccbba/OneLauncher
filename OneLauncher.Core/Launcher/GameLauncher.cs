@@ -40,7 +40,7 @@ public class GameLauncher : IGameLauncher
             string.Join(" ",
                 await commandBuilder.BuildCommand(
                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments
-                        .ToString(commandBuilder.versionInfo.GetJavaVersion()), // 传入优化的JVM参数
+                        .ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' '), // 传入优化的JVM参数
                     useRootLaunch: useRootMode
                     )
                 )

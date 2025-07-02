@@ -47,14 +47,12 @@ public class AccountManager : BasicDataManager<AccountData>
 
     public IEnumerable<UserModel> GetAllUsers() => Data.UserDictionary.Values;
 
-    public UserModel? GetDefaultUser()
+    public UserModel GetDefaultUser()
     {
         // 从 this.Data 中获取默认用户ID
         if (Data.DefaultUserID.HasValue)
             return Data.UserDictionary.GetValueOrDefault(Data.DefaultUserID.Value);
-
-        // 如果没有默认用户，可以返回null或者第一个用户作为备选
-        return Data.UserDictionary.Values.FirstOrDefault();
+        else throw new OlanException("没有默认用户", "请先设置一个默认用户模型。", OlanExceptionAction.Error);
     }
 
     public Task AddUser(UserModel user)

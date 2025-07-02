@@ -47,7 +47,7 @@ public partial class LaunchCommandBuilder
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
 
-    public async Task<IEnumerable<string>> BuildCommand(string OtherArgs = "", bool useRootLaunch = false)
+    public async Task<IEnumerable<string>> BuildCommand(IEnumerable<string>? extraJvmArgs = null, bool useRootLaunch = false)
     {
         // 等启动器重写完了再把这个逻辑丢过去
         //await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
@@ -61,6 +61,8 @@ public partial class LaunchCommandBuilder
 
         // 将策略传递给各个构建器
         List<string> rargs = new List<string>();
+        if (extraJvmArgs != null)
+            rargs.AddRange(extraJvmArgs);
         rargs.AddRange(BuildJvmArgs(strategy));
         rargs.Add(strategy?.GetMainClassOverride() ?? versionInfo.GetMainClass()); // 别把主类忘了
         rargs.AddRange(BuildGameArgs(useRootLaunch ? basePath : gameData.InstancePath ,strategy));

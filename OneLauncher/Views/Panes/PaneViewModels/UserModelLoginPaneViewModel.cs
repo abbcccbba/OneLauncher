@@ -39,7 +39,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             MainWindow.mainwindow.ShowFlyout("用户名包含非法字符！", true);
             return;
         }
-        Init.AccountManager.AddUser(new UserModel(
+        ac.AddUser(new UserModel(
             UserID : Guid.NewGuid(),
             name : UserName,
             uuid : Guid.NewGuid()
