@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 public partial class DownloadMinecraft
 {
-    private readonly record struct DownloadPlan(
+    internal readonly record struct DownloadPlan(
         List<NdDowItem> AllFilesGoVerify,
         List<NdDowItem> LibraryFiles,
         List<NdDowItem> AssetFiles,
@@ -19,7 +19,7 @@ public partial class DownloadMinecraft
         NdDowItem? LoggingFile,
         IModLoaderConcreteProviders[] ModProviders // 如果原版则为null
     );
-    private async Task<DownloadPlan> CreateDownloadPlan()
+    internal async Task<DownloadPlan> CreateDownloadPlan()
     {
         #region 原版资源
         var mation = info.VersionMojangInfo;

@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Codes;
+using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
@@ -261,7 +262,14 @@ internal partial class GameDataPageViewModel : BaseViewModel
             string filePath = selectedFile.Path.LocalPath;
             WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("正在导入。。。（这可能需要较长时间）"));
             //MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
-            await ModpackImporter.ImportFromMrpackAsync(filePath, Init.GameRootPath, CancellationToken.None);
+            await ModpackImporter.ImportFromMrpackAsync(filePath, 
+                Init.GameRootPath, 
+                new Progress<(DownProgress a,int b ,int c,string d)>
+                (p =>
+                {
+                    Debug.WriteLine($"导入进度：{p.a}, 总文件数：{p.b}, 已下载文件数：{p.c}, 当前文件：{p.d}");
+                })
+                , CancellationToken.None);
             WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("导入完成！"));
             //MainWindow.mainwindow.ShowFlyout("导入完成！");
             RefList();
