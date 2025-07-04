@@ -31,14 +31,14 @@ public partial class LaunchCommandBuilder
             // 创建占位符映射表 
             // 参考1.21.5.json
             // 手动加上引号
-            { "natives_directory", Path.Combine(basePath,"versions",version,"natives") },
+            { "natives_directory", Path.Combine(basePath,"versions",versionId,"natives") },
             { "launcher_name", "OneLauncher" },
             { "launcher_version", Init.OneLauncherVersoin },
             { "classpath","\""+BuildClassPath(strategy)+"\"" },
             // 一些仅限NeoForge的
-            { "version_name" , version},
+            { "version_name" , versionId},
             { "library_directory" ,"\""+Path.Combine(basePath, "libraries")+"\""},
-            { "classpath_separator" , separator}
+            { "classpath_separator" , separator.ToString()}
         };
         // 处理1.13以前版本没有Arguments的情况
         if (versionInfo.info.Arguments == null)
@@ -98,20 +98,33 @@ public partial class LaunchCommandBuilder
     }
     private bool EvaluateRules(List<MinecraftRule> rules, string osName, string arch)
     {
-        if (rules == null || rules.Count == 0) return true;
-        bool allowed = false;
+        if (rules == null || rules.Count == 0) return true; // 没有规则，默认允许
+
+        var finalAction = "disallow"; // 假设一个初始的 "默认" 动作
+
         foreach (var rule in rules)
         {
-            bool matches = true;
+            bool conditionMet = false;
             if (rule.Os != null)
             {
-                if (rule.Os.Name != null && rule.Os.Name != osName) matches = false;
+                // 只有当os.name和os.arch都匹配或未定义时，规则才适用
+                if ((rule.Os.Name == null || rule.Os.Name == osName) &&
+                    (rule.Os.Arch == null || rule.Os.Arch == arch))
+                {
+                    conditionMet = true;
+                }
             }
-            if (matches)
+            else
             {
-                allowed = rule.Action == "allow";
+                conditionMet = true; // 如果没有os字段，规则总是适用
+            }
+
+            if (conditionMet)
+            {
+                finalAction = rule.Action; // 如果规则适用，更新最终动作
             }
         }
-        return allowed;
+
+        return finalAction == "allow"; // 只有当最终的适用动作为 "allow" 时才返回true
     }
 }

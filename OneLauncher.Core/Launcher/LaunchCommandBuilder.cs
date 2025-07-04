@@ -16,45 +16,66 @@ namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
     public VersionInfomations versionInfo;
-    private readonly GameData gameData;
-    private readonly string version;
+    private readonly char separator;
+    private readonly string versionId;
     private readonly string basePath;
-    private readonly ModEnum modType;
-    private readonly string separator;
-    private readonly string VersionPath;
-    private readonly ServerInfo? serverInfo;
+    private readonly string versionPath;
+    // 下面是外部注入的
+    private string gamePath;
+    private ModEnum modType = ModEnum.none;
+    private ServerInfo? serverInfo = null;
+    private UserModel loginUser;
 
     // 构造函数保持不变
     public LaunchCommandBuilder(
         string basePath,
-        GameData gameData,
-        ServerInfo? serverInfo = null)
+        string versionId)
     {
-        this.basePath = basePath;
-        this.version = gameData.VersionId;
-        this.modType = gameData.ModLoader;
-        this.serverInfo = serverInfo;
-        this.gameData = gameData;
-        this.VersionPath = Path.Combine(this.basePath, "versions", this.version);
-        this.separator = Path.PathSeparator.ToString();
-
+        this.versionPath = Path.Combine(this.basePath, "versions", versionId);
+        this.versionId = versionId;
+#if WINDOWS
+        separator = ';';
+#else
+        separator = ':';
+#endif
         versionInfo = new VersionInfomations(
-            File.ReadAllText(Path.Combine(VersionPath, "version.json")),
+            File.ReadAllText(Path.Combine(versionPath, "version.json")),
             this.basePath
         );
+        #region 对于未Set的默认值
+        this.gamePath = versionPath;
+        #endregion
     }
-
+    #region 链式调用
+    public LaunchCommandBuilder SetGamePath(string gamePath)
+    {
+        this.gamePath = gamePath;
+        return this;
+    }
+    public LaunchCommandBuilder SetModType(ModEnum modType)
+    {
+        this.modType = modType;
+        return this;
+    }
+    public LaunchCommandBuilder SetServerInfo(ServerInfo? serverInfo)
+    {
+        this.serverInfo = serverInfo;
+        return this;
+    }
+    public LaunchCommandBuilder SetLoginUser(UserModel user)
+    {
+        this.loginUser = user;
+        return this;
+    }
+    #endregion
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
 
-    public async Task<IEnumerable<string>> BuildCommand(IEnumerable<string>? extraJvmArgs = null, bool useRootLaunch = false)
+    public async Task<IEnumerable<string>> BuildCommand(IEnumerable<string>? extraJvmArgs = null)
     {
-        // 等启动器重写完了再把这个逻辑丢过去
-        //await Init.AccountManager.GetUser(gameData.DefaultUserModelID).IntelligentLogin(Init.MsalAuthenticator);
         IModStrategy? strategy = null; // 策略可以是null，代表原版
         if (modType != ModEnum.none)
             strategy = await CreateAndInitStrategy();
-        
 
         // 确定主类：如果策略提供了覆盖，则使用策略的；否则用原版的
         string mainClass = strategy?.GetMainClassOverride() ?? versionInfo.GetMainClass();
@@ -65,7 +86,7 @@ public partial class LaunchCommandBuilder
             rargs.AddRange(extraJvmArgs);
         rargs.AddRange(BuildJvmArgs(strategy));
         rargs.Add(strategy?.GetMainClassOverride() ?? versionInfo.GetMainClass()); // 别把主类忘了
-        rargs.AddRange(BuildGameArgs(useRootLaunch ? basePath : gameData.InstancePath ,strategy));
+        rargs.AddRange(BuildGameArgs(gamePath ,strategy));
         return rargs;
     }
 
@@ -74,10 +95,10 @@ public partial class LaunchCommandBuilder
     {
         IModStrategy strategy = modType switch
         {
-            ModEnum.fabric => new FabricStrategy(VersionPath, basePath),
-            ModEnum.quilt => new QuiltStrategy(VersionPath, basePath),
-            ModEnum.neoforge => await NeoForgeStrategy.CreateAsync(VersionPath, basePath, version),
-            ModEnum.forge => await ForgeStrategy.CreateAsync(VersionPath, basePath, version),
+            ModEnum.fabric => new FabricStrategy(versionPath, basePath),
+            ModEnum.quilt => new QuiltStrategy(versionPath, basePath),
+            ModEnum.neoforge => await NeoForgeStrategy.CreateAsync(versionPath, basePath, versionId),
+            ModEnum.forge => await ForgeStrategy.CreateAsync(versionPath, basePath, versionId),
             _ => throw new OlanException("内部异常",$"不支持的模组加载器 {modType}")
         };
         return strategy;

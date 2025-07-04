@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using OneLauncher.Core.Global.ModelDataMangers;
 
 namespace OneLauncher.Core.Launcher;
 public class GameLauncher : IGameLauncher
@@ -17,6 +18,9 @@ public class GameLauncher : IGameLauncher
 
     private Process? _gameProcess;
     private string? _launchArgumentsPath;
+
+    private readonly string gameRootPath = Init.GameRootPath;
+    private readonly AccountManager accountManager = Init.AccountManager;
     private async Task<Task> BasicLaunch(GameData gameData,ServerInfo? serverInfo = null,bool useRootMode = false)
     {
         // 先把令牌刷新了
@@ -31,22 +35,27 @@ public class GameLauncher : IGameLauncher
         if (!File.Exists(optionsPath))
             await File.WriteAllTextAsync(optionsPath, "lang:zh_CN");
         var commandBuilder = new LaunchCommandBuilder(
-                Init.GameRootPath,
-                gameData,
-                serverInfo
-            );
+                gameRootPath,
+                gameData.VersionId
+            )
+            .SetLoginUser(accountManager.GetUser(gameData.DefaultUserModelID) ?? throw new OlanException("启动失败","找不到你想要启动的用户"))
+            .SetServerInfo(serverInfo)
+            .SetGamePath(useRootMode ? Path.Combine(gameRootPath,"versions",gameData.VersionId) : gameData.InstanceId)
+            .SetModType(gameData.ModLoader);
         await resh;
-        await File.WriteAllTextAsync(_launchArgumentsPath, 
-            string.Join(" ",
+        var arguments = string.Join(" ",
                 await commandBuilder.BuildCommand(
                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments
-                        .ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' '), // 传入优化的JVM参数
-                    useRootLaunch: useRootMode
+                        .ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' ') // 传入优化的JVM参数
                     )
                 )
 #if WINDOWS
-        .Replace("\\",@"\\") // Windows 路径特别转义
+        .Replace("\\", @"\\") // Windows 路径特别转义
 #endif
+        ;
+        await File.WriteAllTextAsync(_launchArgumentsPath, arguments
+            
+                
         ,
         CancellationToken);
 

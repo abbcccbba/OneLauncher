@@ -13,7 +13,8 @@ public partial class LaunchCommandBuilder
 {
     private IEnumerable<string> BuildGameArgs(string gamePath,IModStrategy? strategy)
     {
-        var userModel = Init.AccountManager.GetUser(gameData.DefaultUserModelID);
+        if(loginUser == null) loginUser = Init.AccountManager.GetDefaultUser();
+
         List<string> Args = new List<string>();
         if (serverInfo != null)
         {
@@ -29,22 +30,22 @@ public partial class LaunchCommandBuilder
         }
         // 添加基本的
         Args.AddRange([
-            $"--username \"{userModel.Name}\"",
-            $"--version \"{version}\"",
+            $"--username \"{loginUser.Name}\"",
+            $"--version \"{versionId}\"",
             $"--gameDir \"{gamePath}\"",
             $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\""
             ]);
-        if(new Version(version) > new Version("1.7"))
+        if(new Version(versionId) > new Version("1.7"))
             Args.AddRange([
                 $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\"",
-                $"--uuid \"{userModel.uuid}\"",
-                $"--accessToken \"{userModel.AccessToken.ToString()}\"",
-                $"--userType \"{(userModel.IsMsaUser ? "msa" : "legacy")}\"",
+                $"--uuid \"{loginUser.uuid}\"",
+                $"--accessToken \"{loginUser.AccessToken.ToString()}\"",
+                $"--userType \"{(loginUser.IsMsaUser ? "msa" : "legacy")}\"",
                 $"--versionType \"OneLauncher\"",
                 "--userProperties {}"
             ]);
         else
-            Args.Add($"--session \"{userModel.AccessToken}\"");
+            Args.Add($"--session \"{loginUser.AccessToken}\"");
         if(strategy != null)
             Args.AddRange(strategy.GetAdditionalGameArgs());
 
