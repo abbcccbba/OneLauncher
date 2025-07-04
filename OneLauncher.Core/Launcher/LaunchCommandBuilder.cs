@@ -3,15 +3,6 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft;
-using OneLauncher.Core.Mod.ModLoader.fabric;
-using OneLauncher.Core.Mod.ModLoader.fabric.quilt;
-using OneLauncher.Core.Mod.ModLoader.forgeseries;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
@@ -31,19 +22,20 @@ public partial class LaunchCommandBuilder
         string basePath,
         string versionId)
     {
+        this.basePath = basePath;
         this.versionPath = Path.Combine(this.basePath, "versions", versionId);
         this.versionId = versionId;
 #if WINDOWS
         separator = ';';
 #else
-        separator = ':';
+    separator = ':';
 #endif
         versionInfo = new VersionInfomations(
             File.ReadAllText(Path.Combine(versionPath, "version.json")),
             this.basePath
         );
         #region 对于未Set的默认值
-        this.gamePath = versionPath;
+        this.gamePath = this.basePath; // 默认游戏路径为根目录
         #endregion
     }
     #region 链式调用

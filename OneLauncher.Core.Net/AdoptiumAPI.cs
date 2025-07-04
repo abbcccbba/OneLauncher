@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Downloader;
+using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
 using System.Diagnostics;
 using System.Formats.Tar;
@@ -24,7 +25,8 @@ public class AdoptiumAPI
         var arch = RuntimeInformation.OSArchitecture switch
         {
             Architecture.X64 => "x64",
-            Architecture.Arm64 => "aarch64"
+            Architecture.Arm64 => "aarch64",
+            _ => throw new OlanException("不支持的架构", "当前操作系统架构不受支持，请使用x64或aarch64架构的操作系统。")
         };
         using (var a = new Download())
         {

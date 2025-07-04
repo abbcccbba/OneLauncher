@@ -22,7 +22,7 @@ public partial class LaunchCommandBuilder
             Args.Add($"\"{((ServerInfo)serverInfo).Ip}\"");
             Args.Add($"--port");
             Args.Add($"\"{((ServerInfo)serverInfo).Port}\"");
-            if (new Version(version) > new Version("1.20"))
+            if (new Version(versionId) > new Version("1.20"))
             {
                 Args.Add($"--quickPlayMultiplayer");
                 Args.Add($"\"{serverInfo.Value.Ip}:{serverInfo.Value.Port}\"");

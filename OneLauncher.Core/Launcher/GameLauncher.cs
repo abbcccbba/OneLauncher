@@ -39,8 +39,8 @@ public class GameLauncher : IGameLauncher
                 gameData.VersionId
             )
             .SetLoginUser(accountManager.GetUser(gameData.DefaultUserModelID) ?? throw new OlanException("启动失败","找不到你想要启动的用户"))
-            .SetServerInfo(serverInfo)
-            .SetGamePath(useRootMode ? Path.Combine(gameRootPath,"versions",gameData.VersionId) : gameData.InstanceId)
+            .SetServerInfo(serverInfo ?? null)
+            .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)
             .SetModType(gameData.ModLoader);
         await resh;
         var arguments = string.Join(" ",
