@@ -11,9 +11,9 @@ using System.Runtime.InteropServices;
 namespace OneLauncher.Core.Global;
 public static class Init
 {
-    public const string OneLauncherVersoin = "1.2.0.0";
-    public const string ApplicationUUID = "com.onelauncher.lnetface";
-    public const string AzureApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
+    public const string OneLauncherVersoin = "0.2.0.2";
+    public const string PackageName = "com.onelauncher.lnetface";
+    public const string ApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static Task<IServiceCollection> InitTask;
     //public static IServiceCollection Service { get; private set; }
     public static string BasePath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "OneLauncher");
@@ -70,7 +70,7 @@ public static class Init
             OnApplicationClosingReleaseSourcesList.Add(downloadTool);
             Download = downloadTool;
 
-            var msrl = await MsalAuthenticator.CreateAsync(AzureApplicationID);
+            var msrl = await MsalAuthenticator.CreateAsync(ApplicationID);
             services.AddSingleton<MsalAuthenticator>(msrl);
             OnApplicationClosingReleaseSourcesList.Add(msrl);
             MsalAuthenticator = msrl;

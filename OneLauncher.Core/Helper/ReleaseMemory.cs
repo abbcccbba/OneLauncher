@@ -17,7 +17,7 @@ public static class ReleaseMemory
     }
 
 #if WINDOWS
-    #region Windows P/Invoke Definitions (Privilege Management)
+    #region Windows P/Invoke 导入
 
     [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     [return: MarshalAs(UnmanagedType.Bool)]

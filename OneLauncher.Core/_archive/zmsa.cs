@@ -6,8 +6,8 @@ public class MicrosoftAuthenticator : IDisposable
 
     public MicrosoftAuthenticator()
     {
-        // 确保 Init.AzureApplicationID 可访问
-        this.clientId = Init.AzureApplicationID;
+        // 确保 Init.ApplicationID 可访问
+        this.clientId = Init.ApplicationID;
         httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }

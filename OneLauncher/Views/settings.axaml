@@ -20,6 +20,7 @@
 				  <RadioButton IsChecked="{Binding IsM2}" GroupName="JvmMode" Content="标准模式" />
 				  <RadioButton IsChecked="{Binding IsM3}" GroupName="JvmMode" Content="激进模式" />
 				  
+				  <Button Content="释放内存（预览版）" Command="{Binding ReleaseMemoryCommand}" Margin="0,4,0,0"/>
 			  </StackPanel>
 		  </StackPanel>
 		  <!-- 下载选项 -->

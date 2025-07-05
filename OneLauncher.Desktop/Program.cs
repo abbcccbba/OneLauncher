@@ -14,7 +14,7 @@ class Program
         try
         {
             if (args.Length != 0)
-                Console.boot.RunBoot(args).GetAwaiter().GetResult();
+                Console.Boot.RunBoot(args).GetAwaiter().GetResult();
             else
             {
                 Init.InitTask = Init.Initialize();

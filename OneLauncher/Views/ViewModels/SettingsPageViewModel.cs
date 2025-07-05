@@ -1,10 +1,12 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,9 +19,9 @@ internal partial class SettingsPageViewModel : BaseViewModel
     // 将 manager 重命名为 _dbManger 以遵循常见的私有字段命名约定
     private readonly DBManager _dbManger;
 
+    #region 启动参数优化选项
     [ObservableProperty]
     public bool isM1, isM2, isM3;
-
     partial void OnIsM1Changed(bool value)
     {
         if (!value) return; // 避免在取消选中时也执行
@@ -53,6 +55,7 @@ internal partial class SettingsPageViewModel : BaseViewModel
         _dbManger.Data.OlanSettings.MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Aggressive);
         _dbManger.Save();
     }
+    #endregion
 
     #region 下载选项
     [ObservableProperty]
@@ -108,6 +111,17 @@ internal partial class SettingsPageViewModel : BaseViewModel
     }
 
     #endregion
+    [RelayCommand]
+    private void ReleaseMemory()
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = Environment.ProcessPath,
+            Arguments = "--releaseMemory", 
+            Verb = "runas" // 请求管理员权限
+        });
+    }
 
     // 构造函数接收正确的 DBManger 类型
     public SettingsPageViewModel(DBManager configManager)

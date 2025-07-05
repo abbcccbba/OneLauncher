@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Data.Converters;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -73,14 +74,14 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
         // 数据验证
         if (SelectedBaseVersion == null)
         {
-            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("请先选择一个基础游戏版本！",Avalonia.Controls.Notifications.NotificationType.Warning));
-            //MainWindow.mainwindow.ShowFlyout("请先选择一个基础游戏版本！", true);
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage("请先选择一个基础游戏版本！",NotificationType.Warning));
             return;
         }
         if (string.IsNullOrWhiteSpace(GameDataName))
         {
-            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("游戏数据名称不能为空！",Avalonia.Controls.Notifications.NotificationType.Warning));
-            //MainWindow.mainwindow.ShowFlyout("游戏数据名称不能为空！", true);
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage("游戏数据名称不能为空！",NotificationType.Warning));
             return;
         }
 
