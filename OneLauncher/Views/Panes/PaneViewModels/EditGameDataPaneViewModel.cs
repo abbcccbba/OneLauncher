@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -77,13 +78,14 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            MainWindow.mainwindow.ShowFlyout($"删除文件夹失败: {ex.Message}", true);
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage($"删除文件夹失败: {ex.Message}",NotificationType.Error));
         }
 
         WeakReferenceMessenger.Default.Send(
             new GameDataPageDisplayListRefreshMessage()); // 重新加载列表
         WeakReferenceMessenger.Default.Send(
-            new MainWindowShowFlyoutMessage($"已删除实例“{editingGameData.Name}”！"));
+            new MainWindowShowFlyoutMessage($"已删除实例“{editingGameData.Name}”！",NotificationType.Success));
     }
 
     [RelayCommand]

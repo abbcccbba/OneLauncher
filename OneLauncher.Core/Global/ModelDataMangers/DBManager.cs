@@ -20,6 +20,7 @@ public class AppSettings
     public bool IsSha1Enabled { get; set; } = true;
     public bool IsAllowToDownloadUseBMLCAPI { get; set; } = false;
     public string? InstallPath { get; set; } 
+    //public bool UseTempFileArguments { get; set; } = true;
 }
 public class AppConfig
 {

@@ -1,12 +1,13 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System;
-using OneLauncher.Core.Global.ModelDataMangers;
 
 namespace OneLauncher.Core.Launcher;
 public class GameLauncher : IGameLauncher
@@ -17,23 +18,23 @@ public class GameLauncher : IGameLauncher
     public CancellationToken CancellationToken = CancellationToken.None; // 外部可以设置
 
     private Process? _gameProcess;
-    private string? _launchArgumentsPath;
+    private string? _launchArgumentsPath = null;
 
     private readonly string gameRootPath = Init.GameRootPath;
     private readonly AccountManager accountManager = Init.AccountManager;
     private async Task<Task> BasicLaunch(GameData gameData,ServerInfo? serverInfo = null,bool useRootMode = false)
     {
+        #region 准备工作
         // 先把令牌刷新了
         Task resh = 
             Init.AccountManager.GetUser(gameData.DefaultUserModelID)?.IntelligentLogin(Init.MsalAuthenticator)
             ?? throw new OlanException("启动失败","你正在尝试刷洗一个不存在账户，请尝试删除此实例并重新添加");
         
-        // 写进文件
-        _launchArgumentsPath = Path.GetTempFileName();
         // 帮用户设置一下语言
         var optionsPath = Path.Combine(gameData.InstancePath, "options.txt");
         if (!File.Exists(optionsPath))
             await File.WriteAllTextAsync(optionsPath, "lang:zh_CN");
+
         var commandBuilder = new LaunchCommandBuilder(
                 gameRootPath,
                 gameData.VersionId
@@ -43,42 +44,39 @@ public class GameLauncher : IGameLauncher
             .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)
             .SetModType(gameData.ModLoader);
         await resh;
-        var arguments = string.Join(" ",
-                await commandBuilder.BuildCommand(
+        string arguments = string.Join(" ", await commandBuilder.BuildCommand(
                     Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments
-                        .ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' ') // 传入优化的JVM参数
-                    )
-                )
+                        .ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' ')));
+        if (arguments.TotalLengthExceeds(8000)) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
+        {
+            _launchArgumentsPath = Path.GetTempFileName();
+            await File.WriteAllTextAsync(_launchArgumentsPath, arguments
 #if WINDOWS
-        .Replace("\\", @"\\") // Windows 路径特别转义
+                .Replace("\\", @"\\") // Windows需要转义
 #endif
-        ;
-        await File.WriteAllTextAsync(_launchArgumentsPath, arguments
-            
-                
-        ,
-        CancellationToken);
-
-        // 4. 配置并启动游戏进程
+                , CancellationToken);
+        }
+        #endregion
+        // 配置并启动游戏进程
         try
         {
-            _gameProcess = new Process
+            var processInfo = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = commandBuilder.GetJavaPath(),
-                    Arguments = $"@{_launchArgumentsPath}", // 从文件读取参数
-                    WorkingDirectory = Init.GameRootPath,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    StandardOutputEncoding = Encoding.UTF8,
-                    StandardErrorEncoding = Encoding.UTF8
-                },
-                EnableRaisingEvents = true
+                FileName = commandBuilder.GetJavaPath(),
+                WorkingDirectory = Init.GameRootPath,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
+                Arguments = _launchArgumentsPath == null
+                    ? arguments
+                    : $"@{_launchArgumentsPath}"
             };
-
+            _gameProcess = new Process();
+            _gameProcess.StartInfo = processInfo;
+            _gameProcess.EnableRaisingEvents = true;
             _gameProcess.OutputDataReceived += OnOutputDataReceived;
             _gameProcess.ErrorDataReceived += OnErrorDataReceived;
             _gameProcess.Exited += OnGameProcessExited;
@@ -87,7 +85,7 @@ public class GameLauncher : IGameLauncher
             _gameProcess.BeginOutputReadLine();
             _gameProcess.BeginErrorReadLine();
 
-            return _gameProcess.WaitForExitAsync(CancellationToken); // 调用方可以自由决定是否等待游戏结束
+            return _gameProcess.WaitForExitAsync(CancellationToken); 
         }
         catch (OperationCanceledException)
         {
@@ -125,6 +123,7 @@ public class GameLauncher : IGameLauncher
     private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
     {
         if (string.IsNullOrEmpty(e.Data)) return;
+        Debug.WriteLine(e.Data);
         GameOutputEvent?.Invoke($"[STDOUT] {e.Data}{Environment.NewLine}");
         // 咱就是，其实没有什么真正好的判断游戏已经启动的方法
         if (e.Data.Contains("Backend library: LWJGL version"))
@@ -134,6 +133,7 @@ public class GameLauncher : IGameLauncher
     private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
     {
         if (string.IsNullOrEmpty(e.Data)) return;
+        Debug.WriteLine(e.Data);
         GameOutputEvent?.Invoke($"[ERROR] {e.Data}{Environment.NewLine}");
 
         if(e.Data.Contains("java.lang.ClassNotFoundException"))

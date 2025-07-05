@@ -33,7 +33,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
     public NewGameDataPaneViewModel(DBManager configManager,AccountManager accountManager,GameDataManager gameDataManager)
     {
         this._configManager = configManager;
-        this._configManager = configManager;
+        this._gameDataManager = gameDataManager;
         this._accountManager = accountManager;
         // 加载所需数据
         AvailableBaseVersions = _configManager.Data.VersionList;
@@ -73,12 +73,14 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
         // 数据验证
         if (SelectedBaseVersion == null)
         {
-            MainWindow.mainwindow.ShowFlyout("请先选择一个基础游戏版本！", true);
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("请先选择一个基础游戏版本！",Avalonia.Controls.Notifications.NotificationType.Warning));
+            //MainWindow.mainwindow.ShowFlyout("请先选择一个基础游戏版本！", true);
             return;
         }
         if (string.IsNullOrWhiteSpace(GameDataName))
         {
-            MainWindow.mainwindow.ShowFlyout("游戏数据名称不能为空！", true);
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("游戏数据名称不能为空！",Avalonia.Controls.Notifications.NotificationType.Warning));
+            //MainWindow.mainwindow.ShowFlyout("游戏数据名称不能为空！", true);
             return;
         }
 

@@ -65,7 +65,7 @@ internal partial class AccountPageViewModel : BaseViewModel
                     await task.GetSkinHeadImage();
             }
             RefList();
-            MainWindow.mainwindow.ShowFlyout("刷新完毕");
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("刷新完毕", Avalonia.Controls.Notifications.NotificationType.Success));
         }
         catch (OlanException oex)
         {
@@ -143,7 +143,8 @@ internal partial class AccountPageViewModel : BaseViewModel
         user.IsDefault = true;
         _accountManager.SetDefault(user.um.UserID);
         RefList();
-        MainWindow.mainwindow.ShowFlyout($"已将默认用户模型设置为{user.um.Name}");
+        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已将默认用户模型设置为{user.um.Name}"));
+        //MainWindow.mainwindow.ShowFlyout($"已将默认用户模型设置为{user.um.Name}");
     }
     [RelayCommand]
     private void DeleteUser(UserModel user)
@@ -155,7 +156,7 @@ internal partial class AccountPageViewModel : BaseViewModel
                     Tools.UseAccountIDToFind(user.AccountID).Result);
             _accountManager.RemoveUser(user.UserID);
             RefList();
-            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已移除用户模型{user.Name}",true));
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已移除用户模型{user.Name}"));
             //MainWindow.mainwindow.ShowFlyout($"已移除用户模型{user.Name}", true);
         }
         catch (OlanException ex) { 

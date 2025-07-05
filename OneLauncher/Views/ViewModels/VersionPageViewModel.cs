@@ -210,17 +210,18 @@ internal partial class VersionPageViewModel : BaseViewModel
                 Debug.WriteLine(item);
                 if (item == Path.Combine(path, "PCL"))
                 {
-                    MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
+                    WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("正在导入。。。（这可能需要较长时间）"));
                     await new PCL2Importer(new Progress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>(p =>
                     {
                         Debug.WriteLine($"Titli:{p.Title}\nAll:{p.AllFiles},Down:{p.DownedFiles}\nOutput:\n{p.DowingFileName}");
                     })).ImportAsync(path);
-                    MainWindow.mainwindow.ShowFlyout("导入完成！");
+                    WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("导入完成！", Avalonia.Controls.Notifications.NotificationType.Success));
                     RefList();
                     return;
                 }
             }
-            MainWindow.mainwindow.ShowFlyout("这不是有效的PCL版本文件夹", true);
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("这不是有效的PCL版本文件夹", Avalonia.Controls.Notifications.NotificationType.Error));
+            //MainWindow.mainwindow.ShowFlyout("这不是有效的PCL版本文件夹", true);
         }
     }
 }

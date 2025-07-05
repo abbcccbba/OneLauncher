@@ -36,7 +36,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         if (string.IsNullOrEmpty(UserName)) return;
         if (!Regex.IsMatch(UserName, @"^[a-zA-Z0-9_]+$"))
         {
-            MainWindow.mainwindow.ShowFlyout("用户名包含非法字符！", true);
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("用户名包含非法字符！", Avalonia.Controls.Notifications.NotificationType.Warning));
             return;
         }
         ac.AddUser(new UserModel(
@@ -52,7 +52,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
     public void Back()
     {
         WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
-        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("数据已销毁",true));
+        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("数据已销毁",Avalonia.Controls.Notifications.NotificationType.Information));
     }
 
     [ObservableProperty]

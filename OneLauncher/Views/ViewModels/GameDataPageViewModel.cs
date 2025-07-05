@@ -65,9 +65,9 @@ internal partial class GameDataItem : BaseViewModel
 internal partial class GameDataPageViewModel : BaseViewModel
 {
     private readonly GameDataManager _gameDataManager;
-    private readonly NewGameDataPaneViewModel _newVM;
     private readonly EditGameDataPaneViewModelFactory _editVMFactory;
     private readonly PowerPlayPaneViewModelFactory _mctVMFactory;
+    private readonly NewGameDataPaneViewModelFactory _newGameDataPaneViewModelFactory;
     [ObservableProperty] public List<GameDataItem> gameDataList = new();
     [ObservableProperty] public string type;
     [ObservableProperty] public UserControl paneContent;
@@ -77,26 +77,16 @@ internal partial class GameDataPageViewModel : BaseViewModel
     {
         GameDataList = _gameDataManager.Data.Instances.Select(x => new GameDataItem(x.Value,_gameDataManager)).ToList();
     }
-    /* 由PaneViewModel实现 */
-    //// 修改特定的游戏数据实例
-    //public void UpdateGameData(GameData updatedData)
-    //{
-    //    var index = Init.GameDataManger.AllGameData.FindIndex(gd => gd.InstanceId == updatedData.InstanceId);
-    //    if (index != -1)
-    //    {
-    //        Init.GameDataManger.AllGameData[index] = updatedData;
-    //    }
-    //}
     public GameDataPageViewModel(
         GameDataManager gameDataManager,
-        NewGameDataPaneViewModel NewVM,
         EditGameDataPaneViewModelFactory editGameDataPaneViewModelFactory,
-        PowerPlayPaneViewModelFactory powerPlayPaneViewModelFactory
+        PowerPlayPaneViewModelFactory powerPlayPaneViewModelFactory,
+        NewGameDataPaneViewModelFactory newGameDataPaneViewModelFactory
         )
     {
+        this._newGameDataPaneViewModelFactory = newGameDataPaneViewModelFactory;
         this._mctVMFactory = powerPlayPaneViewModelFactory;
         this._editVMFactory = editGameDataPaneViewModelFactory;
-        this._newVM = NewVM;
         this._gameDataManager = gameDataManager;
 #if DEBUG
         // 造密码的Avalonia设计器天天报错
@@ -165,7 +155,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
     {
         IsPaneShow = true;
         PaneContent = new NewGameDataPane()
-        { DataContext =  _newVM};
+        { DataContext =  _newGameDataPaneViewModelFactory.Create()};
     }
     [RelayCommand]
     public void ShowEditPane(GameData data)

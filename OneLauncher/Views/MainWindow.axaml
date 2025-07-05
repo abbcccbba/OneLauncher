@@ -151,15 +151,10 @@
 						</PageSlide>
 					</TransitioningContentControl.PageTransition>
 				</TransitioningContentControl>
-				<Border x:Name="FytB"
-                        IsVisible="False"
-                        Margin="16"
-                        Background="LightBlue"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        CornerRadius="5" >
-					<TextBlock Margin="6" x:Name="FytFkA"/>
-				</Border>
+				<WindowNotificationManager Name="NotificationManager"
+                                   Position="BottomRight"
+                                   MaxItems="3"
+                                   Margin="0,0,16,16"/>
 			</Panel>
 		</Grid>
 	</SplitView>

@@ -17,6 +17,28 @@ namespace OneLauncher.Core.Helper;
 public static class Tools
 {
     /// <summary>
+    /// 【IEnumerable 扩展方法】
+    /// 高效判断一个字符串的总长度是否超过指定的最大长度。
+    /// <summary>
+    /// <param name="source">源字符串。</param>
+    /// <param name="maxLength">要检查的最大长度阈值。</param>
+    /// <returns>如果总长度超过 maxLength，则为 true；否则为 false。</returns>
+    public static bool TotalLengthExceeds(this string source, long maxLength)
+    {
+        long currentLength = 0;
+        foreach (char s in source)
+        {
+            currentLength++;
+            if (currentLength > maxLength)
+            {
+                // 提前退出！这是性能关键。
+                return true;
+            }
+        }
+
+        return false;
+    }
+    /// <summary>
     /// 基于主类名的模组加载器判断机制
     /// </summary>
     public static ModEnum MainClassToModEnum(string mainClass)

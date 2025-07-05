@@ -2,6 +2,7 @@
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.msa;
 using OneLauncher.Views.ViewModels;
@@ -82,7 +83,8 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             // 检查皮肤文件有效性
             if (!await MojangProfile.IsValidSkinFile(filePath))
             {
-                MainWindow.mainwindow.ShowFlyout("皮肤文件无效！", true);
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("皮肤文件无效！", Avalonia.Controls.Notifications.NotificationType.Error));
+                //MainWindow.mainwindow.ShowFlyout("皮肤文件无效！", true);
                 return;
             }
             Debug.WriteLine("有效的皮肤文件");
@@ -99,7 +101,8 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
                 // 刷新
                 accountPageViewModel.RefList();
 
-                MainWindow.mainwindow.ShowFlyout("已成功上传皮肤！");
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("已成功上传皮肤！", Avalonia.Controls.Notifications.NotificationType.Success));
+                //MainWindow.mainwindow.ShowFlyout("已成功上传皮肤！");
             } 
         }
     }
@@ -120,7 +123,7 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, Url));
             if (!response.IsSuccessStatusCode || Url == null)
             {
-                MainWindow.mainwindow.ShowFlyout("无效的ID", true);
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("无效的ID", Avalonia.Controls.Notifications.NotificationType.Warning));
                 return;
             }
         }
@@ -137,7 +140,7 @@ internal partial class SkinMangerPaneViewModel : BaseViewModel
             // 刷新
             accountPageViewModel.RefList();
 
-            MainWindow.mainwindow.ShowFlyout("已成功通过NameMC上传皮肤！");
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("已成功通过NameMC上传皮肤！", Avalonia.Controls.Notifications.NotificationType.Success));
         }
     }
 }

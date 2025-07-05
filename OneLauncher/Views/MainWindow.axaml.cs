@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -20,12 +21,22 @@ namespace OneLauncher.Views;
 internal class ApplicationClosingMessage { }
 internal class MainWindowShowFlyoutMessage
 {
+    public readonly string Title;
     public readonly string Context;
-    public readonly bool IsWarn;
-    public MainWindowShowFlyoutMessage(string context,bool isWarn = false)
+    public readonly NotificationType Type;
+    public MainWindowShowFlyoutMessage(string context, NotificationType type = NotificationType.Information,string ? title = null)
     {
         this.Context = context;
-        this.IsWarn = isWarn;
+        this.Type = type;
+        // 以前的API没有标题，防止乱套给他个默认值
+        this.Title = title ?? type switch
+        {
+            NotificationType.Information => "提示",
+            NotificationType.Success => "成功",
+            NotificationType.Warning => "警告",
+            NotificationType.Error => "错误",
+            _ => "通知"
+        };
     }
 }
 public partial class MainWindow : Window
@@ -58,8 +69,8 @@ public partial class MainWindow : Window
             servises.AddSingleton<SettingsPageViewModel>();
             servises.AddSingleton<VersionPageViewModel>();
 
-            servises.AddTransient<NewGameDataPaneViewModel>();
             // Pane ViewModel本身是单例的，但工厂模式可以保证每次获取都是新的实例
+            servises.AddSingleton<NewGameDataPaneViewModelFactory>();
             servises.AddSingleton<DownloadPaneViewModelFactory>();
             servises.AddSingleton<EditGameDataPaneViewModelFactory>();
             servises.AddSingleton<PowerPlayPaneViewModelFactory>();
@@ -69,7 +80,7 @@ public partial class MainWindow : Window
             provider = servises.BuildServiceProvider();
             PageContent.Content = new Home();
             // 注册消息
-            WeakReferenceMessenger.Default.Register<MainWindowShowFlyoutMessage>(this, (re, message) => ShowFlyout(message.Context, message.IsWarn));
+            WeakReferenceMessenger.Default.Register<MainWindowShowFlyoutMessage>(this, (re, message) => ShowFlyout(message.Title,message.Context,message.Type));
         }
         catch(OlanException e)
         {
@@ -118,18 +129,9 @@ public partial class MainWindow : Window
     /// 在右下角显示提示信息
     /// </summary>
     /// <param ID="text">提示信息内容</param>
-    public void ShowFlyout(string text,bool IsWarning = false) =>
-    Dispatcher.UIThread.Post(async() =>
-    {
-        FytFkA.Text = text;
-        if (IsWarning)
-            FytB.Background = new SolidColorBrush(Colors.Red);
-        else
-            FytB.Background = new SolidColorBrush(Colors.LightBlue);
-        FytB.IsVisible = true;
-        await Task.Delay(3000);
-        FytB.IsVisible = false;
-    });
+    public void ShowFlyout(string title,string text,NotificationType type = NotificationType.Information) =>
+        Dispatcher.UIThread.Post(() =>
+        NotificationManager.Show(new Notification(title, text, type, TimeSpan.FromSeconds(5))));
     
     // 统一事件方法
     private void ListBox_SelectionChanged(object? sender, Avalonia.Controls.SelectionChangedEventArgs e)
