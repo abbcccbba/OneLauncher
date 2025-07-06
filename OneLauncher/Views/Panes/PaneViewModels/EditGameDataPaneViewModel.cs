@@ -50,9 +50,10 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     }
     private void LoadCurrentIcon()
     {
-        if (!string.IsNullOrEmpty(editingGameData.CustomIconPath) && File.Exists(editingGameData.CustomIconPath))
+        var customIconPath = Path.Combine(editingGameData.InstancePath, ".olc", "customicon");
+        if (File.Exists(customIconPath))
         {
-            try { CurrentIcon = new Bitmap(editingGameData.CustomIconPath); return; }
+            try { CurrentIcon = new Bitmap(Path.Combine(editingGameData.InstancePath, ".olc", "customicon")); return; }
             catch (Exception) { /* 忽略错误，使用默认图标 */ }
         }
 
@@ -98,15 +99,15 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         {
             Title = "选择一个新的图标",
             AllowMultiple = false,
-            FileTypeFilter = new[] { FilePickerFileTypes.ImagePng }
+            FileTypeFilter = new[] { FilePickerFileTypes.ImageAll }
         });
 
         var selectedFile = files?.FirstOrDefault();
         if (selectedFile == null) return;
 
-        string imageDir = Path.Combine(editingGameData.InstancePath, "image");
+        string imageDir = Path.Combine(editingGameData.InstancePath, ".olc");
         Directory.CreateDirectory(imageDir);
-        string destPath = Path.Combine(imageDir, $"{editingGameData.InstanceId}.png");
+        string destPath = Path.Combine(imageDir, "customicon");
 
         { // 确保文件流被释放
             await using var sourceStream = await selectedFile.OpenReadAsync();
@@ -114,7 +115,6 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
             await sourceStream.CopyToAsync(destStream);
         }
 
-        editingGameData.CustomIconPath = destPath;
         CurrentIcon = new Bitmap(destPath); // 显示预览
         UpdateGameData();
 

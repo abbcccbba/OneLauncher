@@ -15,7 +15,7 @@
 		<PublishAot Condition="'$(Configuration)' == 'Release'">true</PublishAot>
 		<PublishAot Condition="'$(Configuration)' == 'Debug'">false</PublishAot>
 	</PropertyGroup>
-	
+	<!--
 	<ItemGroup Label="ImportLib">
 		<DirectPInvoke Include="libHarfBuzzSharp" />
 		<NativeLibrary Include="libs\libHarfBuzzSharp.lib" />
@@ -23,7 +23,7 @@
 		<NativeLibrary Include="libs\libSkiaSharp.lib" />
 		<DirectPInvoke Include="av_libglesv2" />
 		<NativeLibrary Include="libs\av_libglesv2.lib" />
-	</ItemGroup> 
+	</ItemGroup> -->
 	<ItemGroup>
 		<TrimmerRootDescriptor Include="TrimmerRoots.xml" />
 		<TrimmerRootAssembly Include="Avalonia.Themes.Fluent" />

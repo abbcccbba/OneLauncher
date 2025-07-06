@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 namespace OneLauncher.Core.Global;
 public static class Init
 {
-    public const string OneLauncherVersoin = "0.2.0.2";
+    public const string OneLauncherVersoin = "0.2.0.2.1";
     public const string PackageName = "com.onelauncher.lnetface";
     public const string ApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static Task<IServiceCollection> InitTask;
@@ -49,7 +49,7 @@ public static class Init
             ConfigManager = configManger;
 
             InstalledPath = configManger.Data.OlanSettings.InstallPath ?? Path.Combine(BasePath,"installed");
-            GameRootPath = InstalledPath == null ? Path.Combine(BasePath, "installed", ".minecraft") : Path.Combine(InstalledPath, ".minecraft");
+            GameRootPath = InstalledPath == null ? Path.Combine(BasePath, "installed", "minecraft") : Path.Combine(InstalledPath, "minecraft");
             // 初始化系统信息
             SystemType = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? SystemType.windows :
                          RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? SystemType.linux :

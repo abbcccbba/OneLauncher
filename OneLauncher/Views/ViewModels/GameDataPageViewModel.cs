@@ -46,9 +46,10 @@ internal partial class GameDataItem : BaseViewModel
         // 检查自己是否是其对应版本的默认实例
         var defaultInstance = gameDataManager.GetDefaultInstance(gameData.VersionId);
         IsDefault = (defaultInstance != null && defaultInstance.InstanceId == gameData.InstanceId);
-        if (!string.IsNullOrEmpty(data.CustomIconPath) && File.Exists(data.CustomIconPath))
+        var customIconPath = Path.Combine(data.InstancePath, ".olc", "customicon");
+        if (File.Exists(customIconPath))
         {
-            try { Icon = new Bitmap(data.CustomIconPath); return; }
+            try { Icon = new Bitmap(customIconPath); return; }
             catch (Exception) { /* 忽略错误，使用默认图标 */ }
         }
         string iconUri = data.ModLoader switch
