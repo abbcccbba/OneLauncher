@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -188,40 +189,53 @@ internal partial class VersionPageViewModel : BaseViewModel
     [RelayCommand]
     public async Task ImportVersionByPCL2()
     {
-        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
-        if (topLevel?.StorageProvider is { } storageProvider && storageProvider.CanOpen)
-        {
-            var options = new FolderPickerOpenOptions
+        try 
+        { 
+            var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
+            if (topLevel?.StorageProvider is { } storageProvider && storageProvider.CanOpen)
             {
-                Title = "选择你的PCL2版本文件夹",
-                AllowMultiple = false,
-            };
-            var files = await storageProvider.OpenFolderPickerAsync(options);
-            var selectedFile = files.FirstOrDefault();
-
-            if (files == null || !files.Any() || selectedFile == null)
-                return;
-
-            string path = selectedFile.Path.LocalPath;
-            var dirs = Directory.GetDirectories(path);
-            Debug.WriteLine(path);
-            foreach (var item in dirs)
-            {
-                Debug.WriteLine(item);
-                if (item == Path.Combine(path, "PCL"))
+                var options = new FolderPickerOpenOptions
                 {
-                    WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("正在导入。。。（这可能需要较长时间）"));
-                    await new PCL2Importer(new Progress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>(p =>
-                    {
-                        Debug.WriteLine($"Titli:{p.Title}\nAll:{p.AllFiles},Down:{p.DownedFiles}\nOutput:\n{p.DowingFileName}");
-                    })).ImportAsync(path);
-                    WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("导入完成！", Avalonia.Controls.Notifications.NotificationType.Success));
-                    RefList();
+                    Title = "选择你的PCL2版本文件夹",
+                    AllowMultiple = false,
+                };
+                var files = await storageProvider.OpenFolderPickerAsync(options);
+                var selectedFile = files.FirstOrDefault();
+
+                if (files == null || !files.Any() || selectedFile == null)
+                    return;
+
+                string path = selectedFile.Path.LocalPath;
+                if(!File.Exists(Path.Combine(path,"PCL", "Setup.ini")))
+                {
+                    WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("这不是有效的PCL版本文件夹", NotificationType.Warning,"导入失败"));
                     return;
                 }
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("正在导入。。。（这可能需要较长时间）"));
+                await new PCL2Importer(new Progress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>(p =>
+                {
+                    WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage(
+                        $"[{p.DownedFiles}/{p.AllFiles}] 操作:{p.DowingFileName}",
+                        NotificationType.Information,
+                        p.Title switch
+                        {
+                            DownProgress.Meta => "正在分析PCL2实例",
+                            DownProgress.Done => "导入完成",
+                            _ => "操作中"
+                        } + " - 正在导入"));
+                    Debug.WriteLine($"Titli:{p.Title}\nAll:{p.AllFiles},Down:{p.DownedFiles}\nOutput:\n{p.DowingFileName}");
+                })).ImportAsync(path);
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("导入完成！", NotificationType.Success));
+                RefList();
             }
-            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("这不是有效的PCL版本文件夹", Avalonia.Controls.Notifications.NotificationType.Error));
-            //MainWindow.mainwindow.ShowFlyout("这不是有效的PCL版本文件夹", true);
+        }
+        catch(OlanException ex)
+        {
+            await OlanExceptionWorker.ForOlanException(ex,() => _=ImportVersionByPCL2());
+        }
+        catch (Exception ex)
+        {
+            await OlanExceptionWorker.ForUnknowException(ex,() => _=ImportVersionByPCL2());
         }
     }
 }

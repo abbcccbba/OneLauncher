@@ -24,7 +24,7 @@ public enum DownProgress
 }
 public partial class DownloadMinecraft
 {
-    private int retryTimes; // 已经重试次数
+    //private int retryTimes; // 已经重试次数
     private const int MAX_DOWNLOAD_RETRIES = 3; // 每个文件最多重试3次
     private const int DOWNLOAD_TIMEOUT_SECONDS = 10; // 每次尝试的超时时间为10秒
     private async Task DownloadClientTasker(NdDowItem main, bool UseBMLCAPI)

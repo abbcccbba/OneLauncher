@@ -20,8 +20,6 @@ public partial class Download : IDisposable
     /// <exception cref="InvalidDataException">文件不是有效的 ZIP 格式</exception>
     public static void ExtractFile(string filePath, string extractPath)
     {
-        try
-        {
             // 确保输出目录存在
             Directory.CreateDirectory(extractPath);
 
@@ -35,7 +33,8 @@ public partial class Download : IDisposable
                     string destinationPath = Path.Combine(extractPath, entry.FullName);
 
                     // 确保目录存在
-                    string destinationDir = Path.GetDirectoryName(destinationPath);
+                    string destinationDir = Path.GetDirectoryName(destinationPath)
+                    ?? throw new OlanException("无法解压",$"无法找到文件'{destinationPath}'对应的文件夹");
                     Directory.CreateDirectory(destinationDir);
 
                     // 仅处理文件（跳过目录）
@@ -46,11 +45,6 @@ public partial class Download : IDisposable
                     }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
     }
     public Download(HttpClient? tc = null)
     {
@@ -408,7 +402,8 @@ public partial class Download : IDisposable
             response.EnsureSuccessStatusCode();
             using (var httpStream = await response.Content.ReadAsStreamAsync(cancellationToken))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(savepath));
+                Directory.CreateDirectory(Path.GetDirectoryName(savepath)
+                    ?? throw new OlanException("写入文件失败",$"无法找到文件'{savepath}'所对应的文件夹"));
                 using (var fileStream = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.Write, bufferSize: 8192, useAsync: true))
                 {
                     await httpStream.CopyToAsync(fileStream, 8192,cancellationToken);

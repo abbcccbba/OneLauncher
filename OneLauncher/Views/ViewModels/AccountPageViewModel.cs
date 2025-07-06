@@ -69,10 +69,10 @@ internal partial class AccountPageViewModel : BaseViewModel
         }
         catch (OlanException oex)
         {
-            OlanExceptionWorker.ForOlanException(oex);
+            await OlanExceptionWorker.ForOlanException(oex);
         }
         catch (Exception ex) { 
-            OlanExceptionWorker.ForUnknowException(ex);
+            await OlanExceptionWorker.ForUnknowException(ex);
         }
     }
     public AccountPageViewModel(AccountManager manager,MsalAuthenticator msalAuthenticator, UserModelLoginPaneViewModelFactory userModelLoginPaneFactory)

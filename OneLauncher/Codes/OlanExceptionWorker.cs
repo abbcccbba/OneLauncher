@@ -14,14 +14,14 @@ namespace OneLauncher.Codes;
 
 internal class OlanExceptionWorker
 {
-    public static Task ForOlanException(OlanException exception, Action TryAgainFunction = null)
+    public static Task ForOlanException(OlanException exception, Action? TryAgainFunction = null)
     {
         if(TryAgainFunction != null)
             exception.TryAgainFunction = TryAgainFunction;
         return Dispatcher.UIThread.InvokeAsync(async () => 
         {
             if (exception.Action == OlanExceptionAction.Warning)
-                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage(exception.Message,NotificationType.Warning));
+                WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage(exception.Message,NotificationType.Warning,exception.Title));
             if (exception.Action == OlanExceptionAction.Error)
                 await new ExceptionTip(exception).ShowDialog(MainWindow.mainwindow);
             if (exception.Action == OlanExceptionAction.FatalError)

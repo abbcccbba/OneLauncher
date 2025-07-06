@@ -20,7 +20,8 @@ public class AdoptiumAPI
         {
             SystemType.windows => "windows",
             SystemType.linux => "linux",
-            SystemType.osx => "mac"
+            SystemType.osx => "mac",
+            _ => throw new OlanException("不支持的操作系统", "当前操作系统不受支持，请使用Windows、Linux或macOS。")
         };
         var arch = RuntimeInformation.OSArchitecture switch
         {
@@ -69,41 +70,25 @@ public class AdoptiumAPI
 
     public static async Task<string> GetBinaryPackageLinkAsync(string apiUrl, HttpClient client)
     {
-        try
+        using (Stream responseStream = await client.GetStreamAsync(apiUrl))
         {
-            using (Stream responseStream = await client.GetStreamAsync(apiUrl))
-            {
 
-                JsonNode rootNode = await JsonNode.ParseAsync(responseStream);
+            JsonNode rootNode = await JsonNode.ParseAsync(responseStream) 
+                ?? throw new OlanException("无法解析Java","从服务器解析数据时出错，无法解析到值");
 
-                string? link = rootNode?             // 根节点
-                                .AsArray()?         // 尝试将其视为数组
-                                [0]?  // 获取数组的第一个元素
-                                ["binaries"]?       // 访问名为 "binaries" 的属性
-                                .AsArray()?         // 尝试将其视为数组
-                                [0]?  // 获取 "binaries" 数组的第一个元素
-                                ["package"]?        // 访问名为 "package" 的属性
-                                ["link"]?           // 访问名为 "link" 的属性
-                                .GetValue<string>(); // 获取其字符串值
+            string link = rootNode?             // 根节点
+                            .AsArray()?         // 尝试将其视为数组
+                            [0]?  // 获取数组的第一个元素
+                            ["binaries"]?       // 访问名为 "binaries" 的属性
+                            .AsArray()?         // 尝试将其视为数组
+                            [0]?  // 获取 "binaries" 数组的第一个元素
+                            ["package"]?        // 访问名为 "package" 的属性
+                            ["link"]?           // 访问名为 "link" 的属性
+                            .GetValue<string>() // 获取其字符串值
+                    ?? throw new OlanException("无法解析Java","最终无法从服务器返回数据取到下载地址"); 
 
-                // 我造密码的编译器报错了就是返回null
-                return link;
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            Debug.WriteLine($"网络请求错误: {ex.Message}");
-            return null;
-        }
-        catch (JsonException ex)
-        {
-            Debug.WriteLine($"JSON 解析错误: {ex.Message}");
-            return null;
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"发生未知错误: {ex.Message}");
-            return null;
+            // 我造密码的编译器报错了就是返回null
+            return link;
         }
     }
 }
