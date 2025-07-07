@@ -9,10 +9,16 @@ public partial class  LaunchCommandBuilder
 {
     internal static string ReplacePlaceholders(string input, Dictionary<string, string> placeholders)
     {
+        if (string.IsNullOrEmpty(input) || placeholders == null || placeholders.Count == 0)
+        {
+            return input;
+        }
+
+        var sb = new StringBuilder(input);
         foreach (var kvp in placeholders)
         {
-            input = input.Replace("${" + kvp.Key + "}", kvp.Value);
+            sb.Replace("${" + kvp.Key + "}", kvp.Value);
         }
-        return input;
+        return sb.ToString();
     }
 }

@@ -13,10 +13,11 @@ public partial class LaunchCommandBuilder
     private readonly string versionPath;
     // 下面是外部注入的
     private string gamePath;
+    private IEnumerable<string>? extraJvmArgs = null;
     private ModEnum modType = ModEnum.none;
     private ServerInfo? serverInfo = null;
     private UserModel loginUser;
-
+    
     // 构造函数保持不变
     private LaunchCommandBuilder(
         string basePath,
@@ -54,7 +55,7 @@ public partial class LaunchCommandBuilder
         this.modType = modType;
         return this;
     }
-    public LaunchCommandBuilder SetServerInfo(ServerInfo? serverInfo)
+    public LaunchCommandBuilder WithServerInfo(ServerInfo? serverInfo)
     {
         this.serverInfo = serverInfo;
         return this;
@@ -64,11 +65,16 @@ public partial class LaunchCommandBuilder
         this.loginUser = user;
         return this;
     }
+    public LaunchCommandBuilder WithExtraJvmArgs(IEnumerable<string> args)
+    {
+        extraJvmArgs = args;
+        return this;
+    }
     #endregion
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
 
-    public async Task<IEnumerable<string>> BuildCommand(IEnumerable<string>? extraJvmArgs = null)
+    public async Task<IEnumerable<string>> BuildCommand()
     {
         IModStrategy? strategy = null; // 策略可以是null，代表原版
         if (modType != ModEnum.none)

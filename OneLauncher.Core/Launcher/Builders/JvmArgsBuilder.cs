@@ -61,9 +61,11 @@ public partial class LaunchCommandBuilder
         }
         else
         {
-            var jvmArgs = new List<string>();
+            List<string> jvmArgs = null;
             if (strategy != null)
-                jvmArgs.AddRange(strategy.GetAdditionalJvmArgs());
+                jvmArgs = strategy.GetAdditionalJvmArgs().ToList();
+            if (jvmArgs == null)
+                jvmArgs = new List<string>(versionInfo.info.Arguments.Jvm.Count);
             foreach (var item in versionInfo.info.Arguments.Jvm)
             {
                 // 判断是规则套字符串还是简单字符串

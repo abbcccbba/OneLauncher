@@ -15,8 +15,19 @@ public partial class LaunchCommandBuilder
     /// </summary>
     private string BuildClassPath(IModStrategy? strategy)
     {
-        var finalClassPathLibs = new List<string>();
-        var addedLibKeys = new HashSet<string>(); // 使用HashSet来跟踪已添加的库
+        var vl = versionInfo.GetLibraryiesForUsing();
+        int totalCapacity = vl.Count +
+            this.modType switch
+            {
+                // 预分配
+                ModEnum.fabric => 10,
+                ModEnum.neoforge => 40,
+                ModEnum.forge => 46,
+                ModEnum.quilt => 12,
+                _ => 0
+            };
+        var finalClassPathLibs = new List<string>(totalCapacity);
+        var addedLibKeys = new HashSet<string>(totalCapacity); // 使用HashSet来跟踪已添加的库
 
         // 优先处理Mod库
         if (strategy != null)
@@ -31,7 +42,7 @@ public partial class LaunchCommandBuilder
         }
 
         // 处理原版库
-        foreach (var lib in versionInfo.GetLibraryiesForUsing())
+        foreach (var lib in vl)
         {
             var parts = lib.name.Split(':');
             var libKey = $"{parts[0]}:{parts[1]}";

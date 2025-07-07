@@ -15,7 +15,7 @@ public partial class LaunchCommandBuilder
     {
         if(loginUser == null) loginUser = Init.AccountManager.GetDefaultUser();
 
-        List<string> Args = new List<string>();
+        List<string> Args = new List<string>(19);
         if (serverInfo != null)
         {
             Args.Add($"--server");
@@ -30,18 +30,27 @@ public partial class LaunchCommandBuilder
         }
         // 添加基本的
         Args.AddRange([
-            $"--username \"{loginUser.Name}\"",
-            $"--version \"{versionId}\"",
-            $"--gameDir \"{gamePath}\"",
-            $"--assetsDir \"{(Path.Combine(basePath, "assets"))}\""
+            "--username",
+            $"\"{loginUser.Name}\"",
+            "--version",
+            $"\"{versionId}\"",
+            "--gameDir",
+            $"\"{gamePath}\"",
+            "--assetsDir",
+            $"\"{(Path.Combine(basePath, "assets"))}\""
             ]);
-        if(new Version(versionId) > new Version("1.7"))
+        if (new Version(versionId) > new Version("1.7"))
             Args.AddRange([
-                $"--assetIndex \"{versionInfo.GetAssetIndexVersion()}\"",
-                $"--uuid \"{loginUser.uuid}\"",
-                $"--accessToken \"{loginUser.AccessToken.ToString()}\"",
-                $"--userType \"{(loginUser.IsMsaUser ? "msa" : "legacy")}\"",
-                $"--versionType \"OneLauncher\"",
+                "--assetIndex",
+                $"\"{versionInfo.GetAssetIndexVersion()}\"",
+                "--uuid",
+                $"\"{loginUser.uuid}\"",
+                "--accessToken",
+                $"\"{loginUser.AccessToken}\"",
+                "--userType",
+                $"\"{(loginUser.IsMsaUser ? "msa" : "legacy")}\"",
+                "--versionType",
+                $"\"OneLauncher\"",
                 "--userProperties {}"
             ]);
         else

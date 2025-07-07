@@ -38,15 +38,16 @@ public class GameLauncher : IGameLauncher
         var commandBuilder = (await LaunchCommandBuilder.CreateAsync(
                 gameRootPath,
                 gameData.VersionId
-            ))
+            ));
+        commandBuilder
             .SetLoginUser(accountManager.GetUser(gameData.DefaultUserModelID) ?? throw new OlanException("启动失败","找不到你想要启动的用户"))
-            .SetServerInfo(serverInfo ?? null)
+            .WithServerInfo(serverInfo ?? null)
             .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)
-            .SetModType(gameData.ModLoader);
+            .SetModType(gameData.ModLoader)
+            .WithExtraJvmArgs(Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments
+                        .ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' '));
         await resh;
-        string arguments = string.Join(" ", await commandBuilder.BuildCommand(
-                    Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments
-                        .ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' ')));
+        string arguments = string.Join(" ", await commandBuilder.BuildCommand());
         if (arguments.TotalLengthExceeds(8000)) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
         {
             _launchArgumentsPath = Path.GetTempFileName();
