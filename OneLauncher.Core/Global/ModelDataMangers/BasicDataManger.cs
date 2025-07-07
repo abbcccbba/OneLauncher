@@ -40,7 +40,7 @@ public abstract class BasicDataManager<T> where T : class, new()
             try
             {
                 // 文件存在，尝试读取和解析。
-                using var stream = File.OpenRead(_configPath);
+                await using var stream = File.OpenRead(_configPath);
                 // 防止空文件导致反序列化失败
                 if (stream.Length == 0)
                 {
@@ -70,7 +70,7 @@ public abstract class BasicDataManager<T> where T : class, new()
         try
         {
             // 覆盖原始文件
-            using var fs = new FileStream(_configPath,FileMode.Create,FileAccess.Write,FileShare.None,0,true);
+            await using var fs = File.OpenRead(_configPath);
             await JsonSerializer.SerializeAsync<T>(fs,Data, _serializerOptions);
         }
         finally

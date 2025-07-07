@@ -14,14 +14,18 @@ internal class QuiltStrategy : IModStrategy
 {
     private readonly QuiltNJParser _quiltParser;
 
-    public QuiltStrategy(string versionPath, string basePath)
+    private QuiltStrategy(QuiltNJParser quiltNJParser)
+    {
+        _quiltParser = quiltNJParser;
+    }
+    public static async Task<QuiltStrategy> CreateAsync(string versionPath, string basePath)
     {
         string quiltJsonPath = Path.Combine(versionPath, "version.quilt.json");
-        using var fs = File.OpenRead(quiltJsonPath);
-        _quiltParser = new QuiltNJParser(
-            JsonSerializer.Deserialize<FabricRoot>(fs, FabricJsonContext.Default.FabricRoot), basePath);
+        await using var fs = File.OpenRead(quiltJsonPath);
+        return new QuiltStrategy(new QuiltNJParser(
+            await JsonSerializer.DeserializeAsync<FabricRoot>(fs, FabricJsonContext.Default.FabricRoot)
+            ?? throw new OlanException("启动失败",$"在解析文件'{quiltJsonPath}'时出错"), basePath));
     }
-
     public string GetMainClassOverride() => _quiltParser.GetMainClass();
 
     public IEnumerable<(string key, string path)> GetModLibraries()

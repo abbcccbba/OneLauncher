@@ -168,17 +168,19 @@ internal partial class VersionPageViewModel : BaseViewModel
                 IsPaneShow = true;
                 RefDownPane = new InitServerPane(versionExp.VersionID);
             }
-            else       
-                MinecraftServerManger.Run(versionPath,
-                    // 读取源文件获取Java版本
-                    (await JsonNode.ParseAsync(
-                        File.OpenRead(
-                            Path.Combine(versionPath, $"{versionExp.VersionID}.json"))))
-                                ?["javaVersion"]
-                                ?["majorVersion"]
-                                ?.GetValue<int>()
-                                ?? Tools.ForNullJavaVersion(versionExp.VersionID)
-                                , IsVI);
+            else
+                using (var fs = File.OpenRead(
+                                Path.Combine(versionPath, $"version.json")))
+                    MinecraftServerManger.Run(versionPath,
+                        // 读取源文件获取Java版本
+                        (await JsonNode.ParseAsync(
+                                    fs))
+                                    ?["javaVersion"]
+                                    ?["majorVersion"]
+                                    ?.GetValue<int>()
+                                    ?? Tools.ForNullJavaVersion(versionExp.VersionID)
+                                    , IsVI);
+            
             
         }
         catch (OlanException ex)

@@ -42,7 +42,8 @@ public class PCL2Importer
 
         // 1. 解析PCL2的 version.json 获取基础信息
         string pclVersionJsonPath = FindPclVersionJson(pclInstancePath);
-        var pclInfo = await JsonSerializer.DeserializeAsync(File.OpenRead(pclVersionJsonPath), PCL2VersionJsonContent.Default.PCL2VersionJsonModels, _token);
+        using var fs = File.OpenRead(pclVersionJsonPath);
+        var pclInfo = await JsonSerializer.DeserializeAsync(fs, PCL2VersionJsonContent.Default.PCL2VersionJsonModels, _token);
 
         string mcVersion = pclInfo.ClientVersionID;
         string customName = pclInfo.UserCustomName;

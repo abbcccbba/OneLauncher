@@ -35,10 +35,10 @@ public class GameLauncher : IGameLauncher
         if (!File.Exists(optionsPath))
             await File.WriteAllTextAsync(optionsPath, "lang:zh_CN");
 
-        var commandBuilder = new LaunchCommandBuilder(
+        var commandBuilder = (await LaunchCommandBuilder.CreateAsync(
                 gameRootPath,
                 gameData.VersionId
-            )
+            ))
             .SetLoginUser(accountManager.GetUser(gameData.DefaultUserModelID) ?? throw new OlanException("启动失败","找不到你想要启动的用户"))
             .SetServerInfo(serverInfo ?? null)
             .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)

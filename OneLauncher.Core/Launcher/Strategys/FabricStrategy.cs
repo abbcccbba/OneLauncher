@@ -14,12 +14,17 @@ internal class FabricStrategy : IModStrategy
 {
     private readonly FabricVJParser _fabricParser;
 
-    public FabricStrategy(string versionPath, string basePath)
+    private FabricStrategy(FabricVJParser p )
+    {
+        _fabricParser = p;
+    }
+    public static async Task<FabricStrategy> CreateAsync(string versionPath, string basePath)
     {
         string fabricJsonPath = Path.Combine(versionPath, "version.fabric.json");
-        using var fs = File.OpenRead(fabricJsonPath);
-        _fabricParser = new FabricVJParser(
-            JsonSerializer.Deserialize<FabricRoot>(fs,FabricJsonContext.Default.FabricRoot),basePath);
+        await using var fs = File.OpenRead(fabricJsonPath);
+        return new FabricStrategy(new FabricVJParser(
+            await JsonSerializer.DeserializeAsync<FabricRoot>(fs,FabricJsonContext.Default.FabricRoot)
+            ?? throw new OlanException("启动失败",$"在解析文件'{fabricJsonPath}'时出错"),basePath));
     }
 
     public string? GetMainClassOverride() => _fabricParser.GetMainClass();

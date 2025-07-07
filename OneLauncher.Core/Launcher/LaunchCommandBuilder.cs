@@ -18,7 +18,7 @@ public partial class LaunchCommandBuilder
     private UserModel loginUser;
 
     // 构造函数保持不变
-    public LaunchCommandBuilder(
+    private LaunchCommandBuilder(
         string basePath,
         string versionId)
     {
@@ -30,15 +30,20 @@ public partial class LaunchCommandBuilder
 #else
     separator = ':';
 #endif
-        versionInfo = new VersionInfomations(
-            File.ReadAllText(Path.Combine(versionPath, "version.json")),
-            this.basePath
-        );
         #region 对于未Set的默认值
         this.gamePath = this.basePath; // 默认游戏路径为根目录
         #endregion
     }
     #region 链式调用
+    public static async Task<LaunchCommandBuilder> CreateAsync(string basePath, string versionId)
+    {
+        return new LaunchCommandBuilder(basePath, versionId)
+        {
+            versionInfo = new VersionInfomations(
+            await File.ReadAllTextAsync(Path.Combine(basePath,"versions",versionId, "version.json")),
+            basePath)
+        };
+    }
     public LaunchCommandBuilder SetGamePath(string gamePath)
     {
         this.gamePath = gamePath;
@@ -87,8 +92,8 @@ public partial class LaunchCommandBuilder
     {
         IModStrategy strategy = modType switch
         {
-            ModEnum.fabric => new FabricStrategy(versionPath, basePath),
-            ModEnum.quilt => new QuiltStrategy(versionPath, basePath),
+            ModEnum.fabric => await FabricStrategy.CreateAsync(versionPath, basePath),
+            ModEnum.quilt => await QuiltStrategy.CreateAsync(versionPath, basePath),
             ModEnum.neoforge => await NeoForgeStrategy.CreateAsync(versionPath, basePath, versionId),
             ModEnum.forge => await ForgeStrategy.CreateAsync(versionPath, basePath, versionId),
             _ => throw new OlanException("内部异常",$"不支持的模组加载器 {modType}")
