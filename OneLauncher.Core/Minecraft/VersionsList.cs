@@ -18,15 +18,14 @@ public class VersionsList
     public static async Task<List<VersionBasicInfo>> GetOrRefreshVersionListAsync()
     {
         var filePath = Path.Combine(Init.BasePath, "version_manifest.json");
-        string versionJsonContent;
-
-        // 1. 修正刷新逻辑：检查文件是否存在，以及缓存是否超过24小时
+        // 检查文件是否存在，以及缓存是否超过24小时
         bool cacheExists = File.Exists(filePath);
-        bool isCacheStale = !cacheExists || (DateTimeOffset.UtcNow - Init.ConfigManger.Data.LastVersionManifestRefreshTime).TotalHours > 24;
-
-        if (isCacheStale)
+        if (!cacheExists)
+            await Init.Download.DownloadFile(VersionListUrl, filePath);
+        if ((DateTimeOffset.UtcNow - Init.ConfigManger.Data.LastVersionManifestRefreshTime).TotalHours > 24)
         {
-            try
+            // 为了避免网络请求导致版本列表加载缓慢，先丢后台，下次打开就可以看到新的了
+            _=Task.Run(async() =>
             {
                 // 下载最新的、完整的版本清单文件
                 await Init.Download.DownloadFile(VersionListUrl, filePath);
@@ -34,29 +33,14 @@ public class VersionsList
                 // 成功下载后，才更新刷新时间并保存
                 Init.ConfigManger.Data.LastVersionManifestRefreshTime = DateTimeOffset.UtcNow;
                 await Init.ConfigManger.Save();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-                if(!cacheExists)
-                // 如果连旧缓存都没有，那只能抛出致命错误了
-                throw new OlanException("无法获取版本列表", "网络请求失败且本地无可用缓存。", OlanExceptionAction.Error, ex);
-                
-            }
-        }
-        else
-        {
-            Debug.WriteLine("从有效的本地缓存加载版本列表。");
+            });
         }
 
-        // 2. 读取原始的、完整的JSON文件内容
         await using var fs = File.OpenRead(filePath);
-
-        // 3. 在内存中反序列化和处理数据
         var fullManifest = await JsonSerializer.DeserializeAsync<MinecraftVersionList>(fs, MinecraftJsonContext.Default.MinecraftVersionList)
             ?? throw new OlanException("无法解析版本列表", $"反序列化文件'{filePath}'时出错，文件可能已损坏。");
 
-        // 4. 调用筛选方法，并更新全局的静态列表
+        // 调用筛选方法，并更新全局的静态列表
         var releaseVersions = GetReleaseVersionList(fullManifest);
         Init.MojangVersionList = releaseVersions;
 
