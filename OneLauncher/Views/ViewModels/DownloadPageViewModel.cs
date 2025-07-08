@@ -33,33 +33,20 @@ internal partial class DownloadPageViewModel : BaseViewModel
     // 这里要异步初始化的，但是屎山懒得修了
     private async Task VersionManifestReader()
     {
-        VersionsList vl;
-        if (!File.Exists(Path.Combine(Init.BasePath, "version_manifest.json")))
+        try
         {
-            // 如果不存在版本清单则调用下载方法
-            try
+            var versionInfos =
+                await VersionsList.GetOrRefreshVersionListAsync();
+            Dispatcher.UIThread.Post(() =>
             {
-                // 路径（1）
-                using (Download download = new Download())
-                    await download.DownloadFile(
-                        "https://piston-meta.mojang.com/mc/game/version_manifest.json",
-                        Path.Combine(Init.BasePath, "version_manifest.json")
-                    );
-                vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
-            }
-            catch (HttpRequestException ex)
-            {
-                throw new OlanException(
-                    "无法加载下载版本列表", 
-                    "无法进行网络请求，且本地文件不存在", 
-                    OlanExceptionAction.Error,
-                    ex,
-                    () => _=VersionManifestReader());
-            }
+                ReleaseItems = new ObservableCollection<VersionBasicInfo>(versionInfos); // 安全地创建集合
+                IsLoaded = true;
+            });
         }
-        vl = new VersionsList(await File.ReadAllTextAsync(Path.Combine(Init.BasePath, "version_manifest.json")));
-        ReleaseItems = Init.MojangVersionList = vl.GetReleaseVersionList();
-        IsLoaded = true;
+        catch (OlanException e)
+        {
+            await OlanExceptionWorker.ForOlanException(e,() => _=VersionManifestReader());
+        }
     }
     public DownloadPageViewModel(DownloadPaneViewModelFactory viewFactory)
     {
@@ -69,7 +56,7 @@ internal partial class DownloadPageViewModel : BaseViewModel
         WeakReferenceMessenger.Default.Register<DownloadPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
     }
     [ObservableProperty] private bool isLoaded = false;
-    [ObservableProperty] private List<VersionBasicInfo> releaseItems;
+    [ObservableProperty] private ObservableCollection<VersionBasicInfo> releaseItems;
     [ObservableProperty] private VersionBasicInfo? selectedItem;
     partial void OnSelectedItemChanged(VersionBasicInfo value)
     {

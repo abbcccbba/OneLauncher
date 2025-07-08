@@ -26,7 +26,7 @@ public class AppConfig
 {
     public string DefaultInstanceID { get; set; }
     // 每天一更新
-    public DateTimeOffset LastVersionManifestRefreshTime { get; set; }
+    public DateTimeOffset LastVersionManifestRefreshTime { get; set; } = DateTimeOffset.UtcNow;
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
     public List<int> AvailableJavaList { get; set; } = new();
     // 当前启动器已安装的所有版本列表，默认初始化为空列表

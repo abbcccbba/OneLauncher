@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using OneLauncher.Core.Helper.Models;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace OneLauncher.Core.Minecraft.JsonModels;
@@ -26,6 +27,7 @@ namespace OneLauncher.Core.Minecraft.JsonModels;
 [JsonSerializable(typeof(System.Collections.Generic.List<object>))]
 [JsonSerializable(typeof(System.Collections.Generic.List<string>))]
 [JsonSerializable(typeof(System.Collections.Generic.Dictionary<string, OneLauncher.Core.Minecraft.JsonModels.MinecraftLibraryArtifact>))]
+[JsonSerializable(typeof(System.Collections.Generic.List<VersionBasicInfo>))]
 public partial class MinecraftJsonContext : JsonSerializerContext { }
 // 表示version.json的顶层结构
 public class MinecraftVersionInfo

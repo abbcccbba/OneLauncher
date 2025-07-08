@@ -70,7 +70,7 @@ public abstract class BasicDataManager<T> where T : class, new()
         try
         {
             // 覆盖原始文件
-            await using var fs = File.OpenRead(_configPath);
+            await using var fs = File.Create(_configPath);
             await JsonSerializer.SerializeAsync<T>(fs,Data, _serializerOptions);
         }
         finally
