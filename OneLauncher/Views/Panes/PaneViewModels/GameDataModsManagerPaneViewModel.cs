@@ -16,8 +16,10 @@ using System.Threading.Tasks;
 namespace OneLauncher.Views.Panes.PaneViewModels;
 internal partial class InstanceModItem : BaseViewModel
 {
-    private ModInfo Info { get; set; }
-    private Bitmap Icon { get; set; }
+    [ObservableProperty]
+    public ModInfo info;
+    [ObservableProperty]
+    public Bitmap icon;
 
     public InstanceModItem(ModInfo info)
     {

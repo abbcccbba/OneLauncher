@@ -11,36 +11,19 @@
 	<Grid RowDefinitions="*,Auto" Margin="15">
 		<ListBox Grid.Row="0"
                  ItemsSource="{Binding Mods}"
-                 Background="Transparent"
                  BorderThickness="0">
 			<ListBox.ItemTemplate>
-				<DataTemplate x:DataType="vm:InstanceModItem">
-					<Border CornerRadius="5"
-                            Padding="10"
-                            Margin="0,5"
-							Background="Red">
-						<Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
-
-							<Border Grid.Column="0" Width="64" Height="64"
-                                    CornerRadius="3" ClipToBounds="True">
-								<Image Source="{Binding Icon}" Stretch="UniformToFill" />
-							</Border>
-
-							<StackPanel Grid.Column="1" VerticalAlignment="Center">
-								<TextBlock Text="{Binding Info.Name}" FontWeight="Bold" FontSize="16"/>
-								<TextBlock Text="{Binding Info.Version, StringFormat='版本: {0}'}"
-                                           Margin="0,2,0,0"/>
-								<TextBlock Text="{Binding Info.Description}" TextWrapping="Wrap"
-                                           Margin="0,5,0,0"/>
-							</StackPanel>
-
-							<ToggleSwitch Grid.Column="2"
-                                          IsChecked="{Binding Info.IsEnabled}"
-                                          VerticalAlignment="Center"
-                                          HorizontalAlignment="Right"/>
-
-						</Grid>
-					</Border>
+				<DataTemplate>
+					<Grid ColumnDefinitions="Auto,*,Auto" Margin="5">
+						<Image Source="{Binding Icon}" Width="32" Height="32" Margin="0,0,10,0"/>
+						<StackPanel Grid.Column="1">
+							<TextBlock Text="TEST" FontWeight="Bold"/>
+							<TextBlock Text="{Binding Info.Name}" FontWeight="Bold"/>
+							<TextBlock Text="{Binding Info.Description}" TextWrapping="Wrap"/>
+							<TextBlock Text="{Binding Info.Version}" Foreground="Gray"/>
+						</StackPanel>
+						<ToggleSwitch IsChecked="{Binding Info.IsEnabled}" Grid.Column="2"/>
+					</Grid>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
