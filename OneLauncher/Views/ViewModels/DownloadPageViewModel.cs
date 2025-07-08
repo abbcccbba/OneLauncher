@@ -30,7 +30,7 @@ internal class DownloadPageClosePaneControlMessage { public bool value = false; 
 internal partial class DownloadPageViewModel : BaseViewModel
 {
     private readonly DownloadPaneViewModelFactory _viewFactory;
-    // 这里要异步初始化的，但是屎山懒得修了
+    // 这里要异步初始化的
     private async Task VersionManifestReader()
     {
         try

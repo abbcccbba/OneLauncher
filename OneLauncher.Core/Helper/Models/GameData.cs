@@ -18,6 +18,7 @@ public class GameData
     public DateTime CreationTime { get; set; }
     public Guid DefaultUserModelID { get; set; }
     public string InstanceId { get; set; }
+    public JvmArguments? CustomJvmArguments { get; set; }
     [JsonIgnore]
     public string InstancePath => Path.Combine(Init.GameRootPath, "instance", InstanceId);
     [JsonConstructor]

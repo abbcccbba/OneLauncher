@@ -13,6 +13,15 @@ namespace OneLauncher.Core.Mod;
 
 public class ModManager
 {
+    public readonly ModInfo NullModInfo = new ModInfo
+    {
+        Id = "未知标识符",
+        Version = "未知版本",
+        Name = "未知名称",
+        Description = "未知描述",
+        Icon = null,
+        IsEnabled = false
+    };
     public static async Task<ModInfo> GetFabricModInfo(string filePath)
     {
         if (!File.Exists(filePath))
@@ -21,9 +30,9 @@ public class ModManager
         using ZipArchive modOpener = new ZipArchive(modFileStream, ZipArchiveMode.Read, true);
         FabricModJson info = await JsonSerializer.DeserializeAsync<FabricModJson>(
             modOpener.GetEntry("fabric.mod.json")?.Open()
-            ?? throw new OlanException("无法读取Fabric模组信息",$"无法找到模组文件'{filePath}'的自述文件",OlanExceptionAction.Warning),
+            ?? throw new OlanException("无法读取Fabric模组信息", $"无法找到模组文件'{filePath}'的自述文件", OlanExceptionAction.Warning),
             FabricModJsonContext.Default.FabricModJson
-        ) ?? throw new OlanException("无法读取Fabric模组信息",$"反序列化模组描述文件'{filePath}'出错",OlanExceptionAction.Warning);
+        ) ?? throw new OlanException("无法读取Fabric模组信息", $"反序列化模组描述文件'{filePath}'出错", OlanExceptionAction.Warning);
         // 处理图标
         byte[]? iconBytes = null;
         if (info.Icon != null)

@@ -106,7 +106,12 @@
 											<TextBlock Text="设为默认"/>
 										</StackPanel>
 									</Button>
-
+									<Button IsVisible="{Binding IsMod}" Command="{Binding $parent[UserControl].DataContext.ModsManagerCommand}" CommandParameter="{Binding data}">
+										<StackPanel Orientation="Horizontal" Spacing="6">
+											<Image Source="/Assets/icos/browser.png" Width="16" Height="16"/>
+											<TextBlock Text="模组管理"/>
+										</StackPanel>
+									</Button>
 									<Button Command="{Binding $parent[UserControl].DataContext.ShowEditPaneCommand}" CommandParameter="{Binding data}">
 										<StackPanel Orientation="Horizontal" Spacing="6">
 											<Image Source="/Assets/icos/edit.png" Width="16" Height="16"/>

@@ -31,9 +31,10 @@ internal class GameDataPageDisplayListRefreshMessage { }
 internal partial class GameDataItem : BaseViewModel
 {
     public GameData data { get; set; }
-    public bool IsDefault { get; }
     public Bitmap Icon { get; set; }
+    public bool IsDefault { get; }
     public bool IsUseDebugModLaunch {  get; set; }
+    public bool IsMod => data.ModLoader != ModEnum.none;
     [RelayCommand]
     public void Launch(GameData gameData)
     {
@@ -152,6 +153,13 @@ internal partial class GameDataPageViewModel : BaseViewModel
         }
     }
     [RelayCommand]
+    public void ModsManager(GameData data)
+    {
+        IsPaneShow = true;
+        PaneContent = new GameDataModsManagerPane()
+        { DataContext = new GameDataModsManagerPaneViewModel(data) };
+    }
+    [RelayCommand]
     public void NewGameData()
     {
         IsPaneShow = true;
@@ -175,6 +183,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
             new MainWindowShowFlyoutMessage($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。"));
         //MainWindow.mainwindow.ShowFlyout($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。");
     }
+    #region 顶层按钮事件
     [RelayCommand]
     public void Sorting(SortingType type)
     {
@@ -266,4 +275,5 @@ internal partial class GameDataPageViewModel : BaseViewModel
             RefList();
         }
     }
+    #endregion
 }

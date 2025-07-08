@@ -197,7 +197,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         if (Design.IsDesignMode)
             return;
 #endif
-        //new PopUpPane(new DownloadPane(thisVersionBasicInfo,this)).Show();
+        new PopUpPane(new DownloadPane() { DataContext = this}).Show();
     }
     //public void CheckOnWeb()
     //{

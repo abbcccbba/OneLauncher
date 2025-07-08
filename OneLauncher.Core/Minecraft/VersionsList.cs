@@ -15,7 +15,7 @@ public class VersionsList
     // 构造函数可以保持私有或删除，因为我们将使用静态方法
     private VersionsList() { }
 
-    public static async Task<List<VersionBasicInfo>> GetOrRefreshVersionListAsync()
+    public static async Task<IEnumerable<VersionBasicInfo>> GetOrRefreshVersionListAsync()
     {
         var filePath = Path.Combine(Init.BasePath, "version_manifest.json");
         // 检查文件是否存在，以及缓存是否超过24小时
@@ -42,17 +42,16 @@ public class VersionsList
 
         // 调用筛选方法，并更新全局的静态列表
         var releaseVersions = GetReleaseVersionList(fullManifest);
-        Init.MojangVersionList = releaseVersions;
+        Init.MojangVersionList = releaseVersions.ToList();
 
         return releaseVersions;
     }
 
     // 如果未来功能复杂就不能static了
-    internal static List<VersionBasicInfo> GetReleaseVersionList(MinecraftVersionList data)
+    internal static IEnumerable<VersionBasicInfo> GetReleaseVersionList(MinecraftVersionList data)
     {
         return data.AllVersions
                    .Where(v => v.Type == "release")
-                   .Select(v => new VersionBasicInfo(v.Id, v.Type, v.Time, v.Url))
-                   .ToList();
+                   .Select(v => new VersionBasicInfo(v.Id, v.Type, v.Time, v.Url));
     }
 }

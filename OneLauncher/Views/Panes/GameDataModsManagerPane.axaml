@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="620"
+             xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
+             x:DataType="vm:GameDataModsManagerPaneViewModel"
+             x:CompileBindings="True"
+             x:Class="OneLauncher.Views.Panes.GameDataModsManagerPane">
+
+	<Grid RowDefinitions="*,Auto" Margin="15">
+		<ListBox Grid.Row="0"
+                 ItemsSource="{Binding Mods}"
+                 Background="Transparent"
+                 BorderThickness="0">
+			<ListBox.ItemTemplate>
+				<DataTemplate x:DataType="vm:InstanceModItem">
+					<Border CornerRadius="5"
+                            Padding="10"
+                            Margin="0,5"
+							Background="Red">
+						<Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+
+							<Border Grid.Column="0" Width="64" Height="64"
+                                    CornerRadius="3" ClipToBounds="True">
+								<Image Source="{Binding Icon}" Stretch="UniformToFill" />
+							</Border>
+
+							<StackPanel Grid.Column="1" VerticalAlignment="Center">
+								<TextBlock Text="{Binding Info.Name}" FontWeight="Bold" FontSize="16"/>
+								<TextBlock Text="{Binding Info.Version, StringFormat='版本: {0}'}"
+                                           Margin="0,2,0,0"/>
+								<TextBlock Text="{Binding Info.Description}" TextWrapping="Wrap"
+                                           Margin="0,5,0,0"/>
+							</StackPanel>
+
+							<ToggleSwitch Grid.Column="2"
+                                          IsChecked="{Binding Info.IsEnabled}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Right"/>
+
+						</Grid>
+					</Border>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+
+		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
+			<Button Content="刷新列表" Command="{Binding RefreshModsCommand}"/>
+			<Button Content="打开Mods文件夹" Command="{Binding OpenModsFolderCommand}"/>
+		</StackPanel>
+	</Grid>
+</UserControl>
