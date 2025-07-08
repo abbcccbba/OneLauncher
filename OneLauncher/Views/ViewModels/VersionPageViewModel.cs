@@ -43,7 +43,7 @@ internal partial class VersionItem : BaseViewModel
     [RelayCommand]
     public void ReadMoreInformations()
     {
-
+        /* 给未来预留的 */
     }
     [RelayCommand]
     public void OpenServerFolder()
@@ -61,12 +61,6 @@ internal partial class VersionPageViewModel : BaseViewModel
     private readonly DBManager _dBManager;
     private void RefList()
     {
-        //var tempVersoinList = new List<VersionItem>(_dBManager.Data.VersionList.Count);
-        //for (int i = 0; i < tempVersoinList.Count; i++)
-        //{
-        //    tempVersoinList.Add(new VersionItem(
-        //        Init.ConfigManger.Data.VersionList[i], i));
-        //}
         VersionList = _dBManager.Data.VersionList.Select(x => new VersionItem(x)).ToList();
     }
     public VersionPageViewModel(DBManager dBManager)

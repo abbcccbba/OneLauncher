@@ -21,7 +21,15 @@ public class VersionsList
             throw new OlanException("意外错误","解析版本列表时遇到意外错误导致无法解析",OlanExceptionAction.Error);
         }
     }
-    public List<VersionBasicInfo> GetReleaseVersionList()
+    public List<VersionBasicInfo> GetOrRefreshVersionList()
+    {
+        if (Init.MojangVersionList == null)
+        {
+            Init.MojangVersionList = GetReleaseVersionList();
+        }
+        return Init.MojangVersionList;
+    }
+    internal List<VersionBasicInfo> GetReleaseVersionList()
     {
         List<VersionBasicInfo> a = new List<VersionBasicInfo>();
         foreach (var i in this.a.AllVersions)
