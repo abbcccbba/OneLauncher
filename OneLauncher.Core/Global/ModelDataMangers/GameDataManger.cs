@@ -2,25 +2,47 @@
 using System.Data;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks.Sources;
 
 namespace OneLauncher.Core.Global.ModelDataMangers;
-
+public class GameDataTag(string name)
+{
+    public string Name { get; set; } = name;
+}
 public class GameDataRoot
 {
-    // 存储所有游戏数据实例的字典
+    /// <summary>
+    /// 存储所有游戏数据实例的字典。
+    /// Key: InstanceId (string)
+    /// Value: GameData 对象
+    /// </summary>
     [JsonPropertyName("instances")]
-    public Dictionary<string,GameData> Instances { get; set; } = new();
+    public Dictionary<string, GameData> Instances { get; set; } = new();
 
-    // 存储默认实例的映射
-    // Key: VersionId (如 "1.20.1")
-    // Value: InstanceId (如 "fd92ded1")
+    /// <summary>
+    /// 存储每个游戏版本的默认实例映射。
+    /// Key: VersionId (e.g., "1.20.1")
+    /// Value: InstanceId
+    /// </summary>
     [JsonPropertyName("defaults")]
     public Dictionary<string, string> DefaultInstanceMap { get; set; } = new();
-}
 
+    /// <summary>
+    /// 存储所有已定义的标签列表。
+    /// </summary>
+    [JsonPropertyName("tags")]
+    public Dictionary<Guid,GameDataTag> Tags { get; set; } = new();
+    /// <summary>
+    /// 实例ID对于标签ID的映射。
+    /// </summary>
+    [JsonPropertyName("tagMap")]
+    public Dictionary<string,Guid> TagMap { get; set; } = new();
+}
 // 以便AOT编译
 [JsonSerializable(typeof(List<GameData>))]
-[JsonSerializable(typeof(GameDataRoot))] 
+[JsonSerializable(typeof(GameDataRoot))]
+[JsonSerializable(typeof(GameDataTag))]
+[JsonSerializable(typeof(GameData))]
 public partial class GameDataJsonContext : JsonSerializerContext { }
 
 public class GameDataManager : BasicDataManager<GameDataRoot>
@@ -75,6 +97,32 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
         :base(configPath)
     {
     }
+    public Task CreateTag(string instanceId, GameDataTag tag)
+    {
+        var newTagId = Guid.NewGuid();
+        Data.Tags.Add(newTagId, tag);
+        Data.TagMap[instanceId] = newTagId;
+        return Save();
+    }
+    public Task SetTagForInstance(string instanceId, Guid tagId)
+    {
+        // 确保要设置的 tagId 是真实存在的
+        if (Data.Tags.ContainsKey(tagId))
+        {
+            Data.TagMap[instanceId] = tagId;
+        }
+        return Save();
+    }
+    public Task RemoveTagInInstanceAsync(string instanceId)
+    {
+        if (Data.TagMap.ContainsKey(instanceId))
+        {
+            var tagId = Data.TagMap[instanceId];
+            Data.TagMap.Remove(instanceId);
+            Data.Tags.Remove(tagId);
+        }
+        return Save();
+    }
     public Task SetDefaultInstanceAsync(GameData targetData)
     {
         Data.DefaultInstanceMap[targetData.VersionId] = targetData.InstanceId;
@@ -102,7 +150,6 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
             var entry = Data.DefaultInstanceMap.FirstOrDefault(kvp => kvp.Value == dataToRemove.InstanceId);
             if (!string.IsNullOrEmpty(entry.Key))
                 Data.DefaultInstanceMap.Remove(entry.Key);
-            
         }
 
         Data.Instances.Remove(dataToRemove.InstanceId);

@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ public class GameData
     {
         Name = name;
         VersionId = versionId;
-        ModLoader = modLoader; // 参数 modLoader 对应属性 ModLoader
+        ModLoader = modLoader; 
         DefaultUserModelID = defaultUserModelID; 
         CreationTime = creationTime;
         InstanceId = instanceId;
