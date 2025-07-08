@@ -41,9 +41,9 @@ internal partial class HomePageViewModel : BaseViewModel
         if(SelectedGameData == null)
         {
             WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("请选择一个游戏数据实例！", Avalonia.Controls.Notifications.NotificationType.Warning));
-            //MainWindow.mainwindow.ShowFlyout("未指定默认实例！",true);
             return;
         }
+        _configManager.Data.DefaultInstanceID = SelectedGameData.InstanceId;
         _ = version.EasyGameLauncher(SelectedGameData);
     }
 }

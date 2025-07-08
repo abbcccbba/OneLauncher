@@ -34,8 +34,11 @@
 		<TextBlock Text="实例名称"/>
 		<TextBox Text="{Binding InstanceName}"/>
 		<TextBlock Text="高级操作"/>
-		<Button Content="打开实例文件夹" Command="{Binding OpenInstanceFolderCommand}" />
-		<Button Content="在桌面快速启动" Command="{Binding AddToQuicklyPlayCommand}" />
+		<StackPanel Orientation="Horizontal" Spacing="6">
+			<Button Content="打开实例文件夹" Command="{Binding OpenInstanceFolderCommand}" />
+			<Button Content="在桌面快速启动" Command="{Binding AddToQuicklyPlayCommand}" />
+			<Button Content="拷贝此游戏数据" Command="{Binding CopyThisInstanceCommand}" />
+		</StackPanel>
 		<Grid ColumnDefinitions="*,*" Margin="0,20,0,0">
 			<Button Command="{Binding DeleteInstanceCommand}">
 				<StackPanel Orientation="Horizontal">

@@ -44,7 +44,7 @@ public class GameLauncher : IGameLauncher
             .WithServerInfo(serverInfo)
             .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)
             .SetModType(gameData.ModLoader)
-            .WithExtraJvmArgs(jvmArgsToUse.ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' '));
+            .WithExtraJvmArgs(jvmArgsToUse.GetArguments(commandBuilder.versionInfo.GetJavaVersion(),gameData));
         await resh;
         string arguments = string.Join(" ", await commandBuilder.BuildCommand());
         if (arguments.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径

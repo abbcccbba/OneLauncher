@@ -10,6 +10,7 @@ using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OneLauncher.Core.Launcher;
 
 namespace OneLauncher.Core.Minecraft.Server;
 
@@ -53,7 +54,8 @@ public class MinecraftServerManger
             serverProcess.StartInfo = new ProcessStartInfo()
             {
                 FileName = Tools.IsUseOlansJreOrOssJdk(java),
-                Arguments = Global.Init.ConfigManager.Data.OlanSettings.MinecraftJvmArguments.ToString(java).Trim() + 
+                Arguments = 
+                string.Join(" ",Global.Init.ConfigManager.Data.OlanSettings.MinecraftJvmArguments.GetArguments(java,null)) + 
                             $" -jar {(Path.Combine(versionPath, "server.jar"))}",
                 WorkingDirectory =
                 (IsVI)

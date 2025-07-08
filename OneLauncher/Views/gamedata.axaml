@@ -89,6 +89,10 @@
 											<!-- 使用这个转换器记住没有需要的话一定要声明OneWay，不然会有神奇的运行时问题 -->
 											<Run Text="{Binding data.ModLoader , Converter={StaticResource ModEnumConverter},Mode=OneWay}"/>
 										</TextBlock>
+										<TextBlock FontSize="12" Foreground="Gray">
+											<Run Text="标识符:"/>
+											<Run Text="{Binding data.InstanceId}"/>
+										</TextBlock>
 									</StackPanel>
 								</StackPanel>
 

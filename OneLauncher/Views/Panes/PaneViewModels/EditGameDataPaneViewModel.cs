@@ -6,6 +6,7 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
@@ -15,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.Panes.PaneViewModels;
@@ -67,28 +69,6 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         };
         CurrentIcon = new Bitmap(AssetLoader.Open(new Uri(iconUri)));
     }
-    private void DeleteGameData()
-    {
-        // 未来可以加一个对话框确认
-        _ = _gameDataManager.RemoveGameDataAsync(editingGameData);
-
-        try
-        {
-            if (Directory.Exists(editingGameData.InstancePath))
-                Directory.Delete(editingGameData.InstancePath, true);
-        }
-        catch (Exception ex)
-        {
-            WeakReferenceMessenger.Default.Send(
-                new MainWindowShowFlyoutMessage($"删除文件夹失败: {ex.Message}",NotificationType.Error));
-        }
-
-        WeakReferenceMessenger.Default.Send(
-            new GameDataPageDisplayListRefreshMessage()); // 重新加载列表
-        WeakReferenceMessenger.Default.Send(
-            new MainWindowShowFlyoutMessage($"已删除实例“{editingGameData.Name}”！",NotificationType.Success));
-    }
-
     [RelayCommand]
     private async Task ChangeIcon()
     {
@@ -124,7 +104,6 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage($"已更改实例“{editingGameData.Name}”的图标！"));
     }
-
     [RelayCommand]
     private void OpenInstanceFolder()
     {
@@ -146,6 +125,32 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
             );
     }
     [RelayCommand]
+    private async Task CopyThisInstance()
+    {
+        GameData newGameData = new GameData(
+                $"{editingGameData.Name} - 副本",
+                editingGameData.VersionId,
+                editingGameData.ModLoader,
+                editingGameData.DefaultUserModelID);
+        try
+        {
+            await _gameDataManager.AddGameDataAsync(newGameData);
+            await Tools.CopyDirectoryAsync(editingGameData.InstancePath, newGameData.InstancePath, CancellationToken.None);
+        }
+        catch(OlanException e)
+        {
+            await OlanExceptionWorker.ForOlanException(e,() => _=CopyThisInstance());
+        }
+        catch(Exception e)
+        {
+            await OlanExceptionWorker.ForUnknowException(e,() => _=CopyThisInstance());
+        }
+        WeakReferenceMessenger.Default.Send(
+            new GameDataPageDisplayListRefreshMessage());
+        WeakReferenceMessenger.Default.Send(
+            new MainWindowShowFlyoutMessage("已以此拷贝实例！",NotificationType.Success));
+    }
+    [RelayCommand]
     private void Save()
     {
         editingGameData.Name = InstanceName;
@@ -161,7 +166,24 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     [RelayCommand]
     private void DeleteInstance()
     {
-        DeleteGameData();
+        // 未来可以加一个对话框确认
+        _ = _gameDataManager.RemoveGameDataAsync(editingGameData);
+
+        try
+        {
+            if (Directory.Exists(editingGameData.InstancePath))
+                Directory.Delete(editingGameData.InstancePath, true);
+        }
+        catch (Exception ex)
+        {
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage($"删除文件夹'{editingGameData.InstancePath}'失败: {ex.Message}", NotificationType.Error));
+        }
+
+        WeakReferenceMessenger.Default.Send(
+            new GameDataPageDisplayListRefreshMessage()); // 重新加载列表
+        WeakReferenceMessenger.Default.Send(
+            new MainWindowShowFlyoutMessage($"已删除实例“{editingGameData.Name}”！", NotificationType.Success));
         WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
     }
 
