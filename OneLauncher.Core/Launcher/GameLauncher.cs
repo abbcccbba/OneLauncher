@@ -43,8 +43,9 @@ public class GameLauncher : IGameLauncher
             .SetLoginUser(accountManager.GetUser(gameData.DefaultUserModelID) ?? throw new OlanException("启动失败","找不到你想要启动的用户"))
             .WithServerInfo(serverInfo)
             .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)
-            .SetModType(gameData.ModLoader)
-            .WithExtraJvmArgs(jvmArgsToUse.GetArguments(commandBuilder.versionInfo.GetJavaVersion(),gameData));
+            .SetModType(gameData.ModLoader);
+        if (jvmArgsToUse.mode != OptimizationMode.None)
+            commandBuilder.WithExtraJvmArgs(jvmArgsToUse.GetArguments(commandBuilder.versionInfo.GetJavaVersion(), gameData));
         await resh;
         string arguments = string.Join(" ", await commandBuilder.BuildCommand());
         if (arguments.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径

@@ -8,6 +8,8 @@ namespace OneLauncher.Core.Helper.Models;
 
 public enum OptimizationMode
 {
+    /// <summary>关闭优化（仅允许在配置文件中启用）</summary>
+    None,
     /// <summary>保守模式</summary>
     Conservative,
     /// <summary>标准模式</summary>
