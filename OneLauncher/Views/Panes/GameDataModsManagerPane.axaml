@@ -22,7 +22,7 @@
 							<TextBlock Text="{Binding Info.Description}" TextWrapping="Wrap"/>
 							<TextBlock Text="{Binding Info.Version}" Foreground="Gray"/>
 						</StackPanel>
-						<ToggleSwitch IsChecked="{Binding Info.IsEnabled}" Grid.Column="2"/>
+						<ToggleSwitch IsChecked="{Binding ModEnabledManager}" Grid.Column="2"/>
 					</Grid>
 				</DataTemplate>
 			</ListBox.ItemTemplate>

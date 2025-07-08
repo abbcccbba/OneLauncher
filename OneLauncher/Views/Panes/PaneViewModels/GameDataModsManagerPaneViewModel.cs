@@ -3,8 +3,11 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OneLauncher.Codes;
+using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
-using OneLauncher.Core.Mod;
+using OneLauncher.Core.Mod.ModManager;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -16,13 +19,37 @@ using System.Threading.Tasks;
 namespace OneLauncher.Views.Panes.PaneViewModels;
 internal partial class InstanceModItem : BaseViewModel
 {
+    private readonly InstanceModService _instanceModService;
     [ObservableProperty]
     public ModInfo info;
     [ObservableProperty]
     public Bitmap icon;
-
-    public InstanceModItem(ModInfo info)
+    public bool ModEnabledManager
     {
+        get => Info.IsEnabled;
+        set
+        {
+            try
+            {
+                Info.IsEnabled = value;
+                if (value)
+                    _instanceModService.EnableModAsync(Info.fileName);
+                else
+                    _instanceModService.DisableModAsync(Info.fileName);
+            }
+            catch(OlanException e)
+            {
+                OlanExceptionWorker.ForOlanException(e);
+            }
+            catch(Exception e)
+            {
+                OlanExceptionWorker.ForUnknowException(e);
+            }
+        }
+    }
+    public InstanceModItem(ModInfo info,InstanceModService modService)
+    {
+        _instanceModService = modService;
         Info = info;
         if(info.Icon != null)
             using (var stream = new MemoryStream(info.Icon))
@@ -37,7 +64,6 @@ internal partial class GameDataModsManagerPaneViewModel : BaseViewModel
     [ObservableProperty]
     private List<InstanceModItem> mods;
 
-    // 假设通过构造函数注入了实例信息
     private readonly GameData _gameData;
     private readonly InstanceModService _modService;
 
@@ -49,8 +75,8 @@ internal partial class GameDataModsManagerPaneViewModel : BaseViewModel
             // 设计时数据
             Mods = new List<InstanceModItem>
             {
-                new InstanceModItem(new ModInfo { Id = "mod1", Name = "Mod 1", Version = "1.0", Description = "这是一个测试Mod", IsEnabled = true }),
-                new InstanceModItem(new ModInfo { Id = "mod2", Name = "Mod 2", Version = "1.1", Description = "这是另一个测试Mod", IsEnabled = false }),
+                //new InstanceModItem(new ModInfo { Id = "mod1", Name = "Mod 1", Version = "1.0", Description = "这是一个测试Mod", IsEnabled = true }),
+                //new InstanceModItem(new ModInfo { Id = "mod2", Name = "Mod 2", Version = "1.1", Description = "这是另一个测试Mod", IsEnabled = false }),
             };
         }
         else
@@ -65,13 +91,12 @@ internal partial class GameDataModsManagerPaneViewModel : BaseViewModel
     [RelayCommand]
     private async Task RefreshModsAsync()
     {
-        Mods = (await _modService.GetModsAsync()).Select(x => new InstanceModItem(x)).ToList();
+        Mods = (await _modService.GetModsAsync()).Select(x => new InstanceModItem(x,_modService)).ToList();
     }
 
     [RelayCommand]
     private void OpenModsFolder()
     {
-        // 你可以复用你的 Tools.OpenFolder 方法
-        // Tools.OpenFolder(Path.Combine(_gameData.InstancePath, "mods"));
+        Tools.OpenFolder(Path.Combine(_gameData.InstancePath, "mods"));
     }
 }

@@ -47,7 +47,7 @@ public class GameLauncher : IGameLauncher
             .WithExtraJvmArgs(jvmArgsToUse.ToString(commandBuilder.versionInfo.GetJavaVersion()).Split(' '));
         await resh;
         string arguments = string.Join(" ", await commandBuilder.BuildCommand());
-        if (arguments.TotalLengthExceeds(8000)) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
+        if (arguments.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
         {
             _launchArgumentsPath = Path.GetTempFileName();
             await File.WriteAllTextAsync(_launchArgumentsPath, arguments

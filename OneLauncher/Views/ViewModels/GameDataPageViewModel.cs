@@ -34,8 +34,7 @@ internal partial class GameDataItem : BaseViewModel
     public Bitmap Icon { get; set; }
     public bool IsDefault { get; }
     public bool IsUseDebugModLaunch {  get; set; }
-    // 模组管理器目前只适配了Fabric
-    public bool IsMod => data.ModLoader == ModEnum.fabric;//data.ModLoader != ModEnum.none;
+    public bool IsMod => data.ModLoader != ModEnum.none;
     [RelayCommand]
     public void Launch(GameData gameData)
     {

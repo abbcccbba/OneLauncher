@@ -14,4 +14,5 @@ public class ModInfo
     public string Description { get; set; }
     public byte[]? Icon { get; set; } // 可能为null
     public bool IsEnabled { get; set; }
+    public string fileName;
 }
