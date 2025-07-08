@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Chrome;
 using Avalonia.Controls.Notifications;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -210,6 +211,9 @@ internal partial class VersionPageViewModel : BaseViewModel
                 WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("正在导入。。。（这可能需要较长时间）"));
                 await new PCL2Importer(new Progress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>(p =>
                 {
+                    // 避免安装器进度报告过于频繁
+                    if (p.Title == DownProgress.DownAndInstModFiles)
+                        return;
                     WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage(
                         $"[{p.DownedFiles}/{p.AllFiles}] 操作:{p.DowingFileName}",
                         NotificationType.Information,
