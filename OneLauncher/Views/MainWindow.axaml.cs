@@ -95,8 +95,9 @@ public partial class MainWindow : Window
         {
             try
             {
-                HomePage = new Home()
-                { DataContext = provider.GetRequiredService<HomePageViewModel>()};
+                var homePage = (Home)PageContent.Content;
+                homePage.DataContext = provider.GetRequiredService<HomePageViewModel>();
+                HomePage = homePage;
                 versionPage = new version() 
                 { DataContext = provider.GetRequiredService<VersionPageViewModel>() }; 
                 accountPage = new account()

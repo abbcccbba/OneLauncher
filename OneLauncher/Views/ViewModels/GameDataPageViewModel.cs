@@ -70,7 +70,6 @@ internal partial class GameDataPageViewModel : BaseViewModel
 {
     private readonly GameDataManager _gameDataManager;
     private readonly EditGameDataPaneViewModelFactory _editVMFactory;
-    private readonly PowerPlayPaneViewModelFactory _mctVMFactory;
     private readonly NewGameDataPaneViewModelFactory _newGameDataPaneViewModelFactory;
     [ObservableProperty] public List<GameDataItem> gameDataList = new();
     [ObservableProperty] public string type;
@@ -84,12 +83,10 @@ internal partial class GameDataPageViewModel : BaseViewModel
     public GameDataPageViewModel(
         GameDataManager gameDataManager,
         EditGameDataPaneViewModelFactory editGameDataPaneViewModelFactory,
-        PowerPlayPaneViewModelFactory powerPlayPaneViewModelFactory,
         NewGameDataPaneViewModelFactory newGameDataPaneViewModelFactory
         )
     {
         this._newGameDataPaneViewModelFactory = newGameDataPaneViewModelFactory;
-        this._mctVMFactory = powerPlayPaneViewModelFactory;
         this._editVMFactory = editGameDataPaneViewModelFactory;
         this._gameDataManager = gameDataManager;
         AvailableTags = new ObservableCollection<GameDataTag>( _gameDataManager.Data.Tags.Values.ToList());
@@ -126,8 +123,6 @@ internal partial class GameDataPageViewModel : BaseViewModel
         {
             // 把配置文件的游戏数据列表显示到UI
             OnPageLoaded();
-            // 提前初始化联机模块
-            _connentServiceInitializationTasker = _mctVMFactory.CreateAsync();
             // 注册消息
             WeakReferenceMessenger.Default.Register<GameDataPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
             WeakReferenceMessenger.Default.Register<GameDataPageDisplayListRefreshMessage>(this, (re, message) => RefList());
@@ -236,81 +231,6 @@ internal partial class GameDataPageViewModel : BaseViewModel
         GameDataList = orderedList;
         _gameDataManager.Data.Instances = GameDataList.ToDictionary(x => x.data.InstanceId,x => x.data);
         _=_gameDataManager.Save();
-    }
-    private PowerPlayPane? _powerPlayGo;
-    private Task<PowerPlayPaneViewModel> _connentServiceInitializationTasker;
-    [RelayCommand]
-    public async Task PowerPlay()
-    {
-        // 只有当第一次点击时才创建
-        if (_powerPlayGo == null)
-        {
-            WeakReferenceMessenger.Default.Send(
-                new MainWindowShowFlyoutMessage("正在加载联机模块，请稍后..."));
-
-            try
-            {
-                // 外部创建好
-                var viewModel = await _connentServiceInitializationTasker;
-                _powerPlayGo = new PowerPlayPane { DataContext = viewModel };
-            }
-            catch (OlanException ex)
-            {
-                await OlanExceptionWorker.ForOlanException(ex);
-                IsPaneShow = false; // 出错时隐藏Pane
-                return;
-            }
-            catch (Exception ex)
-            {
-                await OlanExceptionWorker.ForUnknowException(ex);
-                IsPaneShow = false; // 出错时隐藏Pane
-                return;
-            }
-        }
-
-        // 将已经创建好的、包含完整数据的Pane设置为内容并显示
-        PaneContent = _powerPlayGo;
-        IsPaneShow = true;
-    }
-    [RelayCommand]
-    public async Task Import()
-    {
-        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
-        if (topLevel?.StorageProvider is { } storageProvider && storageProvider.CanOpen)
-        {
-            var mrpackFileType = new FilePickerFileType("Modrinth整合包文件")
-            {
-                Patterns = new[] { "*.mrpack" },
-                MimeTypes = new[] { "application/mrpack" }
-            };
-
-            var options = new FilePickerOpenOptions
-            {
-                Title = "选择 Modrinth Pack 文件",
-                AllowMultiple = false,
-                FileTypeFilter = new[] { mrpackFileType },
-            };
-            var files = await storageProvider.OpenFilePickerAsync(options);
-            var selectedFile = files.FirstOrDefault();
-
-            if (files == null || !files.Any() || selectedFile == null)
-                return;
-
-            string filePath = selectedFile.Path.LocalPath;
-            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("正在导入。。。（这可能需要较长时间）"));
-            //MainWindow.mainwindow.ShowFlyout("正在导入。。。（这可能需要较长时间）");
-            await ModpackImporter.ImportFromMrpackAsync(filePath, 
-                Init.GameRootPath, 
-                new Progress<(DownProgress a,int b ,int c,string d)>
-                (p =>
-                {
-                    Debug.WriteLine($"导入进度：{p.a}, 总文件数：{p.b}, 已下载文件数：{p.c}, 当前文件：{p.d}");
-                })
-                , CancellationToken.None);
-            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("导入完成！"));
-            //MainWindow.mainwindow.ShowFlyout("导入完成！");
-            RefList();
-        }
     }
     #endregion
 }

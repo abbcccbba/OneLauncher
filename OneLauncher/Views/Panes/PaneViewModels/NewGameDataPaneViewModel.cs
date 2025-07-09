@@ -30,7 +30,6 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
     [ObservableProperty] private List<UserModel> availableUsers;
     [ObservableProperty] private UserModel selectedUser;
 
-
     public NewGameDataPaneViewModel(DBManager configManager,AccountManager accountManager,GameDataManager gameDataManager)
     {
         this._configManager = configManager;

@@ -50,20 +50,6 @@
 					</Flyout>
 				</Button.Flyout>
 			</Button>
-			<!--
-			<Button Command="{Binding GoToDownloadCommand}" Margin="-14,0,0,0">
-				<StackPanel Orientation="Horizontal">
-					<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
-					<TextBlock Text="转到下载"/>
-				</StackPanel>
-			</Button>
-			-->
-			<Button Command="{Binding ImportVersionByPCL2Command}" Margin="-14,0,0,0">
-				<StackPanel Orientation="Horizontal">
-					<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
-					<TextBlock Text="从PCL2导入版本"/>
-				</StackPanel>
-			</Button>
 
 		</StackPanel>
 		<ListBox x:Name="navVL" Grid.Row="1" ItemsSource="{Binding VersionList,Mode=TwoWay}" Background="Transparent" SelectionMode="Multiple">

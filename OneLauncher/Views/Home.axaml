@@ -7,37 +7,69 @@
              x:Class="OneLauncher.Home"
              x:DataType="vm:HomePageViewModel"
              x:CompileBindings="True">
-
-	<Grid ColumnDefinitions="*, 300">
-		<Panel Grid.Column="1" Background="{DynamicResource PaneBackgound}">
-			<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
-				<Image Source="/Assets/Imgs/basic.png" Height="128" Width="128"/>
-
-				<ComboBox ItemsSource="{Binding LaunchItems}" SelectedItem="{Binding SelectedGameData}" PlaceholderText="选择启动实例">
-					<ComboBox.ItemTemplate>
-						<DataTemplate x:DataType="lo:GameData">
-							<TextBlock Text="{Binding Name}"/>
-						</DataTemplate>
-					</ComboBox.ItemTemplate>
-				</ComboBox>
-
-				<Button Command="{Binding Launch}" Width="128">
-					<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-						<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
-						<TextBlock Text="快速游戏"/>
+	<UserControl.Styles>
+		<Style Selector="Button.fast">
+			<Setter Property="CornerRadius" Value="12"/>
+			
+		</Style>
+	</UserControl.Styles>
+	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
+				 DisplayMode="Overlay"
+				 OpenPaneLength="650"
+				 PanePlacement="Right">
+		<SplitView.Pane>
+			<TransitioningContentControl Background="{DynamicResource PaneBackgound}" Content="{Binding PaneContent}"/>
+		</SplitView.Pane>
+		
+		<Grid ColumnDefinitions="*, 300">
+			<Grid Grid.Column="0">
+				<Border VerticalAlignment="Bottom" 
+						HorizontalAlignment="Center" 
+						CornerRadius="12"
+						Background="{DynamicResource PaneBackgound}">
+					<StackPanel Orientation="Horizontal" Spacing="12">
+						<Button Classes="fast" Content="联机面板" Command="{Binding PowerPlayCommand}"/>
+						<Button Classes="fast" Content="导入">
+							<Button.Flyout>
+								<MenuFlyout>
+									<MenuItem Header="导入PCL2版本" Command="{Binding ImportVersionByPCL2Command}"/>
+									<MenuItem Header="导入整合包" Command="{Binding ImportCommand}"/>
+								</MenuFlyout>
+							</Button.Flyout>
+						</Button>
 					</StackPanel>
-				</Button>
-			</StackPanel>
-			<Grid VerticalAlignment="Bottom" HorizontalAlignment="Center">
-				<ToggleSwitch IsChecked="{Binding IsShowServerOption}">
-					<ToggleSwitch.OnContent>
-						<TextBlock Text="显示服务端设置"/>
-					</ToggleSwitch.OnContent>
-					<ToggleSwitch.OffContent>
-						<TextBlock Text="不显示服务端设置"/>
-					</ToggleSwitch.OffContent>
-				</ToggleSwitch>
+				</Border>
 			</Grid>
-		</Panel>
-	</Grid>
+			<Panel Grid.Column="1" Background="{DynamicResource PaneBackgound}">
+				<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
+					<Image Source="/Assets/Imgs/basic.png" Height="128" Width="128"/>
+
+					<ComboBox ItemsSource="{Binding LaunchItems}" SelectedItem="{Binding SelectedGameData}" PlaceholderText="选择启动实例">
+						<ComboBox.ItemTemplate>
+							<DataTemplate x:DataType="lo:GameData">
+								<TextBlock Text="{Binding Name}"/>
+							</DataTemplate>
+						</ComboBox.ItemTemplate>
+					</ComboBox>
+
+					<Button Command="{Binding LaunchCommand}" Width="128">
+						<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+							<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>
+							<TextBlock Text="快速游戏"/>
+						</StackPanel>
+					</Button>
+				</StackPanel>
+				<Grid VerticalAlignment="Bottom" HorizontalAlignment="Center">
+					<ToggleSwitch IsChecked="{Binding IsShowServerOption}">
+						<ToggleSwitch.OnContent>
+							<TextBlock Text="显示服务端设置"/>
+						</ToggleSwitch.OnContent>
+						<ToggleSwitch.OffContent>
+							<TextBlock Text="不显示服务端设置"/>
+						</ToggleSwitch.OffContent>
+					</ToggleSwitch>
+				</Grid>
+			</Panel>
+		</Grid>
+	</SplitView>
 </UserControl>
