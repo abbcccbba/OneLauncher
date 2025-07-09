@@ -26,10 +26,20 @@ public class GameLauncher : IGameLauncher
     {
         #region 准备工作
         // 先把令牌刷新了
-        Task resh = 
-            Init.AccountManager.GetUser(gameData.DefaultUserModelID)?.IntelligentLogin(Init.MsalAuthenticator)
-            ?? throw new OlanException("启动失败","你正在尝试刷洗一个不存在账户，请尝试删除此实例并重新添加");
+        UserModel user = Init.AccountManager.GetUser(gameData.DefaultUserModelID) ?? throw new OlanException("启动失败", "你正在尝试刷洗一个不存在账户，请尝试删除此实例并重新添加");
+        Task resh =
+            user.IntelligentLogin(Init.MsalAuthenticator);
+        #region 外置登入补丁
+        var libPath = Path.Combine(Init.InstalledPath, "authlib.jar");
+        if(!File.Exists(libPath))
+            // 如果不存在authlib.jar，则尝试下载
+            await Init.Download
+                .DownloadFile(
+                "https://authlib-injector.yushi.moe/artifact/53/authlib-injector-1.2.5.jar",
+                libPath
+                );
         
+        #endregion
         // 帮用户设置一下语言
         var optionsPath = Path.Combine(gameData.InstancePath, "options.txt");
         if (!File.Exists(optionsPath))
