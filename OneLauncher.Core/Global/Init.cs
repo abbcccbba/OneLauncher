@@ -106,10 +106,6 @@ public static class Init
         {
             throw new OlanException("操作无效", $"当前操作无效：{ex}", OlanExceptionAction.FatalError);
         }
-        catch (Exception ex)
-        {
-            throw new OlanException("未知错误", $"发生未知错误：{ex}", OlanExceptionAction.FatalError);
-        }
         #endregion
     }
 }

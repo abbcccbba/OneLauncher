@@ -71,7 +71,7 @@
 									</StackPanel>
 								</Button>
 								
-								<Button IsVisible="{Binding um.IsMsaUser}"
+								<Button IsVisible="{Binding IsMsaUser}"
 										Command="{Binding $parent[ListBox].DataContext.SkinMangerCommand}"
 										CommandParameter="{Binding um}">
 									<StackPanel Orientation="Horizontal" Spacing="6">

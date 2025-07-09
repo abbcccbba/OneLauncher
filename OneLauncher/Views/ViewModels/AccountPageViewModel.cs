@@ -9,7 +9,7 @@ using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
-using OneLauncher.Core.Net.msa;
+using OneLauncher.Core.Net.Account.Microsoft;
 using OneLauncher.Views.Panes;
 using OneLauncher.Views.Panes.PaneViewModels.Factories;
 using System;
@@ -31,6 +31,7 @@ internal partial class UserItem
     public Bitmap HeadImg { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png")));
     public bool IsDefault { get; set; }
     public bool IsNotDefault => !IsDefault;
+    public bool IsMsaUser => um.UserType == AccountType.Msa;
 }
 internal partial class AccountPageViewModel : BaseViewModel
 {
@@ -47,7 +48,7 @@ internal partial class AccountPageViewModel : BaseViewModel
             .Select(user => new UserItem()
             {
                 um = user,
-                HeadImg = (user.IsMsaUser && File.Exists(Path.Combine(Init.BasePath, "playerdata", "body", $"{user.uuid}.png")))
+                HeadImg = (user.UserType == AccountType.Msa && File.Exists(Path.Combine(Init.BasePath, "playerdata", "body", $"{user.uuid}.png")))
                     ? new Bitmap(Path.Combine(Init.BasePath, "playerdata", "body", $"{user.uuid}.png"))
                     : new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/steve.png"))),
                 // 在创建 UserItem 时，就设置好 IsDefault 属性
@@ -151,7 +152,7 @@ internal partial class AccountPageViewModel : BaseViewModel
     {
         try
         {
-            if (user.IsMsaUser)
+            if (user.UserType == AccountType.Msa)
                 _msalAuthenticator.RemoveAccount(
                     Tools.UseAccountIDToFind(user.AccountID).Result);
             _accountManager.RemoveUser(user.UserID);

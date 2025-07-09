@@ -8,9 +8,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OneLauncher.Core.Global.ModelDataMangers;
+[JsonSerializable(typeof(YggdrasilInfo))]
+[JsonSerializable(typeof(UserModel))]
 [JsonSerializable(typeof(AccountData))]
 [JsonSerializable(typeof(Dictionary<Guid,UserModel>))]
 public partial class AccountDataJsonContext : JsonSerializerContext { }

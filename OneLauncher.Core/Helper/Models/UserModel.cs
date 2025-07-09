@@ -24,10 +24,10 @@ public enum AccountType
     /// </summary>
     Yggdrasil
 }
-public struct YggdrasilInfo(Guid clientToken, string authUrl)
+public struct YggdrasilInfo(Guid ClientToken, string AuthUrl)
 {
-    public Guid ClientToken { get; init; } = clientToken;
-    public string AuthUrl { get; init; } = authUrl;
+    public Guid ClientToken { get; init; } = ClientToken;
+    public string AuthUrl { get; init; } = AuthUrl;
 }
 public class UserModel
 {
@@ -76,7 +76,7 @@ public class UserModel
         string Name,
         Guid uuid,
         string accessToken,
-        AccountType accountType,
+        AccountType userType,
         string? AccountID,
         DateTimeOffset? AccessTokenExpiration,
         YggdrasilInfo? yggdrasilInfo
@@ -86,7 +86,7 @@ public class UserModel
         this.Name = Name;
         this.uuid = uuid;
         AccessToken = accessToken;
-        this.UserType = accountType;
+        this.UserType = userType;
         this.AccountID = AccountID;
         this.AccessTokenExpiration = AccessTokenExpiration;
         this.YggdrasilInfo = yggdrasilInfo;

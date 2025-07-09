@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -7,7 +8,8 @@ using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
-using OneLauncher.Core.Net.msa;
+using OneLauncher.Core.Net.Account.Microsoft;
+using OneLauncher.Core.Net.Account.Yggdrasil.ServiceProviders;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Diagnostics;
@@ -28,6 +30,72 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         _accountManager = accountManager;
         ac = ma;
     }
+    [ObservableProperty]
+    public bool _IsRYaLogin = false;
+    [ObservableProperty]
+    public bool _IsYaLogin = true;
+    [ObservableProperty]
+    public bool _IsMsaLogin = false;
+    private ListBoxItem _whiceLoginType;
+    public ListBoxItem WhiceLoginType
+    {
+        set
+        {
+            _whiceLoginType = value;
+            if (value.Content == "离线登入")
+            {
+                Debug.WriteLine("离线登入");
+                IsYaLogin = true;
+                IsMsaLogin = false;
+                IsRYaLogin = false;
+            }
+            if (value.Content == "微软登入")
+            {
+                Debug.WriteLine("微软登入");
+                IsYaLogin = false;
+                IsMsaLogin = true;
+                IsRYaLogin = false;
+            }
+            if (value.Content == "外置登入")
+            {
+                Debug.WriteLine("外置登入");
+                IsYaLogin = false;
+                IsMsaLogin = false;
+                IsRYaLogin = true;
+            }
+        }
+        get
+        {
+            return _whiceLoginType;
+        }
+    }
+    #region 外置登入
+    [ObservableProperty] public string _RUserName;
+    [ObservableProperty] public string _RPassword;
+    [RelayCommand]
+    public async Task RLogin()
+    {
+        if (string.IsNullOrEmpty(RUserName) || string.IsNullOrEmpty(RPassword))
+        {
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("用户名或密码不能为空！", NotificationType.Warning));
+            return;
+        }
+        try
+        {
+            var um = await new LittleSkinAuthenticator().AuthenticateUseUserNameAndPasswordAsync(RUserName,RPassword);
+            await ac.AddUser(um);
+            WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
+            WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已登入账号:{um.Name}"));
+        }
+        catch (OlanException ex)
+        {
+            await OlanExceptionWorker.ForOlanException(ex);
+            return;
+        }
+    }
+    #endregion
+    #region 离线登入
     [ObservableProperty]
     public string _UserName;
     [RelayCommand]
@@ -54,35 +122,8 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
         WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("数据已销毁",Avalonia.Controls.Notifications.NotificationType.Information));
     }
-
-    [ObservableProperty]
-    public bool _IsYaLogin = true;
-    [ObservableProperty]
-    public bool _IsMsaLogin = false;
-    private ListBoxItem _whiceLoginType;
-    public ListBoxItem WhiceLoginType
-    {
-        set
-        {
-            _whiceLoginType = value;
-            if (value.Content == "离线登入")
-            {
-                Debug.WriteLine("离线登入");
-                IsYaLogin = true;
-                IsMsaLogin = false;
-            }
-            if (value.Content == "微软登入")
-            {
-                Debug.WriteLine("微软登入");
-                IsYaLogin = false;
-                IsMsaLogin = true;
-            }
-        }
-        get
-        {
-            return _whiceLoginType;
-        }
-    }
+    #endregion
+    #region 微软登入
     [RelayCommand]
     public async Task LoginWithMicrosoft()
     {
@@ -117,4 +158,5 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             return;
         }
     }
+    #endregion
 }

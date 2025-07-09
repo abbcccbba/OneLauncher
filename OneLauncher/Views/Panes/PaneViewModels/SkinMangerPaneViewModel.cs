@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Helper.Models;
-using OneLauncher.Core.Net.msa;
+using OneLauncher.Core.Net.Account.Microsoft;
 using OneLauncher.Views.ViewModels;
 using System;
 using System.Collections.Generic;

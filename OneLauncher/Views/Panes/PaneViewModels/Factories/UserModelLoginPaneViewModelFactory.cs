@@ -1,5 +1,5 @@
 ﻿using OneLauncher.Core.Global.ModelDataMangers;
-using OneLauncher.Core.Net.msa;
+using OneLauncher.Core.Net.Account.Microsoft;
 using System;
 using System.Collections.Generic;
 using System.Linq;
