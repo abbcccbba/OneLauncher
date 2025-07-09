@@ -8,6 +8,7 @@
 			 xmlns:lo="clr-namespace:OneLauncher.Core.Helper.Models;assembly=OneLauncher.Core"
 			 xmlns:i="using:Avalonia.Xaml.Interactivity"
              xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
+			 xmlns:gamedatamanager="using:OneLauncher.Core.Global.ModelDataMangers"
 			 x:CompileBindings="True"
 			 x:DataType="vm:GameDataPageViewModel">
 	<i:Interaction.Behaviors>
@@ -25,12 +26,59 @@
 		<Grid RowDefinitions="52,Auto,*" Margin="24">
 			<StackPanel Margin="16,0,0,0" Orientation="Horizontal" Grid.Row="0" Spacing="28" >
 				<TextBlock Grid.Row="0" Text="游戏数据管理器" FontSize="36"/>
-				<Button Command="{Binding NewGameDataCommand}">
+				<Button>
 					<StackPanel Orientation="Horizontal">
 						<Image Source="/Assets/icos/add.png" Width="20" Height="20"/>
 						<TextBlock Text="新建"/>
 					</StackPanel>
+					<Button.Flyout>
+						<MenuFlyout>
+								<MenuItem Header="新建实例" Command="{Binding NewGameDataCommand}"/>
+								<Button Margin="-11" Content="新建标签" Background="Transparent">
+									<Button.Flyout>
+										<Flyout>
+											<StackPanel Orientation="Horizontal" Spacing="4">
+												<TextBox Text="{Binding NewTagName}" Watermark="输入标签名"/>
+												<Button Content="确定" Command="{Binding CreateNewTagCommand}"/>
+											</StackPanel>
+										</Flyout>
+									</Button.Flyout>
+									<Button.Styles>
+										<Style Selector="Button">
+											<Setter Property="Background" Value="Transparent"/>
+											<Setter Property="BorderThickness" Value="0"/>
+											<Setter Property="HorizontalContentAlignment" Value="Left"/>
+											<Setter Property="Padding" Value="12,8"/>
+										</Style>
+
+										<Style Selector="Button:pointerover /template/ ContentPresenter">
+											<Setter Property="Background" Value="#1A000000"/>
+										</Style>
+
+										<Style Selector="Button:pressed /template/ ContentPresenter">
+											<Setter Property="Background" Value="#1F000000"/>
+										</Style>
+									</Button.Styles>
+								</Button>
+						</MenuFlyout>
+					</Button.Flyout>
 				</Button>
+				<ComboBox Margin="-14,10,0,0" 
+						  PlaceholderText="标签过滤选项"
+						  ItemsSource="{Binding AvailableTags}"
+						  SelectedItem="{Binding SelectedTag}">
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="gamedatamanager:GameDataTag">
+							<TextBlock Text="{Binding Name}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<Button Command="{Binding ResetFilterCommand}" Margin="-22,0,0,0">
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="重置"/>
+					</StackPanel>
+				</Button>
+				<!--
 				<Button Margin="-14,0,0,0" Command="{Binding ImportCommand}">
 					<StackPanel Orientation="Horizontal">
 						<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
@@ -43,6 +91,7 @@
 						<TextBlock Text="联机"/>
 					</StackPanel>
 				</Button>
+				-->
 				<Button Margin="-14,0,0,0">
 					<StackPanel Orientation="Horizontal">
 						<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
@@ -105,7 +154,7 @@
 
 									<Button IsVisible="{Binding !IsDefault}"
 											Command="{Binding $parent[UserControl].DataContext.SetAsDefaultInstanceCommand}"
-											CommandParameter="{Binding data}">
+											CommandParameter="{Binding}">
 										<StackPanel Orientation="Horizontal" Spacing="6">
 											<Image Source="/Assets/icos/pin.png" Width="16" Height="16"/>
 											<TextBlock Text="设为默认"/>

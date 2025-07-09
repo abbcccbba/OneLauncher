@@ -80,35 +80,35 @@ public static class Init
         #region
         catch (ArgumentException ex)
         {
-            throw new OlanException("参数错误", $"参数未被正常传递：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("参数错误", $"参数未被正常传递：{ex}", OlanExceptionAction.FatalError);
         }
         catch (PathTooLongException ex)
         {
-            throw new OlanException("路径过长", $"路径过长：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("路径过长", $"路径过长：{ex}", OlanExceptionAction.FatalError);
         }
         catch (NotSupportedException ex)
         {
-            throw new OlanException("不支持的操作", $"当前操作不被支持：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("不支持的操作", $"当前操作不被支持：{ex}", OlanExceptionAction.FatalError);
         }
         catch (UnauthorizedAccessException ex)
         {
-            throw new OlanException("权限不足", $"当前用户没有足够的权限：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("权限不足", $"当前用户没有足够的权限：{ex}", OlanExceptionAction.FatalError);
         }
         catch (FileNotFoundException ex)
         {
-            throw new OlanException("文件未找到", $"所需文件不存在：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("文件未找到", $"所需文件不存在：{ex}", OlanExceptionAction.FatalError);
         }
         catch (DirectoryNotFoundException ex)
         {
-            throw new OlanException("目录未找到", $"所需目录不存在：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("目录未找到", $"所需目录不存在：{ex}", OlanExceptionAction.FatalError);
         }
         catch (InvalidOperationException ex)
         {
-            throw new OlanException("操作无效", $"当前操作无效：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("操作无效", $"当前操作无效：{ex}", OlanExceptionAction.FatalError);
         }
         catch (Exception ex)
         {
-            throw new OlanException("未知错误", $"发生未知错误：{ex.Message}", OlanExceptionAction.FatalError);
+            throw new OlanException("未知错误", $"发生未知错误：{ex}", OlanExceptionAction.FatalError);
         }
         #endregion
     }

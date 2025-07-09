@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -17,6 +18,7 @@ using OneLauncher.Views.Panes.PaneViewModels;
 using OneLauncher.Views.Panes.PaneViewModels.Factories;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -32,7 +34,7 @@ internal partial class GameDataItem : BaseViewModel
 {
     public GameData data { get; set; }
     public Bitmap Icon { get; set; }
-    public bool IsDefault { get; }
+    public bool IsDefault { get; set; }
     public bool IsUseDebugModLaunch {  get; set; }
     public bool IsMod => data.ModLoader != ModEnum.none;
     [RelayCommand]
@@ -77,7 +79,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
     // 刷新列表
     public void RefList()
     {
-        GameDataList = _gameDataManager.Data.Instances.Select(x => new GameDataItem(x.Value,_gameDataManager)).ToList();
+        GameDataList = _gameDataManager.Data.Instances.Select(x => new GameDataItem(x.Value, _gameDataManager)).ToList();
     }
     public GameDataPageViewModel(
         GameDataManager gameDataManager,
@@ -90,6 +92,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
         this._mctVMFactory = powerPlayPaneViewModelFactory;
         this._editVMFactory = editGameDataPaneViewModelFactory;
         this._gameDataManager = gameDataManager;
+        AvailableTags = new ObservableCollection<GameDataTag>( _gameDataManager.Data.Tags.Values.ToList());
 #if DEBUG
         // 造密码的Avalonia设计器天天报错
         // 设计时数据
@@ -174,16 +177,50 @@ internal partial class GameDataPageViewModel : BaseViewModel
         { DataContext = _editVMFactory.Create(data) };
     }
     [RelayCommand]
-    private async Task SetAsDefaultInstance(GameData targetData)
+    private async Task SetAsDefaultInstance(GameDataItem targetData)
     {
-        if (targetData == null) return;
-        await _gameDataManager.SetDefaultInstanceAsync(targetData);
+        //GameDataList.Select(x => x.IsDefault = false); // 先将所有实例的IsDefault设为false
+        //targetData.IsDefault = true; // 将目标实例的IsDefault设为true
+        await _gameDataManager.SetDefaultInstanceAsync(targetData.data);
         RefList();
         WeakReferenceMessenger.Default.Send(
-            new MainWindowShowFlyoutMessage($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。"));
-        //MainWindow.mainwindow.ShowFlyout($"已将 '{targetData.Name}' 设为版本 {targetData.VersionId} 的默认实例。");
+            new MainWindowShowFlyoutMessage($"已将 '{targetData.data.Name}' 设为版本 {targetData.data.VersionId} 的默认实例。"));
     }
     #region 顶层按钮事件
+    [ObservableProperty]
+    private ObservableCollection<GameDataTag> availableTags;
+    [ObservableProperty]
+    private GameDataTag? selectedTag;
+    [ObservableProperty]
+    private string? newTagName = string.Empty;
+    [RelayCommand]
+    private async Task CreateNewTag()
+    {
+        if(string.IsNullOrWhiteSpace(NewTagName)) return;
+        var newTagId = Guid.NewGuid();
+        await _gameDataManager.CreateTag(new GameDataTag
+        {
+            Name = NewTagName,
+            ID = newTagId
+        },newTagId);
+        NewTagName = string.Empty;
+        AvailableTags = new ObservableCollection<GameDataTag>(_gameDataManager.Data.Tags.Values.ToList());
+        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"标签 '{NewTagName}' 已创建", NotificationType.Success));
+    }
+    partial void OnSelectedTagChanged(GameDataTag? value)
+    {
+        if (value == null) return;
+        GameDataList =
+                _gameDataManager.GetInstancesFromTag(value.ID)
+                .Select(x => new GameDataItem(x,_gameDataManager))
+                .ToList();
+    }
+    [RelayCommand]
+    private void ResetFilter()
+    {
+        SelectedTag = null; // 里面有空值检查所以这里手动刷新
+        RefList();
+    }
     [RelayCommand]
     public void Sorting(SortingType type)
     {

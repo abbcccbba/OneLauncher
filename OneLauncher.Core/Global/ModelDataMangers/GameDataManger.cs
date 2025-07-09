@@ -1,13 +1,17 @@
-﻿using OneLauncher.Core.Helper.Models;
+﻿using Duende.IdentityModel.OidcClient;
+using OneLauncher.Core.Helper.Models;
+using System.Collections.Generic;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks.Sources;
 
 namespace OneLauncher.Core.Global.ModelDataMangers;
-public class GameDataTag(string name)
+public class GameDataTag
 {
-    public string Name { get; set; } = name;
+    public string Name { get; init; }
+    public Guid ID { get; init; }
 }
 public class GameDataRoot
 {
@@ -97,28 +101,66 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
         :base(configPath)
     {
     }
-    public Task CreateTag(string instanceId, GameDataTag tag)
+    public IEnumerable<GameData> GetInstancesFromTag(Guid tagId)
     {
-        var newTagId = Guid.NewGuid();
-        Data.Tags.Add(newTagId, tag);
-        Data.TagMap[instanceId] = newTagId;
+        var result = new List<GameData>();
+        // 1. 遍历 TagMap 寻找匹配的实例ID
+        foreach (var tagMapEntry in Data.TagMap)
+        {
+            // 2. 如果标签ID匹配
+            if (tagMapEntry.Value == tagId)
+            {
+                string instanceId = tagMapEntry.Key;
+
+                // 3. 使用实例ID从 Instances 字典中获取 GameData 对象
+                if (Data.Instances.TryGetValue(instanceId, out GameData gameData))
+                {
+                    // 4. 将找到的实例添加到结果列表中
+                    result.Add(gameData);
+                }
+            }
+        }
+
+        return result;
+    }
+    public Task CreateTag(GameDataTag tag,Guid tagId)
+    {
+        Data.Tags.Add(tagId, tag);
         return Save();
     }
     public Task SetTagForInstance(string instanceId, Guid tagId)
     {
-        // 确保要设置的 tagId 是真实存在的
-        if (Data.Tags.ContainsKey(tagId))
-        {
-            Data.TagMap[instanceId] = tagId;
-        }
+        Data.TagMap[instanceId] = tagId;
         return Save();
     }
-    public Task RemoveTagInInstanceAsync(string instanceId)
+    /// <summary>
+    /// 移除一个实例的标签引用。
+    /// </summary>
+    public Task RemoveTagFromInstanceAsync(string instanceId)
     {
         if (Data.TagMap.ContainsKey(instanceId))
         {
-            var tagId = Data.TagMap[instanceId];
             Data.TagMap.Remove(instanceId);
+        }
+        return Save();
+    }
+    public Task RemoveTagAsync(Guid tagId)
+    {
+        if (Data.Tags.ContainsKey(tagId))
+        {
+            // 找到所有引用此标签的实例ID
+            var instancesWithTag = Data.TagMap
+                .Where(kvp => kvp.Value == tagId)
+                .Select(kvp => kvp.Key)
+                .ToList(); // 同样需要 ToList 来避免在遍历时修改集合
+
+            // 移除所有引用
+            foreach (var instanceId in instancesWithTag)
+            {
+                Data.TagMap.Remove(instanceId);
+            }
+
+            // 最后移除标签本身
             Data.Tags.Remove(tagId);
         }
         return Save();
@@ -131,7 +173,11 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
 
     public GameData? GetDefaultInstance(string versionId)
     {
-        return Data.Instances.FirstOrDefault(x => x.Value.VersionId == versionId).Value;
+        var defaultInstanceId = Data.DefaultInstanceMap.GetValueOrDefault(versionId);
+        if (defaultInstanceId == null)
+            return null;
+        return
+            Data.Instances.GetValueOrDefault(defaultInstanceId); 
     }
 
     public Task AddGameDataAsync(GameData newData)

@@ -3,49 +3,66 @@
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
+			 xmlns:gamedatamanager="using:OneLauncher.Core.Global.ModelDataMangers"
              x:Class="OneLauncher.Views.Panes.EditGameDataPane"
              x:DataType="vm:EditGameDataPaneViewModel"
 			 x:CompileBindings="True"
 			 d:DesignWidth="650" d:DesignHeight="620"
 			 >
-	<StackPanel Spacing="15" Margin="20">
-		<Grid ColumnDefinitions="*,*,*">
-			<StackPanel Orientation="Horizontal" Grid.Column="0" Margin="12,0,0,0" Spacing="12">
-				<Button Command="{Binding CancelCommand}">
-					<StackPanel Orientation="Horizontal">
-						<Image Source="/Assets/icos/back.png" Height="20" Width="20"/>
-						<TextBlock Text="返回"/>
-					</StackPanel>
-				</Button>
-				<Button Command="{Binding SaveCommand}">
-					<StackPanel Orientation="Horizontal">
-						<Image Source="/Assets/icos/save.png" Height="20" Width="20"/>
-						<TextBlock Text="保存"/>
-					</StackPanel>
-				</Button>
-			</StackPanel>
-			<TextBlock Grid.Column="1" Text="编辑游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-		</Grid>
-		<Separator/>
-		<Border CornerRadius="10" Width="100" Height="100" ClipToBounds="True" HorizontalAlignment="Center">
-			<Image Source="{Binding CurrentIcon}" Stretch="UniformToFill"/>
-		</Border>
-		<Button Content="更换图标" Command="{Binding ChangeIconCommand}" HorizontalAlignment="Center"/>
-		<TextBlock Text="实例名称"/>
-		<TextBox Text="{Binding InstanceName}"/>
-		<TextBlock Text="高级操作"/>
-		<StackPanel Orientation="Horizontal" Spacing="6">
-			<Button Content="打开实例文件夹" Command="{Binding OpenInstanceFolderCommand}" />
-			<Button Content="在桌面快速启动" Command="{Binding AddToQuicklyPlayCommand}" />
-			<Button Content="拷贝此游戏数据" Command="{Binding CopyThisInstanceCommand}" />
-		</StackPanel>
-		<Grid ColumnDefinitions="*,*" Margin="0,20,0,0">
-			<Button Command="{Binding DeleteInstanceCommand}">
-				<StackPanel Orientation="Horizontal">
-					<Image Source="/Assets/icos/del.png" Height="20" Width="20"/>
-					<TextBlock Text="移除此游戏数据"/>
+	<ScrollViewer>
+		<StackPanel Spacing="15" Margin="20">
+			<Grid ColumnDefinitions="*,*,*">
+				<StackPanel Orientation="Horizontal" Grid.Column="0" Margin="12,0,0,0" Spacing="12">
+					<Button Command="{Binding CancelCommand}">
+						<StackPanel Orientation="Horizontal">
+							<Image Source="/Assets/icos/back.png" Height="20" Width="20"/>
+							<TextBlock Text="返回"/>
+						</StackPanel>
+					</Button>
+					<Button Command="{Binding SaveCommand}">
+						<StackPanel Orientation="Horizontal">
+							<Image Source="/Assets/icos/save.png" Height="20" Width="20"/>
+							<TextBlock Text="保存"/>
+						</StackPanel>
+					</Button>
 				</StackPanel>
-			</Button>
-		</Grid>
-	</StackPanel>
+				<TextBlock Grid.Column="1" Text="编辑游戏数据" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+			</Grid>
+			<Separator/>
+			<Border CornerRadius="10" Width="100" Height="100" ClipToBounds="True" HorizontalAlignment="Center">
+				<Image Source="{Binding CurrentIcon}" Stretch="UniformToFill"/>
+			</Border>
+			<Button Content="更换图标" Command="{Binding ChangeIconCommand}" HorizontalAlignment="Center"/>
+			<TextBlock Text="实例名称"/>
+			<TextBox Text="{Binding InstanceName}"/>
+			<TextBlock Text="标签选项" />
+			<StackPanel Orientation="Horizontal" Spacing="6">
+				<ComboBox PlaceholderText="选择可用标签"
+						  ItemsSource="{Binding AvailableTags}"
+						  SelectedItem="{Binding SelectedTag}"
+						  >
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="gamedatamanager:GameDataTag">
+							<TextBlock Text="{Binding Name}"/>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+				<Button Content="重置标签" Command="{Binding ResetLabelOptionCommand}"/>
+			</StackPanel>
+			<TextBlock Text="高级操作"/>
+			<StackPanel Orientation="Horizontal" Spacing="6">
+				<Button Content="打开实例文件夹" Command="{Binding OpenInstanceFolderCommand}" />
+				<Button Content="在桌面快速启动" Command="{Binding AddToQuicklyPlayCommand}" />
+				<Button Content="拷贝此游戏数据" Command="{Binding CopyThisInstanceCommand}" />
+			</StackPanel>
+			<Grid ColumnDefinitions="*,*" Margin="0,20,0,0">
+				<Button Command="{Binding DeleteInstanceCommand}">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="/Assets/icos/del.png" Height="20" Width="20"/>
+						<TextBlock Text="移除此游戏数据"/>
+					</StackPanel>
+				</Button>
+			</Grid>
+		</StackPanel>
+	</ScrollViewer>
 </UserControl>

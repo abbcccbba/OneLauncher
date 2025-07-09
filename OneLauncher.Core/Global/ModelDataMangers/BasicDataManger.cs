@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -53,6 +54,7 @@ public abstract class BasicDataManager<T> where T : class, new()
             }
             catch (Exception ex)
             {
+                Debug.WriteLine(ex);
                 throw new OlanException($"加载配置文件 {_configPath} 失败", "文件可能已损坏。", OlanExceptionAction.FatalError, ex);
             }
         }
@@ -70,7 +72,7 @@ public abstract class BasicDataManager<T> where T : class, new()
         try
         {
             // 覆盖原始文件
-            await using var fs = File.Create(_configPath);
+            await using var fs = new FileStream(_configPath,FileMode.Create,FileAccess.Write,FileShare.Read,0,true);
             await JsonSerializer.SerializeAsync<T>(fs,Data, _serializerOptions);
         }
         finally

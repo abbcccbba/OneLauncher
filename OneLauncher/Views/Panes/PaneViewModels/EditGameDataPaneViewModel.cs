@@ -33,6 +33,12 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         this._gameDataManager = gameDataManager;
         editingGameData = gameData;
         InstanceName = gameData.Name;
+        AvailableTags = _gameDataManager.Data.Tags.Values.ToList();
+        Guid? tagId = _gameDataManager.Data.TagMap.GetValueOrDefault(editingGameData.InstanceId);
+        if (tagId == null)
+            SelectedTag = null;
+        else SelectedTag = 
+            _gameDataManager.Data.Tags.GetValueOrDefault((Guid)tagId); // 找到标签
         LoadCurrentIcon();
     }
 
@@ -69,41 +75,23 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         };
         CurrentIcon = new Bitmap(AssetLoader.Open(new Uri(iconUri)));
     }
+    #region 标签选项
+    [ObservableProperty] List<GameDataTag> availableTags;
+    [ObservableProperty] GameDataTag? selectedTag;
     [RelayCommand]
-    private async Task ChangeIcon()
+    private Task ResetLabelOption()
     {
-        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
-        if (topLevel?.StorageProvider is null) return;
-
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "选择一个新的图标",
-            AllowMultiple = false,
-            FileTypeFilter = new[] { FilePickerFileTypes.ImageAll }
-        });
-
-        var selectedFile = files?.FirstOrDefault();
-        if (selectedFile == null) return;
-
-        string imageDir = Path.Combine(editingGameData.InstancePath, ".olc");
-        Directory.CreateDirectory(imageDir);
-        string destPath = Path.Combine(imageDir, "customicon");
-
-        { // 确保文件流被释放
-            await using var sourceStream = await selectedFile.OpenReadAsync();
-            await using var destStream = File.Create(destPath);
-            await sourceStream.CopyToAsync(destStream);
-        }
-
-        CurrentIcon = new Bitmap(destPath); // 显示预览
-        UpdateGameData();
-
-        WeakReferenceMessenger.Default.Send(
-            new GameDataPageDisplayListRefreshMessage());
-
-        WeakReferenceMessenger.Default.Send(
-            new MainWindowShowFlyoutMessage($"已更改实例“{editingGameData.Name}”的图标！"));
+        SelectedTag = null;
+        return _gameDataManager.RemoveTagFromInstanceAsync(editingGameData.InstanceId);
     }
+    partial void OnSelectedTagChanged(GameDataTag? value)
+    {
+        if (value == null)
+            return;
+        _=_gameDataManager.SetTagForInstance(editingGameData.InstanceId, SelectedTag.ID);
+    }
+    #endregion
+    #region 高级选项
     [RelayCommand]
     private void OpenInstanceFolder()
     {
@@ -150,12 +138,50 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage("已以此拷贝实例！",NotificationType.Success));
     }
+    #endregion
+    #region 基本选项
+    [RelayCommand]
+    private async Task ChangeIcon()
+    {
+        var topLevel = TopLevel.GetTopLevel(MainWindow.mainwindow);
+        if (topLevel?.StorageProvider is null) return;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "选择一个新的图标",
+            AllowMultiple = false,
+            FileTypeFilter = new[] { FilePickerFileTypes.ImageAll }
+        });
+
+        var selectedFile = files?.FirstOrDefault();
+        if (selectedFile == null) return;
+
+        string imageDir = Path.Combine(editingGameData.InstancePath, ".olc");
+        Directory.CreateDirectory(imageDir);
+        string destPath = Path.Combine(imageDir, "customicon");
+
+        { // 确保文件流被释放
+            await using var sourceStream = await selectedFile.OpenReadAsync();
+            await using var destStream = File.Create(destPath);
+            await sourceStream.CopyToAsync(destStream);
+        }
+
+        CurrentIcon = new Bitmap(destPath); // 显示预览
+        UpdateGameData();
+
+        WeakReferenceMessenger.Default.Send(
+            new GameDataPageDisplayListRefreshMessage());
+
+        WeakReferenceMessenger.Default.Send(
+            new MainWindowShowFlyoutMessage($"已更改实例“{editingGameData.Name}”的图标！"));
+    }
     [RelayCommand]
     private void Save()
     {
         editingGameData.Name = InstanceName;
-        //parentViewModel.UpdateGameData(editingGameData);
-        _gameDataManager.Data.Instances.GetValueOrDefault(editingGameData.InstanceId);
+        //_gameDataManager.Data.Instances.GetValueOrDefault(editingGameData.InstanceId);
+        if (SelectedTag != null)
+            _gameDataManager.SetTagForInstance(editingGameData.InstanceId, SelectedTag.ID);
         _=_gameDataManager.Save();
 
         WeakReferenceMessenger.Default.Send(new GameDataPageDisplayListRefreshMessage());
@@ -192,4 +218,5 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     {
         WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
     }
+    #endregion
 }
