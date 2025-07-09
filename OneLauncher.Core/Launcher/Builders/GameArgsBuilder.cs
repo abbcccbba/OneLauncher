@@ -14,8 +14,13 @@ public partial class LaunchCommandBuilder
     private IEnumerable<string> BuildGameArgs(string gamePath,IModStrategy? strategy)
     {
         if(loginUser == null) loginUser = Init.AccountManager.GetDefaultUser();
-
         List<string> Args = new List<string>(19);
+        string userType = loginUser.UserType switch
+        {
+            AccountType.Offline => "legacy",
+            AccountType.Msa => "msa",
+            AccountType.Yggdrasil => "mojang",
+        };
         if (serverInfo != null)
         {
             Args.Add($"--server");
@@ -48,7 +53,7 @@ public partial class LaunchCommandBuilder
                 "--accessToken",
                 $"\"{loginUser.AccessToken}\"",
                 "--userType",
-                $"\"{(loginUser.IsMsaUser ? "msa" : "legacy")}\"",
+                $"\"{userType}\"",
                 "--versionType",
                 $"\"OneLauncher\"",
                 "--userProperties {}"

@@ -9,6 +9,9 @@
     <Import_RootNamespace>OneLauncher.Core.Net</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Account\Yggdrasil\JsonModels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Account\Yggdrasil\ServiceProviders\LittleSkinAuthenticator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Account\Yggdrasil\YggdrasilAuthenticator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\IConnectService.cs" />
     <Compile Include="..\OneLauncher.Core.Net\ConnectToolPower\MCTPower.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AdoptiumAPI.cs" />
@@ -17,8 +20,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\JsonModelGet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\jsonModelSearch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\SearchModrinth.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\JsonModels.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\MojangProfile.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Microsoft\MsalAuthenticator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Account\Microsoft\JsonModels.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Account\Microsoft\MojangProfile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Account\Microsoft\MsalAuthenticator.cs" />
   </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@ using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft;
+using System.Runtime.CompilerServices;
 namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
@@ -17,7 +18,8 @@ public partial class LaunchCommandBuilder
     private ModEnum modType = ModEnum.none;
     private ServerInfo? serverInfo = null;
     private UserModel loginUser;
-    
+    private IEnumerable<string> _buildArgs;
+
     // 构造函数保持不变
     private LaunchCommandBuilder(
         string basePath,
@@ -73,8 +75,7 @@ public partial class LaunchCommandBuilder
     #endregion
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
-
-    public async Task<IEnumerable<string>> BuildCommand()
+    public async Task<LaunchCommandBuilder> BuildCommand()
     {
         IModStrategy? strategy = null; // 策略可以是null，代表原版
         if (modType != ModEnum.none)
@@ -90,7 +91,31 @@ public partial class LaunchCommandBuilder
         rargs.AddRange(BuildJvmArgs(strategy));
         rargs.Add(strategy?.GetMainClassOverride() ?? versionInfo.GetMainClass()); // 别把主类忘了
         rargs.AddRange(BuildGameArgs(gamePath ,strategy));
-        return rargs;
+        _buildArgs = rargs;
+        return this;
+    }
+    public async Task<string> GetArguments()
+    {
+        string launchArg = string.Join(" ", _buildArgs);
+        string launchCommand;
+        if (launchArg.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
+        {
+            string tempFile = Path.GetTempFileName();
+            await File.WriteAllTextAsync(tempFile, launchArg
+#if WINDOWS
+                .Replace("\\", @"\\") // Windows需要转义
+#endif
+                );
+            launchCommand = $"@\"{tempFile}\""; // 返回临时文件路径
+        }
+        else
+            launchCommand = launchArg;
+
+        if (loginUser.YggdrasilInfo != null)
+            return
+                $"-javaagent:\"{(Path.Combine(Init.InstalledPath, "authlib.jar"))}\"={loginUser.YggdrasilInfo.Value.AuthUrl} "
+                + launchCommand;
+        return launchCommand;
     }
 
     // 策略方法

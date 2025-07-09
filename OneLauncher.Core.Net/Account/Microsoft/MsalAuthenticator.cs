@@ -1,7 +1,6 @@
 ﻿using Duende.IdentityModel.OidcClient;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
-using OneLauncher.Core.Net.msa.JsonModels;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -9,12 +8,14 @@ using System.Text;
 using System.Text.Json;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Net.Account.Microsoft.JsonModels;
+
 
 
 #if WINDOWS
 using Microsoft.Identity.Client.Broker;
 #endif
-namespace OneLauncher.Core.Net.msa;
+namespace OneLauncher.Core.Net.Account.Microsoft;
 
 public class MsalAuthenticator : IDisposable
 {

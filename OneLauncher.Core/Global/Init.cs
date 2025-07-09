@@ -2,8 +2,8 @@
 using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Net.Account.Microsoft;
 using OneLauncher.Core.Net.ConnectToolPower;
-using OneLauncher.Core.Net.msa;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 namespace OneLauncher.Core.Global;
 public static class Init
 {
-    public const string OneLauncherVersoin = "0.2.0.2.1";
+    public const string OneLauncherVersoin = "0.3.0.0";
     public const string PackageName = "com.onelauncher.lnetface";
     public const string ApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
     public static Task<IServiceCollection> InitTask;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace OneLauncher.Core.Net.msa.JsonModels;
+namespace OneLauncher.Core.Net.Account.Microsoft.JsonModels;
 
 // --- 请求体模型 ---
 

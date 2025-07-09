@@ -47,16 +47,6 @@ public class GameLauncher : IGameLauncher
         if (jvmArgsToUse.mode != OptimizationMode.None)
             commandBuilder.WithExtraJvmArgs(jvmArgsToUse.GetArguments(commandBuilder.versionInfo.GetJavaVersion(), gameData));
         await resh;
-        string arguments = string.Join(" ", await commandBuilder.BuildCommand());
-        if (arguments.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
-        {
-            _launchArgumentsPath = Path.GetTempFileName();
-            await File.WriteAllTextAsync(_launchArgumentsPath, arguments
-#if WINDOWS
-                .Replace("\\", @"\\") // Windows需要转义
-#endif
-                , CancellationToken);
-        }
         #endregion
         // 配置并启动游戏进程
         try
@@ -71,9 +61,7 @@ public class GameLauncher : IGameLauncher
                 CreateNoWindow = true,
                 StandardOutputEncoding = Encoding.UTF8,
                 StandardErrorEncoding = Encoding.UTF8,
-                Arguments = _launchArgumentsPath == null
-                    ? arguments
-                    : $"@{_launchArgumentsPath}"
+                Arguments = await (await commandBuilder.BuildCommand()).GetArguments()
             };
             _gameProcess = new Process();
             _gameProcess.StartInfo = processInfo;

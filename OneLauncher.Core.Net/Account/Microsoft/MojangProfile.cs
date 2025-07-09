@@ -1,7 +1,7 @@
 ﻿using OneLauncher.Core.Downloader;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
-using OneLauncher.Core.Net.msa.JsonModels;
+using OneLauncher.Core.Net.Account.Microsoft.JsonModels;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Net.Http.Headers;
@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
-namespace OneLauncher.Core.Net.msa;
+namespace OneLauncher.Core.Net.Account.Microsoft;
 public struct MojangSkin
 {
     public string Skin;

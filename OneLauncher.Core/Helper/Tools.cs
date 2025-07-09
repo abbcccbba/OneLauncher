@@ -1,7 +1,6 @@
 ﻿using Microsoft.Identity.Client;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
-using OneLauncher.Core.Net.msa;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

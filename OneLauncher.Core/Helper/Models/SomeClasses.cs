@@ -1,5 +1,4 @@
 ﻿using Microsoft.Identity.Client;
-using OneLauncher.Core.Net.msa;
 using System;
 using System.Diagnostics;
 using System.IO;
