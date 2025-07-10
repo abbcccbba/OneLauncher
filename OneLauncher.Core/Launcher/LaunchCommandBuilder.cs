@@ -5,28 +5,6 @@ using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft;
 using System.Runtime.CompilerServices;
 namespace OneLauncher.Core.Launcher;
-public struct LaunchCommand(IEnumerable<string> fileArgs, IEnumerable<string> commandArgs)
-{
-    private IEnumerable<string> commandArgs = commandArgs; // 必须在命令行的参数
-    private IEnumerable<string> fileArgs = fileArgs; // 可以在命令行也可以在文件中的参数
-    public async Task<string> GetArguments()
-    {
-        string launchArg = string.Join(" ",fileArgs);
-        string launchCommand = string.Join(" ",commandArgs);
-        if (launchArg.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
-        {
-            string tempFile = Path.GetTempFileName();
-            await File.WriteAllTextAsync(tempFile, launchArg
-#if WINDOWS
-                .Replace("\\", @"\\") // Windows需要转义
-#endif
-                );
-            return $"{launchCommand} @\"{tempFile}\"";
-        }
-        else
-            return $"{launchCommand} {launchArg}";
-    }
-}
 public partial class LaunchCommandBuilder
 {
     public VersionInfomations versionInfo;
