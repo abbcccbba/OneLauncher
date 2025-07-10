@@ -19,10 +19,11 @@ namespace OneLauncher.Core.Net.Account.Microsoft;
 
 public class MsalAuthenticator : IDisposable
 {
-    private readonly IPublicClientApplication msalClient;
+    private IPublicClientApplication msalClient;
     private MsalCacheHelper cacheHelper; 
     private readonly HttpClient httpClient;
-
+    private readonly string clientId;
+    private bool isFallback = false;
     private static readonly string[] Scopes = { "XboxLive.signin", "offline_access" };
     public Task<IEnumerable<IAccount>> GetCachedAccounts()
         =>msalClient.GetAccountsAsync();
@@ -35,6 +36,9 @@ public class MsalAuthenticator : IDisposable
     /// </summary>
     public async Task<UserModel?> LoginNewAccountToGetMinecraftMojangAccessTokenUseWindowsWebAccountManger(IntPtr windowHandle)
     {
+        if(isFallback)
+            return await LoginNewAccountToGetMinecraftMojangAccessTokenOnSystemBrowser();
+        
         try
         {
             var brokerOptions = new BrokerOptions(BrokerOptions.OperatingSystems.Windows);
@@ -59,6 +63,7 @@ public class MsalAuthenticator : IDisposable
         try
         {
             var authResult = await msalClient.AcquireTokenInteractive(Scopes)
+               
                 .ExecuteAsync();
 
             return await ToLoandauth(authResult.AccessToken, authResult.Account);
@@ -73,6 +78,7 @@ public class MsalAuthenticator : IDisposable
 
     private MsalAuthenticator(string clientId)
     {
+        this.clientId = clientId;
         var clientBuilder = PublicClientApplicationBuilder.Create(clientId)
             .WithAuthority("https://login.microsoftonline.com/consumers")
             .WithDefaultRedirectUri();
@@ -86,6 +92,16 @@ public class MsalAuthenticator : IDisposable
         msalClient = clientBuilder.Build();
         httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    }
+    public void FallbackToWeb()
+    {
+        isFallback = true;
+        var clientBuilder = PublicClientApplicationBuilder.Create(clientId)
+            .WithAuthority("https://login.microsoftonline.com/consumers")
+            .WithRedirectUri("http://localhost");
+
+        msalClient = clientBuilder.Build();
+        cacheHelper.RegisterCache(msalClient.UserTokenCache);
     }
     public static async Task<MsalAuthenticator> CreateAsync(string clientId)
     {

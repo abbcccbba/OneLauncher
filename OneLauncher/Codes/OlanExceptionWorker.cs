@@ -35,7 +35,7 @@ internal class OlanExceptionWorker
     {
         return Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            await new ExceptionTip(new OlanException("出现未知错误",exception.ToString(),OlanExceptionAction.Error)).ShowDialog(MainWindow.mainwindow);
+            await new ExceptionTip(new OlanException("出现未知错误",exception.ToString(),OlanExceptionAction.Error,exception,TryAgainFunction)).ShowDialog(MainWindow.mainwindow);
         });
     }
 }

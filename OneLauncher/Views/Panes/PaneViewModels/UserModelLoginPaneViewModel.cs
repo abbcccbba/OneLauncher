@@ -82,7 +82,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         }
         try
         {
-            var um = await new LittleSkinAuthenticator().AuthenticateUseUserNameAndPasswordAsync(RUserName,RPassword);
+            var um = await new LittleSkinAuthenticator().AuthenticateUseUserNameAndPasswordAsync(RUserName, RPassword);
             await ac.AddUser(um);
             WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
             WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
@@ -108,9 +108,9 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             return;
         }
         ac.AddUser(new UserModel(
-            UserID : Guid.NewGuid(),
-            name : UserName,
-            uuid : Guid.NewGuid()
+            UserID: Guid.NewGuid(),
+            name: UserName,
+            uuid: Guid.NewGuid()
         ));
         WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
         WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
@@ -120,23 +120,26 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
     public void Back()
     {
         WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
-        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("数据已销毁",Avalonia.Controls.Notifications.NotificationType.Information));
+        WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("数据已销毁", Avalonia.Controls.Notifications.NotificationType.Information));
     }
     #endregion
     #region 微软登入
     [RelayCommand]
-    public async Task LoginWithMicrosoft()
+    public Task LoginWithMicrosoft()
+        => LoginWithMicrosoftHandle();
+    private async Task LoginWithMicrosoftHandle(bool useWeb = false)
     {
         try
         {
             UserModel um;
 #if WINDOWS
-            if (Init.SystemType == SystemType.windows)
+            if (Init.SystemType == SystemType.windows && !useWeb)
             {
-                um = 
+                //throw new Exception("test");
+                um =
                     await _accountManager.LoginNewAccountToGetMinecraftMojangAccessTokenUseWindowsWebAccountManger(
                         (MainWindow.mainwindow.TryGetPlatformHandle().Handle))
-                    ?? throw new OlanException("认证失败", "无法认证你的微软账号"); 
+                    ?? throw new OlanException("认证失败", "无法认证你的微软账号");
             }
             else
 #endif
@@ -155,6 +158,18 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
         catch (OlanException ex)
         {
             await OlanExceptionWorker.ForOlanException(ex);
+            return;
+        }
+        catch (Exception ex)
+        {
+            // 如果操作系统不支持WAM可以尝试回退到网页登入
+            await OlanExceptionWorker.ForUnknowException(ex,
+                 () => 
+                 {
+                     // 让他重写赋值，回退到浏览器模式
+                     _accountManager.FallbackToWeb();
+                     _ = LoginWithMicrosoftHandle(true);
+                 });
             return;
         }
     }
