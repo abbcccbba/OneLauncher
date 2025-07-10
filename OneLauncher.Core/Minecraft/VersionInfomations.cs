@@ -139,58 +139,63 @@ public class VersionInfomations
         }
         return libraries;
     }
-    public List<(string name, string path)> GetLibraryiesForUsing()
+    /// <summary>
+    /// 获取当前版本在启动时需要加载到类路径的库文件。
+    /// 此方法经过优化，直接返回一个字典以提高后续处理效率。
+    /// </summary>
+    /// <returns>一个以 "groupId:artifactId" 为键，库文件完整路径为值的字典。</returns>
+    public Dictionary<string, string> GetLibraryiesForUsing()
     {
-        var libraries = new List<(string name, string path)>(info.Libraries.Count); // 提前初始化相应长度内存，避免频繁扩容影响性能
-        string OsName;
+        var libraries = new Dictionary<string, string>(info.Libraries.Count);
 #if WINDOWS
-        OsName = "windows"; 
+        const string osName = "windows";
+        const string archName = "x64";
 #elif MACOS
-        OsName = "osx";
-#else
-        OsName = "linux";
+        const string osName = "osx";
+        const string archName = "arm64";
+#else // Linux
+        const string osName = "linux";
+        const string archName = "x64";
 #endif
         foreach (var lib in info.Libraries)
         {
-            // 检查规则
-            bool allowed = false;
-            // 如果包含规则
-            if (lib.Rules != null)
+            bool isAllowed = true;
+            if (lib.Rules != null && lib.Rules.Count > 0)
             {
-                // 判断是双规则还是单规则
-                // 先处理双规则
-                if (lib.Rules.Count == 2)
+                var lastAction = "allow";
+                foreach (var rule in lib.Rules)
                 {
-                    // 与当前系统尝试匹配
-                    // 第二条规则的 action 是 disallow
-                    if (lib.Rules[1].Os.Name != OsName)
-                        allowed = true;
-                    else allowed = false;
+                    bool conditionMet = false;
+                    if (rule.Os != null)
+                    {
+                        if ((rule.Os.Name == null || rule.Os.Name == osName) &&
+                            (rule.Os.Arch == null || rule.Os.Arch == archName))
+                        {
+                            conditionMet = true;
+                        }
+                    }
+                    else { conditionMet = true; }
+
+                    if (conditionMet) { lastAction = rule.Action; }
                 }
-                if (lib.Rules.Count == 1)
-                {
-                    // 与当前系统尝试匹配
-                    if (lib.Rules[0].Os.Name == OsName)
-                        allowed = true;
-                    else
-                        allowed = false;
-                }
-            }
-            // 没有规则直接下载
-            else
-            {
-                allowed = true;
+                isAllowed = (lastAction == "allow");
             }
 
-            // 不合当前操作系统跳过
-            if (!allowed)
+            if (!isAllowed)
                 continue;
 
-            // 普通库文件 
-            if (lib?.Downloads?.Artifact != null)
-                libraries.Add((lib.Name, Path.Combine(basePath, "libraries",Path.Combine(lib.Downloads.Artifact.Path.Split('/')))));
-        }
+            if (lib?.Downloads?.Artifact != null && !lib.Name.Contains(":natives-"))
+            {
+                var parts = lib.Name.Split(':');
+                // 关键点：使用 groupId:artifactId 作为唯一的Key
+                var libKey = $"{parts[0]}:{parts[1]}";
 
+                var libPath = Path.Combine(basePath, "libraries", Path.Combine(lib.Downloads.Artifact.Path.Split('/')));
+
+                // 使用TryAdd，确保只有第一个遇到的同名库被添加，符合原版逻辑
+                libraries.TryAdd(libKey, libPath);
+            }
+        }
         return libraries;
     }
     /// <summary>

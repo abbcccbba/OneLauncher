@@ -114,78 +114,39 @@ public class FabricVJParser
         dowItems.Add(new NdDowItem(_url, _fullPath, 0));
         return dowItems;
     }
-    public List<(string name, string path)> GetLibrariesForUsing()
+    /// <summary>
+    /// 获取Fabric模组加载器在启动时需要加载到类路径的库文件。
+    /// </summary>
+    /// <returns>一个以 "groupId:artifactId" 为键，库文件完整路径为值的字典。</returns>
+    public Dictionary<string, string> GetLibrariesForUsing()
     {
-        // 初始化库列表，预分配容量以优化性能
-        var libraries = new List<(string name, string path)>(info.LauncherMeta.Libraries.Common.Count + 2);
+        var libraries = new Dictionary<string, string>(info.LauncherMeta.Libraries.Common.Count + 2);
 
-        // 处理 Common 库
-        foreach (var item in info.LauncherMeta.Libraries.Common)
+        Action<string> addLibrary = (mavenName) =>
         {
-            // 解析 Maven 坐标（格式如 org.ow2.asm:asm:9.8）
-            string[] parts = item.Name.Split(':');
-            if (parts.Length < 3) continue; // 跳过无效格式
+            var parts = mavenName.Split(':');
+            if (parts.Length < 3) return;
 
-            string groupId = parts[0]; // 例如 org.ow2.asm
-            string artifactId = parts[1]; // 例如 asm
-            string version = parts[2]; // 例如 9.8
+            // 关键点：使用 groupId:artifactId 作为唯一的Key
+            var libKey = $"{parts[0]}:{parts[1]}";
 
-            // 构造本地路径
+            string groupId = parts[0];
+            string artifactId = parts[1];
+            string version = parts[2];
+
             string fileName = $"{artifactId}-{version}.jar";
             string fullPath = Path.Combine(
-                basePath,
-                "libraries",
+                basePath, "libraries",
                 groupId.Replace('.', Path.DirectorySeparatorChar),
-                artifactId,
-                version,
-                fileName);
+                artifactId, version, fileName);
 
-            libraries.Add((item.Name, fullPath));
-        }
+            // Mod库应该总是被加载，使用索引器可以实现覆盖（如果需要）
+            libraries[libKey] = fullPath;
+        };
 
-        // 处理 Loader 库
-        {
-            string[] parts = info.Loader.DownName.Split(':');
-            if (parts.Length >= 3)
-            {
-                string groupId = parts[0];
-                string artifactId = parts[1];
-                string version = parts[2];
-
-                string fileName = $"{artifactId}-{version}.jar";
-                string fullPath = Path.Combine(
-                    basePath,
-                    "libraries",
-                    groupId.Replace('.', Path.DirectorySeparatorChar),
-                    artifactId,
-                    version,
-                    fileName);
-
-                libraries.Add((info.Loader.DownName, fullPath));
-            }
-        }
-
-        // 处理 Intermediary 库
-        {
-            string[] parts = info.Intermediary.DownName.Split(':');
-            if (parts.Length >= 3)
-            {
-                string groupId = parts[0];
-                string artifactId = parts[1];
-                string version = parts[2];
-
-                string fileName = $"{artifactId}-{version}.jar";
-                string fullPath = Path.Combine(
-                    basePath,
-                    "libraries",
-                    groupId.Replace('.', Path.DirectorySeparatorChar),
-                    artifactId,
-                    version,
-                    fileName);
-
-                libraries.Add((info.Intermediary.DownName, fullPath));
-            }
-        }
+        info.LauncherMeta.Libraries.Common.ForEach(lib => addLibrary(lib.Name));
+        addLibrary(info.Loader.DownName);
+        addLibrary(info.Intermediary.DownName);
 
         return libraries;
     }

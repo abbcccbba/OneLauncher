@@ -143,7 +143,7 @@ public class GameLauncher : IGameLauncher
     {
         GameClosedEvent?.Invoke();
         if(_gameProcess.ExitCode != 0)
-            throw new OlanException("启动失败", "未知错误，请尝试以调试模式启动游戏以查找出错原因", OlanExceptionAction.Error);
+            throw new OlanException("游戏异常退出", $"检测到游戏异常退出，代码：{_gameProcess.ExitCode}{Environment.NewLine}建议尝试以调式模式启动以寻找异常原因", OlanExceptionAction.Warning);
     }
     #endregion
 }

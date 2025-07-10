@@ -24,10 +24,17 @@ public enum AccountType
     /// </summary>
     Yggdrasil
 }
-public struct YggdrasilInfo(Guid ClientToken, string AuthUrl)
+public struct YggdrasilInfo
 {
-    public Guid ClientToken { get; init; } = ClientToken;
-    public string AuthUrl { get; init; } = AuthUrl;
+    public YggdrasilInfo(Guid ClientToken, string AuthUrl,string apiMetaData)
+    {
+        this.ClientToken = ClientToken;
+        this.AuthUrl = AuthUrl;
+        this.APIMetadata = apiMetaData;
+    }
+    public Guid ClientToken { get; init; }
+    public string AuthUrl { get; init; }
+    public string APIMetadata { get; set; }
 }
 public class UserModel
 {

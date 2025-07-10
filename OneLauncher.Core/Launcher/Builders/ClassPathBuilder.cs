@@ -11,74 +11,33 @@ namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
     /// <summary>
-    /// 拼接类路径，不包含-p参数
+    /// 高效地拼接类路径，自动处理原版库和Mod库的优先级与去重。
     /// </summary>
     private string BuildClassPath(IModStrategy? strategy)
     {
-        var vl = versionInfo.GetLibraryiesForUsing();
-        int totalCapacity = vl.Count +
-            this.modType switch
-            {
-                // 预分配
-                ModEnum.fabric => 10,
-                ModEnum.neoforge => 40,
-                ModEnum.forge => 46,
-                ModEnum.quilt => 12,
-                _ => 0
-            };
-        var finalClassPathLibs = new List<string>(totalCapacity);
-        var addedLibKeys = new HashSet<string>(totalCapacity); // 使用HashSet来跟踪已添加的库
+        // 1. 获取原版库字典。
+        // 这是基础，包含所有当前版本需要的原版库。
+        var libraryMap = versionInfo.GetLibraryiesForUsing();
 
-        // 优先处理Mod库
+        // 2. 如果有Mod策略，用Mod库的字典来更新（合并/覆盖）原版库字典。
         if (strategy != null)
         {
-            foreach (var lib in strategy.GetModLibraries())
+            var modLibraries = strategy.GetModLibraries();
+            foreach (var lib in modLibraries)
             {
-                if (addedLibKeys.Add(lib.key)) // .Add()方法在添加成功时返回true
-                {
-                    finalClassPathLibs.Add(lib.path);
-                }
+                // 核心逻辑：直接使用字典的索引器。
+                // 如果key已存在（例如，Mod提供了与原版同名的库），则Mod库的路径会覆盖原版库的路径。
+                // 如果key不存在，则直接添加新的Mod库。
+                // 这完美地实现了“Mod库优先”的原则。
+                libraryMap[lib.Key] = lib.Value;
             }
         }
 
-        // 处理原版库
-        foreach (var lib in vl)
-        {
-            var parts = lib.name.Split(':');
-            var libKey = $"{parts[0]}:{parts[1]}";
-            if (addedLibKeys.Add(libKey))
-            {
-                finalClassPathLibs.Add(lib.path);
-            }
-        }
-
+        // 3. 将合并后的所有库路径和游戏主文件路径提取出来。
+        var finalClassPathLibs = libraryMap.Values.ToList();
         finalClassPathLibs.Add(versionInfo.GetMainFile().path);
+
+        // 4. 使用指定的分隔符拼接成最终的类路径字符串。
         return string.Join(separator, finalClassPathLibs.Where(p => !string.IsNullOrEmpty(p)));
     }
-    //private string BuildClassPath(IModStrategy? strategy) 
-    //{
-    //    var libraryMap = new Dictionary<string, string>();
-
-    //    // 如果是Mod，优先添加Mod的库
-    //    if (strategy != null)
-    //        strategy.GetModLibraries()
-    //            .ToList()
-    //            .ForEach(lib => libraryMap[lib.key] = lib.path);
-
-    //    // 添加原版库（如果不存在于map中）
-    //    foreach (var lib in versionInfo.GetLibraryiesForUsing())
-    //    {
-    //        var parts = lib.name.Split(':');
-    //        if (parts.Length >= 2)
-    //        {
-    //            var libKey = $"{parts[0]}:{parts[1]}";
-    //            libraryMap.TryAdd(libKey, lib.path); // TryAdd 简洁高效
-    //        }
-    //    }
-
-    //    var finalClassPathLibs = libraryMap.Values.ToList();
-    //    finalClassPathLibs.Add(versionInfo.GetMainFile().path);
-
-    //    return string.Join(separator, finalClassPathLibs.Where(p => !string.IsNullOrEmpty(p)).Distinct());
-    //}
 }

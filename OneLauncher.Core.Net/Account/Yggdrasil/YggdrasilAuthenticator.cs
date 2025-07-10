@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
 
 namespace OneLauncher.Core.Net.Account.Yggdrasil;
@@ -19,7 +20,37 @@ public abstract class YggdrasilAuthenticator
         _httpClient = new();
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("OneLauncher/" + Init.OneLauncherVersoin);
     }
+    private async Task<UserModel> ProcessAuthResponse(
+        HttpResponseMessage authResponse,
+        HttpResponseMessage metaResponse,
+        string authUrl, Guid userId)
+    {
+        if (!authResponse.IsSuccessStatusCode)
+        {
+            var error = await authResponse.Content.ReadFromJsonAsync<ErrorResponse>(YggdrasilJsonContext.Default.ErrorResponse);
+            throw new OlanException("认证失败", error?.ErrorMessage ?? "服务器返回了未知的错误。", OlanExceptionAction.Error);
+        }
+        if (!metaResponse.IsSuccessStatusCode)
+        {
+            throw new OlanException("认证失败", "无法获取认证服务器的元数据。", OlanExceptionAction.Error);
+        }
 
+        var authData = await authResponse.Content.ReadFromJsonAsync<AuthResponse>(YggdrasilJsonContext.Default.AuthResponse);
+        if (authData?.SelectedProfile == null)
+            throw new OlanException("认证失败", "服务器未返回有效的玩家档案。", OlanExceptionAction.Error);
+
+        return new UserModel(
+            UserID: userId,
+            name: authData.SelectedProfile.Name,
+            uuid: Guid.Parse(authData.SelectedProfile.Id),
+            accessToken: authData.AccessToken,
+            yggdrasilInfo:
+            new YggdrasilInfo(
+                Guid.Parse(authData.ClientToken),
+                authUrl,
+                TextHelper.Base64Encode(await metaResponse.Content.ReadAsStringAsync()))
+        );
+    }
     /// <summary>
     /// 使用用户名和密码进行认证。
     /// </summary>
@@ -36,8 +67,9 @@ public abstract class YggdrasilAuthenticator
 
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(endpoint, payload, YggdrasilJsonContext.Default.AuthRequest);
-            return await ProcessAuthResponse(response, AuthApiRoot, Guid.NewGuid());
+            var authResponse = await _httpClient.PostAsJsonAsync(endpoint, payload, YggdrasilJsonContext.Default.AuthRequest);
+            var metaResponse = await _httpClient.GetAsync(AuthApiRoot);
+            return await ProcessAuthResponse(authResponse,metaResponse, AuthApiRoot, Guid.NewGuid());
         }
         catch (Exception ex) when (ex is not OlanException)
         {
@@ -62,31 +94,11 @@ public abstract class YggdrasilAuthenticator
         try
         {
             var response = await _httpClient.PostAsJsonAsync(endpoint, payload, YggdrasilJsonContext.Default.RefreshRequest);
-            return await ProcessAuthResponse(response, yggdrasilInfo.AuthUrl, userToRefresh.UserID);
+            return await ProcessAuthResponse(response, await _httpClient.GetAsync(AuthApiRoot),yggdrasilInfo.AuthUrl, userToRefresh.UserID);
         }
         catch (Exception ex) when (ex is not OlanException)
         {
             throw new OlanException("网络错误", $"刷新会话时出错: {ex.Message}", OlanExceptionAction.Error, ex);
         }
-    }
-    private async Task<UserModel> ProcessAuthResponse(HttpResponseMessage response, string authUrl, Guid userId)
-    {
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadFromJsonAsync<ErrorResponse>(YggdrasilJsonContext.Default.ErrorResponse);
-            throw new OlanException("认证失败", error?.ErrorMessage ?? "服务器返回了未知的错误。", OlanExceptionAction.Error);
-        }
-
-        var authData = await response.Content.ReadFromJsonAsync<AuthResponse>(YggdrasilJsonContext.Default.AuthResponse);
-        if (authData?.SelectedProfile == null)
-            throw new OlanException("认证失败", "服务器未返回有效的玩家档案。", OlanExceptionAction.Error);
-
-        return new UserModel(
-            UserID: userId,
-            name: authData.SelectedProfile.Name,
-            uuid: Guid.Parse(authData.SelectedProfile.Id),
-            accessToken: authData.AccessToken,
-            yggdrasilInfo: new YggdrasilInfo(Guid.Parse(authData.ClientToken), authUrl)
-        );
     }
 }

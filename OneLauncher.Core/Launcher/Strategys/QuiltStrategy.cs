@@ -28,14 +28,8 @@ internal class QuiltStrategy : IModStrategy
     }
     public string GetMainClassOverride() => _quiltParser.GetMainClass();
 
-    public IEnumerable<(string key, string path)> GetModLibraries()
-        => _quiltParser.GetLibrariesForUsing().Select(lib =>
-        {
-            var parts = lib.name.Split(':');
-            var key = string.Join(":", parts[..^1]); // 不要考虑兼容性，考虑性能
-            return (key, lib.path);
-        });
-    
+    public IDictionary<string, string> GetModLibraries() => _quiltParser.GetLibrariesForUsing();
+
 
     public IEnumerable<string> GetAdditionalJvmArgs() => Enumerable.Empty<string>();
     public IEnumerable<string> GetAdditionalGameArgs() => Enumerable.Empty<string>();

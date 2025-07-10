@@ -30,13 +30,8 @@ internal class ForgeStrategy : IModStrategy
 
     public string? GetMainClassOverride() => _parser.info.MainClass;
 
-    public IEnumerable<(string key, string path)> GetModLibraries()
-        => _parser.GetLibrariesForLaunch(Init.GameRootPath).Select(lib =>
-        {
-            var parts = lib.name.Split(':');
-            var key = string.Join(':', parts[..^1]);
-            return (key, lib.path);
-        });
+    public IDictionary<string, string> GetModLibraries()
+        => _parser.GetLibrariesForLaunch(Init.GameRootPath);
 
     public IEnumerable<string> GetAdditionalJvmArgs()
     {

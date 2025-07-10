@@ -5,6 +5,28 @@ using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft;
 using System.Runtime.CompilerServices;
 namespace OneLauncher.Core.Launcher;
+public struct LaunchCommand(IEnumerable<string> fileArgs, IEnumerable<string> commandArgs)
+{
+    private IEnumerable<string> commandArgs = commandArgs; // 必须在命令行的参数
+    private IEnumerable<string> fileArgs = fileArgs; // 可以在命令行也可以在文件中的参数
+    public async Task<string> GetArguments()
+    {
+        string launchArg = string.Join(" ",fileArgs);
+        string launchCommand = string.Join(" ",commandArgs);
+        if (launchArg.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
+        {
+            string tempFile = Path.GetTempFileName();
+            await File.WriteAllTextAsync(tempFile, launchArg
+#if WINDOWS
+                .Replace("\\", @"\\") // Windows需要转义
+#endif
+                );
+            return $"{launchCommand} @\"{tempFile}\"";
+        }
+        else
+            return $"{launchCommand} {launchArg}";
+    }
+}
 public partial class LaunchCommandBuilder
 {
     public VersionInfomations versionInfo;
@@ -15,10 +37,11 @@ public partial class LaunchCommandBuilder
     // 下面是外部注入的
     private string gamePath;
     private IEnumerable<string>? extraJvmArgs = null;
+    private IEnumerable<string>? extraGameArgs = null;
+    private List<string> commandArgs = new();
     private ModEnum modType = ModEnum.none;
     private ServerInfo? serverInfo = null;
     private UserModel loginUser;
-    private IEnumerable<string> _buildArgs;
 
     // 构造函数保持不变
     private LaunchCommandBuilder(
@@ -38,6 +61,8 @@ public partial class LaunchCommandBuilder
         #endregion
     }
     #region 链式调用
+    /// <param name="basePath">游戏基本路径（minecraft）</param>
+    /// <param name="versionId">启动游戏的基本版本ID（如1.21.5）</param>
     public static async Task<LaunchCommandBuilder> CreateAsync(string basePath, string versionId)
     {
         return new LaunchCommandBuilder(basePath, versionId)
@@ -47,35 +72,56 @@ public partial class LaunchCommandBuilder
             basePath)
         };
     }
+    /// <summary>设置传递给游戏的游戏目录</summary>
     public LaunchCommandBuilder SetGamePath(string gamePath)
     {
         this.gamePath = gamePath;
         return this;
     }
+    /// <summary>
+    /// 设置以哪个模组加载器启动游戏
+    /// （！）必须设置已经安装的模组加载器
+    /// （？）如果不设置，则默认为原版Minecraft
+    /// </summary>
     public LaunchCommandBuilder SetModType(ModEnum modType)
     {
         this.modType = modType;
         return this;
     }
-    public LaunchCommandBuilder WithServerInfo(ServerInfo? serverInfo)
-    {
-        this.serverInfo = serverInfo;
-        return this;
-    }
+    /// <summary>设置登入用户，如果不设置则为全局默认值</summary>
     public LaunchCommandBuilder SetLoginUser(UserModel user)
     {
         this.loginUser = user;
         return this;
     }
+    /// <summary>设置必须在命令行传递的JVM参数</summary>
+    public LaunchCommandBuilder SetCommandArgs(IEnumerable<string> args)
+    {
+        commandArgs.AddRange(args);
+        return this;
+    }
+    /// <summary>设置额外的JVM参数</summary>
     public LaunchCommandBuilder WithExtraJvmArgs(IEnumerable<string> args)
     {
         extraJvmArgs = args;
         return this;
     }
+    /// <summary>设置额外的游戏参数</summary>
+    public LaunchCommandBuilder WithExtraGameArgs(IEnumerable<string> args)
+    {
+        extraGameArgs = args;
+        return this;
+    }
+    /// <summary>设置服务器信息，如果不设置则不连接服务器</summary>
+    public LaunchCommandBuilder WithServerInfo(ServerInfo? serverInfo)
+    {
+        this.serverInfo = serverInfo;
+        return this;
+    }
     #endregion
     public string GetJavaPath() =>
         Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
-    public async Task<LaunchCommandBuilder> BuildCommand()
+    public async Task<LaunchCommand> BuildCommand()
     {
         IModStrategy? strategy = null; // 策略可以是null，代表原版
         if (modType != ModEnum.none)
@@ -91,33 +137,8 @@ public partial class LaunchCommandBuilder
         rargs.AddRange(BuildJvmArgs(strategy));
         rargs.Add(strategy?.GetMainClassOverride() ?? versionInfo.GetMainClass()); // 别把主类忘了
         rargs.AddRange(BuildGameArgs(gamePath ,strategy));
-        _buildArgs = rargs;
-        return this;
+        return new LaunchCommand(rargs, commandArgs);
     }
-    public async Task<string> GetArguments()
-    {
-        string launchArg = string.Join(" ", _buildArgs);
-        string launchCommand;
-        if (launchArg.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
-        {
-            string tempFile = Path.GetTempFileName();
-            await File.WriteAllTextAsync(tempFile, launchArg
-#if WINDOWS
-                .Replace("\\", @"\\") // Windows需要转义
-#endif
-                );
-            launchCommand = $"@\"{tempFile}\""; // 返回临时文件路径
-        }
-        else
-            launchCommand = launchArg;
-
-        if (loginUser.YggdrasilInfo != null)
-            return
-                $"-javaagent:\"{(Path.Combine(Init.InstalledPath, "authlib.jar"))}\"={loginUser.YggdrasilInfo.Value.AuthUrl} "
-                + launchCommand;
-        return launchCommand;
-    }
-
     // 策略方法
     private async Task<IModStrategy?> CreateAndInitStrategy()
     {

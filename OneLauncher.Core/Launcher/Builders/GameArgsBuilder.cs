@@ -14,12 +14,19 @@ public partial class LaunchCommandBuilder
     private IEnumerable<string> BuildGameArgs(string gamePath,IModStrategy? strategy)
     {
         if(loginUser == null) loginUser = Init.AccountManager.GetDefaultUser();
-        List<string> Args = new List<string>(19);
+        List<string> Args = new List<string>(20);
+        if(loginUser.UserType == AccountType.Yggdrasil)
+        {
+            commandArgs.Add($"-javaagent:\"{(Path.Combine(Init.InstalledPath, "authlib.jar"))}\"={loginUser!.YggdrasilInfo!.Value.AuthUrl}");
+            Debug.WriteLine(loginUser.YggdrasilInfo.Value.APIMetadata);
+            commandArgs.Add($"-Dauthlibinjector.yggdrasil.prefetched={loginUser.YggdrasilInfo.Value.APIMetadata}");
+        }
         string userType = loginUser.UserType switch
         {
             AccountType.Offline => "legacy",
             AccountType.Msa => "msa",
             AccountType.Yggdrasil => "mojang",
+            _ => "mojang"
         };
         if (serverInfo != null)
         {
@@ -62,7 +69,8 @@ public partial class LaunchCommandBuilder
             Args.Add($"--session \"{loginUser.AccessToken}\"");
         if(strategy != null)
             Args.AddRange(strategy.GetAdditionalGameArgs());
-
+        if(extraGameArgs != null)
+            Args.AddRange(extraGameArgs);
         return Args;
     }
 }

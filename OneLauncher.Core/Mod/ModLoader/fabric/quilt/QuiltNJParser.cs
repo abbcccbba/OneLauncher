@@ -114,29 +114,40 @@ public class QuiltNJParser
         return dowItems;
     }
 
-    public List<(string name, string path)> GetLibrariesForUsing()
+    /// <summary>
+    /// 获取Quilt模组加载器在启动时需要加载到类路径的库文件。
+    /// </summary>
+    /// <returns>一个以 "groupId:artifactId" 为键，库文件完整路径为值的字典。</returns>
+    public Dictionary<string, string> GetLibrariesForUsing()
     {
-        var libraries = new List<(string name, string path)>(info.LauncherMeta.Libraries.Common.Count + 3);
+        var libraries = new Dictionary<string, string>(info.LauncherMeta.Libraries.Common.Count + 3);
 
-        // 统一处理，减少重复
-        Action<string> addLibraryPath = (mavenName) =>
+        Action<string> addLibrary = (mavenName) =>
         {
+            if (string.IsNullOrEmpty(mavenName)) return;
             var parts = mavenName.Split(':');
             if (parts.Length < 3) return;
-            var groupId = parts[0];
-            var artifactId = parts[1];
-            var version = parts[2];
-            var fileName = $"{artifactId}-{version}.jar";
-            var fullPath = Path.Combine(basePath, "libraries",
-                                        groupId.Replace('.', Path.DirectorySeparatorChar),
-                                        artifactId, version, fileName);
-            libraries.Add((mavenName, fullPath));
+
+            // 关键点：使用 groupId:artifactId 作为唯一的Key
+            var libKey = $"{parts[0]}:{parts[1]}";
+
+            string groupId = parts[0];
+            string artifactId = parts[1];
+            string version = parts[2];
+
+            string fileName = $"{artifactId}-{version}.jar";
+            string fullPath = Path.Combine(
+                basePath, "libraries",
+                groupId.Replace('.', Path.DirectorySeparatorChar),
+                artifactId, version, fileName);
+
+            libraries[libKey] = fullPath;
         };
 
-        info.LauncherMeta.Libraries.Common.ForEach(lib => addLibraryPath(lib.Name));
-        addLibraryPath(info.Loader.DownName);
-        addLibraryPath(info.Intermediary.DownName);
-        addLibraryPath(info.QuiltHashed.DownName);
+        info.LauncherMeta.Libraries.Common.ForEach(lib => addLibrary(lib.Name));
+        addLibrary(info.Loader.DownName);
+        addLibrary(info.Intermediary.DownName);
+        addLibrary(info.QuiltHashed.DownName);
 
         return libraries;
     }

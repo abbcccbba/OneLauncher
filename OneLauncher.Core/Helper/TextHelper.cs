@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Helper;
-
 public static class TextHelper
 {
     // 编码

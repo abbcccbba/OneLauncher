@@ -31,14 +31,8 @@ internal class FabricStrategy : IModStrategy
 
     // Fabric需要优先加载自己的库
     //public IEnumerable<(string key, string path)> GetModLibraries()=> _fabricParser.GetLibrariesForUsing().Select(x => (string.Join(string.Empty, x.name.Split(':')[..^1]), x.path));
-    public IEnumerable<(string key, string path)> GetModLibraries()
-       => _fabricParser.GetLibrariesForUsing().Select(lib =>
-          {
-              var parts = lib.name.Split(':');
-              var key = string.Join(":", parts[..^1]);
-              return (key, lib.path);
-          });
-    
+    public IDictionary<string, string> GetModLibraries() => _fabricParser.GetLibrariesForUsing();
+
 
     // Fabric本身不添加额外的JVM和游戏参数
     public IEnumerable<string> GetAdditionalJvmArgs() => Enumerable.Empty<string>();
