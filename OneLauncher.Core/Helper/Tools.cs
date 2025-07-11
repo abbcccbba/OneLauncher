@@ -127,11 +127,13 @@ public static class Tools
     public static string IsUseOlansJreOrOssJdk(int javaVersion)
     {
         var t = Path.Combine(Init.BasePath,"installed","runtimes", javaVersion.ToString());
-        if (Init.ConfigManager.Data.AvailableJavaList.Contains(javaVersion))
-            return Init.SystemType == SystemType.osx
-                ? Path.Combine(t, Directory.GetDirectories(t)[0], "Contents", "Home", "bin", "java")
-                : Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "java");
-        return "java"; // 否则默认使用系统Java 
+        if (Init.ConfigManager.Data.AvailableJavas.ContainsKey(javaVersion)) // 是否已经安装Java
+            if (Init.ConfigManger.Data.AvailableJavas[javaVersion] != null) // 是否指定Java路径
+                return Init.ConfigManager.Data.AvailableJavas[javaVersion]!;
+            else if (Init.SystemType == SystemType.osx) // MacOS未指定路径特殊处理
+                return Path.Combine(t, Directory.GetDirectories(t)[0], "Contents", "Home", "bin", "javaw");
+            else return Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "javaw");
+        else return "java"; // 否则默认使用系统Java 
     }
     public static int ForNullJavaVersion(string version)
     {
