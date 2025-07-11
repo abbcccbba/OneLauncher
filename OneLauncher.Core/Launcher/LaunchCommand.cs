@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,12 +18,13 @@ public struct LaunchCommand(IEnumerable<string> fileArgs, IEnumerable<string> co
                 File.Delete(tempFilePath);
     }
 
-    public async Task<string> GetArguments()
+    public async ValueTask<string> GetArguments()
     {
         string launchArg = string.Join(" ", fileArgs);
         string launchCommand = string.Join(" ", commandArgs);
-        if (launchArg.Length > 8000) // 标准是8191的命令行长度上限，这里考虑到Java本身的路径
+        if (launchArg.Length > 32000) // 标准是8191的命令行长度上限，但这里调用的是CreateProcess API
         {
+            Debug.WriteLine($"参数长度：{launchArg.Length}");
             tempFilePath = Path.GetTempFileName();
             await File.WriteAllTextAsync(tempFilePath, launchArg
 #if WINDOWS

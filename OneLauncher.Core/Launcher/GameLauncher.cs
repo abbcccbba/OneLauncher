@@ -61,25 +61,27 @@ public class GameLauncher : IGameLauncher
         // 配置并启动游戏进程
         try
         {
-            var processInfo = new ProcessStartInfo
+            using (var launchCommand = await commandBuilder.BuildCommand())
             {
-                FileName = commandBuilder.GetJavaPath(),
-                WorkingDirectory = Init.GameRootPath,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                StandardErrorEncoding = Encoding.UTF8,
-                Arguments = await (await commandBuilder.BuildCommand()).GetArguments()
-            };
-            _gameProcess = new Process();
-            _gameProcess.StartInfo = processInfo;
-            _gameProcess.EnableRaisingEvents = true;
-            _gameProcess.OutputDataReceived += OnOutputDataReceived;
-            _gameProcess.ErrorDataReceived += OnErrorDataReceived;
-            _gameProcess.Exited += OnGameProcessExited;
-
+                var processInfo = new ProcessStartInfo
+                {
+                    FileName = commandBuilder.GetJavaPath(),
+                    WorkingDirectory = Init.GameRootPath,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    StandardErrorEncoding = Encoding.UTF8,
+                    Arguments = await launchCommand.GetArguments()
+                };
+                _gameProcess = new Process();
+                _gameProcess.StartInfo = processInfo;
+                _gameProcess.EnableRaisingEvents = true;
+                _gameProcess.OutputDataReceived += OnOutputDataReceived;
+                _gameProcess.ErrorDataReceived += OnErrorDataReceived;
+                _gameProcess.Exited += OnGameProcessExited;
+            }
             _gameProcess.Start();
             _gameProcess.BeginOutputReadLine();
             _gameProcess.BeginErrorReadLine();

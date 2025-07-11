@@ -18,7 +18,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views;
-internal class ApplicationClosingMessage { }
 internal class MainWindowShowFlyoutMessage
 {
     public readonly string Title;
@@ -95,7 +94,7 @@ public partial class MainWindow : Window
         {
             try
             {
-                var homePage = (Home)PageContent.Content;
+                var homePage = (Home)PageContent.Content!;
                 homePage.DataContext = provider.GetRequiredService<HomePageViewModel>();
                 HomePage = homePage;
                 versionPage = new version() 
@@ -117,14 +116,12 @@ public partial class MainWindow : Window
             }
         }
     }
-    protected override async void OnClosing(WindowClosingEventArgs e)
+    protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
         Debug.WriteLine("释放残余资源...");
         foreach(var dis in Init.OnApplicationClosingReleaseSourcesList)
             dis.Dispose();
-        // 发送关闭消息
-        WeakReferenceMessenger.Default.Send(new ApplicationClosingMessage());
     }
     /// <summary>
     /// 在右下角显示提示信息

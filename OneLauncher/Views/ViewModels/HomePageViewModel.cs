@@ -57,6 +57,9 @@ internal partial class HomePageViewModel : BaseViewModel
 #endif
         // 提前初始化联机模块
         _connentServiceInitializationTasker = _mctVMFactory.CreateAsync();
+        if (!Init.InstalledPath.All(c => c < 128))
+            WeakReferenceMessenger.Default.Send(
+                new MainWindowShowFlyoutMessage("当前安装路径包含非ASCII字符，可能导致游戏出现未知问题",NotificationType.Warning));
     }
     [RelayCommand]
     public void Launch()
@@ -68,6 +71,7 @@ internal partial class HomePageViewModel : BaseViewModel
         }
         _configManager.Data.DefaultInstanceID = SelectedGameData.InstanceId;
         _ = version.EasyGameLauncher(SelectedGameData);
+        _ = _configManager.Save();
     }
     [RelayCommand]
     public async Task ImportVersionByPCL2()

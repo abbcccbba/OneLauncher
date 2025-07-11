@@ -39,11 +39,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
                 SetProperty(ref isHostModeChecked, false, nameof(IsHostModeChecked));
             }
         };
-        WeakReferenceMessenger.Default.Register<ApplicationClosingMessage>(this, (recipient, message) =>
-        {
-            mainPower.Dispose();
-            Debug.WriteLine("核心已停止");
-        });
+        Init.OnApplicationClosingReleaseSourcesList.Add(mainPower);
         AvailableGameData = _gameDataManager.AllGameData;
         mainPower.CoreLog += OnCoreLogReceived;
         this.mainPower = mainPower;
