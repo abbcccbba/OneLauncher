@@ -93,6 +93,9 @@ public class MsalAuthenticator : IDisposable
         httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
+    /// <summary>
+    /// 对于Windows系统，构建验证器时WAM模式已经写死，如果系统没有WAM组件导致报错，调用此函数会重写赋值以回退到Web模式。
+    /// </summary>
     public void FallbackToWeb()
     {
         isFallback = true;

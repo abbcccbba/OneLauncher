@@ -11,12 +11,14 @@ namespace OneLauncher.Views.Panes.PaneViewModels.Factories;
 internal class EditGameDataPaneViewModelFactory
 {
     private readonly GameDataManager gameDataManager;
-    public EditGameDataPaneViewModelFactory(GameDataManager gameDataManager)
+    private readonly AccountManager accountManager;
+    public EditGameDataPaneViewModelFactory(GameDataManager gameDataManager,AccountManager accountManager)
     {
         this.gameDataManager = gameDataManager;
+        this.accountManager = accountManager;
     }
     public EditGameDataPaneViewModel Create(GameData gameData)
     {
-        return new EditGameDataPaneViewModel(gameData,gameDataManager);
+        return new EditGameDataPaneViewModel(gameData,gameDataManager,accountManager);
     }
 }

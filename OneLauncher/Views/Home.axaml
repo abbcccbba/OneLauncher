@@ -23,11 +23,25 @@
 		
 		<Grid ColumnDefinitions="*, 300">
 			<Grid Grid.Column="0">
-				<Border VerticalAlignment="Bottom" 
-						HorizontalAlignment="Center" 
-						CornerRadius="12"
-						Background="{DynamicResource PaneBackgound}">
-					<StackPanel Orientation="Horizontal" Spacing="12">
+				<Panel>
+					<ScrollViewer>
+						<StackPanel>
+							<ListBox>
+								<ListBoxItem>
+									<Border Width="385" Height="240" Background="Red">
+										<!-- 这里是显示新闻的地方 -->
+									</Border>
+								</ListBoxItem>
+								<ListBox.Styles>
+									<StyleInclude Source="avares://OneLauncher/Views/Styles/TransparentListBox.axaml" />
+								</ListBox.Styles>
+							</ListBox>
+						</StackPanel>
+					</ScrollViewer>
+					<StackPanel VerticalAlignment="Bottom"
+								HorizontalAlignment="Center"  
+								Orientation="Horizontal" 
+								Spacing="12">
 						<Button Classes="fast" Content="联机面板" Command="{Binding PowerPlayCommand}"/>
 						<Button Classes="fast" Content="导入">
 							<Button.Flyout>
@@ -38,7 +52,7 @@
 							</Button.Flyout>
 						</Button>
 					</StackPanel>
-				</Border>
+				</Panel>
 			</Grid>
 			<Panel Grid.Column="1" Background="{DynamicResource PaneBackgound}">
 				<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">

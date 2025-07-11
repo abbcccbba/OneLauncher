@@ -145,7 +145,7 @@ internal partial class GameDataPageViewModel : BaseViewModel
                () =>
                {
                    File.Delete(Path.Combine(Init.GameRootPath, "instance", "instance.json"));
-                   Init.Initialize().Wait();
+                   _=Init.Initialize();
                }
                 );
         }

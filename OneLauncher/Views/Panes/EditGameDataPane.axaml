@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OneLauncher.Views.Panes.PaneViewModels"
 			 xmlns:gamedatamanager="using:OneLauncher.Core.Global.ModelDataMangers"
+			 xmlns:local="using:OneLauncher.Core.Helper.Models"
              x:Class="OneLauncher.Views.Panes.EditGameDataPane"
              x:DataType="vm:EditGameDataPaneViewModel"
 			 x:CompileBindings="True"
@@ -35,6 +36,16 @@
 			<Button Content="更换图标" Command="{Binding ChangeIconCommand}" HorizontalAlignment="Center"/>
 			<TextBlock Text="实例名称"/>
 			<TextBox Text="{Binding InstanceName}"/>
+			<TextBlock Text="默认登入用户"/>
+			<ComboBox PlaceholderText="选择默认登入用户"
+					  ItemsSource="{Binding AvailableUsers}"
+					  SelectedItem="{Binding SelectedUser}">
+				<ComboBox.ItemTemplate>
+					<DataTemplate x:DataType="local:UserModel">
+						<TextBlock Text="{Binding Name}"/>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
 			<TextBlock Text="标签选项" />
 			<StackPanel Orientation="Horizontal" Spacing="6">
 				<ComboBox PlaceholderText="选择可用标签"

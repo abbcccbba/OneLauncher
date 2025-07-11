@@ -24,13 +24,19 @@ namespace OneLauncher.Views.Panes.PaneViewModels;
 internal partial class EditGameDataPaneViewModel : BaseViewModel
 {
     private readonly GameDataManager _gameDataManager;
+    private readonly AccountManager _accountManager;
     private readonly GameData editingGameData;
     [ObservableProperty] private string instanceName;
     [ObservableProperty] private Bitmap currentIcon;
 
-    public EditGameDataPaneViewModel(GameData gameData,GameDataManager gameDataManager)
+    public EditGameDataPaneViewModel(
+        GameData gameData,
+        GameDataManager gameDataManager,
+        AccountManager accountManager
+        )
     {
         this._gameDataManager = gameDataManager;
+        this._accountManager = accountManager;
         editingGameData = gameData;
         InstanceName = gameData.Name;
         AvailableTags = _gameDataManager.Data.Tags.Values.ToList();
@@ -39,6 +45,15 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
             SelectedTag = null;
         else SelectedTag = 
             _gameDataManager.Data.Tags.GetValueOrDefault((Guid)tagId); // 找到标签
+        AvailableUsers = _accountManager.GetAllUsers().ToList();
+        SelectedUser = _accountManager.GetUser(editingGameData.DefaultUserModelID);
+        if (SelectedUser == null)
+        {
+            // 如果用户神奇消失了，则帮他回退到默认用户
+            SelectedUser = _accountManager.GetDefaultUser();
+            editingGameData.DefaultUserModelID = SelectedUser.UserID;
+        }
+        
         LoadCurrentIcon();
     }
 
@@ -75,6 +90,17 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         };
         CurrentIcon = new Bitmap(AssetLoader.Open(new Uri(iconUri)));
     }
+    #region 默认登入用户选项
+    [ObservableProperty] List<UserModel> availableUsers;
+    [ObservableProperty] UserModel? selectedUser;
+    partial void OnSelectedUserChanged(UserModel? value)
+    {
+        if (value == null)
+            return;
+        editingGameData.DefaultUserModelID = SelectedUser!.UserID;
+        _=_gameDataManager.Save(); 
+    }
+    #endregion
     #region 标签选项
     [ObservableProperty] List<GameDataTag> availableTags;
     [ObservableProperty] GameDataTag? selectedTag;
@@ -212,7 +238,6 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
             new MainWindowShowFlyoutMessage($"已删除实例“{editingGameData.Name}”！", NotificationType.Success));
         WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
     }
-
     [RelayCommand]
     private void Cancel()
     {

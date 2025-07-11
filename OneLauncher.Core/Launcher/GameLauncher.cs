@@ -26,7 +26,7 @@ public class GameLauncher : IGameLauncher
     {
         #region 准备工作
         // 先把令牌刷新了
-        UserModel user = Init.AccountManager.GetUser(gameData.DefaultUserModelID) ?? throw new OlanException("启动失败", "你正在尝试刷洗一个不存在账户，请尝试删除此实例并重新添加");
+        UserModel user = Init.AccountManager.GetUser(gameData.DefaultUserModelID) ?? Init.AccountManager.GetDefaultUser();
         Task resh =
             user.IntelligentLogin(Init.MsalAuthenticator);
         #region 外置登入补丁
