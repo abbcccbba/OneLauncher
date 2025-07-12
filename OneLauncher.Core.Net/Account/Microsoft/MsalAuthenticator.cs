@@ -286,7 +286,8 @@ public class MsalAuthenticator : IDisposable
             }
             return null; // 返回 null，表示认证失败，上层会统一抛出 OlanException
         }
-        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.XSTSAuthResponse);
+        using var s = await response.Content.ReadAsStreamAsync();
+        return await JsonSerializer.DeserializeAsync(s, MsaJsonContext.Default.XSTSAuthResponse);
     }
     private async Task<MinecraftLoginResponse?> LoginWithXboxAsync(string xstsToken, string uhs)
     {
@@ -297,14 +298,16 @@ public class MsalAuthenticator : IDisposable
         var content = new StringContent(JsonSerializer.Serialize(requestBody, MsaJsonContext.Default.MinecraftLoginRequest), Encoding.UTF8, "application/json");
         var response = await httpClient.PostAsync("https://api.minecraftservices.com/authentication/login_with_xbox", content);
         response.EnsureSuccessStatusCode();
-        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.MinecraftLoginResponse);
+        using var s = await response.Content.ReadAsStreamAsync();
+        return await JsonSerializer.DeserializeAsync(s, MsaJsonContext.Default.MinecraftLoginResponse);
     }
     private async Task<EntitlementsResponse?> CheckGameEntitlementsAsync(string minecraftAccessToken)
     {
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", minecraftAccessToken);
         var response = await httpClient.GetAsync("https://api.minecraftservices.com/entitlements/mcstore");
         response.EnsureSuccessStatusCode();
-        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.EntitlementsResponse);
+        using var s = await response.Content.ReadAsStreamAsync();
+        return await JsonSerializer.DeserializeAsync(s, MsaJsonContext.Default.EntitlementsResponse);
     }
     private async Task<MinecraftProfileResponse?> GetMinecraftProfileAsync(string minecraftAccessToken)
     {
@@ -317,7 +320,8 @@ public class MsalAuthenticator : IDisposable
             return null; // 返回 null，让上层统一抛 OlanException
         }
         Debug.WriteLine(await response.Content.ReadAsStringAsync());
-        return await JsonSerializer.DeserializeAsync(await response.Content.ReadAsStreamAsync(), MsaJsonContext.Default.MinecraftProfileResponse);
+        using var s = await response.Content.ReadAsStreamAsync();
+        return await JsonSerializer.DeserializeAsync(s, MsaJsonContext.Default.MinecraftProfileResponse);
     }
     #endregion
     public void Dispose()

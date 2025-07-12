@@ -31,17 +31,15 @@ public class MCTPower : IDisposable
         this.coreDirectory = coreDirectory;
         coreFilePath = coreFileName;
     }
-    public static async Task<MCTPower> InitializationAsync(HttpClient? client = null)
+    public static async Task<MCTPower> InitializationAsync()
     {
-        var httpClient = client ?? new HttpClient();
         string coreDirectory = Path.Combine(Init.BasePath,"installed");
         string coreFileName = Path.Combine(coreDirectory, CoreExecutableName);
         Directory.CreateDirectory(coreDirectory);
         // 下载核心组件
         if (!File.Exists(coreFileName))
         {
-            using (var dt = new Download(client))
-                await dt.DownloadFile(CoreUrl,coreFileName);
+            await Init.Download.DownloadFile(CoreUrl,coreFileName);
             // 校验
             string? currentMd5 = await Tools.GetFileMD5Async(coreFileName);
             if (currentMd5 == null)
@@ -49,8 +47,6 @@ public class MCTPower : IDisposable
             if (currentMd5 != CoreMd5)
                 throw new OlanException("无法初始化联机模块", $"【无法校验核心组件MD5】{Environment.NewLine}警告：您当前的网络环境可能不安全", OlanExceptionAction.FatalError);
         }
-        if (client == null)
-            httpClient.Dispose();
         return new MCTPower(coreDirectory,coreFileName);
     }
 

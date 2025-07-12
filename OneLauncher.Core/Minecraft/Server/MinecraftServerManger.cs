@@ -27,13 +27,12 @@ public class MinecraftServerManger
             ,Global.Init.GameRootPath);
         if (versionInfo.info.Downloads?.Server == null)
             throw new OlanException("无法初始化服务端","当前版本不支持服务端",OlanExceptionAction.Error);
-        using (Download t = new Download())
-        {
-            await t.DownloadFileAndSha1(
-                versionInfo.info.Downloads.Server.Url,
-                Path.Combine(versionPath,"server.jar"),
-                versionInfo.info.Downloads.Server.Sha1,CancellationToken.None);
-        }
+        
+        await Global.Init.Download.DownloadFileAndSha1(
+            versionInfo.info.Downloads.Server.Url,
+            Path.Combine(versionPath,"server.jar"),
+            versionInfo.info.Downloads.Server.Sha1,CancellationToken.None);
+        
         Directory.CreateDirectory(
             (IsVI)
             ? Path.Combine(versionPath, "servers")

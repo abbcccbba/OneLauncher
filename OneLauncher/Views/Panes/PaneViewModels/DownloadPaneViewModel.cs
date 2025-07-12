@@ -93,16 +93,14 @@ internal partial class DownloadPaneViewModel : BaseViewModel
             cts = new();
             try
             {
-                using (Download download = new Download())
-                {
+                { 
                     // 创建下载上下文信息
                     content = await DownloadInfo.Create(
                         VersionName,
                         VersionModType,
-                        download, 
-                        IsAllowToUseBetaNeoforge, 
-                        IsUseRecommendedToInstallForge, 
-                        IsDownloadFabricWithAPI, 
+                        IsAllowToUseBetaNeoforge,
+                        IsUseRecommendedToInstallForge,
+                        IsDownloadFabricWithAPI,
                         IsJava,
                         IsDownloadQuiltWithQSL
                         );
@@ -145,7 +143,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         _configManager.Data.OlanSettings.MaximumSha1Threads,
                         _configManager.Data.OlanSettings.IsSha1Enabled);
                 }
-               UserVersion? mayInstalledVersion = _configManager.Data.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
+                UserVersion? mayInstalledVersion = _configManager.Data.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
                 if (mayInstalledVersion == null)
                     _configManager.Data.VersionList.Add(content.VersionInstallInfo);
                 else

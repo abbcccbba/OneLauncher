@@ -78,20 +78,6 @@
 						<TextBlock Text="重置"/>
 					</StackPanel>
 				</Button>
-				<!--
-				<Button Margin="-14,0,0,0" Command="{Binding ImportCommand}">
-					<StackPanel Orientation="Horizontal">
-						<Image Source="/Assets/icos/download.png" Width="20" Height="20"/>
-						<TextBlock Text="导入整合包"/>
-					</StackPanel>
-				</Button>
-				<Button Margin="-14,0,0,0" Command="{Binding PowerPlayCommand}">
-					<StackPanel Orientation="Horizontal">
-						<Image Source="/Assets/icos/internet.png" Width="20" Height="20"/>
-						<TextBlock Text="联机"/>
-					</StackPanel>
-				</Button>
-				-->
 				<Button Margin="-14,0,0,0">
 					<StackPanel Orientation="Horizontal">
 						<Image Source="/Assets/icos/settings1.png" Width="20" Height="20"/>
@@ -179,7 +165,14 @@
 										</StackPanel>
 										<SplitButton.Flyout>
 											<Flyout>
-												<CheckBox IsChecked="{Binding IsUseDebugModLaunch}" Content="调试模式启动"/>
+												<StackPanel>
+													<CheckBox IsChecked="{Binding IsUseDebugModLaunch}" Content="调试模式启动"/>
+													<TextBlock Margin="0,6,0,0" Text="快速服务端选项"/>
+													<StackPanel Margin="0,4,0,0" Spacing="2">
+														<TextBox Watermark="服务器地址" Text="{Binding QuicklyServerInfoIP}"/>
+														<TextBox Watermark="服务器端口" Text="{Binding QuicklyServerInfoPort}"/>
+													</StackPanel>
+												</StackPanel>
 											</Flyout>
 										</SplitButton.Flyout>
 									</SplitButton>

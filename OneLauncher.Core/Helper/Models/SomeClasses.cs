@@ -17,8 +17,8 @@ public enum SortingType
 }
 public struct ServerInfo
 {
-    public string Ip;
-    public string Port;
+    public string Ip { get; set; }
+    public string Port { get; set; }
 }
 public struct ModType
 {

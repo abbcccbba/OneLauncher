@@ -18,7 +18,6 @@ namespace OneLauncher.Core.Mod.ModPack;
 /// </summary>
 public class ModpackImporter : IDisposable
 {
-    private readonly Download _downloadTool;
     private readonly string _gameRootPath;
     private readonly GameDataManager _gameDataManager;
     private readonly DBManager _dbManager;
@@ -27,9 +26,8 @@ public class ModpackImporter : IDisposable
     /// <summary>
     /// 私有构造函数，防止外部直接实例化。
     /// </summary>
-    private ModpackImporter(Download downloadTool, string gameRootPath, GameDataManager gameDataManager, DBManager dbManager)
+    private ModpackImporter(string gameRootPath, GameDataManager gameDataManager, DBManager dbManager)
     {
-        _downloadTool = downloadTool;
         _gameRootPath = gameRootPath;
         _gameDataManager = gameDataManager;
         _dbManager = dbManager;
@@ -55,8 +53,7 @@ public class ModpackImporter : IDisposable
         var dbManager = Init.ConfigManager;
 
         // 使用 using 确保下载器和导入器资源被释放
-        using var downloader = new Download();
-        using var importer = new ModpackImporter(downloader, gameRoot, gameDataManager, dbManager);
+        using var importer = new ModpackImporter(gameRoot, gameDataManager, dbManager);
 
         await importer.RunImportAsync(packPath, progress, token);
     }
@@ -110,7 +107,6 @@ public class ModpackImporter : IDisposable
         var downInfo = await DownloadInfo.Create(
             versionId: gameData.VersionId,
             modType: new ModType { IsFabric = gameData.ModLoader == ModEnum.fabric, IsNeoForge = gameData.ModLoader == ModEnum.neoforge, IsForge = gameData.ModLoader == ModEnum.forge, IsQuilt = gameData.ModLoader == ModEnum.quilt },
-            download: _downloadTool,
             gameDataD: gameData
         );
 
@@ -150,7 +146,7 @@ public class ModpackImporter : IDisposable
                 progress.Report((DownProgress.DownAndInstModFiles, totalMods, downloadedMods, p.Item2));
             });
 
-            await _downloadTool.DownloadListAsync(modProgress, filesToDownload, _dbManager.Data.OlanSettings.MaximumDownloadThreads, token);
+            await Init.Download.DownloadListAsync(modProgress, filesToDownload, _dbManager.Data.OlanSettings.MaximumDownloadThreads, token);
         }
 
         // --- 应用 Overrides ---

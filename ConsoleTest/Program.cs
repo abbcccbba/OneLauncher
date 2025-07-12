@@ -3,13 +3,9 @@ using BenchmarkDotNet.Jobs;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Launcher;
 using OneLauncher.Core.Helper.Models;
-using BenchmarkDotNet.Running; // 确保引用ModEnum
-
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
-using OneLauncher.Core.Global;
-using OneLauncher.Core.Launcher;
-using OneLauncher.Core.Helper.Models; // 确保引用ModEnum
+using BenchmarkDotNet.Running;
+using OneLauncher.Core.Minecraft;
+using System.Diagnostics;
 
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net90)]
@@ -49,8 +45,13 @@ public class LaunchCommandBuilderBenchmark
 }
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        var summary = BenchmarkRunner.Run<LaunchCommandBuilderBenchmark>();
+        //var summary = BenchmarkRunner.Run<LaunchCommandBuilderBenchmark>();
+        var newsReader = new MinecraftNewsReader();
+        await newsReader.GetCurrentNewsAsync();
+        for(int i = 0; i < 10; i++) 
+            Console.WriteLine((await newsReader.GetNextNewsAsync()).Title);
+        Console.ReadKey();
     }
 }

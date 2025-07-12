@@ -29,16 +29,15 @@ public class AdoptiumAPI
             Architecture.Arm64 => "aarch64",
             _ => throw new OlanException("不支持的架构", "当前操作系统架构不受支持，请使用x64或aarch64架构的操作系统。")
         };
-        using (var a = new Download())
-        {
-            await a.DownloadFileBig(
-                url: await GetBinaryPackageLinkAsync(
-                    $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={arch}&os={os}&image_type=jre"
-                    , a.unityClient),
-                savePath: javaDownloadPath,
-                knownSize:null,
-                maxSegments: 6);
-        }
+
+        await Init.Download.DownloadFileBig(
+            url: await GetBinaryPackageLinkAsync(
+                $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={arch}&os={os}&image_type=jre"
+                , Init.Download.unityClient),
+            savePath: javaDownloadPath,
+            knownSize:null,
+            maxSegments: 6);
+        
         // 对于windows，api返回的是zip，对于mac或者linux，api返回的是tag.gz
         if (OsType == SystemType.windows)
             Download.ExtractFile(javaDownloadPath, Path.Combine(savePath, javaVersion));

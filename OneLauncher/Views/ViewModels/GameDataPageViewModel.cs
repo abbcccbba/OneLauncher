@@ -37,10 +37,23 @@ internal partial class GameDataItem : BaseViewModel
     public bool IsDefault { get; set; }
     public bool IsUseDebugModLaunch {  get; set; }
     public bool IsMod => data.ModLoader != ModEnum.none;
+    public string? QuicklyServerInfoIP { get; set; }
+    public string? QuicklyServerInfoPort { get; set; }
     [RelayCommand]
     public void Launch(GameData gameData)
     {
-        _=version.EasyGameLauncher(gameData,IsUseDebugModLaunch);
+        ServerInfo? quicklyPlayServerInfo = null;
+        if(QuicklyServerInfoIP != null)
+            quicklyPlayServerInfo = new ServerInfo
+            {
+                Ip = QuicklyServerInfoIP,
+                Port = QuicklyServerInfoPort ?? "25565"
+            };
+        _=Game.EasyGameLauncher(
+            gameData,
+            useDebugMode: IsUseDebugModLaunch,
+            serverInfo: quicklyPlayServerInfo
+            );
     }
     public GameDataItem(GameData gameData,GameDataManager gameDataManager)
     {

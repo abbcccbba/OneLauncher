@@ -17,7 +17,6 @@ public partial class DownloadInfo
     public static async Task<DownloadInfo> Create(
         string versionId,
         ModType modType,
-        Download download,
         // 下面是一些下载选项
         bool isAllowToUseBetaNeoforge = false,
         bool isUseRecommendedToInstallForge = false,
@@ -30,6 +29,7 @@ public partial class DownloadInfo
         string? gameRootPathD = null
         )
     {
+        var download = Init.Download;
         string gameRootPath = gameRootPathD ?? Init.GameRootPath;
         #region 查找一些资源
         // 创建默认实例

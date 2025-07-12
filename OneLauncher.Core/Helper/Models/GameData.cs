@@ -43,5 +43,5 @@ public class GameData
         InstanceId = Guid.NewGuid().ToString()[..8]; // 避免路径过长
     }
     public override string ToString()
-        => VersionId;
+        => Name;
 }

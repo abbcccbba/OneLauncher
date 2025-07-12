@@ -10,6 +10,7 @@ using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.ImportPCL2Version;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Core.Minecraft;
 using OneLauncher.Core.Mod.ModPack;
 using OneLauncher.Views.Panes;
 using OneLauncher.Views.Panes.PaneViewModels;
@@ -30,12 +31,16 @@ internal partial class HomePageViewModel : BaseViewModel
     private readonly GameDataManager _gameDataManager;
     private readonly DBManager _configManager;
     private readonly PowerPlayPaneViewModelFactory _mctVMFactory;
+    private readonly INewReader _newsReader;
+
     [ObservableProperty] private List<GameData> launchItems;
     [ObservableProperty] private GameData? selectedGameData = null;
-    [ObservableProperty] private bool isShowServerOption;
 
     [ObservableProperty] private bool isPaneShow;
     [ObservableProperty] private UserControl paneContent;
+
+    [ObservableProperty] private bool _isNewsLoading;
+    [ObservableProperty] private MinecraftNew _currentNews;
     public HomePageViewModel(
         GameDataManager gameDataManager,
         DBManager configManager,
@@ -57,6 +62,10 @@ internal partial class HomePageViewModel : BaseViewModel
 #endif
         // 提前初始化联机模块
         _connentServiceInitializationTasker = _mctVMFactory.CreateAsync();
+
+        _newsReader = new MinecraftNewsReader();
+        _ = InitializeNewsAsync();
+
         if (!Init.InstalledPath.All(c => c < 128))
             WeakReferenceMessenger.Default.Send(
                 new MainWindowShowFlyoutMessage("当前安装路径包含非ASCII字符，可能导致游戏出现未知问题",NotificationType.Warning));
@@ -73,6 +82,7 @@ internal partial class HomePageViewModel : BaseViewModel
         _ = version.EasyGameLauncher(SelectedGameData);
         _ = _configManager.Save();
     }
+    #region 其他Item
     [RelayCommand]
     public async Task ImportVersionByPCL2()
     {
@@ -199,4 +209,51 @@ internal partial class HomePageViewModel : BaseViewModel
             WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("导入完成！"));
         }
     }
+    #endregion
+    #region 新闻栏目
+    private Task InitializeNewsAsync()
+        =>UpdateNewsAsync(() => _newsReader.GetCurrentNewsAsync());
+    
+
+    [RelayCommand]
+    private Task NextNews()
+        => UpdateNewsAsync(() => _newsReader.GetNextNewsAsync());
+
+    [RelayCommand]
+    private Task PreviousNews()
+        =>UpdateNewsAsync(() => _newsReader.GetPreviousNewsAsync());
+    
+
+    [RelayCommand]
+    private void ViewDetails()
+    {
+        if (string.IsNullOrEmpty(CurrentNews.DetailsUrl)) return;
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(CurrentNews.DetailsUrl) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"无法打开链接: {CurrentNews.DetailsUrl}", NotificationType.Error));
+        }
+    }
+
+    private async Task UpdateNewsAsync(Func<Task<MinecraftNew>> getNewsTask)
+    {
+        IsNewsLoading = true;
+        try
+        {
+            CurrentNews = await getNewsTask.Invoke();
+        }
+        catch (Exception ex)
+        {
+            WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"获取新闻失败，请检查网络连接{Environment.NewLine}{ex.Message}", NotificationType.Error));
+        }
+        finally
+        {
+            IsNewsLoading = false;
+        }
+    }
+    #endregion
 }
