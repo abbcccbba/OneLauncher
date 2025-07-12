@@ -193,7 +193,7 @@
 			</Grid>
 			<Panel Grid.Column="1" Background="{DynamicResource PaneBackgound}">
 				<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
-					<Image Source="/Assets/Imgs/basic.png" Height="128" Width="128"/>
+					<Image Source="{Binding GameIcon}" Height="128" Width="128"/>
 
 					<ComboBox ItemsSource="{Binding LaunchItems}" 
 							  SelectedItem="{Binding SelectedGameData}" 

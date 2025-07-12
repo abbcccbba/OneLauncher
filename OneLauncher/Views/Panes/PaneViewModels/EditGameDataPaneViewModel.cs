@@ -53,8 +53,8 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
             SelectedUser = _accountManager.GetDefaultUser();
             editingGameData.DefaultUserModelID = SelectedUser.UserID;
         }
-        
-        LoadCurrentIcon();
+
+        CurrentIcon = GameDataItem.GetGameDataIcon(gameData);
     }
 
     private void UpdateGameData()
@@ -70,25 +70,6 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
                 "尝试更新一个不存在的游戏数据实例",
                 OlanExceptionAction.Error, e);
         }
-    }
-    private void LoadCurrentIcon()
-    {
-        var customIconPath = Path.Combine(editingGameData.InstancePath, ".olc", "customicon");
-        if (File.Exists(customIconPath))
-        {
-            try { CurrentIcon = new Bitmap(Path.Combine(editingGameData.InstancePath, ".olc", "customicon")); return; }
-            catch (Exception) { /* 忽略错误，使用默认图标 */ }
-        }
-
-        string iconUri = editingGameData.ModLoader switch
-        {
-            ModEnum.fabric => "avares://OneLauncher/Assets/Imgs/fabric.png",
-            ModEnum.quilt => "avares://OneLauncher/Assets/Imgs/quilt.png",
-            ModEnum.neoforge => "avares://OneLauncher/Assets/Imgs/neoforge.png",
-            ModEnum.forge => "avares://OneLauncher/Assets/Imgs/forge.jpg",
-            _ => "avares://OneLauncher/Assets/Imgs/basic.png",
-        };
-        CurrentIcon = new Bitmap(AssetLoader.Open(new Uri(iconUri)));
     }
     #region 默认登入用户选项
     [ObservableProperty] List<UserModel> availableUsers;

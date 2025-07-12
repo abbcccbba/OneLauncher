@@ -62,21 +62,27 @@ internal partial class GameDataItem : BaseViewModel
         // 检查自己是否是其对应版本的默认实例
         var defaultInstance = gameDataManager.GetDefaultInstance(gameData.VersionId);
         IsDefault = (defaultInstance != null && defaultInstance.InstanceId == gameData.InstanceId);
+        Icon = GetGameDataIcon(gameData);
+    }
+    public static Bitmap GetGameDataIcon(GameData? data)
+    {
+        if (data == null)
+            return new Bitmap(AssetLoader.Open(new Uri("avares://OneLauncher/Assets/Imgs/basic.png")));
         var customIconPath = Path.Combine(data.InstancePath, ".olc", "customicon");
         if (File.Exists(customIconPath))
         {
-            try { Icon = new Bitmap(customIconPath); return; }
+            try { return new Bitmap(customIconPath); }
             catch (Exception) { /* 忽略错误，使用默认图标 */ }
         }
         string iconUri = data.ModLoader switch
         {
             ModEnum.fabric => "avares://OneLauncher/Assets/Imgs/fabric.png",
-            ModEnum.quilt => "avares://OneLauncher/Assets/Imgs/quilt.png", 
+            ModEnum.quilt => "avares://OneLauncher/Assets/Imgs/quilt.png",
             ModEnum.neoforge => "avares://OneLauncher/Assets/Imgs/neoforge.png",
             ModEnum.forge => "avares://OneLauncher/Assets/Imgs/forge.jpg",
             _ => "avares://OneLauncher/Assets/Imgs/basic.png", // 草方块
         };
-        Icon = new Bitmap(AssetLoader.Open(new Uri(iconUri)));
+        return new Bitmap(AssetLoader.Open(new Uri(iconUri)));
     }
 }
 internal partial class GameDataPageViewModel : BaseViewModel

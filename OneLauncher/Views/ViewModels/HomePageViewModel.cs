@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -35,6 +36,7 @@ internal partial class HomePageViewModel : BaseViewModel
 
     [ObservableProperty] private List<GameData> launchItems;
     [ObservableProperty] private GameData? selectedGameData = null;
+    [ObservableProperty] private Bitmap gameIcon;
 
     [ObservableProperty] private bool isPaneShow;
     [ObservableProperty] private UserControl paneContent;
@@ -53,9 +55,6 @@ internal partial class HomePageViewModel : BaseViewModel
         LaunchItems = _gameDataManager.AllGameData;
         if (_configManager.Data.DefaultInstanceID != null)
             SelectedGameData = _gameDataManager.Data.Instances.GetValueOrDefault(_configManager.Data.DefaultInstanceID);
-        //SelectedGameData = 
-        //    _gameDataManager.Data.Instances
-        //    .TryGetValue(_configManager.Data.DefaultInstanceID, out var gameData) ? gameData : null;
 #if DEBUG
         if (Design.IsDesignMode)
             return;
@@ -64,11 +63,18 @@ internal partial class HomePageViewModel : BaseViewModel
         _connentServiceInitializationTasker = _mctVMFactory.CreateAsync();
 
         _newsReader = new MinecraftNewsReader();
+        if(!Design.IsDesignMode)
         _ = InitializeNewsAsync();
 
         if (!Init.InstalledPath.All(c => c < 128))
             WeakReferenceMessenger.Default.Send(
                 new MainWindowShowFlyoutMessage("当前安装路径包含非ASCII字符，可能导致游戏出现未知问题",NotificationType.Warning));
+
+        GameIcon = GameDataItem.GetGameDataIcon(SelectedGameData);
+    }
+    partial void OnSelectedGameDataChanged(GameData? value)
+    {
+        GameIcon = GameDataItem.GetGameDataIcon(value);
     }
     [RelayCommand]
     public void Launch()
