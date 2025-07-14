@@ -16,4 +16,6 @@
     <ProjectReference Include="..\OneLauncher.Core\OneLauncher.Core.csproj" />
   </ItemGroup>
 
+  <Import Project="..\OneLauncher.Core.Net\OneLauncher.Core.Net.projitems" Label="Shared" />
+
 </Project>

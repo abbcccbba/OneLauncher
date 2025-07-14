@@ -304,9 +304,6 @@ public partial class Download : IDisposable
             new ParallelOptions { MaxDegreeOfParallelism = maxSegments, CancellationToken = token },
             async (segment, ct) =>
             {
-                // 报告当前处理的分片范围
-                segmentProgress?.Report((segment.Start, segment.End));
-
                 // 租用内存池的缓冲区，顶级性能优化
                 using var bufferOwner = MemoryPool<byte>.Shared.Rent(128 * 1024); // 128KB
                 var buffer = bufferOwner.Memory;
@@ -333,11 +330,13 @@ public partial class Download : IDisposable
                             await RandomAccess.WriteAsync(fileHandle, buffer.Slice(0, bytesRead), position, ct);
                             position += bytesRead;
                         }
-
+                        // 成功后才报告
+                        segmentProgress?.Report((segment.Start, segment.End));
                         return; // 分片下载成功，退出重试循环
                     }
-                    catch (HttpRequestException) when (attempt < maxRetries)
+                    catch (HttpRequestException ex) when (attempt < maxRetries)
                     {
+                        Debug.WriteLine(ex.Message);
                         // 发生异常都简单等待后重试
                         await Task.Delay(200 * attempt, ct);
                     }

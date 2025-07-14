@@ -3,13 +3,12 @@ using System.Diagnostics;
 using System.Text.Json;
 using OneLauncher.Core.Global;
 namespace OneLauncher.Core.Net.ModService.Modrinth;
-public class SearchModrinth : IDisposable
+public class SearchModrinth
 {
     public ModrinthSearch? info;
-    private readonly HttpClient httpClient;
+    private readonly HttpClient httpClient = Init.Download.unityClient; // 如果不需求高安全性身份验证就用这个
     public SearchModrinth()
     {
-        this.httpClient = new HttpClient();
     }
     public async Task<ModrinthSearch> ToSearch(string Key)
     {
@@ -26,9 +25,5 @@ public class SearchModrinth : IDisposable
         info = await JsonSerializer.DeserializeAsync<ModrinthSearch>(jsonResponse,ModrinthSearchJsonContext.Default.ModrinthSearch);
 
         return info ?? throw new OlanException("无法搜索模型信息",$"服务器地址‘{SearchUrl}’结果无法被序列化");
-    }
-    public void Dispose()
-    {
-        httpClient.Dispose();
     }
 }

@@ -41,7 +41,7 @@ public class ModpackImporter : IDisposable
     /// <param name="packPath">.mrpack 文件的完整路径。</param>
     /// <param name="gameRoot">游戏根目录 (.minecraft) 的路径。</param>
     /// <param name="progress">用于报告进度的回调。</param>
-    /// <param name="token">用于取消操作的 CancellationToken。</param>
+    /// <param name="token">用于取消操作的 CancelToken。</param>
     public static async Task ImportFromMrpackAsync(
         string packPath,
         string gameRoot,

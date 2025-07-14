@@ -10,8 +10,6 @@ using OneLauncher.Core.Global;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Net.Account.Microsoft.JsonModels;
 
-
-
 #if WINDOWS
 using Microsoft.Identity.Client.Broker;
 #endif
@@ -27,7 +25,6 @@ public class MsalAuthenticator : IDisposable
     private static readonly string[] Scopes = { "XboxLive.signin", "offline_access" };
     public Task<IEnumerable<IAccount>> GetCachedAccounts()
         =>msalClient.GetAccountsAsync();
-    
     public Task<AuthenticationResult> AcquireTokenSilentc(IAccount account)
         => msalClient.AcquireTokenSilent(Scopes, account).ExecuteAsync();
 #if WINDOWS
@@ -48,10 +45,18 @@ public class MsalAuthenticator : IDisposable
                 .ExecuteAsync();
             return await ToLoandauth(authResult.AccessToken, authResult.Account);
         }
+        // 第二层：处理用户真正取消操作的情况
         catch (MsalClientException ex) when (ex.ErrorCode == MsalError.AuthenticationCanceledError)
         {
-            Debug.WriteLine("用户取消了授权");
-            return null;
+            return null; // 用户取消了登录操作
+        }
+        catch (MsalException ex)
+        {
+            throw new OlanException(
+                "验证失败",
+                ex.ToString(),
+                OlanExceptionAction.Error,
+                ex);
         }
     }
 #endif
@@ -75,7 +80,6 @@ public class MsalAuthenticator : IDisposable
     }
     public Task RemoveAccount(IAccount account)
         =>msalClient.RemoveAsync(account);
-
     private MsalAuthenticator(string clientId)
     {
         this.clientId = clientId;

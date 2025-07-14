@@ -13,8 +13,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Account\Yggdrasil\ServiceProviders\LittleSkinAuthenticator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Account\Yggdrasil\YggdrasilAuthenticator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\IConnectService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JavaProviders\GraalVMGetter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JavaProviders\MicrosoftBuildofOpenJDKGetter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JavaProviders\OracleJDK.cs" />
+    <Compile Include="..\OneLauncher.Core.Net\JavaProviders\AzulZuluAPI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JavaProviders\BaseJavaProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JavaProviders\IJavaProvider.cs" />
     <Compile Include="..\OneLauncher.Core.Net\ConnectToolPower\MCTPower.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AdoptiumAPI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JavaProviders\AdoptiumAPI.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ConnectToolPower\P2PMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\GetModrinth.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ModService\Modrinth\JsonModelGet.cs" />

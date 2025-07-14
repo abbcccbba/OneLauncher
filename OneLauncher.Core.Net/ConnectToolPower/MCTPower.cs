@@ -33,21 +33,21 @@ public class MCTPower : IDisposable
     }
     public static async Task<MCTPower> InitializationAsync()
     {
-        string coreDirectory = Path.Combine(Init.BasePath,"installed");
-        string coreFileName = Path.Combine(coreDirectory, CoreExecutableName);
-        Directory.CreateDirectory(coreDirectory);
+        string coreFileName = Path.Combine(Init.InstalledPath, CoreExecutableName);
         // 下载核心组件
         if (!File.Exists(coreFileName))
+            await Init.Download.DownloadFile(CoreUrl, coreFileName);
+        
+        // 不管文件有没有，都跑一边校验
+        string? currentMd5 = await Tools.GetFileMD5Async(coreFileName);
+        if (currentMd5 == null)
+            throw new OlanException("无法初始化联机模块", "在对核心程序校验时发生意外错误", OlanExceptionAction.Error);
+        if (currentMd5 != CoreMd5)
         {
-            await Init.Download.DownloadFile(CoreUrl,coreFileName);
-            // 校验
-            string? currentMd5 = await Tools.GetFileMD5Async(coreFileName);
-            if (currentMd5 == null)
-                throw new OlanException("无法初始化联机模块", "在对核心程序校验时发生意外错误", OlanExceptionAction.Error);
-            if (currentMd5 != CoreMd5)
-                throw new OlanException("无法初始化联机模块", $"【无法校验核心组件MD5】{Environment.NewLine}警告：您当前的网络环境可能不安全", OlanExceptionAction.FatalError);
+            File.Delete(coreFileName);
+            throw new OlanException("无法初始化联机模块", $"【无法校验核心组件MD5】{Environment.NewLine}警告：您当前的网络环境可能不安全", OlanExceptionAction.FatalError);
         }
-        return new MCTPower(coreDirectory,coreFileName);
+        return new MCTPower(Init.InstalledPath,coreFileName);
     }
 
     /// <summary>

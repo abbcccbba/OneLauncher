@@ -139,5 +139,6 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		OneLauncher.Core.Net\OneLauncher.Core.Net.projitems*{69b1035d-ad5e-4603-84e2-526f1009610a}*SharedItemsImports = 13
 		OneLauncher.Core.Net\OneLauncher.Core.Net.projitems*{7844ec8c-5320-4e0b-84fa-bc6f89a4ad9b}*SharedItemsImports = 5
+		OneLauncher.Core.Net\OneLauncher.Core.Net.projitems*{a0e36629-65ea-45d2-bd87-a932bb7c3afc}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

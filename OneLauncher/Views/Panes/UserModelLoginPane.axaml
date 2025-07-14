@@ -35,6 +35,7 @@
 			<StackPanel IsVisible="{Binding IsMsaLogin}">
 				<StackPanel Orientation="Horizontal" Spacing="12">
 					<Button Content="跳转登入" Command="{Binding LoginWithMicrosoftCommand}"/>
+					<CheckBox IsChecked="{Binding UseWAMLogin}">回退到浏览器登入</CheckBox>
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>

@@ -17,7 +17,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.Panes.PaneViewModels;
-
 internal partial class UserModelLoginPaneViewModel : BaseViewModel
 {
 #if DEBUG
@@ -124,6 +123,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
     }
     #endregion
     #region 微软登入
+    [ObservableProperty] bool useWAMLogin = false;
     [RelayCommand]
     public Task LoginWithMicrosoft()
         => LoginWithMicrosoftHandle();
@@ -131,6 +131,8 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
     {
         try
         {
+            if (UseWAMLogin)
+                _accountManager.FallbackToWeb();
             UserModel um;
 #if WINDOWS
             if (Init.SystemType == SystemType.windows && !useWeb)

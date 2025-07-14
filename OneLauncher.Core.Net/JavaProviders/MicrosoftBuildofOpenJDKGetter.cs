@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace OneLauncher.Core.Net.JavaProviders;
+internal class MicrosoftBuildofOpenJDKGetter : BaseJavaProvider, IJavaProvider
+{
+    public MicrosoftBuildofOpenJDKGetter(int javaVersion)
+        : base(javaVersion, 11)
+    {
+
+    }
+    public Task GetAutoAsync()
+    {
+        string fileExtension = systemTypeName == "windows" ? "zip" : "tar.gz";
+        string osName = systemTypeName == "macos" ? "macOS" : systemTypeName;
+        string downloadUrl = $"https://aka.ms/download-jdk/microsoft-jdk-{javaVersion}-{osName}-{systemArchName}.{fileExtension}";
+        return GetAndDownloadAsync(() => Task.FromResult<string?>(downloadUrl));
+    }
+}

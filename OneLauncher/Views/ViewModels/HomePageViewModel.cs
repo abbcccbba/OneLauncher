@@ -220,13 +220,10 @@ internal partial class HomePageViewModel : BaseViewModel
     private Task InitializeNewsAsync()
         =>UpdateNewsAsync(() => _newsReader.GetCurrentNewsAsync());
     
-
-    [RelayCommand]
-    private Task NextNews()
+    [RelayCommand] private Task NextNews()
         => UpdateNewsAsync(() => _newsReader.GetNextNewsAsync());
 
-    [RelayCommand]
-    private Task PreviousNews()
+    [RelayCommand] private Task PreviousNews()
         =>UpdateNewsAsync(() => _newsReader.GetPreviousNewsAsync());
     
 

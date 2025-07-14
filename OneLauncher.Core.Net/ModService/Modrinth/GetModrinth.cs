@@ -20,54 +20,52 @@ public class GetModrinth
     }
     public async Task Init()
     {
-        using (HttpClient client = new HttpClient())
+        var client = Global.Init.Download.unityClient; 
+        var Url = $"https://api.modrinth.com/v2/project/{ModID}/version?game_versions=[\"{version}\"]";
+        Debug.WriteLine(Url);
+        HttpResponseMessage response = await client.GetAsync(Url);
+        response.EnsureSuccessStatusCode();
+
+        try
         {
-            var Url = $"https://api.modrinth.com/v2/project/{ModID}/version?game_versions=[\"{version}\"]";
-            Debug.WriteLine(Url);
-            HttpResponseMessage response = await client.GetAsync(Url);
-            response.EnsureSuccessStatusCode();
+            using (JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync()))
+            {
+                JsonElement firstElement = document.RootElement[0];
+                info = JsonSerializer.Deserialize<ModrinthProjects>(firstElement.GetRawText(),ModrinthGetJsonContext.Default.ModrinthProjects);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"加载或解析 Modrinth 主模组版本时出错: {ex.Message}");
+            info = null;
+            return;
+        }
+
+        if (info == null || info.Dependencies == null || info.Dependencies.Count == 0)
+            return;
+
+        this.dependencies = new List<ModrinthProjects>();
+        foreach (var item in info.Dependencies)
+        {
+            var DUrl = $"https://api.modrinth.com/v2/project/{item.ProjectId}/version?game_versions=[\"{version}\"]&loaders=[\"fabric\"]";
+            Debug.WriteLine(DUrl);
+            HttpResponseMessage Dresponse = await client.GetAsync(DUrl);
+            Dresponse.EnsureSuccessStatusCode();
 
             try
             {
-                using (JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync()))
+                // **依赖模组版本处理：只获取第一个**
+                using (JsonDocument dDocument = JsonDocument.Parse(await Dresponse.Content.ReadAsStringAsync()))
                 {
-                    JsonElement firstElement = document.RootElement[0];
-                    info = JsonSerializer.Deserialize<ModrinthProjects>(firstElement.GetRawText(),ModrinthGetJsonContext.Default.ModrinthProjects);
+                    JsonElement firstDependencyElement = dDocument.RootElement[0];
+                    ModrinthProjects dependencyProject = JsonSerializer.Deserialize<ModrinthProjects>(firstDependencyElement.GetRawText(),ModrinthGetJsonContext.Default.ModrinthProjects)
+                        ?? throw new InvalidOperationException("解析 Modrinth 依赖模组第一个版本失败。");
+                    this.dependencies.Add(dependencyProject);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"加载或解析 Modrinth 主模组版本时出错: {ex.Message}");
-                info = null;
-                return;
-            }
-
-            if (info == null || info.Dependencies == null || info.Dependencies.Count == 0)
-                return;
-
-            this.dependencies = new List<ModrinthProjects>();
-            foreach (var item in info.Dependencies)
-            {
-                var DUrl = $"https://api.modrinth.com/v2/project/{item.ProjectId}/version?game_versions=[\"{version}\"]&loaders=[\"fabric\"]";
-                Debug.WriteLine(DUrl);
-                HttpResponseMessage Dresponse = await client.GetAsync(DUrl);
-                Dresponse.EnsureSuccessStatusCode();
-
-                try
-                {
-                    // **依赖模组版本处理：只获取第一个**
-                    using (JsonDocument dDocument = JsonDocument.Parse(await Dresponse.Content.ReadAsStringAsync()))
-                    {
-                        JsonElement firstDependencyElement = dDocument.RootElement[0];
-                        ModrinthProjects dependencyProject = JsonSerializer.Deserialize<ModrinthProjects>(firstDependencyElement.GetRawText(),ModrinthGetJsonContext.Default.ModrinthProjects)
-                            ?? throw new InvalidOperationException("解析 Modrinth 依赖模组第一个版本失败。");
-                        this.dependencies.Add(dependencyProject);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"加载或解析 Modrinth 依赖模组版本时出错 (ID: {item.ProjectId}): {ex.Message}");
-                }
+                Debug.WriteLine($"加载或解析 Modrinth 依赖模组版本时出错 (ID: {item.ProjectId}): {ex.Message}");
             }
         }
     }

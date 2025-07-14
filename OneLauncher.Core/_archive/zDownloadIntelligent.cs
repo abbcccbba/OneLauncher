@@ -17,7 +17,7 @@ namespace OneLauncher.Core._archive;
     string savepath,
     long? size,
     int maxSegments,
-    CancellationToken token)
+    CancelToken token)
     {
         long filesize;
 
@@ -46,7 +46,7 @@ namespace OneLauncher.Core._archive;
         new ParallelOptions
         {
             MaxDegreeOfParallelism = maxSegments,
-            CancellationToken = token
+            CancelToken = token
         },
         async (segment, ct) =>
         {
@@ -81,7 +81,7 @@ namespace OneLauncher.Core._archive;
     string savepath,
     long? size,
     int maxSegments,
-    CancellationToken token)
+    CancelToken token)
     {
         long filesize;
 
@@ -114,7 +114,7 @@ namespace OneLauncher.Core._archive;
         new ParallelOptions
         {
             MaxDegreeOfParallelism = maxSegments,
-            CancellationToken = token
+            CancelToken = token
         },
         async (segment, ct) =>
         {
@@ -216,9 +216,9 @@ public partial class Download
         string[] urls,
         string savepath,
         DownloadOptions options = default,
-        CancellationToken? token = null)
+        CancelToken? token = null)
     {
-        var cancelToken = token ?? CancellationToken.None;
+        var cancelToken = token ?? CancelToken.None;
         long filesize;
         if(options.MaxWorkers == 0)
             options = new DownloadOptions();
@@ -256,7 +256,7 @@ public partial class Download
 
     #region 内部逻辑
 
-    private async Task AutoStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancellationToken token)
+    private async Task AutoStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancelToken token)
     {
         // 文件过小直接进度单线程
         var probeSize = 1 * 1024 * 1024;
@@ -286,7 +286,7 @@ public partial class Download
             await FailoverStrategy(urls, savepath, filesize, options, token);
         
     }
-    private async Task ConcurrentStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancellationToken token)
+    private async Task ConcurrentStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancelToken token)
     {
         using var fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true);
         fs.SetLength(filesize);
@@ -310,7 +310,7 @@ public partial class Download
         }
         await Task.WhenAll(workerTasks);
     }
-    private async Task FailoverStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancellationToken token)
+    private async Task FailoverStrategy(string[] urls, string savepath, long filesize, DownloadOptions options, CancelToken token)
     {
         // 实现 "FinalBoss" (主备分离) 逻辑
         var primaryUrl = urls[0];
@@ -397,7 +397,7 @@ public partial class Download
     /// 尝试下载单个分片，内部包含重试逻辑。
     /// </summary>
     /// <returns>成功返回 true，失败返回 false。</returns>
-    private async Task<bool> TryDownloadSegment(SafeFileHandle fileHandle, string url, (long start, long end) segment, int maxRetries, CancellationToken token)
+    private async Task<bool> TryDownloadSegment(SafeFileHandle fileHandle, string url, (long start, long end) segment, int maxRetries, CancelToken token)
     {
         int attempts = 0;
         while (attempts < maxRetries)
@@ -423,7 +423,7 @@ public partial class Download
     /// <summary>
     /// 执行单个分片的下载和写入操作。
     /// </summary>
-    private async Task DownloadSegmentAsync(SafeFileHandle fileHandle, string url, (long startBit, long endBit) segment, CancellationToken ct)
+    private async Task DownloadSegmentAsync(SafeFileHandle fileHandle, string url, (long startBit, long endBit) segment, CancelToken ct)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Range = new RangeHeaderValue(segment.startBit, segment.endBit);
