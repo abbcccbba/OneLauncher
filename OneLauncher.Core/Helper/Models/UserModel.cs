@@ -110,29 +110,29 @@ public class UserModel
     /// </returns>
     public async Task<UserModel> IntelligentLogin(MsalAuthenticator authenticator)
     {
-        // 如果不是正版用户，或令牌未过期，则直接返回自身，无需任何操作。
-        if (UserType == AccountType.Offline || AccessTokenExpiration.HasValue && AccessTokenExpiration.Value > DateTimeOffset.UtcNow)
+        try
         {
-            return this;
-        }
-
-        // 令牌已过期，需要刷新。检查能否刷新。
-        if (authenticator == null || string.IsNullOrEmpty(AccountID))
-        {
-            // 缺少刷新所需的工具或信息，返回自身。
-            return this;
-        }
-        if (UserType == AccountType.Msa)
-        {
-            // 从认证器缓存中找到对应的微软账户
-            var accountToRefresh = await Tools.UseAccountIDToFind(AccountID);
-            if (accountToRefresh == null)
+            // 如果不是正版用户，或令牌未过期，则直接返回自身，无需任何操作。
+            if (UserType == AccountType.Offline || AccessTokenExpiration.HasValue && AccessTokenExpiration.Value > DateTimeOffset.UtcNow)
             {
                 return this;
             }
 
-            try
+            // 令牌已过期，需要刷新。检查能否刷新。
+            if (authenticator == null || string.IsNullOrEmpty(AccountID))
             {
+                // 缺少刷新所需的工具或信息，返回自身。
+                return this;
+            }
+            if (UserType == AccountType.Msa)
+            {
+                // 从认证器缓存中找到对应的微软账户
+                var accountToRefresh = await Tools.UseAccountIDToFind(AccountID);
+                if (accountToRefresh == null)
+                {
+                    return this;
+                }
+
                 // 调用认证器执行刷新流程
                 UserModel r = await authenticator.TryToGetMinecraftMojangAccessTokenForLoginedAccounts(accountToRefresh) ?? this;
 
@@ -142,17 +142,17 @@ public class UserModel
                 _ = Init.AccountManager.Save();
                 return r;
             }
-            catch (Exception)
+            else
             {
-                // 刷新过程中发生异常，返回当前实例。
-                return this;
+                var newUser = await new LittleSkinAuthenticator().RefreshAccessTokenAsync(this);
+                this.AccessToken = newUser.AccessToken;
+                return newUser;
             }
         }
-        else
+        catch (Exception)
         {
-            var newUser = await new LittleSkinAuthenticator().RefreshAccessTokenAsync(this);
-            this.AccessToken = newUser.AccessToken;
-            return newUser;
+            // 刷新过程中发生异常，返回当前实例。
+            return this;
         }
     }
 

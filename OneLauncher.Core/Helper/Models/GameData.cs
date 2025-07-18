@@ -19,19 +19,26 @@ public class GameData
     public DateTime CreationTime { get; set; }
     public Guid DefaultUserModelID { get; set; }
     public string InstanceId { get; set; }
-    public JvmArguments? CustomJvmArguments { get; set; }
+    // 自定义一些参数
+    public JvmArguments? CustomJvmOptimizationArguments { get; set; }
+    public string? ExtraJvmArguments { get; set; }
+    public string? CustomGameArguments { get; set; }
     [JsonIgnore]
     public string InstancePath => Path.Combine(Init.GameRootPath, "instance", InstanceId);
     [JsonConstructor]
-    // 修改这里的参数名以匹配属性名
-    public GameData(string name, string versionId, ModEnum modLoader, Guid defaultUserModelID, DateTime creationTime, string instanceId)
+    public GameData(string name, string versionId, ModEnum modLoader, Guid defaultUserModelID,
+                    DateTime creationTime, string instanceId, JvmArguments? customJvmOptimizationArguments,
+                    string? extraJvmArguments, string? customGameArguments) 
     {
         Name = name;
         VersionId = versionId;
-        ModLoader = modLoader; 
-        DefaultUserModelID = defaultUserModelID; 
+        ModLoader = modLoader;
+        DefaultUserModelID = defaultUserModelID;
         CreationTime = creationTime;
         InstanceId = instanceId;
+        CustomJvmOptimizationArguments = customJvmOptimizationArguments;
+        ExtraJvmArguments = extraJvmArguments;        
+        CustomGameArguments = customGameArguments;     
     }
     public GameData(string name, string versionId, ModEnum loader, Guid? userModel)
     {

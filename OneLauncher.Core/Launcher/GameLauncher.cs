@@ -44,8 +44,7 @@ public class GameLauncher : IGameLauncher
         var optionsPath = Path.Combine(gameData.InstancePath, "options.txt");
         if (!File.Exists(optionsPath))
             await File.WriteAllTextAsync(optionsPath, "lang:zh_CN");
-        var jvmArgsToUse = gameData.CustomJvmArguments ?? Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments;
-        var commandBuilder = (await LaunchCommandBuilder.CreateAsync(
+        LaunchCommandBuilder commandBuilder = (await LaunchCommandBuilder.CreateAsync(
                 gameRootPath,
                 gameData.VersionId
             ));
@@ -54,8 +53,16 @@ public class GameLauncher : IGameLauncher
             .WithServerInfo(serverInfo)
             .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)
             .SetModType(gameData.ModLoader);
+        // 设置额外参数
+        JvmArguments jvmArgsToUse = gameData.CustomJvmOptimizationArguments ?? Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments;
+        List<string> ojr = new(1);
         if (jvmArgsToUse.mode != OptimizationMode.None)
-            commandBuilder.WithExtraJvmArgs(jvmArgsToUse.GetArguments(commandBuilder.versionInfo.GetJavaVersion(), gameData));
+            ojr.AddRange(jvmArgsToUse.GetArguments(commandBuilder.versionInfo.GetJavaVersion(), gameData));
+        if (gameData.ExtraJvmArguments != null)
+            ojr.Add(gameData.ExtraJvmArguments);
+        commandBuilder.WithExtraJvmArgs(ojr);
+        if(gameData.CustomGameArguments != null)
+            commandBuilder.WithExtraGameArgs([gameData.CustomGameArguments]);
         await resh;
         #endregion
         // 配置并启动游戏进程

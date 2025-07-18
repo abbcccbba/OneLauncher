@@ -22,7 +22,11 @@ public abstract class BasicDataManager<T> where T : class, new()
         _configPath = configPath;
         _serializerOptions = new JsonSerializerOptions
         {
-            WriteIndented = false, // 是否格式化 
+#if DEBUG
+            WriteIndented = true,
+#else
+            WriteIndented = false,
+#endif
             TypeInfoResolver = GetJsonContext()
         };
     }
@@ -55,7 +59,7 @@ public abstract class BasicDataManager<T> where T : class, new()
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                throw new OlanException($"加载配置文件 {_configPath} 失败", "文件可能已损坏。", OlanExceptionAction.FatalError, ex);
+                throw new OlanException($"加载配置文件失败", $" {_configPath} 文件可能已损坏。", OlanExceptionAction.FatalError, ex);
             }
         }
 

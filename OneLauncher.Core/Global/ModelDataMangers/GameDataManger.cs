@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks.Sources;
 
 namespace OneLauncher.Core.Global.ModelDataMangers;
+// 标签系统太过度设计了，未来把他简化一下
 public class GameDataTag
 {
     public string Name { get; init; }
@@ -46,6 +47,8 @@ public class GameDataRoot
 [JsonSerializable(typeof(GameDataRoot))]
 [JsonSerializable(typeof(GameDataTag))]
 [JsonSerializable(typeof(GameData))]
+[JsonSerializable(typeof(JvmArguments))]
+[JsonSerializable(typeof(string))]
 public partial class GameDataJsonContext : JsonSerializerContext { }
 
 public class GameDataManager : BasicDataManager<GameDataRoot>
