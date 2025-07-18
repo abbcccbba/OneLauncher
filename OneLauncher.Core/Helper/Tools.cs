@@ -15,6 +15,20 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Helper;
 public static class Tools
 {
+    public static string ReplacePlaceholders(string template, Dictionary<string, string> placeholders)
+    {
+        if (string.IsNullOrEmpty(template) || placeholders == null || placeholders.Count == 0)
+        {
+            return template;
+        }
+
+        var sb = new StringBuilder(template);
+        foreach (var placeholder in placeholders)
+        {
+            sb.Replace($"${{{placeholder.Key}}}", placeholder.Value);
+        }
+        return sb.ToString();
+    }
     /// <summary>
     /// 基于主类名的模组加载器判断机制
     /// </summary>
@@ -123,17 +137,6 @@ public static class Tools
                 "无法执行启动操作",
                 OlanExceptionAction.Error);
         }
-    }
-    public static string IsUseOlansJreOrOssJdk(int javaVersion)
-    {
-        var t = Path.Combine(Init.BasePath,"installed","runtimes", javaVersion.ToString());
-        if (Init.ConfigManager.Data.AvailableJavas.ContainsKey(javaVersion)) // 是否已经安装Java
-            if (Init.ConfigManger.Data.AvailableJavas[javaVersion] != null) // 是否指定Java路径
-                return Init.ConfigManager.Data.AvailableJavas[javaVersion]!;
-            else if (Init.SystemType == SystemType.osx) // MacOS未指定路径特殊处理
-                return Path.Combine(t, Directory.GetDirectories(t)[0], "Contents", "Home", "bin", "javaw");
-            else return Path.Combine(t, Directory.GetDirectories(t)[0], "bin", "javaw");
-        else return "java"; // 否则默认使用系统Java 
     }
     public static int ForNullJavaVersion(string version)
     {

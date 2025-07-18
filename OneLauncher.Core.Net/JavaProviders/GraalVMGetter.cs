@@ -13,10 +13,10 @@ internal class GraalVMGetter : BaseJavaProvider, IJavaProvider
     {
         /* 此版本有版本限制，不提供21及以下的JDK版本，且不提供JRE版本 */
     }
-    public Task GetAutoAsync()
+    public Task GetAutoAsync(IProgress<(long Start, long End)> progress)
     {
         string fileExtension = systemTypeName == "windows" ? "zip" : "tar.gz";
         string downloadUrl = $"https://download.oracle.com/graalvm/{javaVersion}/latest/graalvm-jdk-{javaVersion}_{systemTypeName}-{systemArchName}_bin.{fileExtension}";
-        return GetAndDownloadAsync(() => Task.FromResult<string?>(downloadUrl));
+        return GetAndDownloadAsync(() => Task.FromResult<string?>(downloadUrl), progress);
     }
 }

@@ -7,6 +7,9 @@ using System.Runtime.CompilerServices;
 namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
+    // 依赖
+    private readonly JavaManager _javaManager = Init.JavaManager;
+    // 构造依赖
     public VersionInfomations versionInfo;
     private readonly char separator;
     private readonly string versionId;
@@ -98,7 +101,7 @@ public partial class LaunchCommandBuilder
     }
     #endregion
     public string GetJavaPath() =>
-        Tools.IsUseOlansJreOrOssJdk(versionInfo.GetJavaVersion());
+        _javaManager.GetJavaExecutablePath(versionInfo.GetJavaVersion());
     public async Task<LaunchCommand> BuildCommand()
     {
         IModStrategy? strategy = null; // 策略可以是null，代表原版

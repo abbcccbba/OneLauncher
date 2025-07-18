@@ -19,10 +19,10 @@ internal class AdoptiumAPI : BaseJavaProvider, IJavaProvider
 
     public override string ProviderName => "Eclipse Adoptium";
 
-    public Task GetAutoAsync()
+    public Task GetAutoAsync(IProgress<(long Start, long End)> progress)
     {
         string apiUrl = $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={systemArchName}&os={(systemTypeName == "macos" ? "mac" : systemTypeName)}&image_type=jre";
-        return GetAndDownloadAsync(() => GetBinaryPackageLinkAsync(apiUrl, httpClient));
+        return GetAndDownloadAsync(() => GetBinaryPackageLinkAsync(apiUrl, httpClient), progress);
     }
 
     private async Task<string?> GetBinaryPackageLinkAsync(string apiUrl, HttpClient client)

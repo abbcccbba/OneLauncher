@@ -25,6 +25,7 @@ public enum DownProgress
 }
 public partial class DownloadMinecraft
 {
+    private readonly JavaManager _javaManager = Init.JavaManager;
     //private int retryTimes; // 已经重试次数
     private const int MAX_DOWNLOAD_RETRIES = 3; // 每个文件最多重试3次
     private const int DOWNLOAD_TIMEOUT_SECONDS = 10; // 每次尝试的超时时间为10秒
@@ -270,13 +271,7 @@ public partial class DownloadMinecraft
         Interlocked.Increment(ref dones);
         return info.DownloadTool.DownloadFile(log4j2_xml.url, log4j2_xml.path, cancelToken);
     }
-    private Task JavaInstallTasker() => Task.Run(async () =>
-    {
-        if (!_configManager.Data.AvailableJavas.ContainsKey(info.VersionMojangInfo.GetJavaVersion()))
-        {
-            await new AdoptiumAPI(info.VersionMojangInfo.GetJavaVersion()).GetAutoAsync();
-            _configManager.Data.AvailableJavas.Add(info.VersionMojangInfo.GetJavaVersion(), null);
-            await _configManager.Save();
-        }
-    });
+    private Task JavaInstallTasker() => 
+        _javaManager.InstallJava(info.VersionMojangInfo.GetJavaVersion(), JavaProvider.Adoptium, token: cancelToken);
+    
 }

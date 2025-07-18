@@ -92,10 +92,8 @@ internal partial class ModsBrowserViewModel : BaseViewModel
     [RelayCommand]
     public async Task ToSearch()
     {
-        using (SearchModrinth SearchTask = new SearchModrinth())
-        {
-            SearchItems = ModItem.Create(await SearchTask.ToSearch(SearchContent));
-        }
+        SearchModrinth SearchTask = new SearchModrinth();
+        SearchItems = ModItem.Create(await SearchTask.ToSearch(SearchContent));
     }
     [RelayCommand]
     public void ToInstallMod(ModItem item)

@@ -52,20 +52,14 @@ internal abstract class BaseJavaProvider
             return Path.Combine(Directory.GetDirectories(installTo)[0], "Contents", "Home", "bin", "java");
         else return Path.Combine(Directory.GetDirectories(installTo)[0], "bin", "java");
     }
-    protected async Task GetAndDownloadAsync(Func<Task<string?>> GetDownloadUrlFuntion)
+    protected async Task GetAndDownloadAsync(Func<Task<string?>> GetDownloadUrlFuntion, IProgress<(long Start, long End)> op)
     {
         string? downloadUrl = await GetDownloadUrlFuntion();
         if (downloadUrl == null)
             throw new OlanException("无法获取Java下载链接", "从Java提供商API获取Java下载链接时出错，可能是API不可用或参数错误。");
         string tempFilePath = Path.Combine(installTo, $"{javaVersion}.tmp");
         await Init.Download.DownloadFileBig(downloadUrl, tempFilePath, null, 28,
-#if DEBUG
-            segmentProgress: new Progress<(long Start, long End)>(
-                p =>
-                {
-                    Debug.WriteLine($"分段起始位：{p.Start} 分段结束位：{p.End}");
-                }),
-#endif
+            segmentProgress: op,
             token: CancelToken ?? CancellationToken.None);
         if(downloadUrl.EndsWith(".zip"))
             Download.ExtractFile(tempFilePath, installTo);

@@ -15,11 +15,38 @@ using System.Threading.Tasks;
 namespace OneLauncher.Views.Panes.PaneViewModels;
 internal partial class JavaInstallPaneViewModel : BaseViewModel
 {
-    private CancellationTokenSource _cts;
+    private readonly JavaManager _javaManager;
+    public JavaInstallPaneViewModel(JavaManager javaManager)
+    {
+        _javaManager = javaManager;
+    }
+    private readonly CancellationTokenSource _cts = new();
+    #region 用户可选安装属性
+    [ObservableProperty] ObservableCollection<JavaProvider> _javaProviders = 
+        new ObservableCollection<JavaProvider>(
+            [
+            JavaProvider.Adoptium,
+            JavaProvider.AzulZulu,
+            JavaProvider.OracleGraalVM,
+            JavaProvider.MicrosoftOpenJDK,
+            JavaProvider.OracleJDK
+            ]);
+    [ObservableProperty] JavaProvider _selectedJavaProvider = JavaProvider.Adoptium;
+    [ObservableProperty] ObservableCollection<int> _javaVersions = 
+        new ObservableCollection<int>(
+            [
+            8, 11, 16,17, 21,24
+            ]);
+    [ObservableProperty] int _selectedJavaVersion = 21;
+    #endregion
+    #region 进度报告属性
+    [ObservableProperty] string _titText = string.Empty;
+    [ObservableProperty] double _progressValue = 0.0;
+    #endregion
     [RelayCommand]
     private async Task Install()
     {
-        
+        //_javaManager.InstallJava();
     }
 
     [RelayCommand]

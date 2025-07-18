@@ -70,7 +70,7 @@ internal class NeoforgeProvider : IModLoaderConcreteProviders
 
         await _installTasker.RunProcessorsAsync(
             _context.VersionMojangInfo.GetMainFile().path,
-            Tools.IsUseOlansJreOrOssJdk(_context.VersionMojangInfo.GetJavaVersion()),
+            Init.JavaManager.GetJavaExecutablePath(_context.VersionMojangInfo.GetJavaVersion()),
             _clientLzmaTempPath,
             token,
             isForge: _context.UserInfo.ModLoader == ModEnum.forge

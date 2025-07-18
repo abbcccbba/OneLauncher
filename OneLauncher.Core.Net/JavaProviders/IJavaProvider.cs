@@ -12,7 +12,7 @@ internal interface IJavaProvider
     /// <summary>
     /// 执行Java安装
     /// </summary>
-    Task GetAutoAsync();
+    Task GetAutoAsync(IProgress<(long Start, long End)> progress);
     /// <summary>
     /// 获取java可执行文件的路径
     /// </summary>

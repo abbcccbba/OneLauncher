@@ -33,6 +33,7 @@ public static class Init
     internal static AccountManager AccountManager { get; private set; }
     internal static GameDataManager GameDataManager { get; private set; }
     internal static MsalAuthenticator MsalAuthenticator { get; private set; }
+    internal static JavaManager JavaManager { get; private set; }
     public static Download Download { get; private set; }
     public static async Task<IServiceCollection> Initialize(bool isCommandMode = false)
     {
@@ -75,6 +76,10 @@ public static class Init
             services.AddSingleton<MsalAuthenticator>(msrl);
             OnApplicationClosingReleaseSourcesList.Add(msrl);
             MsalAuthenticator = msrl;
+
+            var javaManager = new JavaManager();
+            services.AddSingleton<JavaManager>(javaManager);
+            JavaManager = javaManager;
 
             return services; 
         }

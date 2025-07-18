@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using System;
 using System.Collections.Generic;
@@ -47,7 +48,7 @@ internal class ForgeStrategy : IModStrategy
 #endif
         };
 
-        return _parser.info.Arguments.Jvm.Select(arg => LaunchCommandBuilder.ReplacePlaceholders(arg, placeholders));
+        return _parser.info.Arguments.Jvm.Select(arg => Tools.ReplacePlaceholders(arg, placeholders));
     }
 
     // Game 参数通常是固定的，但以防万一也加上替换逻辑

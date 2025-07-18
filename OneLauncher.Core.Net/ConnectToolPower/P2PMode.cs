@@ -49,4 +49,5 @@ public class P2PMode : IConnectService
                 node = "OLANNODE" + RandomNumberGenerator.GetInt32(100000,1000000000).ToString();
         mainPower.LaunchCore($"-node \"{node}\" -token \"{token ?? defaultToken}\"");
     }
+    //public static async Task InstallAndUseLanServerProperties(Guid gameId)
 }

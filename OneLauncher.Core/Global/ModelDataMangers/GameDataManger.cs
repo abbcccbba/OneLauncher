@@ -1,5 +1,4 @@
-﻿using Duende.IdentityModel.OidcClient;
-using OneLauncher.Core.Helper.Models;
+﻿using OneLauncher.Core.Helper.Models;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection.Metadata.Ecma335;

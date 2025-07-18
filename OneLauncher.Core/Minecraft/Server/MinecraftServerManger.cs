@@ -52,7 +52,7 @@ public class MinecraftServerManger
             string versionPath = Path.Combine(Global.Init.GameRootPath, "versions", version);
             serverProcess.StartInfo = new ProcessStartInfo()
             {
-                FileName = Tools.IsUseOlansJreOrOssJdk(java),
+                FileName = Global.Init.JavaManager.GetJavaExecutablePath(java),
                 Arguments = 
                 string.Join(" ",Global.Init.ConfigManager.Data.OlanSettings.MinecraftJvmArguments.GetArguments(java,null)) + 
                             $" -jar {(Path.Combine(versionPath, "server.jar"))}",

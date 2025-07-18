@@ -1,5 +1,4 @@
-﻿using Duende.IdentityModel.OidcClient;
-using Microsoft.Identity.Client;
+﻿using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using System.Diagnostics;
 using System.Net.Http;

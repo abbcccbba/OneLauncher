@@ -16,11 +16,11 @@ internal class AzulZuluAPI : BaseJavaProvider, IJavaProvider
 
     public override string ProviderName => "Azul Zulu";
 
-    public Task GetAutoAsync()
+    public Task GetAutoAsync(IProgress<(long Start, long End)> progress)
     {
         string apiUrl = 
             $"https://api.azul.com/metadata/v1/zulu/packages/?java_version={javaVersion}&os={systemTypeName}&arch={systemArchName}&java_package_type=jre&availability_types=CA&release_status=ga&latest=true";
-        return GetAndDownloadAsync(() => GetDownloadUrl(apiUrl,CancelToken ?? CancellationToken.None));
+        return GetAndDownloadAsync(() => GetDownloadUrl(apiUrl,CancelToken ?? CancellationToken.None),progress);
     }
     private async Task<string?> GetDownloadUrl(string apiUrl,CancellationToken token)
     {

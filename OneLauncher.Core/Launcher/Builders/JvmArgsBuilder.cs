@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Launcher.Strategys;
 using OneLauncher.Core.Minecraft.JsonModels;
@@ -71,7 +72,7 @@ public partial class LaunchCommandBuilder
                 // 判断是规则套字符串还是简单字符串
                 if (item is string str)
                 {
-                    string replaced = ReplacePlaceholders(str, placeholders);
+                    string replaced = Tools.ReplacePlaceholders(str, placeholders);
                     jvmArgs.Add(replaced);
                 }
                 else if (item is MinecraftArgument arg)
@@ -80,14 +81,14 @@ public partial class LaunchCommandBuilder
                     {
                         if (arg.Value is string valStr)
                         {
-                            string replaced = ReplacePlaceholders(valStr, placeholders);
+                            string replaced = Tools.ReplacePlaceholders(valStr, placeholders);
                             jvmArgs.Add(replaced);
                         }
                         else if (arg.Value is List<string> valList)
                         {
                             foreach (var val in valList)
                             {
-                                string replaced = ReplacePlaceholders(val, placeholders);
+                                string replaced = Tools.ReplacePlaceholders(val, placeholders);
                                 jvmArgs.Add($"\"{replaced}\"");
                             }
                         }

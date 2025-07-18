@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Mod.ModLoader.forgeseries;
 using System;
 using System.Collections.Generic;
@@ -45,7 +46,7 @@ internal class NeoForgeStrategy : IModStrategy
                 { "classpath_separator" , ":" }
 #endif
             };
-        return _parser.info.Arguments.Jvm.Select(arg => LaunchCommandBuilder.ReplacePlaceholders(arg, placeholders));
+        return _parser.info.Arguments.Jvm.Select(arg => Tools.ReplacePlaceholders(arg, placeholders));
     }
 
     public IEnumerable<string> GetAdditionalGameArgs() => _parser.info.Arguments.Game;
