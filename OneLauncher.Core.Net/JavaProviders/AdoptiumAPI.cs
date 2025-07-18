@@ -17,6 +17,8 @@ internal class AdoptiumAPI : BaseJavaProvider, IJavaProvider
     {
     }
 
+    public override string ProviderName => "Eclipse Adoptium";
+
     public Task GetAutoAsync()
     {
         string apiUrl = $"https://api.adoptium.net/v3/assets/feature_releases/{javaVersion}/ga?architecture={systemArchName}&os={(systemTypeName == "macos" ? "mac" : systemTypeName)}&image_type=jre";

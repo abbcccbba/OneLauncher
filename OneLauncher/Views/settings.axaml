@@ -7,6 +7,16 @@
 			 x:DataType="vm:SettingsPageViewModel"
 			 x:CompileBindings="True"
              x:Class="OneLauncher.Views.settings">
+	<SplitView IsPaneOpen="{Binding IsPaneShow,Mode=TwoWay}"
+               DisplayMode="Overlay"
+               OpenPaneLength="650"
+               PanePlacement="Right">
+		<SplitView.Pane>
+			<TransitioningContentControl
+				Background="{DynamicResource PaneBackgound}"
+					Content="{Binding PaneContent}">
+			</TransitioningContentControl>
+		</SplitView.Pane>
   <ScrollViewer>
 	  <StackPanel Margin="64" Spacing="36">
 		  <!-- 游戏启动选项 -->
@@ -56,4 +66,5 @@
 		  </StackPanel>
 	  </StackPanel>
   </ScrollViewer>
+		</SplitView>
 </UserControl>

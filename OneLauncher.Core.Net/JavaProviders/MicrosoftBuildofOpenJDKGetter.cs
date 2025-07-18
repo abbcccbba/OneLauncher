@@ -10,6 +10,9 @@ internal class MicrosoftBuildofOpenJDKGetter : BaseJavaProvider, IJavaProvider
     {
 
     }
+
+    public override string ProviderName => "Microsoft OpenJDK";
+
     public Task GetAutoAsync()
     {
         string fileExtension = systemTypeName == "windows" ? "zip" : "tar.gz";

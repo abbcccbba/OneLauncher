@@ -13,6 +13,9 @@ internal class AzulZuluAPI : BaseJavaProvider, IJavaProvider
     public AzulZuluAPI(int javaVersion)
         : base(javaVersion,null)
     {}
+
+    public override string ProviderName => "Azul Zulu";
+
     public Task GetAutoAsync()
     {
         string apiUrl = 

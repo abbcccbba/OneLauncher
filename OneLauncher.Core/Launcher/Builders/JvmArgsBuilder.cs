@@ -94,7 +94,11 @@ public partial class LaunchCommandBuilder
                     }
                 }
             }
-            jvmArgs.Add($"-Dlog4j.configurationFile=\"{versionInfo.GetLoggingConfigPath()}\"");
+            if(new Version("1.17") < new Version(versionId) && new Version(versionId) < new Version("1.18"))
+                jvmArgs.Add("-Dlog4j2.formatMsgNoLookups=true"); // 修复1.17-1.18版本的log4j2漏洞
+            var loggingConfigPath = versionInfo.GetLoggingConfigPath();
+            if(loggingConfigPath != null)
+                jvmArgs.Add($"-Dlog4j.configurationFile=\"{loggingConfigPath}\"");
             return jvmArgs;
         }
     }

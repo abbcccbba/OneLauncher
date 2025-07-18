@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
@@ -13,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
-
+internal class SettingsPageClosePaneControlMessage { public bool value = false; }
 internal partial class SettingsPageViewModel : BaseViewModel
 {
     // 将 manager 重命名为 _dbManger 以遵循常见的私有字段命名约定
@@ -118,11 +119,16 @@ internal partial class SettingsPageViewModel : BaseViewModel
         {
             UseShellExecute = true,
             FileName = Environment.ProcessPath,
-            Arguments = "--releaseMemory", 
+            Arguments = "--releaseMemory"
+#if WINDOWS
+            , 
             Verb = "runas" // 请求管理员权限
+#endif
         });
     }
-
+    [ObservableProperty]
+    UserControl _paneContent;
+    [ObservableProperty] bool _isPaneShow;
     // 构造函数接收正确的 DBManger 类型
     public SettingsPageViewModel(DBManager configManager)
     {
@@ -173,5 +179,7 @@ internal partial class SettingsPageViewModel : BaseViewModel
                }
             );
         }
+        WeakReferenceMessenger.Default.Register<SettingsPageClosePaneControlMessage>
+            (this, (re, message) => IsPaneShow = message.value);
     }
 }

@@ -5,6 +5,8 @@ using System.Text;
 namespace OneLauncher.Core.Net.JavaProviders;
 internal class GraalVMGetter : BaseJavaProvider, IJavaProvider
 {
+    public override string ProviderName => "GrallVM";
+
     // https://download.oracle.com/graalvm/24/latest/graalvm-jdk-24_linux-x64_bin.tar.gz
     public GraalVMGetter(int javaVersion)
         : base(javaVersion, 21)
