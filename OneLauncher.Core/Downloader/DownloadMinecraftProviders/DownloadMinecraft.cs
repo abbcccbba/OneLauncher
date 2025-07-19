@@ -30,6 +30,7 @@ public partial class DownloadMinecraft
         this.info = info;
         this.progress = progress;
         this.cancelToken = cancelToken ?? CancellationToken.None;
+
         _urlProviders = info.DownloadStrategy switch
         { 
             // 必须保证一个是官方源
@@ -40,18 +41,12 @@ public partial class DownloadMinecraft
             DownloadSourceStrategy.RaceWithBmcl => 
             [
                 new MojangSourceDownloadUrlGetter(),
-                new BmlcSourceDownloadUrlGetter()
-                {
-                    versionId = info.ID
-                }
+                new BmlcSourceDownloadUrlGetter(info.ID)
             ],
             DownloadSourceStrategy.RaceWithOlan => 
             [
                 new MojangSourceDownloadUrlGetter(),
                 new OlanSourceDownloadUrlGetter()
-                {
-                    versionId = info.ID
-                }
             ],
             _ => throw new OlanException("内部错误", "未知的下载策略")
         };

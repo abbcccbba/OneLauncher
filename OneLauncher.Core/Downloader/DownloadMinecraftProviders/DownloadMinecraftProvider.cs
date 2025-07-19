@@ -30,7 +30,7 @@ public partial class DownloadMinecraft
     private Task DownloadClientTasker(NdDowItem main)
     {
         return _raceDownloader.RaceManyFilesAsync(
-            [main], _urlProviders, RaceStrategy.RaceEveryTime, info.MaxDownloadThreads,
+            [main], _urlProviders, RaceStrategy.RaceOnceAndCacheWinner, info.MaxDownloadThreads,
             new Progress<string>(fileName =>
             {
                 progress?.Report((DownProgress.DownAssets, alls, Interlocked.Increment(ref dones), fileName));
