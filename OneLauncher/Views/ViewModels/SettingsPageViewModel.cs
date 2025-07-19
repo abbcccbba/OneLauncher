@@ -2,9 +2,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
+using OneLauncher.Views.Converters;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -99,15 +101,21 @@ internal partial class SettingsPageViewModel : BaseViewModel
     }
 
     [ObservableProperty]
-    public bool _IsAllowUseBMLCAPI;
-    partial void OnIsAllowUseBMLCAPIChanged(bool value)
+    public DownloadSourceStrategy[] downloadSources =
+        [
+        DownloadSourceStrategy.OfficialOnly,
+        DownloadSourceStrategy.RaceWithBmcl,
+        DownloadSourceStrategy.RaceWithOlan
+        ];
+    [ObservableProperty]
+    public DownloadSourceStrategy _SelectedDownloadSource = DownloadSourceStrategy.OfficialOnly;
+    partial void OnSelectedDownloadSourceChanged(DownloadSourceStrategy value)
     {
 #if DEBUG
         if (Design.IsDesignMode)
             return;
 #endif
-        // 使用注入的实例
-        _dbManger.Data.OlanSettings.IsAllowToDownloadUseBMLCAPI = value;
+        _dbManger.Data.OlanSettings.DownloadMinecraftSourceStrategy = value;
         _dbManger.Save();
     }
 
@@ -162,7 +170,7 @@ internal partial class SettingsPageViewModel : BaseViewModel
             MaxDownloadThreadsValue = _dbManger.Data.OlanSettings.MaximumDownloadThreads;
             MaxSha1ThreadsValue = _dbManger.Data.OlanSettings.MaximumSha1Threads;
             IsSha1Enabled = _dbManger.Data.OlanSettings.IsSha1Enabled;
-            IsAllowUseBMLCAPI = _dbManger.Data.OlanSettings.IsAllowToDownloadUseBMLCAPI;
+            SelectedDownloadSource = _dbManger.Data.OlanSettings.DownloadMinecraftSourceStrategy;
         }
         catch (NullReferenceException ex)
         {

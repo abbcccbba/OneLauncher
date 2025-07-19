@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="818" d:DesignHeight="530"
 			 xmlns:vm="using:OneLauncher.Views.ViewModels"
+			 xmlns:downmc="using:OneLauncher.Core.Downloader.DownloadMinecraftProviders"
 			 x:DataType="vm:SettingsPageViewModel"
 			 x:CompileBindings="True"
              x:Class="OneLauncher.Views.settings">
@@ -53,15 +54,14 @@
 						  <TextBlock Text="不再校验Sha1"/>
 					  </ToggleSwitch.OffContent>
 				  </ToggleSwitch>
-				  <TextBlock Text="允许连接 BMLCAPI" Margin="0,8,0,0"/>
-				  <ToggleSwitch IsChecked="{Binding IsAllowUseBMLCAPI}">
-					  <ToggleSwitch.OnContent>
-						  <TextBlock Text="使用BMLC API"/>
-					  </ToggleSwitch.OnContent>
-					  <ToggleSwitch.OffContent>
-						  <TextBlock Text="不使用"/>
-					  </ToggleSwitch.OffContent>
-				  </ToggleSwitch>
+				  <TextBlock Text="下载源与镜像" Margin="0,8,0,0"/>
+				  <ComboBox ItemsSource="{Binding DownloadSources}" SelectedItem="{Binding SelectedDownloadSource}">
+					  <ComboBox.ItemTemplate>
+						  <DataTemplate x:DataType="downmc:DownloadSourceStrategy">
+							  <TextBlock Text="{Binding Converter={StaticResource DownloadSourceStrategyConverter},Mode=OneWay}"/>
+						  </DataTemplate>
+					  </ComboBox.ItemTemplate>
+				  </ComboBox>
 			  </StackPanel>
 		  </StackPanel>
 	  </StackPanel>

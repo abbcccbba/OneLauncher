@@ -1,4 +1,5 @@
-﻿using OneLauncher.Core.Helper.Models;
+﻿using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
+using OneLauncher.Core.Helper.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,7 +19,7 @@ public class AppSettings
     public int MaximumDownloadThreads { get; set; } = 24;
     public int MaximumSha1Threads { get; set; } = 24;
     public bool IsSha1Enabled { get; set; } = true;
-    public bool IsAllowToDownloadUseBMLCAPI { get; set; } = false;
+    public DownloadSourceStrategy DownloadMinecraftSourceStrategy { get; set; } = DownloadSourceStrategy.OfficialOnly;
     public string? InstallPath { get; set; } 
     //public bool UseTempFileArguments { get; set; } = true;
 }

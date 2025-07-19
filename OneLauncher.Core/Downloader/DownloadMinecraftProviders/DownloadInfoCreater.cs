@@ -94,9 +94,7 @@ public partial class DownloadInfo
             MaxDownloadThreads = Math.Clamp(Init.ConfigManager.Data.OlanSettings.MaximumDownloadThreads, 1, 256),
             MaxSha1Threads = Math.Clamp(Init.ConfigManager.Data.OlanSettings.MaximumSha1Threads, 1, 256),
             IsSha1 = Init.ConfigManager.Data.OlanSettings.IsSha1Enabled,
-            DownloadStrategy = DownloadSourceStrategy.RaceWithOlan
-            //Init.ConfigManager.Data.OlanSettings.IsAllowToDownloadUseBMLCAPI
-            //? DownloadSourceStrategy.RaceWithBmcl : DownloadSourceStrategy.OfficialOnly,
+            DownloadStrategy = Init.ConfigManager.Data.OlanSettings.DownloadMinecraftSourceStrategy
         };
     }
 }

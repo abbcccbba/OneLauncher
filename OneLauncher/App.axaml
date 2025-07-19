@@ -3,12 +3,13 @@
              xmlns:themes="clr-namespace:Avalonia.Styling;assembly=Avalonia.Base"
              xmlns:views="using:OneLauncher.Views"
              xmlns:diagnostics="using:Avalonia.Diagnostics"
-			 xmlns:vm="clr-namespace:OneLauncher.Views.ViewModels;assembly=OneLauncher"
+			 xmlns:vm="using:OneLauncher.Views.Converters"
              x:Class="OneLauncher.App"
              RequestedThemeVariant="Default">
 	<Application.Resources>
 		<ResourceDictionary>
 			<vm:ModEnumToStringConverter x:Key="ModEnumConverter"/>
+			<vm:DownloadSourceStrategyToStringConverter x:Key="DownloadSourceStrategyConverter"/>
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Light">
 					<SolidColorBrush x:Key="MainWindowBackground" Color="#99FFFFFF"/>

@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.DownloadSources;
-// 还没写完，得等搞镜像那哥么把调用方法给我
 internal class OlanSourceDownloadUrlGetter : IDownloadSourceUrlProvider
 {
     const string OLON_SOURCE_BASE_URL = "http://110.42.59.70:8840/";
@@ -22,8 +21,7 @@ internal class OlanSourceDownloadUrlGetter : IDownloadSourceUrlProvider
 
     public IEnumerable<NdDowItem> GetAssetsFiles(IEnumerable<NdDowItem> basic)
     {
-        // 他说因为权限问题访问不了，明天能解决，现在就这么写吧回退
-#if true
+#if false
         return basic;
 #endif
         return basic.Select(x => new NdDowItem(
