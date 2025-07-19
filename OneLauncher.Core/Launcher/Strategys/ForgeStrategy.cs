@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
 
-internal class ForgeStrategy : IModStrategy
+internal class ForgeStrategy : IModArgStrategy
 {
     private readonly ForgeSeriesUsing _parser;
     private readonly string _basePath;

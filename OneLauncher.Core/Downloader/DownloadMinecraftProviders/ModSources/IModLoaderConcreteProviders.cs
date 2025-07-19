@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
+namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.ModSources;
 
 internal interface IModLoaderConcreteProviders
 {

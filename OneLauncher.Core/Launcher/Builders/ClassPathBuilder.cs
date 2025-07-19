@@ -13,7 +13,7 @@ public partial class LaunchCommandBuilder
     /// <summary>
     /// 高效地拼接类路径，自动处理原版库和Mod库的优先级与去重。
     /// </summary>
-    private string BuildClassPath(IModStrategy? strategy)
+    private string BuildClassPath(IModArgStrategy? strategy)
     {
         // 1. 获取原版库字典。
         // 这是基础，包含所有当前版本需要的原版库。

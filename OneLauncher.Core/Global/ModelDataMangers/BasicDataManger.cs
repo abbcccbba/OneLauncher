@@ -59,7 +59,7 @@ public abstract class BasicDataManager<T> where T : class, new()
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
-                throw new OlanException($"加载配置文件失败", $" {_configPath} 文件可能已损坏。", OlanExceptionAction.FatalError, ex);
+                throw new OlanException($"加载配置文件失败", $" {_configPath} 文件可能已损坏。{Environment.NewLine}{ex}", OlanExceptionAction.FatalError, ex);
             }
         }
 

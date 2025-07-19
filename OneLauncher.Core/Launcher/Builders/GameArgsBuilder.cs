@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Launcher;
 public partial class LaunchCommandBuilder
 {
-    private IEnumerable<string> BuildGameArgs(string gamePath,IModStrategy? strategy)
+    private IEnumerable<string> BuildGameArgs(string gamePath,IModArgStrategy? strategy)
     {
         if(loginUser == null) loginUser = Init.AccountManager.GetDefaultUser();
         List<string> Args = new List<string>(20);

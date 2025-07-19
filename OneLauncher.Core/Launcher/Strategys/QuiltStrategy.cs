@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
-internal class QuiltStrategy : IModStrategy
+internal class QuiltStrategy : IModArgStrategy
 {
     private readonly QuiltNJParser _quiltParser;
 

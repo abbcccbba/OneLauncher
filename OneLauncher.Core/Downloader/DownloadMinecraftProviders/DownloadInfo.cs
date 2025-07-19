@@ -8,7 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders;
-
+public enum DownloadSourceStrategy
+{
+    OfficialOnly,
+    RaceWithBmcl,
+    RaceWithOlan
+}
 public partial class DownloadInfo
 {
     // 基本信息
@@ -35,4 +40,10 @@ public partial class DownloadInfo
     public bool IsDownloadFabricWithAPI { get; init; }
     public bool ISDownloadQuiltWhitQSL { get; init; }
     public bool AndJava { get; init; }
+
+    // 下载策略
+    internal int MaxDownloadThreads = 24;
+    internal int MaxSha1Threads = 24;
+    internal bool IsSha1 = true;
+    internal DownloadSourceStrategy DownloadStrategy = DownloadSourceStrategy.OfficialOnly;
 }

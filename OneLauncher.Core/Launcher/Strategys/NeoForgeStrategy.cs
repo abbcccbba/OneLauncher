@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
-internal class NeoForgeStrategy : IModStrategy
+internal class NeoForgeStrategy : IModArgStrategy
 {
     private readonly ForgeSeriesUsing _parser;
     private readonly string _basePath;

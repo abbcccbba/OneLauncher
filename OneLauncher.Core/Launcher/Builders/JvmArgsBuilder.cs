@@ -15,7 +15,7 @@ namespace OneLauncher.Core.Launcher;
 
 public partial class LaunchCommandBuilder
 {
-    private IEnumerable<string> BuildJvmArgs(IModStrategy? strategy)
+    private IEnumerable<string> BuildJvmArgs(IModArgStrategy? strategy)
     {
         string osName;
 #if WINDOWS

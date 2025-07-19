@@ -104,7 +104,7 @@ public partial class LaunchCommandBuilder
         _javaManager.GetJavaExecutablePath(versionInfo.GetJavaVersion());
     public async Task<LaunchCommand> BuildCommand()
     {
-        IModStrategy? strategy = null; // 策略可以是null，代表原版
+        IModArgStrategy? strategy = null; // 策略可以是null，代表原版
         if (modType != ModEnum.none)
             strategy = await CreateAndInitStrategy();
 
@@ -121,9 +121,9 @@ public partial class LaunchCommandBuilder
         return new LaunchCommand(rargs, commandArgs);
     }
     // 策略方法
-    private async Task<IModStrategy?> CreateAndInitStrategy()
+    private async Task<IModArgStrategy?> CreateAndInitStrategy()
     {
-        IModStrategy strategy = modType switch
+        IModArgStrategy strategy = modType switch
         {
             ModEnum.fabric => await FabricStrategy.CreateAsync(versionPath, basePath),
             ModEnum.quilt => await QuiltStrategy.CreateAsync(versionPath, basePath),

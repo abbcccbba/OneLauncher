@@ -111,7 +111,6 @@ public class ModpackImporter : IDisposable
         );
 
         var mcDownloader = new DownloadMinecraft(
-            _dbManager,
             downInfo,
             progress,
             token
@@ -119,10 +118,6 @@ public class ModpackImporter : IDisposable
 
         // 调用核心下载方法
         await mcDownloader.MinecraftBasic(
-            maxDownloadThreads: _dbManager.Data.OlanSettings.MaximumDownloadThreads,
-            maxSha1Threads: _dbManager.Data.OlanSettings.MaximumSha1Threads,
-            IsSha1: _dbManager.Data.OlanSettings.IsSha1Enabled,
-            useBMLCAPI: _dbManager.Data.OlanSettings.IsAllowToDownloadUseBMLCAPI
         );
     }
 

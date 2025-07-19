@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.Sources;
+namespace OneLauncher.Core.Downloader.DownloadMinecraftProviders.ModSources;
 internal class QuiltProvider : IModLoaderConcreteProviders
 {
     private readonly DownloadInfo _context;

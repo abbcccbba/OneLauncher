@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
 
-internal interface IModStrategy
+internal interface IModArgStrategy
 {
     string GetMainClassOverride();
     IDictionary<string,string> GetModLibraries();

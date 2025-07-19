@@ -66,7 +66,7 @@ public class PCL2Importer
 
         // 4. **核心改进：执行文件迁移（本地优先）**
         //    创建一个临时的DownloadMinecraft实例，仅为调用其内部Planner
-        var planner = new DownloadMinecraft(_configManager, downloadInfo, _progress, _token);
+        var planner = new DownloadMinecraft(downloadInfo, _progress, _token);
         var plan = await planner.CreateDownloadPlan(); //
 
         //    从PCL2目录迁移所需文件，这会把文件复制到OneLauncher的目标目录
@@ -76,17 +76,12 @@ public class PCL2Importer
         //    现在文件已经就位，我们调用标准的下载/安装流程。
         //    它会自动跳过已存在的文件，并为Forge/NeoForge执行安装器。
         var mcDownloader = new DownloadMinecraft(
-            _configManager,
             downloadInfo,
             _progress,
             _token
         );
 
-        await mcDownloader.MinecraftBasic( //
-            maxDownloadThreads: _configManager.Data.OlanSettings.MaximumDownloadThreads,
-            maxSha1Threads: _configManager.Data.OlanSettings.MaximumSha1Threads,
-            IsSha1: _configManager.Data.OlanSettings.IsSha1Enabled,
-            useBMLCAPI: _configManager.Data.OlanSettings.IsAllowToDownloadUseBMLCAPI
+        await mcDownloader.MinecraftBasic( 
         );
 
         // 6. 迁移用户数据 (Mods, Saves, etc.)

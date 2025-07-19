@@ -74,7 +74,7 @@ public partial class DownloadInfo
             );
         #endregion
 
-        return new DownloadInfo()
+        return new DownloadInfo
         {
             DownloadTool = download,
             VersionMojangInfo = mations,
@@ -90,6 +90,12 @@ public partial class DownloadInfo
             AndJava = isDownloadWithJavaRuntime,
 
             GameRootPath = gameRootPath,
+
+            MaxDownloadThreads = Math.Clamp(Init.ConfigManager.Data.OlanSettings.MaximumDownloadThreads, 1, 256),
+            MaxSha1Threads = Math.Clamp(Init.ConfigManager.Data.OlanSettings.MaximumSha1Threads, 1, 256),
+            IsSha1 = Init.ConfigManager.Data.OlanSettings.IsSha1Enabled,
+            DownloadStrategy = Init.ConfigManager.Data.OlanSettings.IsAllowToDownloadUseBMLCAPI
+                ? DownloadSourceStrategy.RaceWithBmcl : DownloadSourceStrategy.OfficialOnly,
         };
     }
 }

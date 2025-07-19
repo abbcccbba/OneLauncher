@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Launcher.Strategys;
 
-internal class FabricStrategy : IModStrategy
+internal class FabricStrategy : IModArgStrategy
 {
     private readonly FabricVJParser _fabricParser;
 

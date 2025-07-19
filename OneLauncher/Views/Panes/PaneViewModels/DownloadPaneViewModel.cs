@@ -134,14 +134,10 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         }));
                     // 执行下载
                     await new DownloadMinecraft(
-                        _configManager,
                         content,
                         progressReporter,
                         cts.Token
-                    ).MinecraftBasic(
-                        _configManager.Data.OlanSettings.MaximumDownloadThreads,
-                        _configManager.Data.OlanSettings.MaximumSha1Threads,
-                        _configManager.Data.OlanSettings.IsSha1Enabled);
+                    ).MinecraftBasic();
                 }
                 UserVersion? mayInstalledVersion = _configManager.Data.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
                 if (mayInstalledVersion == null)
