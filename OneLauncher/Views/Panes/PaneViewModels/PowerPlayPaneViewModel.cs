@@ -205,7 +205,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
     }
     [RelayCommand]
     private Task CopyCode() =>
-        TopLevel.GetTopLevel(MainWindow.mainwindow)?.Clipboard?.SetTextAsync(IsHostModeChecked ? HostRoomCode : JoinRoomCode);
+        TopLevel.GetTopLevel(MainWindow.mainwindow)!.Clipboard!.SetTextAsync(IsHostModeChecked ? HostRoomCode : JoinRoomCode);
     
     [RelayCommand]
     private void Stop()

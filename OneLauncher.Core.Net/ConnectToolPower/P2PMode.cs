@@ -28,7 +28,7 @@ public class P2PMode : IConnectService
         int localPort = sourcePort ?? Tools.GetFreeTcpPort();
 
         string localNodeName = nodeName ?? "OLANNODE" + RandomNumberGenerator.GetInt32(100000, 1000000000).ToString();
-        string finalAppName = (appName ?? defaultAppName) + localPort;
+        string finalAppName = appName ?? defaultAppName;
 
         var args = new StringBuilder();
         args.Append($"-node \"{localNodeName}\" ");

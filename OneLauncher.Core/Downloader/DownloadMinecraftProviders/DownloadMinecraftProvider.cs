@@ -29,20 +29,21 @@ public partial class DownloadMinecraft
     private readonly RaceDownloader _raceDownloader = new RaceDownloader(Init.Download.unityClient);
     private Task DownloadClientTasker(NdDowItem main)
     {
-        return _raceDownloader.RaceManyFilesAsync(
-            [main], _urlProviders, RaceStrategy.RaceOnceAndCacheWinner, info.MaxDownloadThreads,
-            new Progress<string>(fileName =>
-            {
-                progress?.Report((DownProgress.DownAssets, alls, Interlocked.Increment(ref dones), fileName));
-            }),
+        NdDowItem[] downloadSources = _urlProviders.Select(p => p.GetClientMainFile(main)).ToArray();
+        return _raceDownloader.RaceSingleFileAsync(
+            downloadSources,
             cancelToken
         );
     }
-
     private Task DownloadAssetsSupportTasker(List<NdDowItem> assets)
     {
+        IEnumerable<NdDowItem> allPossibleDownloads = _urlProviders
+            .SelectMany(provider => provider.GetAssetsFiles(assets));
+        IEnumerable<IGrouping<string, NdDowItem>> groupedByFile = allPossibleDownloads
+            .GroupBy(item => item.path);
         return _raceDownloader.RaceManyFilesAsync(
-            assets, _urlProviders, RaceStrategy.RaceEveryTime, info.MaxDownloadThreads,
+            groupedByFile,
+            info.MaxDownloadThreads,
             new Progress<string>(fileName =>
             {
                 progress?.Report((DownProgress.DownAssets, alls, Interlocked.Increment(ref dones), fileName));
@@ -53,13 +54,19 @@ public partial class DownloadMinecraft
 
     private async Task DownloadLibrariesSupportTasker(List<NdDowItem> libraries)
     {
+        IEnumerable<NdDowItem> allPossibleDownloads = _urlProviders
+            .SelectMany(provider => provider.GetLibrariesFiles(libraries));
+        IEnumerable<IGrouping<string, NdDowItem>> groupedByFile = allPossibleDownloads
+            .GroupBy(item => item.path);
         await _raceDownloader.RaceManyFilesAsync(
-            libraries, _urlProviders, RaceStrategy.RaceOnceAndCacheWinner, info.MaxDownloadThreads,
+            groupedByFile,
+            info.MaxDownloadThreads,
             new Progress<string>(fileName =>
             {
                 progress?.Report((DownProgress.DownLibs, alls, Interlocked.Increment(ref dones), fileName));
             }),
-            cancelToken);
+            cancelToken
+        );
 
         // 解压原生库文件
         await Task.Run(() =>

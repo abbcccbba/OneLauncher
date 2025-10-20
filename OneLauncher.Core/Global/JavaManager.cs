@@ -48,7 +48,9 @@ public class JavaManager
         CancellationToken token = default)
     {
         if (_dbManager.Data.AvailableJavas.ContainsKey(version) && !overwrite)
-            throw new OlanException("Java版本已存在", $"Java版本 {version} 已经存在于可用列表中。请使用 `overwrite` 参数来覆盖现有版本。",OlanExceptionAction.Warning);
+            return;
+            // 以前我是这么写的
+            //throw new OlanException("Java版本已存在", $"Java版本 {version} 已经存在于可用列表中。请使用 `overwrite` 参数来覆盖现有版本。",OlanExceptionAction.Warning);
 
         IJavaProvider javaProvider = provider switch
         {

@@ -95,6 +95,8 @@ public class PCL2Importer
 
     /// <summary>
     /// 从PCL2目录迁移所需文件，并返回需要网络下载的文件列表。
+    /// 
+    /// 意图解释：在当前设计中返回值不作使用，仅执行复制文件，不存在文件会在下载组件检查后下载
     /// </summary>
     private async Task<List<NdDowItem>> MigrateFilesFromPcl(List<NdDowItem> requiredFiles, string pclRoot, string olanRoot)
     {

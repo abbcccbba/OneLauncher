@@ -12,127 +12,107 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Core.Downloader;
-public enum RaceStrategy
-{
-    /// <summary>
-    /// 对每个文件都进行全源竞速。
-    /// </summary>
-    RaceEveryTime,
-
-    /// <summary>
-    /// 仅在第一次下载时竞速，缓存胜出的源供后续同批次任务使用。
-    /// </summary>
-    RaceOnceAndCacheWinner
-}
 public class RaceDownloader
 {
     private readonly HttpClient _httpClient;
-    private readonly ConcurrentDictionary<string, IDownloadSourceUrlProvider> _winnerCache = new();
-
     public RaceDownloader(HttpClient client) => _httpClient = client;
 
     internal Task RaceManyFilesAsync(
-        IEnumerable<NdDowItem> basicItems,
-        IDownloadSourceUrlProvider[] urlProviders,
-        RaceStrategy strategy,
+        IEnumerable<IEnumerable<NdDowItem>> basicItems, // 外部是单个文件，内部是单个文件的不同下载源
         int maxParallelism,
         IProgress<string> progress,
         CancellationToken token)
     {
-        string cacheKey = strategy == RaceStrategy.RaceOnceAndCacheWinner ? Guid.NewGuid().ToString() : "default";
         return Parallel.ForEachAsync(basicItems,
             new ParallelOptions { MaxDegreeOfParallelism = maxParallelism, CancellationToken = token },
             async (item, ct) =>
             {
-                await RaceSingleFileInternalAsync(item, urlProviders, strategy, cacheKey, ct);
-                progress?.Report(Path.GetFileName(item.path));
+                await RaceSingleFileAsync(item, ct);
+                progress?.Report(Path.GetFileName(item.FirstOrDefault().path));
             });
     }
 
-    private async Task RaceSingleFileInternalAsync(
-        NdDowItem basicItem,
-        IDownloadSourceUrlProvider[] urlProviders,
-        RaceStrategy strategy,
-        string cacheKey,
+    public async Task RaceSingleFileAsync(
+        IEnumerable<NdDowItem> item,
         CancellationToken token)
     {
-        if (strategy == RaceStrategy.RaceOnceAndCacheWinner && _winnerCache.TryGetValue(cacheKey, out var winnerProvider))
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
+
+        HttpResponseMessage? successfulResponse = null;
+
+        // 同时启动所有源的下载任务
+        Task<HttpResponseMessage>[] sourceTasks =
+            item.Select(
+                x =>
+                _httpClient.GetAsync(x.url, HttpCompletionOption.ResponseHeadersRead, cts.Token))
+            .ToArray();
+
+        // 等待最先完成的任务并取消其他任务
+        var winnerTask = await Task.WhenAny(sourceTasks);
+        #region 正常情况
+        try
         {
-            await DownloadWithRetryAsync(GetItemFromProvider(basicItem, winnerProvider), token);
-            return;
-        }
-
-        var itemsToRace = GetItemsFromProviders(basicItem, urlProviders);
-        (var successfulItem, var successfulProvider) = await RaceAndGetWinnerAsync(itemsToRace, urlProviders, token);
-
-        if (strategy == RaceStrategy.RaceOnceAndCacheWinner)
-        {
-            _winnerCache.TryAdd(cacheKey, successfulProvider);
-        }
-        await DownloadWithRetryAsync(successfulItem, token);
-    }
-
-    private NdDowItem GetItemFromProvider(NdDowItem basicItem, IDownloadSourceUrlProvider provider)
-    {
-        if (basicItem.path.EndsWith(".jar") && !basicItem.path.Contains("libraries"))
-            return provider.GetClientMainFile(basicItem);
-        return provider.GetLibrariesFiles(new[] { basicItem }).FirstOrDefault();
-    }
-
-    private IEnumerable<NdDowItem> GetItemsFromProviders(NdDowItem basicItem, IDownloadSourceUrlProvider[] providers)
-    {
-        if (basicItem.path.EndsWith(".jar") && !basicItem.path.Contains("libraries"))
-            return providers.Select(p => p.GetClientMainFile(basicItem));
-        return providers.Select(p => p.GetLibrariesFiles(new[] { basicItem }).FirstOrDefault());
-    }
-
-    private async Task<(NdDowItem, IDownloadSourceUrlProvider)> RaceAndGetWinnerAsync(IEnumerable<NdDowItem> items, IDownloadSourceUrlProvider[] providers, CancellationToken token)
-    {
-        var validItems = items.Zip(providers, (item, provider) => (item, provider))
-                              .Where(x => !string.IsNullOrEmpty(x.item.url)).ToList();
-        if (!validItems.Any()) throw new OlanException("无有效下载链接", "所有源均未提供有效的URL。");
-
-        var tasks = validItems.Select(async x => (await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, x.item.url), token), x)).ToList();
-
-        while (tasks.Any())
-        {
-            var completedTask = await Task.WhenAny(tasks);
-            var (response, pair) = await completedTask;
-            if (response.IsSuccessStatusCode)
+            HttpResponseMessage winnerResponse = await winnerTask;
+            // 先不着急取消任务，先检查是否成功
+            if (winnerResponse.IsSuccessStatusCode)
             {
-                response.Dispose();
-                return pair;
+                successfulResponse = winnerResponse;
+                await cts.CancelAsync();
             }
-            tasks.Remove(completedTask);
+            else winnerResponse.Dispose();
         }
-        return validItems.First();
-    }
-
-    private async Task DownloadWithRetryAsync(NdDowItem item, CancellationToken token)
-    {
-        const int maxRetries = 3;
-        var delay = TimeSpan.FromSeconds(1);
-        for (int i = 0; i < maxRetries; i++)
+        catch (HttpRequestException)
         {
-            if (token.IsCancellationRequested) throw new OperationCanceledException(token);
-            try
+            // 如果失败了，等待回退
+        }
+        #endregion
+        #region 回退机制
+        if(successfulResponse == null)
+        {
+            // 找到其他非第一个的响应
+            var remainingTasks = sourceTasks.Where(t => t != winnerTask);
+            foreach (var task in remainingTasks)
             {
-                using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-                using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token);
-                using var response = await _httpClient.GetAsync(item.url, HttpCompletionOption.ResponseHeadersRead, linkedCts.Token);
-                response.EnsureSuccessStatusCode();
-                var dir = Path.GetDirectoryName(item.path);
-                if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
-                using var fs = new FileStream(item.path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
-                await response.Content.CopyToAsync(fs, linkedCts.Token);
-                return;
-            }
-            catch (Exception)
-            {
-                if (i == maxRetries - 1) throw;
-                await Task.Delay(delay, token);
-                delay *= 2;
+                try
+                {
+                    HttpResponseMessage response = await task;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        successfulResponse = response;
+                        await cts.CancelAsync();
+                        break; // 找到一个成功的响应就停止
+                    }
+                    else response.Dispose(); 
+                }
+                catch (HttpRequestException)
+                {
+                    // 忽略失败的请求
+                }
             }
         }
+        if(successfulResponse == null)
+        {
+            // 如果依旧没有成功的响应，抛出异常
+            throw new OlanException("下载失败","所有下载源均无法访问头");
+        }
+        #endregion
+
+        await ReadResponseAndWriteToFileAsync(
+            successfulResponse, 
+            // 这里不关心下载地址是什么，只关心保存路径
+            item.FirstOrDefault(), 
+            token);
+        successfulResponse.Dispose();
+    }
+    private async Task ReadResponseAndWriteToFileAsync(
+        HttpResponseMessage response,
+        NdDowItem main,
+        CancellationToken cancelToken)
+    {
+        // 不包含SHA1校验
+        using var contentStream = await response.Content.ReadAsStreamAsync();
+        Directory.CreateDirectory(Path.GetDirectoryName(main.path)!);
+        using (var fileStream = new FileStream(main.path, FileMode.Create, FileAccess.Write, FileShare.None,8192,true))
+            await contentStream.CopyToAsync(fileStream, cancelToken);
     }
 }

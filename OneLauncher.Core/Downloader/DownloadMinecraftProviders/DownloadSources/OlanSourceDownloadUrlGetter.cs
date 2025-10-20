@@ -21,7 +21,7 @@ internal class OlanSourceDownloadUrlGetter : IDownloadSourceUrlProvider
 
     public IEnumerable<NdDowItem> GetAssetsFiles(IEnumerable<NdDowItem> basic)
     {
-#if false
+#if true
         return basic;
 #endif
         return basic.Select(x => new NdDowItem(

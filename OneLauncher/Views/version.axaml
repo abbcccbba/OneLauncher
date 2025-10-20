@@ -56,12 +56,30 @@
 			<ListBox.ItemTemplate>
 				<DataTemplate x:DataType="vm:VersionItem">
 					<Border CornerRadius="5">
-						<Grid RowDefinitions="*,*" Margin="12,0,0,0" ColumnDefinitions="Auto,*" >
-							<StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+						<Grid RowDefinitions="*,*" Margin="12,0,0,0" ColumnDefinitions="Auto,*,*" >
+							<StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="4">
 								<TextBlock FontSize="24" Text="{Binding versionExp.VersionID}" FontWeight="Bold"/>
 							</StackPanel>
-							<TextBlock Margin="0,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding versionExp.AddTime}"/>
+							<TextBlock Margin="0,8,0,0" Grid.Row="1" Grid.Column="0"  Text="{Binding versionExp.AddTime}"/>
 							<StackPanel Spacing="4" Margin="0,0,8,2" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" >
+								<StackPanel Orientation="Horizontal" Spacing="4">
+									<Border IsVisible="{Binding versionExp.modType.IsFabric}"
+											Background="#FEE2E2" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+										<TextBlock Text="Fabric" FontWeight="Bold" Foreground="#EF4444" FontSize="12"/>
+									</Border>
+									<Border IsVisible="{Binding versionExp.modType.IsNeoForge}"
+											Background="#FEE2E2" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+										<TextBlock Text="Neoforge" FontWeight="Bold" Foreground="#EF4444" FontSize="12"/>
+									</Border>
+									<Border IsVisible="{Binding versionExp.modType.IsForge}"
+											Background="#FEE2E2" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+										<TextBlock Text="Forge" FontWeight="Bold" Foreground="#EF4444" FontSize="12"/>
+									</Border>
+									<Border IsVisible="{Binding versionExp.modType.IsQuilt}"
+											Background="#FEE2E2" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+										<TextBlock Text="Quilt" FontWeight="Bold" Foreground="#EF4444" FontSize="12"/>
+									</Border>
+								</StackPanel>
 								<Button Command="{Binding LaunchGameCommand}" CommandParameter="{Binding versionExp}">
 									<StackPanel Orientation="Horizontal" Spacing="2">
 										<Image Source="/Assets/icos/launch.png" Width="20" Height="20"/>

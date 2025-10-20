@@ -140,12 +140,22 @@ public static class Tools
     }
     public static int ForNullJavaVersion(string version)
     {
-        return // 1.16.5及以下都是Java8
-                new Version(version) > new Version("1.16.5") ? 8 :
-                // 1.17是Java6
-                new Version(version) == new Version("1.17") ? 16 :
-                // 1.18 1.19 Java 17 1.20往上Java20
-                new Version(version) > new Version("1.18") ? 17 : 20;
+        var v = new Version(version);
+
+        // 1.20往上Java21
+        if (v >= new Version("1.20"))
+            return 21;
+
+        // 1.18 1.19 Java 17
+        if (v >= new Version("1.18"))
+            return 17;
+
+        // 1.17是Java16
+        if (v == new Version("1.17"))
+            return 16;
+
+        // 1.16.5及以下都是Java8
+        return 8;
     }
     /// <summary>
     /// 把各种奇奇怪怪的仓库坐标转换为标准路径

@@ -14,8 +14,8 @@ public enum OlanExceptionAction
 public class OlanException : Exception
 {
     public OlanExceptionAction Action { get; set; }
-    public string Title { get; set; }
-    public string Message { get; set; }
+    public string Title { get; init; }
+    public override string Message { get; }
     public Exception? OriginalException { get; set; }
     // 重试方法，会在窗口显示，并由用户决定是否调用
     public Action? TryAgainFunction { get; set; } = null;

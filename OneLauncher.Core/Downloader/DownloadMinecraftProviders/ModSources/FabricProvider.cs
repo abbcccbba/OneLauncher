@@ -33,7 +33,7 @@ internal class FabricProvider : IModLoaderConcreteProviders
             .GetStreamAsync($"https://meta.fabricmc.net/v2/versions/loader/{_context.ID}");
         using JsonDocument document = JsonDocument.Parse(rep);
         JsonElement firstElement = document.RootElement[0];
-        var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
+        var info = firstElement.Deserialize(FabricJsonContext.Default.FabricRoot)
         ?? throw new OlanException("内部错误", "无法解析Fabric文本");
         // 写入到文件
         using (FileStream fs = new FileStream(fabricMetaFilePath, FileMode.Create, FileAccess.Write,FileShare.None,0,true))

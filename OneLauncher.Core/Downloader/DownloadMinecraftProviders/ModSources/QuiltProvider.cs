@@ -31,7 +31,7 @@ internal class QuiltProvider : IModLoaderConcreteProviders
             .GetStreamAsync($"https://meta.quiltmc.org/v3/versions/loader/{_context.ID}");
         using JsonDocument document = JsonDocument.Parse(rep);
         JsonElement firstElement = document.RootElement[0];
-        var info = JsonSerializer.Deserialize(firstElement.GetRawText(), FabricJsonContext.Default.FabricRoot)
+        var info = firstElement.Deserialize(FabricJsonContext.Default.FabricRoot)
         ?? throw new OlanException("内部错误", "无法解析Quilt元数据");
 
         // 写入到文件

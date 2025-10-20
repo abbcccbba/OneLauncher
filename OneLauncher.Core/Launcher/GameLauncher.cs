@@ -3,6 +3,7 @@ using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -94,6 +95,10 @@ public class GameLauncher : IGameLauncher
             _gameProcess.BeginErrorReadLine();
 
             return _gameProcess.WaitForExitAsync(CancellationToken); 
+        }
+        catch(Win32Exception)
+        {
+            throw new OlanException("启动失败","无法找到Java运行环境，请确保已正确安装Java并在设置中配置了Java路径",OlanExceptionAction.Error);
         }
         catch (OperationCanceledException)
         {
