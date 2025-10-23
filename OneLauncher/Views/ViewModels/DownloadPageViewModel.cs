@@ -18,7 +18,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Helper.Models;
 
 namespace OneLauncher.Views.ViewModels;
-internal class DownloadPageClosePaneControlMessage { public bool value = false; }
 internal partial class DownloadPageViewModel : BaseViewModel
 {
     private readonly DownloadPaneViewModelFactory _viewFactory;
@@ -44,8 +43,6 @@ internal partial class DownloadPageViewModel : BaseViewModel
     {
         this._viewFactory = viewFactory;
         _=VersionManifestReader();
-        // 
-        WeakReferenceMessenger.Default.Register<DownloadPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
     }
     [ObservableProperty] private bool isLoaded = false;
     [ObservableProperty] private ObservableCollection<VersionBasicInfo> releaseItems;
@@ -64,6 +61,6 @@ internal partial class DownloadPageViewModel : BaseViewModel
     {
         IsPaneShow = true;
         DownloadPaneContent = new DownloadPane()
-        {DataContext = _viewFactory.Create(vbi)};
+        {DataContext = _viewFactory.Create(vbi,() => IsPaneShow = false)};
     }
 }

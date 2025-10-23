@@ -30,7 +30,8 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     }
 #endif
     private readonly ModItem modItem;
-    public InstallModPaneViewModel(ModItem item,GameDataManager gameDataManager)
+    private readonly Action _onCloseCallback;
+    public InstallModPaneViewModel(ModItem item,GameDataManager gameDataManager,Action onCloseCallback)
     {
         this._gameDataManager = gameDataManager;
         modItem = item;
@@ -38,6 +39,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
         SupportVersions = item.SupportVersions;
         AvailableGameData = _gameDataManager.AllGameData;
         this.SupportModType = item.SupportModType;
+        _onCloseCallback = onCloseCallback;
     }
     private ModType SupportModType;
     [ObservableProperty]
@@ -138,7 +140,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
     [RelayCommand]
     public void ClosePane()
     {
-        WeakReferenceMessenger.Default.Send(new ModsBrowserClosePaneControlMessage());
+        _onCloseCallback();
         //MainWindow.mainwindow.modsBrowserPage.viewmodel.IsPaneShow = false;
     }
 }

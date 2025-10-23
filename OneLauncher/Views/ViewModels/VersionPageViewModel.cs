@@ -17,6 +17,7 @@ using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Launcher;
 using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Views.Panes;
+using OneLauncher.Views.Panes.PaneViewModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +27,6 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
-internal class VersionPageClosePaneControlMessage { public bool value = false; }
 internal partial class VersionItem : BaseViewModel
 {
     /// <param Name="a">UserVersion实例</param>
@@ -99,7 +99,6 @@ internal partial class VersionPageViewModel : BaseViewModel
                        Init.Initialize();
                    });
             }
-            WeakReferenceMessenger.Default.Register<VersionPageClosePaneControlMessage>(this, (re, message) =>IsPaneShow = message.value);
         } 
     }
     [RelayCommand]
@@ -161,7 +160,8 @@ internal partial class VersionPageViewModel : BaseViewModel
             if (!File.Exists(Path.Combine(versionPath, "server.jar")))
             {
                 IsPaneShow = true;
-                RefDownPane = new InitServerPane(versionExp.VersionID);
+                RefDownPane = new InitServerPane()
+                { DataContext = new InitServerPaneViewModel(versionExp.VersionID,() => IsPaneShow = false)};
             }
             else
                 using (var fs = File.OpenRead(

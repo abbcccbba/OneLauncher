@@ -17,8 +17,8 @@ internal class EditGameDataPaneViewModelFactory
         this.gameDataManager = gameDataManager;
         this.accountManager = accountManager;
     }
-    public EditGameDataPaneViewModel Create(GameData gameData)
+    public EditGameDataPaneViewModel Create(GameData gameData,Action onCloseCallback)
     {
-        return new EditGameDataPaneViewModel(gameData,gameDataManager,accountManager);
+        return new EditGameDataPaneViewModel(gameData,gameDataManager,accountManager,onCloseCallback);
     }
 }

@@ -23,7 +23,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
-internal class AccountPageClosePaneControlMessage { public bool value = false; }
 internal class AccountPageDisplayListRefreshMessage { }
 internal partial class UserItem
 {
@@ -112,7 +111,6 @@ internal partial class AccountPageViewModel : BaseViewModel
                    }
                     );
             }
-            WeakReferenceMessenger.Default.Register<AccountPageClosePaneControlMessage>(this, (re,message) => IsPaneShow = false);
             WeakReferenceMessenger.Default.Register<AccountPageDisplayListRefreshMessage>(this, (re, message) => RefList());
         }
     }
@@ -128,7 +126,7 @@ internal partial class AccountPageViewModel : BaseViewModel
     {
         IsPaneShow = true;
         AccountPane = new UserModelLoginPane()
-        { DataContext  = _userModelLoginPaneFactory.Create()};
+        { DataContext = _userModelLoginPaneFactory.Create(() => IsPaneShow = false) };
     }
     [RelayCommand]
     private void SkinManger(UserModel userModel)

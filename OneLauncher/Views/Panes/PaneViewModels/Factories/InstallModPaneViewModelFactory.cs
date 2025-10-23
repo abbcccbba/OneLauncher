@@ -15,8 +15,8 @@ internal class InstallModPaneViewModelFactory
     {
         _gameDataManager = gameDataManager;
     }
-    public InstallModPaneViewModel Create(ModItem item)
+    public InstallModPaneViewModel Create(ModItem item,Action onCloseCallback)
     {
-        return new InstallModPaneViewModel(item, _gameDataManager);
+        return new InstallModPaneViewModel(item, _gameDataManager,onCloseCallback);
     }
 }

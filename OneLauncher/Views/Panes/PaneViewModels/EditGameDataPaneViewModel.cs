@@ -26,17 +26,20 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     private readonly GameDataManager _gameDataManager;
     private readonly AccountManager _accountManager;
     private readonly GameData editingGameData;
+    private readonly Action _onCloseCallback;
     [ObservableProperty] private string instanceName;
     [ObservableProperty] private Bitmap currentIcon;
 
     public EditGameDataPaneViewModel(
         GameData gameData,
         GameDataManager gameDataManager,
-        AccountManager accountManager
+        AccountManager accountManager,
+        Action onCloseCallback
         )
     {
         this._gameDataManager = gameDataManager;
         this._accountManager = accountManager;
+        _onCloseCallback = onCloseCallback;
         editingGameData = gameData;
         InstanceName = gameData.Name;
         AvailableTags = _gameDataManager.Data.Tags.Values.ToList();
@@ -140,8 +143,8 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         {
             await OlanExceptionWorker.ForUnknowException(e,() => _=CopyThisInstance());
         }
-        WeakReferenceMessenger.Default.Send(
-            new GameDataPageDisplayListRefreshMessage());
+        //WeakReferenceMessenger.Default.Send(
+        //    new GameDataPageDisplayListRefreshMessage());
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage("已以此拷贝实例！",NotificationType.Success));
     }
@@ -176,8 +179,8 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
         CurrentIcon = new Bitmap(destPath); // 显示预览
         UpdateGameData();
 
-        WeakReferenceMessenger.Default.Send(
-            new GameDataPageDisplayListRefreshMessage());
+        //WeakReferenceMessenger.Default.Send(
+        //    new GameDataPageDisplayListRefreshMessage());
 
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage($"已更改实例“{editingGameData.Name}”的图标！"));
@@ -191,8 +194,8 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
             _gameDataManager.SetTagForInstance(editingGameData.InstanceId, SelectedTag.ID);
         _=_gameDataManager.Save();
 
-        WeakReferenceMessenger.Default.Send(new GameDataPageDisplayListRefreshMessage());
-        WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
+        //WeakReferenceMessenger.Default.Send(new GameDataPageDisplayListRefreshMessage());
+        _onCloseCallback();
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage($"实例“{InstanceName}”已保存"));
     }
@@ -213,16 +216,16 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
                 new MainWindowShowFlyoutMessage($"删除文件夹'{editingGameData.InstancePath}'失败: {ex.Message}", NotificationType.Error));
         }
 
-        WeakReferenceMessenger.Default.Send(
-            new GameDataPageDisplayListRefreshMessage()); // 重新加载列表
+        //WeakReferenceMessenger.Default.Send(
+        //    new GameDataPageDisplayListRefreshMessage()); // 重新加载列表
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage($"已删除实例“{editingGameData.Name}”！", NotificationType.Success));
-        WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
+        _onCloseCallback();
     }
     [RelayCommand]
     private void Cancel()
     {
-        WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
+        _onCloseCallback();
     }
     #endregion
 }

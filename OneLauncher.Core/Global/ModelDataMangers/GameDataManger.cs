@@ -55,6 +55,7 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
 {
     //public List<GameData> AllGameData => Data.Instances.Select(x => x.Value).ToList();
     //public GameDataRoot Data => base.Data;
+    public event Action? OnDataChanged;
     public List<GameData> AllGameData => Data.Instances.Values.ToList();
     /// <summary>
     /// 获取或创建一个指定版本的游戏数据实例。
@@ -72,7 +73,7 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
         gameData = Data.Instances.FirstOrDefault(x => x.Value.VersionId == userVersion.VersionID).Value;
         if (gameData != null)
         {
-            await SetDefaultInstanceAsync(gameData);
+            await SetDefaultInstanceAsync(gameData.InstanceId);
             return gameData;
         }
 
@@ -95,7 +96,7 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
 
         // 添加并设为默认
         await AddGameDataAsync(newGameData);
-        await SetDefaultInstanceAsync(newGameData);
+        await SetDefaultInstanceAsync(newGameData.InstanceId);
 
         return newGameData;
     }
@@ -125,7 +126,7 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
 
         return result;
     }
-    public Task CreateTag(GameDataTag tag,Guid tagId)
+    public Task CreateTag(GameDataTag tag, Guid tagId)
     {
         Data.Tags.Add(tagId, tag);
         return Save();
@@ -167,12 +168,11 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
         }
         return Save();
     }
-    public Task SetDefaultInstanceAsync(GameData targetData)
+    public Task SetDefaultInstanceAsync(string targetId)
     {
-        Data.DefaultInstanceMap[targetData.VersionId] = targetData.InstanceId;
+        Data.DefaultInstanceMap[Data.Instances[targetId].VersionId] = targetId;
         return Save();
     }
-
     public GameData? GetDefaultInstance(string versionId)
     {
         var defaultInstanceId = Data.DefaultInstanceMap.GetValueOrDefault(versionId);
@@ -181,26 +181,25 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
         return
             Data.Instances.GetValueOrDefault(defaultInstanceId); 
     }
-
     public Task AddGameDataAsync(GameData newData)
     {
         Data.Instances.Add(newData.InstanceId,newData);
         // 确保物理文件夹被创建
         Directory.CreateDirectory(newData.InstancePath);
+        OnDataChanged?.Invoke();
         return Save();
     }
-
-    public Task RemoveGameDataAsync(GameData dataToRemove)
+    public Task RemoveGameDataAsync(string dataToRemove)
     {
         // 在删除实例前检查并清理它在 defaults 映射中的记录
-        if (Data.DefaultInstanceMap.ContainsValue(dataToRemove.InstanceId))
+        if (Data.DefaultInstanceMap.ContainsValue(dataToRemove))
         {
-            var entry = Data.DefaultInstanceMap.FirstOrDefault(kvp => kvp.Value == dataToRemove.InstanceId);
+            var entry = Data.DefaultInstanceMap.FirstOrDefault(kvp => kvp.Value == dataToRemove);
             if (!string.IsNullOrEmpty(entry.Key))
                 Data.DefaultInstanceMap.Remove(entry.Key);
         }
 
-        Data.Instances.Remove(dataToRemove.InstanceId);
+        Data.Instances.Remove(dataToRemove);
         return Save();
     }
 

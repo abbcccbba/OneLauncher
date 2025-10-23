@@ -6,6 +6,7 @@ using OneLauncher.Codes;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Minecraft.Server;
 using OneLauncher.Views.ViewModels;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -17,9 +18,11 @@ internal partial class InitServerPaneViewModel : BaseViewModel
 #if DEBUG
     public InitServerPaneViewModel() { }
 #endif
-    public InitServerPaneViewModel(string version)
+    private readonly Action _onCloseCallback;
+    public InitServerPaneViewModel(string version,Action onCloseCallback)
     {
-        serverVersion = version;    
+        serverVersion = version;  
+        _onCloseCallback = onCloseCallback;
     }
     private string serverVersion;
     [ObservableProperty]
@@ -42,8 +45,7 @@ internal partial class InitServerPaneViewModel : BaseViewModel
             int javaVersion = await MinecraftServerManger.Init(serverVersion,IsVI);
             //完成后打开服务端
             MinecraftServerManger.Run(serverVersion,javaVersion,IsVI);
-            WeakReferenceMessenger.Default.Send(new VersionPageClosePaneControlMessage());
-            //MainWindow.mainwindow.versionPage.viewmodel.IsPaneShow = false;
+            _onCloseCallback();
         }
     }
 }

@@ -22,6 +22,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
     private readonly DBManager _configManager;
     private readonly AccountManager _accountManager;
     private readonly GameDataManager _gameDataManager;
+    private readonly Action _onCloseCallback;
     [ObservableProperty] private string gameDataName;
     [ObservableProperty] private List<UserVersion> availableBaseVersions;
     [ObservableProperty] private UserVersion selectedBaseVersion;
@@ -30,11 +31,12 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
     [ObservableProperty] private List<UserModel> availableUsers;
     [ObservableProperty] private UserModel selectedUser;
 
-    public NewGameDataPaneViewModel(DBManager configManager,AccountManager accountManager,GameDataManager gameDataManager)
+    public NewGameDataPaneViewModel(DBManager configManager,AccountManager accountManager,GameDataManager gameDataManager,Action onCloseCallback)
     {
         this._configManager = configManager;
         this._gameDataManager = gameDataManager;
         this._accountManager = accountManager;
+        _onCloseCallback = onCloseCallback;
         // 加载所需数据
         AvailableBaseVersions = _configManager.Data.VersionList;
         AvailableUsers = _accountManager.GetAllUsers().ToList();
@@ -97,7 +99,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
         WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已成功创建游戏数据：{GameDataName}"));
         //MainWindow.mainwindow.ShowFlyout($"已成功创建游戏数据: {GameDataName}");
 
-        WeakReferenceMessenger.Default.Send(new GameDataPageDisplayListRefreshMessage());
+        //WeakReferenceMessenger.Default.Send(new GameDataPageDisplayListRefreshMessage());
         //MainWindow.mainwindow.gamedataPage.viewmodel.RefList();
 
         Cancel();
@@ -106,7 +108,7 @@ internal partial class NewGameDataPaneViewModel : BaseViewModel
     [RelayCommand]
     private void Cancel()
     {
-        WeakReferenceMessenger.Default.Send(new GameDataPageClosePaneControlMessage());
+        _onCloseCallback();
         //MainWindow.mainwindow.gamedataPage.viewmodel.IsPaneShow = false;
     }
 }

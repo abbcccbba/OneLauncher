@@ -66,8 +66,9 @@ internal partial class GameDataModsManagerPaneViewModel : BaseViewModel
 
     private readonly GameData _gameData;
     private readonly InstanceModService _modService;
+    private readonly Action _onCloseCallback;
 
-    public GameDataModsManagerPaneViewModel(GameData gameData)
+    public GameDataModsManagerPaneViewModel(GameData gameData,Action onCloseCallback)
     {
 #if DEBUG
         if(Design.IsDesignMode)
@@ -84,6 +85,7 @@ internal partial class GameDataModsManagerPaneViewModel : BaseViewModel
         {
             _gameData = gameData;
             _modService = new InstanceModService(gameData);
+            _onCloseCallback = onCloseCallback;
             _ = RefreshModsAsync(); // 初始化时加载
         }
     }

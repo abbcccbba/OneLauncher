@@ -3,6 +3,7 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -28,8 +29,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace OneLauncher.Views.ViewModels;
-internal class GameDataPageClosePaneControlMessage { public bool value = false;}
-internal class GameDataPageDisplayListRefreshMessage { }
+//internal class GameDataPageDisplayListRefreshMessage { }
 internal partial class GameDataItem : BaseViewModel
 {
     public GameData data { get; set; }
@@ -95,10 +95,9 @@ internal partial class GameDataPageViewModel : BaseViewModel
     [ObservableProperty] public UserControl paneContent;
     [ObservableProperty] public bool isPaneShow;
     // 刷新列表
-    public void RefList()
-    {
-        GameDataList = _gameDataManager.Data.Instances.Select(x => new GameDataItem(x.Value, _gameDataManager)).ToList();
-    }
+    public void RefList() => Dispatcher.UIThread.Post(() =>
+        GameDataList = _gameDataManager.Data.Instances.Select(x => new GameDataItem(x.Value, _gameDataManager)).ToList());
+    
     public GameDataPageViewModel(
         GameDataManager gameDataManager,
         EditGameDataPaneViewModelFactory editGameDataPaneViewModelFactory,
@@ -140,62 +139,40 @@ internal partial class GameDataPageViewModel : BaseViewModel
         else
 #endif
         {
-            // 把配置文件的游戏数据列表显示到UI
-            OnPageLoaded();
-            // 注册消息
-            WeakReferenceMessenger.Default.Register<GameDataPageClosePaneControlMessage>(this,(re,message) => IsPaneShow = message.value);
-            WeakReferenceMessenger.Default.Register<GameDataPageDisplayListRefreshMessage>(this, (re, message) => RefList());
+            _gameDataManager.OnDataChanged += RefList;
         }
     }
-    [RelayCommand]
-    void OnPageLoaded()
+    ~GameDataPageViewModel()
     {
-        try
-        {
-            RefList();
-        }
-        catch (NullReferenceException ex)
-        {
-            throw new OlanException(
-                "无法初始化",
-                "在游戏数据管理器页面读取配置文件时失败",
-                OlanExceptionAction.FatalError,
-                ex,
-               () =>
-               {
-                   File.Delete(Path.Combine(Init.GameRootPath, "instance", "instance.json"));
-                   _=Init.Initialize();
-               }
-                );
-        }
+        _gameDataManager.OnDataChanged -= RefList;
     }
     [RelayCommand]
     public void ModsManager(GameData data)
     {
         IsPaneShow = true;
         PaneContent = new GameDataModsManagerPane()
-        { DataContext = new GameDataModsManagerPaneViewModel(data) };
+        { DataContext = new GameDataModsManagerPaneViewModel(data,() => IsPaneShow = false) };
     }
     [RelayCommand]
     public void NewGameData()
     {
         IsPaneShow = true;
         PaneContent = new NewGameDataPane()
-        { DataContext =  _newGameDataPaneViewModelFactory.Create()};
+        { DataContext =  _newGameDataPaneViewModelFactory.Create(() => IsPaneShow = false)};
     }
     [RelayCommand]
     public void ShowEditPane(GameData data)
     {
         IsPaneShow = true;
         PaneContent = new EditGameDataPane()
-        { DataContext = _editVMFactory.Create(data) };
+        { DataContext = _editVMFactory.Create(data,() => IsPaneShow = false) };
     }
     [RelayCommand]
     private async Task SetAsDefaultInstance(GameDataItem targetData)
     {
         //GameDataList.Select(x => x.IsDefault = false); // 先将所有实例的IsDefault设为false
         //targetData.IsDefault = true; // 将目标实例的IsDefault设为true
-        await _gameDataManager.SetDefaultInstanceAsync(targetData.data);
+        await _gameDataManager.SetDefaultInstanceAsync(targetData.data.InstanceId);
         RefList();
         WeakReferenceMessenger.Default.Send(
             new MainWindowShowFlyoutMessage($"已将 '{targetData.data.Name}' 设为版本 {targetData.data.VersionId} 的默认实例。"));

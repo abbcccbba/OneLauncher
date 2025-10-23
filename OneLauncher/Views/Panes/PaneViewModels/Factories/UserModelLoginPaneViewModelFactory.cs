@@ -17,8 +17,8 @@ internal class UserModelLoginPaneViewModelFactory
         _msaManager = msaManager;
         _accountManager = accountManager;
     }
-    public UserModelLoginPaneViewModel Create()
+    public UserModelLoginPaneViewModel Create(Action onCloseCallback)
     {
-        return new UserModelLoginPaneViewModel(_msaManager, _accountManager);
+        return new UserModelLoginPaneViewModel(_msaManager, _accountManager,onCloseCallback);
     }
 }

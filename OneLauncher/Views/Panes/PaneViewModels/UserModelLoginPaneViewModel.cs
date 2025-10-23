@@ -24,10 +24,12 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
 #endif
     private readonly MsalAuthenticator _accountManager;
     private readonly AccountManager ac;
-    public UserModelLoginPaneViewModel(MsalAuthenticator accountManager, AccountManager ma)
+    private readonly Action _onCloseCallback;
+    public UserModelLoginPaneViewModel(MsalAuthenticator accountManager, AccountManager ma,Action onCloseCallback)
     {
         _accountManager = accountManager;
         ac = ma;
+        _onCloseCallback = onCloseCallback;
     }
     [ObservableProperty]
     public bool _IsRYaLogin = false;
@@ -84,7 +86,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             var um = await new LittleSkinAuthenticator().AuthenticateUseUserNameAndPasswordAsync(RUserName, RPassword);
             await ac.AddUser(um);
             WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
-            WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+            _onCloseCallback();
             WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已登入账号:{um.Name}"));
         }
         catch (OlanException ex)
@@ -112,13 +114,13 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             uuid: Guid.NewGuid()
         ));
         WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
-        WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+        _onCloseCallback();
         WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已添加账号:{UserName}"));
     }
     [RelayCommand]
     public void Back()
     {
-        WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+        _onCloseCallback();
         WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("数据已销毁", Avalonia.Controls.Notifications.NotificationType.Information));
     }
     #endregion
@@ -154,7 +156,7 @@ internal partial class UserModelLoginPaneViewModel : BaseViewModel
             using (var task = new MojangProfile(um))
                 await task.GetSkinHeadImage();
             WeakReferenceMessenger.Default.Send(new AccountPageDisplayListRefreshMessage());
-            WeakReferenceMessenger.Default.Send(new AccountPageClosePaneControlMessage());
+            _onCloseCallback();
             WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"已登入账号:{um.Name}"));
         }
         catch (OlanException ex)

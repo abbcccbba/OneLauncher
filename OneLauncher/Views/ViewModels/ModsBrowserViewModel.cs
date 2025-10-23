@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace OneLauncher.Views.ViewModels;
-internal class ModsBrowserClosePaneControlMessage { public bool value = false; }
 internal partial class ModItem : BaseViewModel
 {
     public static List<ModItem> Create(ModrinthSearch info)
@@ -79,7 +78,6 @@ internal partial class ModsBrowserViewModel : BaseViewModel
         this._paneVMFactory = installModPaneViewModelFactory;   
         // 初始搜索显示热门结果
         _ =ToSearch(); // 失败就不显示任何结果
-        WeakReferenceMessenger.Default.Register<ModsBrowserClosePaneControlMessage>(this, (r, m) =>IsPaneShow = m.value);
     }
     [ObservableProperty]
     public bool _IsPaneShow = false;
@@ -100,6 +98,6 @@ internal partial class ModsBrowserViewModel : BaseViewModel
     {
         IsPaneShow = true;
         InstallModPaneContent = new InstallModPane()
-        { DataContext = _paneVMFactory.Create(item) };
+        { DataContext = _paneVMFactory.Create(item,() => IsPaneShow = false) };
     }
 }

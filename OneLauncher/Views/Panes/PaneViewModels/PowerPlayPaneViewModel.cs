@@ -24,7 +24,12 @@ public enum PowerPlayMode { Host, Join }
 public partial class PowerPlayPaneViewModel : BaseViewModel
 {
     private readonly GameDataManager _gameDataManager;
-    ~PowerPlayPaneViewModel() => Stop(); // 销毁时停止核心进程
+    ~PowerPlayPaneViewModel()
+    {
+        mainPower.CoreLog -= OnCoreLogReceived;
+        _gameDataManager.OnDataChanged -= OnListRefreshing;
+        Stop();
+    }
     public PowerPlayPaneViewModel(IConnectService connectService,MCTPower mainPower,GameDataManager gameDataManager)
     {
         this._gameDataManager = gameDataManager;
@@ -44,6 +49,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
         mainPower.CoreLog += OnCoreLogReceived;
         this.mainPower = mainPower;
         this.connectService = connectService;
+        _gameDataManager.OnDataChanged += OnListRefreshing;
     }
     private readonly MCTPower mainPower;
     private readonly IConnectService connectService;
@@ -172,7 +178,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
                 {
                     // 如果没有默认项，自动设置第一个并通知用户
                     instanceToLaunch = allInstancesForVersion.First();
-                    await _gameDataManager.SetDefaultInstanceAsync(instanceToLaunch);
+                    await _gameDataManager.SetDefaultInstanceAsync(instanceToLaunch.InstanceId);
                     WeakReferenceMessenger.Default.Send(
                         new MainWindowShowFlyoutMessage($"已自动将'{instanceToLaunch.Name}'设为版本{versionId}的默认实例"));
                     //MainWindow.mainwindow.ShowFlyout($"已自动将'{instanceToLaunch.Name}'设为版本{versionId}的默认实例");
@@ -218,5 +224,6 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
     }
 
     private void OnCoreLogReceived(string logMessage) => Dispatcher.UIThread.Post(() => LogMessage(logMessage));
+    private void OnListRefreshing() => Dispatcher.UIThread.Post(() => AvailableGameData = _gameDataManager.AllGameData);
     private void LogMessage(string message) { logBuilder.AppendLine(message); LogOutput = logBuilder.ToString(); }
 }

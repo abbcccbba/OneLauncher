@@ -31,8 +31,8 @@
 		<TrimmerRootAssembly Include="Avalonia.Controls" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.3.7" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\OneLauncher.Console\OneLauncher.Console.csproj" />

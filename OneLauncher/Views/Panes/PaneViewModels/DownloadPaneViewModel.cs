@@ -23,6 +23,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
 {
     private readonly DBManager _configManager;
     private readonly GameDataManager _gameDataManager;
+    private readonly Action _onCloseCallback;
 #if DEBUG
     // 供设计器预览
     public DownloadPaneViewModel()
@@ -32,10 +33,11 @@ internal partial class DownloadPaneViewModel : BaseViewModel
         IsAllowFabric = true;
     }
 #endif
-    public DownloadPaneViewModel(VersionBasicInfo Version,DBManager dBManager,GameDataManager gameDataManager)
+    public DownloadPaneViewModel(VersionBasicInfo Version,DBManager dBManager,GameDataManager gameDataManager,Action onCloseCallback)
     {
         this._configManager = dBManager;
         this._gameDataManager = gameDataManager;
+        this._onCloseCallback = onCloseCallback;
         VersionName = Version.ID.ToString();
         thisVersionBasicInfo = Version;
         // 这个版本以下不支持模组加载器
@@ -182,7 +184,8 @@ internal partial class DownloadPaneViewModel : BaseViewModel
     [RelayCommand]
     public void ClosePane()
     {
-        WeakReferenceMessenger.Default.Send(new DownloadPageClosePaneControlMessage());
+        _onCloseCallback();
+        //WeakReferenceMessenger.Default.Send(new DownloadPageClosePaneControlMessage());
     }
     [RelayCommand]
     public void PopUp()

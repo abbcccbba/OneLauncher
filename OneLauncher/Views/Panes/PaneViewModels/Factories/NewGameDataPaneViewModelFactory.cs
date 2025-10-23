@@ -17,8 +17,8 @@ internal class NewGameDataPaneViewModelFactory
         _gameDataManager = gameDataManager;
         _accountManager = accountManager;
     }
-    public NewGameDataPaneViewModel Create()
+    public NewGameDataPaneViewModel Create(Action onCloseCallback)
     {
-        return new NewGameDataPaneViewModel(_dBManager, _accountManager,_gameDataManager);
+        return new NewGameDataPaneViewModel(_dBManager, _accountManager,_gameDataManager,onCloseCallback);
     }
 }

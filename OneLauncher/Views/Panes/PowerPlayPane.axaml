@@ -6,8 +6,9 @@
              mc:Ignorable="d" d:DesignWidth="650" d:DesignHeight="620"
              x:DataType="vm:PowerPlayPaneViewModel"
 			 x:CompileBindings="True"
-             x:Class="OneLauncher.Views.Panes.PowerPlayPane">
-
+             x:Class="OneLauncher.Views.Panes.PowerPlayPane"
+			 xmlns:i="using:Avalonia.Xaml.Interactivity"
+             xmlns:ia="using:Avalonia.Xaml.Interactions.Core">
 	<Grid RowDefinitions="Auto, 1, Auto, *" Margin="15">
 
 		<Grid Grid.Row="0" ColumnDefinitions="*, Auto">
