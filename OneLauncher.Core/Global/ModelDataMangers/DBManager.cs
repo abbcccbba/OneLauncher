@@ -1,7 +1,9 @@
 ﻿using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Helper.Models;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Web;
 
 namespace OneLauncher.Core.Global.ModelDataMangers;
 [JsonSerializable(typeof(JvmArguments))]
@@ -20,14 +22,14 @@ public class AppSettings
     public int MaximumSha1Threads { get; set; } = 24;
     public bool IsSha1Enabled { get; set; } = true;
     public DownloadSourceStrategy DownloadMinecraftSourceStrategy { get; set; } = DownloadSourceStrategy.OfficialOnly;
-    public string? InstallPath { get; set; } 
+    public string? InstallPath { get; set; }
     //public bool UseTempFileArguments { get; set; } = true;
-}
-public class AppConfig
-{
     public string DefaultInstanceID { get; set; }
     // 每天一更新
     public DateTimeOffset LastVersionManifestRefreshTime { get; set; } = DateTimeOffset.UtcNow;
+}
+public class AppConfig
+{
     // 除了系统自带的Java以外启动器安装的所有Java版本列表
     public Dictionary<int,string?> AvailableJavas { get; set; } = new();
     // 当前启动器已安装的所有版本列表，默认初始化为空列表
@@ -36,11 +38,53 @@ public class AppConfig
 }
 public class DBManager : BasicDataManager<AppConfig>
 {
+    public AppConfig GetConfig()
+        => base.Data;
+    public event Action? OnConfigChanged;
+    public AppConfig Data 
+    { 
+        get => base.Data; 
+        set
+        {
+            base.Data = value;
+            OnConfigChanged?.Invoke(); // BUG 事件无法正常触发
+        }
+    }
+    public Task EditSettings(AppSettings config)
+    {
+        base.Data.OlanSettings = config;
+        OnConfigChanged?.Invoke();
+        return Save();
+    }
+    public Task AddVersion(UserVersion value)
+    {
+        base.Data.VersionList.Add(value);
+        OnConfigChanged?.Invoke();
+        return Save();
+    }
+    public Task RemoveVersion(UserVersion value)
+    {
+        base.Data.VersionList.Remove(value);
+        OnConfigChanged?.Invoke();
+        return Save();
+    }
+    public Task AddJava(int key,string value)
+    {
+        base.Data.AvailableJavas.Add(key,value);
+        OnConfigChanged?.Invoke();
+        return Save();
+    }
+    public Task RemoveJava(int key)
+    {
+        base.Data.AvailableJavas.Remove(key);
+        OnConfigChanged?.Invoke();
+        return Save();
+    }
+
     public DBManager(string configPath)
         :base(configPath)
     {
     }
-
     protected override JsonSerializerContext GetJsonContext()
         => OneLauncherAppConfigsJsonContext.Default;
 }

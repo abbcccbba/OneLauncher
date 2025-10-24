@@ -55,7 +55,7 @@ public class GameLauncher : IGameLauncher
             .SetGamePath(useRootMode ? gameRootPath : gameData.InstancePath)
             .SetModType(gameData.ModLoader);
         // 设置额外参数
-        JvmArguments jvmArgsToUse = gameData.CustomJvmOptimizationArguments ?? Init.ConfigManger.Data.OlanSettings.MinecraftJvmArguments;
+        JvmArguments jvmArgsToUse = gameData.CustomJvmOptimizationArguments ?? Init.ConfigManger.GetConfig().OlanSettings.MinecraftJvmArguments;
         List<string> ojr = new(1);
         if (jvmArgsToUse.mode != OptimizationMode.None)
             ojr.AddRange(jvmArgsToUse.GetArguments(commandBuilder.versionInfo.GetJavaVersion(), gameData));
@@ -107,7 +107,7 @@ public class GameLauncher : IGameLauncher
     }
     public Task Play(string InstanceID)
     {
-        GameData? gameData = Init.GameDataManager.Data.Instances.GetValueOrDefault(InstanceID);
+        GameData? gameData = Init.GameDataManager.GetInstanceFromId(InstanceID);
         if (gameData == null)
             throw new OlanException("启动失败",$"没有找到匹配的且已安装的实例{Environment.NewLine}请检查你的输入{InstanceID}是否正确");
         return BasicLaunch(gameData);

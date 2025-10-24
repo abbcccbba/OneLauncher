@@ -1,4 +1,5 @@
 ﻿using OneLauncher.Core.Global;
+using OneLauncher.Core.Global.ModelDataMangers;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Core.Minecraft;
 using System;
@@ -74,6 +75,7 @@ public partial class DownloadInfo
             );
         #endregion
 
+        AppConfig config = Init.ConfigManager.GetConfig();
         return new DownloadInfo
         {
             DownloadTool = download,
@@ -91,10 +93,10 @@ public partial class DownloadInfo
 
             GameRootPath = gameRootPath,
 
-            MaxDownloadThreads = Math.Clamp(Init.ConfigManager.Data.OlanSettings.MaximumDownloadThreads, 1, 256),
-            MaxSha1Threads = Math.Clamp(Init.ConfigManager.Data.OlanSettings.MaximumSha1Threads, 1, 256),
-            IsSha1 = Init.ConfigManager.Data.OlanSettings.IsSha1Enabled,
-            DownloadStrategy = Init.ConfigManager.Data.OlanSettings.DownloadMinecraftSourceStrategy
+            MaxDownloadThreads = Math.Clamp(config.OlanSettings.MaximumDownloadThreads, 1, 256),
+            MaxSha1Threads = Math.Clamp(config.OlanSettings.MaximumSha1Threads, 1, 256),
+            IsSha1 = config.OlanSettings.IsSha1Enabled,
+            DownloadStrategy = config.OlanSettings.DownloadMinecraftSourceStrategy
         };
     }
 }

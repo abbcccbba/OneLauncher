@@ -141,9 +141,9 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         cts.Token
                     ).MinecraftBasic();
                 }
-                UserVersion? mayInstalledVersion = _configManager.Data.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
+                UserVersion? mayInstalledVersion = _configManager.GetConfig().VersionList.FirstOrDefault(x => x.VersionID == VersionName);
                 if (mayInstalledVersion == null)
-                    _configManager.Data.VersionList.Add(content.VersionInstallInfo);
+                    _configManager.GetConfig().VersionList.Add(content.VersionInstallInfo);
                 else
                 {
                     var updatedModType = mayInstalledVersion.modType;
@@ -154,7 +154,7 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                     mayInstalledVersion.modType = updatedModType; // 将修改后的整个副本赋值回去
                 }
                 await _gameDataManager.AddGameDataAsync(content.UserInfo);
-                await _gameDataManager.SetDefaultInstanceAsync(content.UserInfo);
+                await _gameDataManager.SetDefaultInstanceAsync(content.UserInfo.InstanceId);
                 await _configManager.Save();
                 WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage($"“{content.UserInfo.Name}”已成功创建并设为默认启动项。"));
             }

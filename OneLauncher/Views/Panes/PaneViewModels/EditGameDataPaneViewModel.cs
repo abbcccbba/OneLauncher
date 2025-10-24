@@ -203,7 +203,7 @@ internal partial class EditGameDataPaneViewModel : BaseViewModel
     private void DeleteInstance()
     {
         // 未来可以加一个对话框确认
-        _ = _gameDataManager.RemoveGameDataAsync(editingGameData);
+        _ = _gameDataManager.RemoveGameDataAsync(editingGameData.InstanceId);
 
         try
         {

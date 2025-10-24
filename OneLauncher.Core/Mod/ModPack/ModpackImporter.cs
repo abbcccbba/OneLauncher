@@ -141,7 +141,7 @@ public class ModpackImporter : IDisposable
                 progress.Report((DownProgress.DownAndInstModFiles, totalMods, downloadedMods, p.Item2));
             });
 
-            await Init.Download.DownloadListAsync(modProgress, filesToDownload, _dbManager.Data.OlanSettings.MaximumDownloadThreads, token);
+            await Init.Download.DownloadListAsync(modProgress, filesToDownload, _dbManager.GetConfig().OlanSettings.MaximumDownloadThreads, token);
         }
 
         // --- 应用 Overrides ---

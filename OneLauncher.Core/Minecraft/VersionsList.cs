@@ -22,7 +22,7 @@ public class VersionsList
         bool cacheExists = File.Exists(filePath);
         if (!cacheExists)
             await Init.Download.DownloadFile(VersionListUrl, filePath);
-        if ((DateTimeOffset.UtcNow - Init.ConfigManger.Data.LastVersionManifestRefreshTime).TotalHours > 24)
+        if ((DateTimeOffset.UtcNow - Init.ConfigManger.GetConfig().OlanSettings.LastVersionManifestRefreshTime).TotalHours > 24)
         {
             // 为了避免网络请求导致版本列表加载缓慢，先丢后台，下次打开就可以看到新的了
             _=Task.Run(async() =>
@@ -31,8 +31,9 @@ public class VersionsList
                 await Init.Download.DownloadFile(VersionListUrl, filePath);
 
                 // 成功下载后，才更新刷新时间并保存
-                Init.ConfigManger.Data.LastVersionManifestRefreshTime = DateTimeOffset.UtcNow;
-                await Init.ConfigManger.Save();
+                var newConfig = Init.ConfigManger.GetConfig().OlanSettings;
+                newConfig.LastVersionManifestRefreshTime = DateTimeOffset.UtcNow;
+                await Init.ConfigManger.EditSettings(newConfig);
             });
         }
 

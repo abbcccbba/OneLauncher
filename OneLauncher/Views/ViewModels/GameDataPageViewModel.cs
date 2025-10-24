@@ -95,8 +95,12 @@ internal partial class GameDataPageViewModel : BaseViewModel
     [ObservableProperty] public UserControl paneContent;
     [ObservableProperty] public bool isPaneShow;
     // 刷新列表
-    public void RefList() => Dispatcher.UIThread.Post(() =>
-        GameDataList = _gameDataManager.Data.Instances.Select(x => new GameDataItem(x.Value, _gameDataManager)).ToList());
+    public void RefList()
+    {
+        Debug.WriteLine("刷新游戏列表");
+        Dispatcher.UIThread.Post(() =>
+            GameDataList = _gameDataManager.AllGameData.Select(x => new GameDataItem(x, _gameDataManager)).ToList());
+    }
     
     public GameDataPageViewModel(
         GameDataManager gameDataManager,
@@ -139,12 +143,13 @@ internal partial class GameDataPageViewModel : BaseViewModel
         else
 #endif
         {
-            _gameDataManager.OnDataChanged += RefList;
+            RefList();
+            _gameDataManager.OnGameDataChanged += RefList;
         }
     }
     ~GameDataPageViewModel()
     {
-        _gameDataManager.OnDataChanged -= RefList;
+        _gameDataManager.OnGameDataChanged -= RefList;
     }
     [RelayCommand]
     public void ModsManager(GameData data)

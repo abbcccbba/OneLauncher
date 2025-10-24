@@ -54,7 +54,7 @@ public class MinecraftServerManger
             {
                 FileName = Global.Init.JavaManager.GetJavaExecutablePath(java),
                 Arguments = 
-                string.Join(" ",Global.Init.ConfigManager.Data.OlanSettings.MinecraftJvmArguments.GetArguments(java,null)) + 
+                string.Join(" ",Global.Init.ConfigManager.GetConfig().OlanSettings.MinecraftJvmArguments.GetArguments(java,null)) + 
                             $" -jar {(Path.Combine(versionPath, "server.jar"))}",
                 WorkingDirectory =
                 (IsVI)

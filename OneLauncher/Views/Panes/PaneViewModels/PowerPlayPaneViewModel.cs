@@ -27,7 +27,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
     ~PowerPlayPaneViewModel()
     {
         mainPower.CoreLog -= OnCoreLogReceived;
-        _gameDataManager.OnDataChanged -= OnListRefreshing;
+        _gameDataManager.OnGameDataChanged -= OnListRefreshing;
         Stop();
     }
     public PowerPlayPaneViewModel(IConnectService connectService,MCTPower mainPower,GameDataManager gameDataManager)
@@ -49,7 +49,7 @@ public partial class PowerPlayPaneViewModel : BaseViewModel
         mainPower.CoreLog += OnCoreLogReceived;
         this.mainPower = mainPower;
         this.connectService = connectService;
-        _gameDataManager.OnDataChanged += OnListRefreshing;
+        _gameDataManager.OnGameDataChanged += OnListRefreshing;
     }
     private readonly MCTPower mainPower;
     private readonly IConnectService connectService;

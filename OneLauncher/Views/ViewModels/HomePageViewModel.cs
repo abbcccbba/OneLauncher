@@ -53,8 +53,8 @@ internal partial class HomePageViewModel : BaseViewModel
         this._gameDataManager = gameDataManager;
         this._mctVMFactory = powerPlayPaneViewModelFactory;
         LaunchItems = _gameDataManager.AllGameData;
-        if (_configManager.Data.DefaultInstanceID != null)
-            SelectedGameData = _gameDataManager.Data.Instances.GetValueOrDefault(_configManager.Data.DefaultInstanceID);
+        if (_configManager.GetConfig().OlanSettings.DefaultInstanceID != null)
+            SelectedGameData = _gameDataManager.GetInstanceFromId(_configManager.GetConfig().OlanSettings.DefaultInstanceID);
 #if DEBUG
         if (Design.IsDesignMode)
             return;
@@ -84,9 +84,10 @@ internal partial class HomePageViewModel : BaseViewModel
             WeakReferenceMessenger.Default.Send(new MainWindowShowFlyoutMessage("请选择一个游戏数据实例！", Avalonia.Controls.Notifications.NotificationType.Warning));
             return;
         }
-        _configManager.Data.DefaultInstanceID = SelectedGameData.InstanceId;
+        var newConfig = _configManager.GetConfig().OlanSettings;
+        newConfig.DefaultInstanceID = SelectedGameData.InstanceId;
+        _ = _configManager.EditSettings(newConfig);
         _ = version.EasyGameLauncher(SelectedGameData);
-        _ = _configManager.Save();
     }
     #region 其他Item
     [RelayCommand]

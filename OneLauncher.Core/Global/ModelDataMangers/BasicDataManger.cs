@@ -11,8 +11,8 @@ namespace OneLauncher.Core.Global.ModelDataMangers;
 
 public abstract class BasicDataManager<T> where T : class, new()
 {
-    public T Data { get; protected set; }
-    //public event Action? OnDataChanged; // 方便UI层刷新数据 注：鉴于写的巨大屎山没有改，只有GameDataManager会触发这个事件
+    protected T Data { get; set; }
+    //public event Action? OnGameDataChanged; // 方便UI层刷新数据 注：鉴于写的巨大屎山没有改，只有GameDataManager会触发这个事件
 
     private readonly string _configPath;
     private readonly JsonSerializerOptions _serializerOptions; // AOT 用得到
