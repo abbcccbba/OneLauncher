@@ -53,9 +53,6 @@ public partial class GameDataJsonContext : JsonSerializerContext { }
 
 public class GameDataManager : BasicDataManager<GameDataRoot>
 {
-    //public List<GameData> AllGameData => Data.Instances.Select(x => x.Value).ToList();
-    //public GameDataRoot Data => base.Data;
-    public event Action? OnGameDataChanged;
     public List<GameData> AllGameData => Data.Instances.Values.ToList();
     /// <summary>
     /// 获取或创建一个指定版本的游戏数据实例。
@@ -194,7 +191,6 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
         Data.Instances.Add(newData.InstanceId,newData);
         // 确保物理文件夹被创建
         Directory.CreateDirectory(newData.InstancePath);
-        OnGameDataChanged?.Invoke();
         return Save();
     }
     public Task RemoveGameDataAsync(string dataToRemove)
@@ -206,7 +202,6 @@ public class GameDataManager : BasicDataManager<GameDataRoot>
             if (!string.IsNullOrEmpty(entry.Key))
                 Data.DefaultInstanceMap.Remove(entry.Key);
         }
-        OnGameDataChanged?.Invoke();
         Data.Instances.Remove(dataToRemove);
         return Save();
     }

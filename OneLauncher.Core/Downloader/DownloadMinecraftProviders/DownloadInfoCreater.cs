@@ -75,7 +75,7 @@ public partial class DownloadInfo
             );
         #endregion
 
-        AppConfig config = Init.ConfigManager.GetConfig();
+        AppConfig config = Init.ConfigManager.Data;
         return new DownloadInfo
         {
             DownloadTool = download,

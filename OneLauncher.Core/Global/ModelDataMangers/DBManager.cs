@@ -38,49 +38,6 @@ public class AppConfig
 }
 public class DBManager : BasicDataManager<AppConfig>
 {
-    public AppConfig GetConfig()
-        => base.Data;
-    public event Action? OnConfigChanged;
-    public AppConfig Data 
-    { 
-        get => base.Data; 
-        set
-        {
-            base.Data = value;
-            OnConfigChanged?.Invoke(); // BUG 事件无法正常触发
-        }
-    }
-    public Task EditSettings(AppSettings config)
-    {
-        base.Data.OlanSettings = config;
-        OnConfigChanged?.Invoke();
-        return Save();
-    }
-    public Task AddVersion(UserVersion value)
-    {
-        base.Data.VersionList.Add(value);
-        OnConfigChanged?.Invoke();
-        return Save();
-    }
-    public Task RemoveVersion(UserVersion value)
-    {
-        base.Data.VersionList.Remove(value);
-        OnConfigChanged?.Invoke();
-        return Save();
-    }
-    public Task AddJava(int key,string value)
-    {
-        base.Data.AvailableJavas.Add(key,value);
-        OnConfigChanged?.Invoke();
-        return Save();
-    }
-    public Task RemoveJava(int key)
-    {
-        base.Data.AvailableJavas.Remove(key);
-        OnConfigChanged?.Invoke();
-        return Save();
-    }
-
     public DBManager(string configPath)
         :base(configPath)
     {

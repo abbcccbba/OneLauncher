@@ -87,7 +87,7 @@ internal partial class VersionPageViewModel : BaseViewModel
             try
             {
                 RefList();
-                _dBManager.OnConfigChanged += () => Dispatcher.UIThread.Post(() => RefList());
+                _dBManager.OnDataChanged += () => Dispatcher.UIThread.Post(() => RefList());
             }
             catch (NullReferenceException ex)
             {

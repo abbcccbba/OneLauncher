@@ -144,12 +144,12 @@ internal partial class GameDataPageViewModel : BaseViewModel
 #endif
         {
             RefList();
-            _gameDataManager.OnGameDataChanged += RefList;
+            _gameDataManager.OnDataChanged += RefList;
         }
     }
     ~GameDataPageViewModel()
     {
-        _gameDataManager.OnGameDataChanged -= RefList;
+        _gameDataManager.OnDataChanged -= RefList;
     }
     [RelayCommand]
     public void ModsManager(GameData data)

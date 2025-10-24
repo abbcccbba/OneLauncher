@@ -49,7 +49,7 @@ public static class Init
             services.AddSingleton<DBManager>(configManger);
             ConfigManager = configManger;
 
-            InstalledPath = configManger.GetConfig().OlanSettings.InstallPath ?? Path.Combine(BasePath,"installed");
+            InstalledPath = configManger.Data.OlanSettings.InstallPath ?? Path.Combine(BasePath,"installed");
             GameRootPath = InstalledPath == null ? Path.Combine(BasePath, "installed", "minecraft") : Path.Combine(InstalledPath, "minecraft");
             Directory.CreateDirectory(InstalledPath);
             // 初始化系统信息

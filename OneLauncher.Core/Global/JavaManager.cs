@@ -25,7 +25,7 @@ public class JavaManager
     /// </summary>
     public string GetJavaExecutablePath(int version)
     {
-        if (_dbManager.GetConfig().AvailableJavas.TryGetValue(version, out var path) && !string.IsNullOrEmpty(path))
+        if (_dbManager.Data.AvailableJavas.TryGetValue(version, out var path) && !string.IsNullOrEmpty(path))
         {
             // 使用通用的占位符替换工具
             var placeholders = new Dictionary<string, string>
@@ -47,7 +47,7 @@ public class JavaManager
         IProgress<string>? progress = null,
         CancellationToken token = default)
     {
-        if (_dbManager.GetConfig().AvailableJavas.ContainsKey(version) && !overwrite)
+        if (_dbManager.Data.AvailableJavas.ContainsKey(version) && !overwrite)
             return;
             // 以前我是这么写的
             //throw new OlanException("Java版本已存在", $"Java版本 {version} 已经存在于可用列表中。请使用 `overwrite` 参数来覆盖现有版本。",OlanExceptionAction.Warning);
@@ -86,7 +86,8 @@ public class JavaManager
             // 保存时，我们依然使用占位符格式
             string placeholderPath = $"${{INSTALLED_PATH}}/{relativePath.Replace(Path.DirectorySeparatorChar, '/')}";
 
-            await _dbManager.AddJava(version, placeholderPath);
+            _dbManager.Data.AvailableJavas.Add(version, placeholderPath);
+            await _dbManager.Save();
         }
         catch (Exception)
         {

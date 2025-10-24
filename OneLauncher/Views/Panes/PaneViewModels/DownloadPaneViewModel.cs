@@ -141,9 +141,9 @@ internal partial class DownloadPaneViewModel : BaseViewModel
                         cts.Token
                     ).MinecraftBasic();
                 }
-                UserVersion? mayInstalledVersion = _configManager.GetConfig().VersionList.FirstOrDefault(x => x.VersionID == VersionName);
+                UserVersion? mayInstalledVersion = _configManager.Data.VersionList.FirstOrDefault(x => x.VersionID == VersionName);
                 if (mayInstalledVersion == null)
-                    _configManager.GetConfig().VersionList.Add(content.VersionInstallInfo);
+                    _configManager.Data.VersionList.Add(content.VersionInstallInfo);
                 else
                 {
                     var updatedModType = mayInstalledVersion.modType;

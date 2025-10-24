@@ -11,8 +11,8 @@ namespace OneLauncher.Core.Global.ModelDataMangers;
 
 public abstract class BasicDataManager<T> where T : class, new()
 {
-    protected T Data { get; set; }
-    //public event Action? OnGameDataChanged; // 方便UI层刷新数据 注：鉴于写的巨大屎山没有改，只有GameDataManager会触发这个事件
+    public T Data { get; protected set; }
+    public event Action? OnDataChanged; 
 
     private readonly string _configPath;
     private readonly JsonSerializerOptions _serializerOptions; // AOT 用得到
@@ -79,6 +79,8 @@ public abstract class BasicDataManager<T> where T : class, new()
             // 覆盖原始文件
             await using var fs = new FileStream(_configPath,FileMode.Create,FileAccess.Write,FileShare.Read,0,true);
             await JsonSerializer.SerializeAsync<T>(fs,Data, _serializerOptions);
+            OnDataChanged?.Invoke();
+            Debug.WriteLine("触发列表刷新事件");
         }
         finally
         {
