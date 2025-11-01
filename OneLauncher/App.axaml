@@ -42,5 +42,16 @@
 
 	<Application.Styles>
 		<FluentTheme />
+		<Style Selector="TextBox">
+			<Setter Property="ContextMenu">
+				<ContextMenu DataContext="{Binding $parent[TextBox]}">
+					<MenuItem Header="复制" Command="{Binding Copy}" />
+					<MenuItem Header="剪切" Command="{Binding Cut}" />
+					<MenuItem Header="粘贴" Command="{Binding Paste}" />
+					<Separator/>
+					<MenuItem Header="全选" Command="{Binding SelectAll}"/>
+				</ContextMenu>
+			</Setter>
+		</Style>
 	</Application.Styles>
 </Application>

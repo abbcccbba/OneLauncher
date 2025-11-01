@@ -17,9 +17,8 @@
 					<Grid ColumnDefinitions="Auto,*,Auto" Margin="5">
 						<Image Source="{Binding Icon}" Width="32" Height="32" Margin="0,0,10,0"/>
 						<StackPanel Grid.Column="1">
-							<TextBlock Text="TEST" FontWeight="Bold"/>
 							<TextBlock Text="{Binding Info.Name}" FontWeight="Bold"/>
-							<TextBlock Text="{Binding Info.Description}" TextWrapping="Wrap"/>
+							<SelectableTextBlock Text="{Binding Info.Description}" TextWrapping="Wrap"/>
 							<TextBlock Text="{Binding Info.Version}" Foreground="Gray"/>
 						</StackPanel>
 						<ToggleSwitch IsChecked="{Binding ModEnabledManager}" Grid.Column="2"/>

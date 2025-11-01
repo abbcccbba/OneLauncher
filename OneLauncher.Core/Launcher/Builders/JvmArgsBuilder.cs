@@ -34,7 +34,7 @@ public partial class LaunchCommandBuilder
             // 手动加上引号
             { "natives_directory", Path.Combine(basePath,"versions",versionId,"natives") },
             { "launcher_name", "OneLauncher" },
-            { "launcher_version", Init.OneLauncherVersoin },
+            { "launcher_version", Init.ApplicationVersoin },
             { "classpath","\""+BuildClassPath(strategy)+"\"" },
             // 一些仅限NeoForge的
             { "version_name" , versionId},

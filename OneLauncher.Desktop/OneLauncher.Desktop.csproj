@@ -7,16 +7,17 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Platforms>x64</Platforms>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-   	    <TrimMode>link</TrimMode>
+
         <PublishSingleFile>true</PublishSingleFile>
 		<EnableMicrosoftExtensionsDependencyInjectionSourceGenerator>true</EnableMicrosoftExtensionsDependencyInjectionSourceGenerator>
 	</PropertyGroup>
-	
+	<!--
 	<PropertyGroup>
+		   	    <TrimMode>link</TrimMode>
 		<PublishAot Condition="'$(Configuration)' == 'Release'">true</PublishAot>
 		<PublishAot Condition="'$(Configuration)' == 'Debug'">false</PublishAot>
 	</PropertyGroup>
-	<!--
+	
 	<ItemGroup Label="ImportLib">
 		<DirectPInvoke Include="libHarfBuzzSharp" />
 		<NativeLibrary Include="libs\libHarfBuzzSharp.lib" />

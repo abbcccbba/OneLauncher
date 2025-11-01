@@ -15,7 +15,7 @@ internal class BmlcSourceDownloadUrlGetter(string version) : IDownloadSourceUrlP
         string mirrorUrl = $"https://bmclapi2.bangbang93.com/version/{versionId}/client";
         return new NdDowItem(mirrorUrl, basic.path, basic.size, basic.sha1);
     }
-
+    
     public IEnumerable<NdDowItem> GetAssetsFiles(IEnumerable<NdDowItem> basic)
     {
         return basic.Select(x => new NdDowItem(

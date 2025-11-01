@@ -48,6 +48,7 @@ internal class QuiltProvider : IModLoaderConcreteProviders
             var modrinthTask = new GetModrinth(
                 "qsl", // Quilt Standard Libraries (QSL)
                 _context.ID,
+                ModEnum.quilt,
                 Path.Combine(_context.UserInfo.InstancePath, "mods")
             );
             await modrinthTask.Init();

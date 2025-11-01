@@ -12,17 +12,19 @@ public class GetModrinth
     private readonly string modPath;
     private readonly string ModID;
     private readonly string version;
-    public GetModrinth(string ModID, string version, string modPath)
+    private readonly ModEnum modType;
+    public GetModrinth(string ModID, string version,ModEnum modType, string modPath)
     {
         this.modPath = modPath;
         this.ModID = ModID;
         this.version = version;
+        this.modType = modType;
     }
     public async Task Init()
     {
         var client = Global.Init.Download.unityClient; 
-        var Url = $"https://api.modrinth.com/v2/project/{ModID}/version?game_versions=[\"{version}\"]";
-        Debug.WriteLine(Url);
+        var Url = $"https://api.modrinth.com/v2/project/{ModID}/version?game_versions=[\"{version}\"]&loaders=[\"{modType.ToString()}\"]";
+        Debug.WriteLine(Url); 
         HttpResponseMessage response = await client.GetAsync(Url);
         response.EnsureSuccessStatusCode();
 
@@ -47,7 +49,7 @@ public class GetModrinth
         this.dependencies = new List<ModrinthProjects>();
         foreach (var item in info.Dependencies)
         {
-            var DUrl = $"https://api.modrinth.com/v2/project/{item.ProjectId}/version?game_versions=[\"{version}\"]&loaders=[\"fabric\"]";
+            var DUrl = $"https://api.modrinth.com/v2/project/{item.ProjectId}/version?game_versions=[\"{version}\"]&loaders=[\"{modType.ToString()}\"]";
             Debug.WriteLine(DUrl);
             HttpResponseMessage Dresponse = await client.GetAsync(DUrl);
             Dresponse.EnsureSuccessStatusCode();

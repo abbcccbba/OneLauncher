@@ -104,6 +104,7 @@ internal partial class InstallModPaneViewModel : BaseViewModel
                     modItem.ID,
                     modsPath,
                     SelectedGameData.VersionId,
+                    SelectedGameData.ModLoader,
                     IsIncludeDependencies: IsICS,
                     // 先凑合用，未来再重写
                     IsSha1: Init.ConfigManger.Data.OlanSettings.IsSha1Enabled

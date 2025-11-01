@@ -15,6 +15,14 @@ using System.Threading.Tasks;
 namespace OneLauncher.Core.Helper;
 public static class Tools
 {
+    public static void OpenWebsite(string url)
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = url,
+            UseShellExecute = true
+        });
+    }
     public static string ReplacePlaceholders(string template, Dictionary<string, string> placeholders)
     {
         if (string.IsNullOrEmpty(template) || placeholders == null || placeholders.Count == 0)

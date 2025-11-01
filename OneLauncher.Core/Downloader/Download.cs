@@ -76,6 +76,7 @@ public partial class Download : IDisposable
         string ModID,
         string ModPath,
         string version,
+        ModEnum modType,
         bool IsIncludeDependencies = true,
         int maxConcurrentDownloads = 8,
         int maxConcurrentSha1 = 4,
@@ -85,7 +86,7 @@ public partial class Download : IDisposable
     {
         CancellationToken cancellationToken = token ?? CancellationToken.None;
 
-        var GetTask = new GetModrinth(ModID, version, ModPath);
+        var GetTask = new GetModrinth(ModID, version,modType, ModPath);
         await GetTask.Init();
 
         // 获取主 Mod 文件信息

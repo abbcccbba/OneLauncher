@@ -25,13 +25,19 @@
 					<TextBox Watermark="搜索模组..." Width="300" 
 							 Text="{Binding SearchContent}">
 						<TextBox.KeyBindings>
-							<KeyBinding Gesture="Enter" Command="{Binding ToSearchCommand}" />
+							<KeyBinding Gesture="Enter" Command="{Binding ToSearchCommand,Mode=TwoWay}" />
 						</TextBox.KeyBindings>
 					</TextBox>
 					<Button Command="{Binding ToSearchCommand}">
 						<StackPanel Orientation="Horizontal">
 							<Image Source="/Assets/icos/search.png" Width="20" Height="20"/>
 							<TextBlock Text="搜索"/>
+						</StackPanel>
+					</Button>
+					<Button Command="{Binding ClearTextBoxCommand}" IsVisible="{Binding CanClear}">
+						<StackPanel Orientation="Horizontal">
+							<Image Source="/Assets/icos/del.png" Width="20" Height="20" />
+							<TextBlock Text="清除" /> 
 						</StackPanel>
 					</Button>
 				</StackPanel>
@@ -44,7 +50,7 @@
 										<Image Width="72" Height="72" asyncImageLoader:ImageLoader.Source="{Binding IconUrl}"/>
 									</Border>
 									<TextBlock TextWrapping="Wrap" Grid.Row="0" Margin="6" Grid.Column="1" FontSize="18" Text="{Binding Title}" FontWeight="Bold"/>
-									<TextBlock TextWrapping="Wrap" Margin="4,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding Description}"/>
+									<SelectableTextBlock TextWrapping="Wrap" Margin="4,8,0,0" Grid.Row="1" Grid.Column="1"  Text="{Binding Description}"/>
 									<Button Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Command="{Binding $parent[ListBox].DataContext.ToInstallModCommand}" CommandParameter="{Binding}">
 										<StackPanel Orientation="Horizontal">
 											<TextBlock Text="安装"/>

@@ -19,7 +19,7 @@ public partial class DownloadMinecraft
     public readonly IProgress<(DownProgress Title, int AllFiles, int DownedFiles, string DowingFileName)>? progress;
     public int alls = 0;
     public int dones = 0;
-
+    
     public DownloadMinecraft(
         DownloadInfo info,
         

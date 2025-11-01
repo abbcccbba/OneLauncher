@@ -13,7 +13,7 @@ public class SearchModrinth
     public async Task<ModrinthSearch> ToSearch(string Key)
     {
         // 搜索仅限支持fabric或支持neoforge的模组
-        string SearchUrl = $"https://api.modrinth.com/v2/search?query=\"{Key}\"&facets=[[\"categories:neoforge\",\"categories:fabric\",\"categories:quilt\"]]";
+        string SearchUrl = $"https://api.modrinth.com/v2/search?query=\"{Key}\"&facets=[[\"categories:neoforge\",\"categories:fabric\",\"categories:quilt\"],[\"project_type:mod\"]]&index=downloads";
         Debug.WriteLine(SearchUrl);
 
         HttpResponseMessage response = await httpClient.GetAsync(SearchUrl);

@@ -80,11 +80,20 @@ internal partial class ModsBrowserViewModel : BaseViewModel
         _ =ToSearch(); // 失败就不显示任何结果
     }
     [ObservableProperty]
-    public bool _IsPaneShow = false;
+    public bool isPaneShow = false;
     [ObservableProperty]
-    public UserControl _InstallModPaneContent = new UserControl();
+    public bool canClear = false;
     [ObservableProperty]
-    public string _SearchContent = string.Empty;
+    public UserControl installModPaneContent = new UserControl();
+    [ObservableProperty]
+    public string searchContent = string.Empty;
+    partial void OnSearchContentChanged(string value)
+    {
+        if(!string.IsNullOrEmpty(value))
+        {
+            CanClear = true;
+        }
+    }
     [ObservableProperty]
     public List<ModItem> searchItems;
     [RelayCommand]
@@ -92,6 +101,11 @@ internal partial class ModsBrowserViewModel : BaseViewModel
     {
         SearchModrinth SearchTask = new SearchModrinth();
         SearchItems = ModItem.Create(await SearchTask.ToSearch(SearchContent));
+    }
+    [RelayCommand]
+    public void ClearTextBox()
+    {
+        SearchContent = string.Empty;
     }
     [RelayCommand]
     public void ToInstallMod(ModItem item)

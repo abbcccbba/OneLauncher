@@ -11,9 +11,10 @@ using System.Runtime.InteropServices;
 namespace OneLauncher.Core.Global;
 public static class Init
 {
-    public const string OneLauncherVersoin = "0.4.1.0";
-    public const string PackageName = "com.onelauncher.lnetface";
+    public const string ApplicationVersoin = "0.4.1.0";
     public const string ApplicationID = "53740b20-7f24-46a3-82cc-ea0376b9f5b5";
+    public const string PackageName = "com.onelauncher.lnetface";
+    public const string ProjectWebsite = "https://github.com/abbcccbba/OneLauncher";
     public static Task<IServiceCollection> InitTask;
     //public static IServiceCollection Service { get; private set; }
     public static string BasePath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "OneLauncher");

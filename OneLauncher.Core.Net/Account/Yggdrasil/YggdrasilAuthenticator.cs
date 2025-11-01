@@ -18,7 +18,7 @@ public abstract class YggdrasilAuthenticator
     internal YggdrasilAuthenticator()
     {
         _httpClient = new();
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("OneLauncher/" + Init.OneLauncherVersoin);
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("OneLauncher/" + Init.ApplicationVersoin);
     }
     private async Task<UserModel> ProcessAuthResponse(
         HttpResponseMessage authResponse,

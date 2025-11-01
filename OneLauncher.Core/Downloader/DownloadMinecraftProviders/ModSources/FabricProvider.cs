@@ -48,6 +48,7 @@ internal class FabricProvider : IModLoaderConcreteProviders
             var modrinthTask = new GetModrinth(
                 "fabric-api", 
                 _context.ID,  
+                ModEnum.fabric,
                 Path.Combine(_context.UserInfo.InstancePath, "mods") 
             );
             await modrinthTask.Init();

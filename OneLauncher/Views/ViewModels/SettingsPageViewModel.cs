@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using OneLauncher.Core.Downloader.DownloadMinecraftProviders;
 using OneLauncher.Core.Global;
 using OneLauncher.Core.Global.ModelDataMangers;
+using OneLauncher.Core.Helper;
 using OneLauncher.Core.Helper.Models;
 using OneLauncher.Views.Converters;
 using System;
@@ -21,7 +22,7 @@ internal partial class SettingsPageViewModel : BaseViewModel
 {
     // 将 manager 重命名为 _dbManger 以遵循常见的私有字段命名约定
     private readonly DBManager _dbManger;
-
+    public string Version => Init.ApplicationVersoin;
     #region 启动参数优化选项
     [ObservableProperty]
     public bool isM1, isM2, isM3;
@@ -57,6 +58,20 @@ internal partial class SettingsPageViewModel : BaseViewModel
         // 使用注入的实例
         _dbManger.Data.OlanSettings.MinecraftJvmArguments = JvmArguments.CreateFromMode(OptimizationMode.Aggressive);
         _dbManger.Save();
+    }
+    [RelayCommand]
+    private void ReleaseMemory()
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = Environment.ProcessPath,
+            Arguments = "--releaseMemory"
+#if WINDOWS
+            ,
+            Verb = "runas" // 请求管理员权限
+#endif
+        });
     }
     #endregion
 
@@ -121,18 +136,9 @@ internal partial class SettingsPageViewModel : BaseViewModel
 
     #endregion
     [RelayCommand]
-    private void ReleaseMemory()
+    public void OpenGithub()
     {
-        Process.Start(new ProcessStartInfo
-        {
-            UseShellExecute = true,
-            FileName = Environment.ProcessPath,
-            Arguments = "--releaseMemory"
-#if WINDOWS
-            , 
-            Verb = "runas" // 请求管理员权限
-#endif
-        });
+        Tools.OpenWebsite(Init.ProjectWebsite);
     }
     [ObservableProperty]
     UserControl _paneContent;

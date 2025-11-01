@@ -33,7 +33,7 @@ public class MinecraftNewsReader : INewReader
 
     public MinecraftNewsReader()
     {
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"OneLauncher/{Init.OneLauncherVersoin}");
+        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"OneLauncher/{Init.ApplicationVersoin}");
     }
 
     private async Task<MinecraftNew> GetNewsByIndexAsync(int index)
